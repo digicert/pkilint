@@ -1,0 +1,84 @@
+import enum
+
+from pyasn1.type.constraint import ValueRangeConstraint
+from pyasn1_alt_modules import rfc5280
+
+from pkilint import validation
+from pkilint.document import ValueDecoder
+from pkilint.pkix import extension, algorithm, name
+
+
+def create_attribute_decoder(type_mappings, decode_unknown_as_directorystring=True):
+    default = rfc5280.DirectoryString() if decode_unknown_as_directorystring else None
+
+    decoder = ValueDecoder(
+        type_path='type',
+        value_path='value',
+        type_mappings=type_mappings,
+        default=default
+    )
+
+    return name.NameDecodingValidator(decode_func=decoder)
+
+
+def create_extension_decoder(type_mappings):
+    decoder = ValueDecoder(
+        type_path='extnID',
+        value_path='extnValue',
+        type_mappings=type_mappings
+    )
+
+    return extension.ExtensionsDecodingValidator(decode_func=decoder)
+
+
+def create_algorithm_identifier_decoder(type_mappings):
+    decoder = ValueDecoder(
+        type_path='algorithm',
+        value_path='parameters',
+        type_mappings=type_mappings
+    )
+
+    return algorithm.AlgorithmIdentifierDecodingValidator(
+        decode_func=decoder
+    )
+
+
+def create_name_validator_container(additional_validators=None, **kwargs):
+    if additional_validators is None:
+        additional_validators = []
+    return validation.ValidatorContainer(
+        validators=[
+                       name.RDNContainsUniqueTypesValidator(),
+                   ] + additional_validators,
+        **kwargs
+    )
+
+
+class CertificateSerialNumberValidator(validation.ASN1ConstraintValidator):
+    VALIDATION_FINDING_CERTIFICATE_SERIAL_NUMBER_OOR = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.certificate_serial_number_out_of_range'
+    )
+
+    MAX_VALUE = (1 << 159) - 1
+
+    def __init__(self):
+        super().__init__(
+            pdu_class=rfc5280.CertificateSerialNumber,
+            validations=[
+                self.VALIDATION_FINDING_CERTIFICATE_SERIAL_NUMBER_OOR
+            ],
+            constraint=ValueRangeConstraint(1, self.MAX_VALUE)
+        )
+
+
+class Rfc2119Word(enum.IntEnum):
+    SHALL = 1
+    MUST = SHALL
+    SHOULD = 2
+    MAY = 3
+    MUST_NOT = 4
+    SHALL_NOT = MUST_NOT
+
+    def __str__(self):
+        return self.name

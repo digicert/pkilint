@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  release:
+    types:
+      - published
+
+jobs:
+  build_wheel:
+    name: Build pure-Python wheel and source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Build wheel
+        run: pipx run build
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*
+
+  test_wheel:
+    needs: [build_wheel]
+    name: Test pure-Python wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+      - name: Test wheel
+        run: |
+          pip install dist/*.whl
+          pip install pytest
+          pytest
+
+  upload_pypi:
+    needs: [build_wheel, test_wheel]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pkilint
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

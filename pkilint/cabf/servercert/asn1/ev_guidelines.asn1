@@ -1,0 +1,18 @@
+EVGExtensions
+
+DEFINITIONS ::=
+
+BEGIN
+
+-- EXPORTS ALL -
+
+id-CABFOrganizationIdentifier OBJECT IDENTIFIER ::= { joint-iso-itu-t(2) inter-national-organizations(23) ca-browser-forum(140) certificate-extensions(3) cabf-organizationIdentifier(1) }
+ 
+CABFOrganizationIdentifier ::= SEQUENCE {
+    registrationSchemeIdentifier PrintableString (SIZE(3)),
+    registrationCountry PrintableString (SIZE(2)),
+    registrationStateOrProvince [0] IMPLICIT PrintableString (SIZE(0..128)) OPTIONAL,
+    registrationReference UTF8String
+}
+
+END
