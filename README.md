@@ -1,8 +1,8 @@
 # pkilint
 
 
-[![PyPI](https://img.shields.io/pypi/v/pkilint.svg?maxAge=2592000)](https://pypi.org/project/pkilint)
-[![Python Versions](https://img.shields.io/pypi/pyversions/pkilint.svg)](https://pypi.org/project/pkilint/)
+[![PyPI](https://img.shields.io/pypi/v/pkilint)](https://pypi.org/project/pkilint)
+[![Python Versions](https://img.shields.io/pypi/pyversions/pkilint)](https://pypi.org/project/pkilint/)
 [![Build status](https://github.com/digicert/pkilint/actions/workflows/build_and_publish.yml/badge.svg)](https://github.com/digicert/pkilint/actions/workflows/build_and_publish.yml)
 [![GitHub license](https://img.shields.io/pypi/l/pkilint)](https://raw.githubusercontent.com/digicert/pkilint/main/LICENSE)
 
