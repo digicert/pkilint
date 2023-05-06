@@ -48,11 +48,11 @@ def main():
 
     if args.profile == 'BR':
         doc_additional_validators.append(
-            servercert_crl.create_reason_code_validator(crl_type)
+            cabf_crl.create_reason_code_validator(crl_type)
         )
 
         validity_additional_validators.append(
-            servercert_crl.create_validity_period_validator(crl_type)
+            cabf_crl.create_validity_period_validator(crl_type)
         )
 
     doc_validator = crl.create_pkix_crl_validator_container(
