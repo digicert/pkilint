@@ -27,6 +27,12 @@ the instructions on the [pipx homepage](https://pypa.github.io/pipx/) to install
 
 Once installed, the bundled command line applications (listed below) and the API will be available on your machine.
 
+### Upgrading
+
+When a new version of pkilint is released, run the following command to upgrade your installation:
+
+   `pipx upgrade pkilint`
+
 ## Usage
 
 In addition to the API, several command line tools are bundled with pkilint. Upon termination of execution, each linter

@@ -13,10 +13,10 @@ def create_validity_period_validator(
 ):
     if crl_type == crl.CertificateRevocationListType.CRL:
         max_validity_days = 10
-        finding = 'br.crl_invalid_validity_period'
+        finding = 'cabf.crl_invalid_validity_period'
     else:
         max_validity_days = 365  # TODO: handle leap years?
-        finding = 'br.arl_invalid_validity_period'
+        finding = 'cabf.arl_invalid_validity_period'
 
     thresholds = [
         (
