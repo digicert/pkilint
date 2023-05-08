@@ -1,5 +1,6 @@
 import functools
 import logging
+from typing import Optional
 
 from cryptography import x509, exceptions
 from cryptography.hazmat.primitives.asymmetric import (
@@ -8,7 +9,7 @@ from cryptography.hazmat.primitives.asymmetric import (
 from pyasn1.codec.der.encoder import encode
 from pyasn1_alt_modules import rfc5280, rfc3739
 
-from pkilint import validation, pkix
+from pkilint import validation, pkix, document
 from pkilint.document import Document, ValueDecoder
 from pkilint.itu.bitstring import NamedBitStringMinimalEncodingValidator
 from pkilint.itu.string import PrintableStringConstraintValidator
@@ -44,7 +45,7 @@ class RFC5280Certificate(Document):
         )
 
     @property
-    def is_ca(self):
+    def is_ca(self) -> Optional[bool]:
         ext_and_idx = self.get_extension_by_oid(rfc5280.id_ce_basicConstraints)
 
         if ext_and_idx is None:
@@ -52,7 +53,10 @@ class RFC5280Certificate(Document):
 
         ext, _ = ext_and_idx
 
-        return bool(ext.navigate('extnValue.basicConstraints.cA').pdu)
+        try:
+            return bool(ext.navigate('extnValue.basicConstraints.cA').pdu)
+        except document.PDUNavigationFailedError:
+            return None
 
     @functools.cached_property
     def cryptography_object(self):
@@ -298,7 +302,7 @@ def create_extensions_validator_container(additional_validators=None):
                        certificate_extension.SubjectAlternativeNameCriticalityValidator(),
                        certificate_extension.SubjectDirectoryAttributesCriticalityValidator(),
                        certificate_extension.SmimeCapabilitiesCriticalityValidator(),
-                       extension.CrlDistributionPointExtensionEmptyValidator(),
+                       extension.DistributionPointValidator(),
                    ] + additional_validators,
         path='certificate.tbsCertificate.extensions'
     )

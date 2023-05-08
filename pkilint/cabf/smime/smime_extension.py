@@ -37,7 +37,7 @@ class ExtendedKeyUsagePresenceValidator(extension.ExtensionPresenceValidator):
         )
 
 
-class KeyUsagePresenceValidator(extension.ExtensionPresenceValidator):
+class CabfSmimeKeyUsagePresenceValidator(extension.ExtensionPresenceValidator):
     VALIDATION_KU_EXTENSION_ABSENT = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
         'cabf.smime.key_usage_extension_missing'

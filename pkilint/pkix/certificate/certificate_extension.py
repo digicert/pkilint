@@ -6,6 +6,7 @@ from pyasn1_alt_modules import rfc5280, rfc4262
 
 from pkilint import validation
 from pkilint.itu.bitstring import has_named_bit
+from pkilint.pkix import extension
 from pkilint.pkix.extension import (get_criticality_from_decoded_node,
                                     ExtensionCriticalityValidator
                                     )
@@ -537,40 +538,19 @@ class CertificatePoliciesUserNoticeValidator(validation.Validator):
         return validation.ValidationResult(self, node, results)
 
 
-class KeyUsagePresenceValidator(validation.Validator):
+class KeyUsagePresenceValidator(extension.ExtensionPresenceValidator):
     VALIDATION_CA_NO_KU_EXTENSION = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
         'pkix.ca_certificate_no_ku_extension'
     )
 
-    VALIDATION_EE_NO_KU_EXTENSION = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.WARNING,
-        'pkix.ee_certificate_no_ku_extension'
-    )
-
     def __init__(self):
         super().__init__(
-            pdu_class=rfc5280.KeyUsage,
-            validations=[
-                self.VALIDATION_CA_NO_KU_EXTENSION,
-                self.VALIDATION_EE_NO_KU_EXTENSION
-            ]
+            extension_oid=rfc5280.id_ce_keyUsage,
+            validation=self.VALIDATION_CA_NO_KU_EXTENSION,
+            pdu_class=rfc5280.Extensions,
+            predicate=lambda n: n.document.is_ca
         )
-
-    def validate(self, node):
-        is_ca = node.document.is_ca
-
-        ku_ext = node.document.get_extension_by_oid(rfc5280.id_ce_keyUsage)
-
-        if ku_ext is None:
-            if is_ca:
-                raise validation.ValidationFindingEncountered(
-                    self.VALIDATION_CA_NO_KU_EXTENSION
-                )
-            else:
-                raise validation.ValidationFindingEncountered(
-                    self.VALIDATION_EE_NO_KU_EXTENSION
-                )
 
 
 class KeyUsageCriticalityValidator(validation.Validator):
