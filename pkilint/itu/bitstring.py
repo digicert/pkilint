@@ -1,8 +1,5 @@
-import binascii
-
 from pyasn1.codec.der.encoder import encode
 from pyasn1.type.univ import BitString
-from pyasn1_alt_modules import rfc5280
 
 from pkilint import validation
 
@@ -27,7 +24,7 @@ class NamedBitStringMinimalEncodingValidator(validation.Validator):
 
         encoded = encode(node.pdu)
 
-        new_encoded = encode(type(node.pdu)(asserted_values))
+        new_encoded = encode(type(node.pdu)(asserted_values), asn1Spec=node.pdu)
 
         if encoded != new_encoded:
             encoded_hex = encoded.hex()

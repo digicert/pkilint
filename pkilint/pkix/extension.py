@@ -237,15 +237,15 @@ class AuthorityKeyIdentifierValidator(validation.Validator):
         return validation.ValidationResult(self, node, results)
 
 
-class CrlDistributionPointExtensionEmptyValidator(validation.Validator):
-    VALIDATION_CRLDP_EMPTY = validation.ValidationFinding(
+class DistributionPointValidator(validation.Validator):
+    VALIDATION_DP_NO_NAME_OR_ISSUER = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'pkix.crldp_distribution_point_empty'
+        'pkix.distribution_point_does_not_contain_name_or_issuer'
     )
 
     def __init__(self):
-        super().__init__(validations=[self.VALIDATION_CRLDP_EMPTY], pdu_class=rfc5280.DistributionPoint)
+        super().__init__(validations=[self.VALIDATION_DP_NO_NAME_OR_ISSUER], pdu_class=rfc5280.DistributionPoint)
 
     def validate(self, node):
-        if len(node.children) == 0:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_CRLDP_EMPTY)
+        if 'distributionPoint' not in node.children and 'cRLIssuer' not in node.children:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_DP_NO_NAME_OR_ISSUER)

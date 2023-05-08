@@ -148,7 +148,7 @@ def create_extensions_validator_container(validation_level, generation):
             smime_extension.RequiredPolicyIdentifierValidator(validation_level, generation),
             smime_extension.CertificatePoliciesPresenceValidator(),
             smime_extension.ExtendedKeyUsagePresenceValidator(),
-            smime_extension.KeyUsagePresenceValidator(),
+            smime_extension.CabfSmimeKeyUsagePresenceValidator(),
             cabf_extension.AuthorityInformationAccessPresenceValidator(
                 validation.ValidationFindingSeverity.WARNING
             ),
