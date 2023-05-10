@@ -22,7 +22,6 @@ from pkilint.msft import msft_name
 from pkilint.pkix import certificate, time
 from pkilint.pkix.general_name import OTHER_NAME_MAPPINGS as PKIX_OTHERNAME_MAPPINGS
 
-
 OTHER_NAME_MAPPINGS = {
     **PKIX_OTHERNAME_MAPPINGS,
     rfc8398.id_on_SmtpUTF8Mailbox: rfc8398.SmtpUTF8Mailbox(),
@@ -32,7 +31,7 @@ OTHER_NAME_MAPPINGS = {
 
 def determine_validation_level_and_generation(cert,
                                               config: Mapping[univ.ObjectIdentifier,
-                                                Tuple[
+                                              Tuple[
                                                   smime_constants.ValidationLevel, smime_extension.Generation]] = None):
     crypto_cert = cert.cryptography_object
 
@@ -65,7 +64,7 @@ def _has_subject_attr(cert, attr):
     return any(cert.get_subject_attributes_by_type(attr))
 
 
-def _get_first_subject_attr_value(cert, attr, attr_asn1_cls):
+def _get_first_subject_attr_dirstring_value(cert, attr, attr_asn1_cls):
     attrs = cert.get_subject_attributes_by_type(attr)
 
     if any(attrs):
@@ -75,14 +74,17 @@ def _get_first_subject_attr_value(cert, attr, attr_asn1_cls):
 
         decoded_value = document.decode_substrate(cert, attr_value_pdu, attr_asn1_cls())
 
-        return str(decoded_value.pdu)
+        # assume DirectoryString
+        _, attr_value_choice_value = decoded_value.child
+
+        return str(attr_value_choice_value.pdu)
     else:
         return None
 
 
 def guess_validation_level_and_generation(cert,
                                           config: Mapping[univ.ObjectIdentifier,
-                                            Tuple[smime_constants.ValidationLevel, smime_extension.Generation]]=None):
+                                          Tuple[smime_constants.ValidationLevel, smime_extension.Generation]] = None):
     v_g = determine_validation_level_and_generation(cert, config)
 
     if v_g is not None:
@@ -91,9 +93,9 @@ def guess_validation_level_and_generation(cert,
     # assume Legacy generation
     g = smime_constants.Generation.LEGACY
 
-    o = _get_first_subject_attr_value(cert, rfc5280.id_at_organizationName, rfc5280.X520OrganizationName)
+    o = _get_first_subject_attr_dirstring_value(cert, rfc5280.id_at_organizationName, rfc5280.X520OrganizationName)
     has_o = o is not None
-    cn = _get_first_subject_attr_value(cert, rfc5280.id_at_commonName, rfc5280.X520CommonName)
+    cn = _get_first_subject_attr_dirstring_value(cert, rfc5280.id_at_commonName, rfc5280.X520CommonName)
     has_cn = cn is not None
     has_natural_name = _has_subject_attr(cert, rfc5280.id_at_surname) or _has_subject_attr(
         cert, rfc5280.id_at_givenName)
