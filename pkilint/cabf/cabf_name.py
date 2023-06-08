@@ -49,7 +49,7 @@ class ValidCountryValidator(ValidCountryCodeValidatorBase):
 
 _ORG_ID_REGEX = re.compile(
     r'^(?P<scheme>[A-Z]{3})(?P<country>[a-zA-Z]{2})?(\+(?P<sp>[a-zA-Z0-9]{1,3}))?'
-    r'-(?P<reference>.+)$'
+    r'(-(?P<reference>.+))?$'
 )
 
 
@@ -85,7 +85,7 @@ class OrganizationIdentifierAttributeValidator(validation.TypeMatchingValidator)
     )
 
     def __init__(self, additional_schemes: typing.Optional[
-            typing.Mapping[str, cabf_constants.RegistrationSchemeNamingConvention]]=None):
+        typing.Mapping[str, cabf_constants.RegistrationSchemeNamingConvention]] = None):
         super().__init__(type_oid=x520_name.id_at_organizationIdentifier,
                          type_path='type', value_path='value.x520OrganizationIdentifier',
                          pdu_class=rfc5280.AttributeTypeAndValue,
@@ -126,6 +126,17 @@ class OrganizationIdentifierAttributeValidator(validation.TypeMatchingValidator)
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_ORGANIZATION_ID_INVALID_SCHEME,
                 f'Invalid registration scheme: {m["scheme"]}'
+            )
+
+        if scheme_info.require_registration_reference and m['reference'] is None:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
+                f'Missing Registration Reference: {value_node.pdu}'
+            )
+        elif not scheme_info.require_registration_reference and m['reference']:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
+                f'Prohibited Registration Reference is present: {value_node.pdu}'
             )
 
         country_code = '' if m['country'] is None else m['country'].upper()
@@ -202,11 +213,11 @@ class InternalDomainNameValidator(validation.Validator):
 
         return self.validate_with_value(node, domain_name)
 
-        
+
 class GeneralNameDnsNameInternalDomainNameValidator(InternalDomainNameValidator):
     def __init__(self):
         super().__init__(predicate=general_name.create_generalname_type_predicate('dNSName'))
-        
+
     def validate_with_value(self, node, value):
         if len(value) == 0 and general_name.is_nameconstraints_child_node(node):
             return
@@ -234,7 +245,7 @@ class GeneralNameUriInternalDomainNameValidator(InternalDomainNameValidator):
 
     def validate_with_value(self, node, value):
         if len(value) == 0 and general_name.is_nameconstraints_child_node(node):
-                return
+            return
         else:
             return super().validate_with_value(node, value)
 

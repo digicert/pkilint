@@ -162,7 +162,7 @@ class OrganizationIdentifierConsistentSubjectAndExtensionValidator(validation.Va
         if m['reference'] != ext_reg_ref:
             findings.append(validation.ValidationFindingDescription(
                 self.VALIDATION_CABF_ORG_ID_MISMATCHED_REFERENCE,
-                f'Mismatched registration reference: subject: {m["reference"]}'
+                f'Mismatched Registration Reference: subject: {m["reference"]}'
                 f', extension: {ext_reg_ref}'
             ))
 

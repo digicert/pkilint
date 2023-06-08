@@ -216,15 +216,15 @@ def create_subscriber_certificate_subject_validator_container(
         OrganizationIdentifierAttributeValidator({
             'LEI': cabf_constants.RegistrationSchemeNamingConvention(
                 cabf_constants.RegistrationSchemeCountryIdentifierType.XG,
-                False
+                False, True
             ),
             'GOV': cabf_constants.RegistrationSchemeNamingConvention(
                 cabf_constants.RegistrationSchemeCountryIdentifierType.ISO3166,
-                True
+                True, False
             ),
             'INT': cabf_constants.RegistrationSchemeNamingConvention(
                 cabf_constants.RegistrationSchemeCountryIdentifierType.XG,
-                False
+                False, False
             )
         }),
         OrganizationIdentifierLeiValidator(),
