@@ -337,10 +337,12 @@ class CommonNameValidator(validation.Validator):
         self._generation = generation
 
     @staticmethod
-    def _is_value_in_atvs(atvs, expected_value_node):
+    def _is_value_in_dirstring_atvs(atvs, expected_value_node):
         for atv in atvs:
             try:
-                _, value = atv.children['value'].child
+                # get the value contained within the DirectoryString-encoded ATV value
+                _, atv_dirstring_value_node = atv.children['value'].child
+                _, value = atv_dirstring_value_node.child
             except ValueError:
                 # skip unparsed field
 
@@ -369,7 +371,7 @@ class CommonNameValidator(validation.Validator):
             pseudonym_nodes = [t[0] for t in
                                name.get_name_attributes_by_type(parent_name_node, rfc5280.id_at_pseudonym)]
 
-            if CommonNameValidator._is_value_in_atvs(pseudonym_nodes, cn_value_node):
+            if CommonNameValidator._is_value_in_dirstring_atvs(pseudonym_nodes, cn_value_node):
                 return
 
             # if there's a GN or SN, assume it's in the CN
@@ -381,7 +383,7 @@ class CommonNameValidator(validation.Validator):
             orgname_nodes = [t[0] for t in
                              name.get_name_attributes_by_type(parent_name_node, rfc5280.id_at_organizationName)]
 
-            if CommonNameValidator._is_value_in_atvs(orgname_nodes, cn_value_node):
+            if CommonNameValidator._is_value_in_dirstring_atvs(orgname_nodes, cn_value_node):
                 return
 
         email_addresses = get_email_addresses_from_san(node.document)
