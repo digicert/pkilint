@@ -42,7 +42,7 @@ The list of command line linters bundled with pkilint:
 
 * `lint_pkix_cert`
 * `lint_cabf_smime_cert`
-* `lint_cabf_servercert_cert`
+* `lint_cabf_serverauth_cert`
 * `lint_crl`
 * `lint_ocsp_response`
 * `lint_pkix_signer_signee_cert_chain`
@@ -134,7 +134,7 @@ SubjectKeyIdentifierValidator @ certificate.tbsCertificate.extensions.3.extnValu
 $
 ```
 
-### lint_cabf_servercert_cert
+### lint_cabf_serverauth_cert
 
 This tool lints TLS server authentication certificates and Issuing CA certificates against the
 [CA/Browser Forum TLS Baseline Requirements](https://cabforum.org/baseline-requirements-documents/). This tool is still in its early stages in terms of the completeness of checks it performs. It is anticipated that this linter
