@@ -30,7 +30,7 @@ def create_extension_with_value(oid, value_pdu, critical=False):
     return value
 
 
-def test_basicconstraints_notcritical_ca():
+def test_basic_constraints_notcritical_ca():
     bc_pdu = rfc5280.BasicConstraints()
     bc_pdu['cA'] = True
 
@@ -46,7 +46,7 @@ def test_basicconstraints_notcritical_ca():
     assert e.value.finding == validator.VALIDATION_NOT_CRITICAL
 
 
-def test_basicconstraints_not_ca_with_pathlen():
+def test_basic_constraints_not_ca_with_pathlen():
     bc_pdu = rfc5280.BasicConstraints()
     bc_pdu['cA'] = False
     bc_pdu['pathLenConstraint'] = 0

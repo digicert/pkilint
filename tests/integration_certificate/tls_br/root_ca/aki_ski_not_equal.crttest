@@ -1,0 +1,17 @@
+-----BEGIN CERTIFICATE-----
+MIIB5DCCAYugAwIBAgIUc/TEV61o3Z3SDDrpgo/kfWsJlRAwCgYIKoZIzj0EAwIw
+QDELMAkGA1UEBhMCVVMxHzAdBgNVBAoMFkZvbyBJbmR1c3RyaWVzIExpbWl0ZWQx
+EDAOBgNVBAMMB1Jvb3QgQ0EwHhcNMjMwNTAxMDAwMDAwWhcNMzMwNDI1MjM1OTU5
+WjBAMQswCQYDVQQGEwJVUzEfMB0GA1UECgwWRm9vIEluZHVzdHJpZXMgTGltaXRl
+ZDEQMA4GA1UEAwwHUm9vdCBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABEIl
+SPiPt4L/teyjdERSxyoeVY+9b3O+XkjpMjLMRcWxbEzRDEy41bihcTnpSILImSVy
+mTQl9BQZq36QpCpJQnKjYzBhMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQD
+AgGGMB8GA1UdIwQYMBaAFGtwp5gX95/2N9L349xEbCEJ17vUMB0GA1UdDgQWBBRb
+cKeYF/ef9jfS9+PcRGwhCde71DAKBggqhkjOPQQDAgNHADBEAiAJEd/70/vsKbGt
+2pkddnSQHtglbIgCvq4KjyVAxYT0nwIgG90c0Hq1GNvXk9qi8YK6+wKJnbxl+0mi
+iIiOYyHjbn4=
+-----END CERTIFICATE-----
+
+node_path,validator,severity,code,message
+certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
+certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,RootAkiSkiEqualityValidator,ERROR,cabf.serverauth.root_aki_ski_not_equal,"SKI octets: ""5b70a79817f79ff637d2f7e3dc446c2109d7bbd4"", AKI octets: ""6b70a79817f79ff637d2f7e3dc446c2109d7bbd4"""

@@ -13,8 +13,9 @@ def create_decoder_validation_container():
     decoders = [
         pkix.create_attribute_decoder(name.ATTRIBUTE_TYPE_MAPPINGS),
         pkix.create_extension_decoder(extension.EXTENSION_MAPPINGS),
-        pkix.create_algorithm_identifier_decoder(
-            algorithm.ALGORITHM_IDENTIFIER_MAPPINGS
+        pkix.create_signature_algorithm_identifier_decoder(
+            algorithm.SIGNATURE_ALGORITHM_IDENTIFIER_MAPPINGS,
+            path='certificate.tbsCertificate.signature'
         ),
         certificate.create_spki_decoder(
             certificate_key.SUBJECT_PUBLIC_KEY_ALGORITHM_IDENTIFIER_MAPPINGS,
@@ -71,11 +72,11 @@ def main():
     util.add_standard_args(lint_parser)
 
     lint_parser.add_argument(dest='issuer', type=argparse.FileType('rb'),
-                        help='The issuer certificate to lint'
-                        )
+                             help='The issuer certificate to lint'
+                             )
     lint_parser.add_argument(dest='subject', type=argparse.FileType('rb'),
-                        help='The subject certificate to lint'
-                        )
+                             help='The subject certificate to lint'
+                             )
 
     args = parser.parse_args()
 
@@ -98,7 +99,6 @@ def main():
                                           doc_collection
                                           )
         doc_collection['subject'] = subject
-
 
         results = decoding_validation_container.validate(issuer.root)
         results += decoding_validation_container.validate(subject.root)

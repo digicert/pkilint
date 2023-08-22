@@ -1,0 +1,43 @@
+-----BEGIN CERTIFICATE-----
+MIIFXzCCA0egAwIBAgIBLjANBgkqhkiG9w0BAQsFADBTMQswCQYDVQQGEwJJTDEW
+MBQGA1UEChMNU3RhcnRDb20gTHRkLjEsMCoGA1UEAxMjU3RhcnRDb20gQ2VydGlm
+aWNhdGlvbiBBdXRob3JpdHkgRzIwGhcLMTAwMTAxMDEwMFoXCzM5MTIzMTIzNTla
+MFMxCzAJBgNVBAYTAklMMRYwFAYDVQQKEw1TdGFydENvbSBMdGQuMSwwKgYDVQQD
+EyNTdGFydENvbSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eSBHMjCCAiIwDQYJKoZI
+hvcNAQEBBQADggIPADCCAgoCggIBALaJNlsHtyA2vYK74RYgA5V6rw6jVcklmUrF
+0FZBh5BNIWCkFIc7zf2yPrRnA2rt4Q9LwJGFcEXgQp7eKSPUAQ2gEHm42wO986kv
+0cbgD8ueihQKuL32VmLxxXK2MiXZsvO9ZcUNLG7Vkm8YiwBBFIJvQCAmeigP9R5/
+J/eUsTc9t8eR9+IB7P2UieHMbtM21goZea7XNIJl/3xCu7bdC6Y0r0tg/n9DSQaL
+jEO4VvLZfyFDF+qnSJUBdXXqK6VDleoVhJ0IjSZuVZur3NI50jEdYOKszFZFJPUc
+VKvuht2WMoX4TE/olXa2Bd02I2e8/xXiyjvmpuw77CYRNEiN9oArGiMC64ocOnYq
+e1YWHHIqs6rjYKUAnwSb4m8eFFhbpWyLWDzDuk46XPfhlis+7we8pOVdzE2fDeHc
+qrvhbhrsj+G2TE15cl0XNQsd18FH2pYk4NByqFpfZi0Q3C8qE64m/gocGczQPguc
+yAku+VuWekec6XrzBVB0lXOeMAnzl4Je5o85CB5Z5TUUQhP/AJz3vqpQz+JRSNe4
+b6/4Tn4zmJIUYjp1Y897+t6CO6m7OeLEvSwADsgXrBPvTSWO2LOQL6naKX0dr3Q6
+sifAwR4+daMWqa96Il2fExrPp6Dr44YK0/3mlpXXI8g33cR8qjasmBoSseBO6LE7
+9dZv8TDXAgMBAAGjQjBAMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQDAgEG
+MB0GA1UdDgQWBBRLxbRAa60cs6UcZW5GNomHBQwOtjANBgkqhkiG9w0BAQsFAAOC
+AgEAQCxjnUnsGIrSviZeNaHjkJO05Hs5kBqlze670d8sQysxKbJxmIA2y8gVpkkc
+nCN6kW+otB1DPnTCBAJ3cRwQdAo3ij2WK8T07DybrC4eCRBVmhf7cYx8Wt39E5wU
+CCqSNe+hqugf/d95++Ojlz/UP+DEx0GMaNaJry4ocylQ2g/AgLPMTbNEwJeCD8oX
+7nrzVWthoD5j1i1zkwgTAQJw4PSuSqNuL8c3LhX9cVl2wthyMNT0QM6tvoawkD7g
+7sA4+/IN8bdCnPwaqEwFFv7ALK3uHSmBnHfXEgQ6tlTrn5gbRnlnbE6IAiMJ/jIk
+Fr7DDDpcfa+LCUdpVCG/EHhRIDaLAVQ7eusl6xOpOcOAJmW0AZnWpfGtfuM3Ra6n
+EzGwmKcB59C4uQaOJ+lX9eMbJK0Kp2IzQ2WOangZQBSW7thV3rLuU/b07vvDT2lT
+B630Y4a4z/6rrAK1555yPmQ0Z0X8FBqcWgQQa9aXQ2h4/oJs3Bv1TQSzUAF+3hQo
+sFaCnKzcqb2hn+F35EFw/XsWBu9+QceKU5k2aSlc6I/xmrFJWEZYGyE5UF2qqvof
+YBeA1DIifcsZMaVG/41eV2T5ISohTbhCSst15cdp5zb5OlbipiU5PEJkVkBajQa1
+fqCSJuVtm2b/nVKdYZa2D1cQt2Lh2+bmpcE7/jz6Pg2W5ek=
+-----END CERTIFICATE-----
+
+node_path,validator,severity,code,message
+certificate,AuthorityKeyIdentifierPresenceValidator,FATAL,base.unhandled_exception,"error parsing asn1 value: ParseError { kind: InvalidValue, location: [""Certificate::tbs_cert"", ""TbsCertificate::validity"", ""Validity::not_before"", ""Time::UtcTime""] }"
+certificate.tbsCertificate.extensions.1.extnValue.keyUsage,CaKeyUsageValidator,NOTICE,cabf.ca_certificate_no_digital_signature_bit,
+certificate.tbsCertificate.validity.notBefore,RootValidityPeriodValidator,ERROR,pkix.invalid_time_syntax,"notBefore: ""1001010100Z"" does not match UTCTime regular expression ""^(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})Z$"""
+certificate.tbsCertificate.validity.notAfter.utcTime,UtcTimeCorrectSyntaxValidator,ERROR,pkix.utctime_incorrect_syntax,"""3912312359Z"" does not match UTCTime regular expression ""^(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})Z$"""
+certificate.tbsCertificate.validity.notBefore,TimeCorrectEncodingValidator,ERROR,pkix.invalid_time_syntax,"""1001010100Z"" does not match UTCTime regular expression ""^(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})Z$"""
+certificate.tbsCertificate.extensions,RootExtensionAllowanceValidator,WARNING,cabf.serverauth.root.authority_key_identifier_extension_absent,
+certificate.tbsCertificate.validity.notBefore.utcTime,UtcTimeCorrectSyntaxValidator,ERROR,pkix.utctime_incorrect_syntax,"""1001010100Z"" does not match UTCTime regular expression ""^(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})Z$"""
+certificate.tbsCertificate.validity.notBefore,CertificateSaneValidityPeriodValidator,ERROR,pkix.invalid_time_syntax,"notBefore: ""1001010100Z"" does not match UTCTime regular expression ""^(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})Z$"""
+certificate.tbsCertificate.extensions.2.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
+certificate.tbsCertificate.validity.notAfter,TimeCorrectEncodingValidator,ERROR,pkix.invalid_time_syntax,"""3912312359Z"" does not match UTCTime regular expression ""^(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})Z$"""

@@ -1,23 +1,26 @@
 import operator
 from typing import Mapping, Tuple
 
+from cryptography import x509
 from dateutil.relativedelta import relativedelta
 from pyasn1.type import univ
-from pyasn1_alt_modules import rfc8398, rfc3739, rfc5280, rfc4262
-from cryptography import x509
 from pyasn1.type.univ import ObjectIdentifier
+from pyasn1_alt_modules import rfc8398, rfc5280, rfc4262
 
+import pkilint.adobe.asn1 as adobe_asn1
+import pkilint.cabf.cabf_extension
+import pkilint.cabf.smime.smime_extension
+import pkilint.common
 import pkilint.pkix.certificate
 from pkilint import validation, cabf, document, etsi
+from pkilint.adobe import adobe_validator
 from pkilint.cabf import cabf_extension, cabf_key, cabf_name
 from pkilint.cabf.smime import (
     smime_constants, smime_name, smime_key, smime_extension
 )
 from pkilint.cabf.smime.smime_constants import Generation
-from pkilint.msft import asn1 as microsoft_asn1
 from pkilint.iso import lei
-import pkilint.adobe.asn1 as adobe_asn1
-from pkilint.adobe import adobe_validator
+from pkilint.msft import asn1 as microsoft_asn1
 from pkilint.msft import msft_name
 from pkilint.pkix import certificate, time
 from pkilint.pkix.general_name import OTHER_NAME_MAPPINGS as PKIX_OTHERNAME_MAPPINGS
@@ -114,7 +117,6 @@ def guess_validation_level_and_generation(cert,
 
 _SMIME_EXTENSION_MAPPINGS = {
     **cabf.EXTENSION_MAPPINGS,
-    **rfc3739.certificateExtensionsMap,
     **lei.EXTENSION_MAPPINGS,
     **rfc4262.certificateExtensionsMap,
     **adobe_asn1.EXTENSION_MAPPINGS,
@@ -154,12 +156,12 @@ def create_extensions_validator_container(validation_level, generation):
             cabf_extension.AuthorityInformationAccessPresenceValidator(
                 validation.ValidationFindingSeverity.WARNING
             ),
-            cabf_extension.CrlDistributionPointPresenceValidator(),
+            smime_extension.CrlDistributionPointPresenceValidator(),
             smime_extension.SubjectAlternativeNamePresenceValidator(),
             smime_extension.AllowedExtendedKeyUsageValidator(generation),
             smime_extension.AllowedKeyUsageValidator(generation),
             smime_extension.EndEntityValidator(),
-            smime_extension.CpsUriHttpValidator(),
+            cabf_extension.CpsUriHttpValidator(),
             cabf_extension.AuthorityInformationAccessContainsHttpUriValidator(),
             cabf_extension.CrlDpContainsHttpUriValidator(),
             smime_extension.SubjectAlternativeNameContainsEmailAddressValidator(),
@@ -214,7 +216,7 @@ def create_validity_validators(generation):
         )
     )
     return [
-        time.ValidityPeriodRangeValidator(
+        time.ValidityPeriodThresholdsValidator(
             path='certificate.tbsCertificate.validity.notBefore',
             end_validity_node_retriever=lambda n: n.navigate('^.notAfter'),
             inclusive_second=True,
@@ -240,4 +242,5 @@ def create_subscriber_validators(validation_level, generation):
         smime_key.SmimeAllowedSignatureAlgorithmEncodingValidator(
             path='certificate.signatureValue'
         ),
+        cabf_extension.CabfExtensionsPresenceValidator(),
     ]

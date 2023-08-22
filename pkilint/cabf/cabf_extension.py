@@ -1,6 +1,6 @@
 from pyasn1_alt_modules import rfc5280
 
-from pkilint import validation
+from pkilint import validation, common
 from pkilint.pkix import extension
 
 
@@ -15,19 +15,6 @@ class AuthorityInformationAccessPresenceValidator(extension.ExtensionPresenceVal
 
         super().__init__(extension_oid=rfc5280.id_pe_authorityInfoAccess,
                          validation=finding,
-                         pdu_class=rfc5280.Extensions
-                         )
-
-
-class CrlDistributionPointPresenceValidator(extension.ExtensionPresenceValidator):
-    VALIDATION_CRLDP_MISSING = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.crldp_extension_missing'
-    )
-
-    def __init__(self):
-        super().__init__(extension_oid=rfc5280.id_ce_cRLDistributionPoints,
-                         validation=self.VALIDATION_CRLDP_MISSING,
                          pdu_class=rfc5280.Extensions
                          )
 
@@ -181,4 +168,34 @@ class CabfAuthorityKeyIdentifierValidator(validation.Validator):
         ):
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_AKI_HAS_ISSUER_CERT
+            )
+
+
+class CabfExtensionsPresenceValidator(common.ExtensionsPresenceValidator):
+    VALIDATION_EXTENSIONS_MISSING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'cabf.certificate_extensions_missing'
+    )
+
+    def __init__(self):
+        super().__init__(self.VALIDATION_EXTENSIONS_MISSING)
+
+
+class CpsUriHttpValidator(validation.Validator):
+    VALIDATION_CPS_URI_NOT_HTTP = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'cabf.cps_uri_is_not_http'
+    )
+
+    def __init__(self):
+        super().__init__(validations=[self.VALIDATION_CPS_URI_NOT_HTTP], pdu_class=rfc5280.CPSuri)
+
+    def validate(self, node):
+        uri = str(node.pdu)
+        scheme = uri.split(':', maxsplit=1)[0]
+
+        if scheme.lower() not in {'http', 'https'}:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_CPS_URI_NOT_HTTP,
+                f'Prohibited URI scheme: {scheme}'
             )

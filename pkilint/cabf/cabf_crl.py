@@ -29,7 +29,7 @@ def create_validity_period_validator(
         )
     ]
 
-    return time.ValidityPeriodRangeValidator(
+    return time.ValidityPeriodThresholdsValidator(
         path='certificateList.tbsCertList.thisUpdate',
         end_validity_node_retriever=lambda n: n.navigate('^.nextUpdate'),
         validity_period_thresholds=thresholds

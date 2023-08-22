@@ -45,7 +45,7 @@ class EmptyNameValidator(validation.Validator):
 class RDNContainsUniqueTypesValidator(validation.Validator):
     VALIDATION_ATTRIBUTE_TYPES_NOT_UNIQUE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'pkix.rdn_contains_unique_attribute_types'
+        'pkix.rdn_contains_duplicate_attribute_types'
     )
 
     def __init__(self):

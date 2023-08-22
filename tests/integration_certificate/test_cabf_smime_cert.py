@@ -17,7 +17,7 @@ for validation_level in smime_constants.ValidationLevel:
 
         test_dir = path.join(cur_dir, 'smime_br', validation_level.name.lower(), generation.name.lower())
 
-        files = glob.glob(path.join(test_dir, '*.tst'))
+        files = glob.glob(path.join(test_dir, '*.crttest'))
 
         for file in files:
             validator = certificate.create_pkix_certificate_validator_container(

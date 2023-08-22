@@ -1,0 +1,308 @@
+severity,code,description
+FATAL,cabf.serverauth.organization_identifier_invalid_syntax,"Validates that the content of the organizationIdentifier subject attributes and the organizationIdentifier extension are consistent, as per EVG 9.2.8 and 9.2.9."
+FATAL,itu.invalid_asn1_syntax,An error occurred when attempting to decode DER-encoded ASN.1 data. Encountering this finding means that the data is likely malformed.
+FATAL,pkix.sct_list_extension_invalid_encoding,"The encoding of the SCT List does not conform with RFC 6962, section 3.2."
+ERROR,cabf.authority_key_identifier_has_issuer_cert,"""authorityCertIssuer and authorityCertSerialNumber fields SHALL NOT be present."""
+ERROR,cabf.ca_certificate_prohibited_ku_present,A CA certificate asserts a prohibited key usage bit.
+ERROR,cabf.ca_certificate_required_ku_missing,A CA certificate does not assert a required key usage bit.
+ERROR,cabf.certificate_extensions_missing,The certificate does not contain any extensions; all CA/Browser Forum profiles specify at least one required extension for all certificate types.
+ERROR,cabf.certificate_validity_period_exceeds_398_days,Validates that the validity period conforms to BR 7.1.2.7.
+ERROR,cabf.cps_uri_is_not_http,The URI scheme is not HTTP or HTTPS for the CPS URI policy qualifier.
+ERROR,cabf.ev_guidelines.business_category_attribute_absent,Validates that the content of the subject conforms to EVG 9.2.: A required element is absent
+ERROR,cabf.ev_guidelines.country_attribute_absent,Validates that the content of the subject conforms to EVG 9.2.: A required element is absent
+ERROR,cabf.ev_guidelines.cps_uri_policy_qualifier_missing,"Validates that EV Subscriber certificates contain the CPS URI qualifier, as per EVG 9.7."
+ERROR,cabf.ev_guidelines.ev_wildcard_san_present,Validates that wildcard dNSNames conform to EVG 9.8.1.
+ERROR,cabf.ev_guidelines.invalid_business_category,Validates that the businessCategory value conforms to EVG 9.2.3.
+ERROR,cabf.ev_guidelines.jurisdiction_country_attribute_absent,Validates that the content of the subject conforms to EVG 9.2.: A required element is absent
+ERROR,cabf.ev_guidelines.jurisdiction_locality_present_stateprovince_missing,"Validates that jurisdictionStateOrProvinceName is present when jurisdictionLocalityName is present, as per EVG 9.2.4."
+ERROR,cabf.ev_guidelines.organization_name_attribute_absent,Validates that the content of the subject conforms to EVG 9.2.: A required element is absent
+ERROR,cabf.ev_guidelines.prohibited_san_type,Validates that the types of GeneralNames included in the SAN extension conform to EVG 9.8.1.
+ERROR,cabf.ev_guidelines.serial_number_attribute_absent,Validates that the content of the subject conforms to EVG 9.2.: A required element is absent
+ERROR,cabf.ev_guidelines.unknown_attribute_present,Validates that the content of the subject conforms to EVG 9.2.: A prohibited element is present
+ERROR,cabf.internal_domain_name,An Internal Domain has been specified.
+ERROR,cabf.internal_ip_address,A Reserved IP Address has been specified.
+ERROR,cabf.invalid_country_code,A country code which does not appear on the ISO 3166-1 list has been specified.
+ERROR,cabf.invalid_subject_organization_identifier_country,An invalid country code has been specified in the organizationIdentifier attribute.
+ERROR,cabf.invalid_subject_organization_identifier_encoding,An invalid encoding has been used for the organizationIdentifier attribute value.
+ERROR,cabf.invalid_subject_organization_identifier_format,The format of the subject organizationIdentifier attribute does not follow the specification.
+ERROR,cabf.invalid_subject_organization_identifier_registration_scheme,Unrecognized Registration Scheme specified in the subject organizationIdentifier attribute.
+ERROR,cabf.invalid_subject_organization_identifier_state_province_for_scheme,A state/province has been specified in the subject organizationIdentifier where the Registration Scheme does not permit one.
+ERROR,cabf.invalid_subject_organization_identifier_state_province_format,The specified state/province value does not follow the ISO 3166-2 format.
+ERROR,cabf.rsa_exponent_prohibited_value,"""For RSA key pairs: the CA SHALL confirm that the value of the public exponent is an odd number equal to 3 or more."""
+ERROR,cabf.rsa_modulus_invalid_length,"""For RSA key pairs the CA SHALL: Ensure that the modulus size, when encoded, is at least 2048 bits; and Ensure that the modulus size, in bits, is evenly divisible by 8"""
+ERROR,cabf.serverauth.aia_duplicate_location,"Validates that all URI locations in the AIA extension are unique, as per BR 7.1.2.10.3, 7.1.2.7.7, and 7.1.2.8.3."
+ERROR,cabf.serverauth.aia_location_not_uri,"Validates that all locations in the AIA extension are HTTP as per BR 7.1.2.10.3, 7.1.2.7.7, and 7.1.2.8.3"
+ERROR,cabf.serverauth.aia_location_uri_not_http,"Validates that all locations in the AIA extension are HTTP as per BR 7.1.2.10.3, 7.1.2.7.7, and 7.1.2.8.3"
+ERROR,cabf.serverauth.attribute_value_invalid_encoding_type,Validates that DirectoryString attributes are encoded as per 7.1.4.2.
+ERROR,cabf.serverauth.ca.anyeku_eku_present,Validates that the content of the extended key usage extension complies with BR 7.1.2.10.6.: A prohibited element is present
+ERROR,cabf.serverauth.ca.authority_key_identifier_extension_absent,"Validates that the included extensions conform with BR 7.1.2.4.1, 7.1.2.5.1, or 7.1.2.6.1 (depending on certificate type): A required element is absent"
+ERROR,cabf.serverauth.ca.basic_constraints_extension_absent,"Validates that the included extensions conform with BR 7.1.2.4.1, 7.1.2.5.1, or 7.1.2.6.1 (depending on certificate type): A required element is absent"
+ERROR,cabf.serverauth.ca.certificate_policies_extension_absent,"Validates that the included extensions conform with BR 7.1.2.4.1, 7.1.2.5.1, or 7.1.2.6.1 (depending on certificate type): A required element is absent"
+ERROR,cabf.serverauth.ca.codesigning_eku_present,Validates that the content of the extended key usage extension complies with BR 7.1.2.10.6.: A prohibited element is present
+ERROR,cabf.serverauth.ca.common_name_attribute_absent,Validates that the subject contains attributes in accordance with BR 7.1.2.10.2.: A required element is absent
+ERROR,cabf.serverauth.ca.country_attribute_absent,Validates that the subject contains attributes in accordance with BR 7.1.2.10.2.: A required element is absent
+ERROR,cabf.serverauth.ca.critical_authority_info_access_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.5.1.
+ERROR,cabf.serverauth.ca.critical_authority_key_identifier_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.5.1.
+ERROR,cabf.serverauth.ca.critical_certificate_policies_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.5.1.
+ERROR,cabf.serverauth.ca.critical_crl_distribution_points_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.5.1.
+ERROR,cabf.serverauth.ca.critical_extended_key_usage_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.5.1.
+ERROR,cabf.serverauth.ca.critical_sct_list_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.5.1.
+ERROR,cabf.serverauth.ca.critical_subject_key_identifier_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.5.1.
+ERROR,cabf.serverauth.ca.crl_distribution_points_extension_absent,"Validates that the included extensions conform with BR 7.1.2.4.1, 7.1.2.5.1, or 7.1.2.6.1 (depending on certificate type): A required element is absent"
+ERROR,cabf.serverauth.ca.emailprotection_eku_present,Validates that the content of the extended key usage extension complies with BR 7.1.2.10.6.: A prohibited element is present
+ERROR,cabf.serverauth.ca.extended_key_usage_extension_absent,"Validates that the included extensions conform with BR 7.1.2.4.1, 7.1.2.5.1, or 7.1.2.6.1 (depending on certificate type): A required element is absent"
+ERROR,cabf.serverauth.ca.incomplete_name_constraints,Validates that the CA is technically constrained in accordance with BR 7.1.2.5.2.
+ERROR,cabf.serverauth.ca.key_usage_extension_absent,"Validates that the included extensions conform with BR 7.1.2.4.1, 7.1.2.5.1, or 7.1.2.6.1 (depending on certificate type): A required element is absent"
+ERROR,cabf.serverauth.ca.name_constraints_extension_absent,"Validates that the included extensions conform with BR 7.1.2.4.1, 7.1.2.5.1, or 7.1.2.6.1 (depending on certificate type): A required element is absent"
+ERROR,cabf.serverauth.ca.non_critical_basic_constraints_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.5.1.
+ERROR,cabf.serverauth.ca.non_critical_key_usage_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.5.1.
+ERROR,cabf.serverauth.ca.ocspsigning_eku_present,Validates that the content of the extended key usage extension complies with BR 7.1.2.10.6.: A prohibited element is present
+ERROR,cabf.serverauth.ca.organization_name_attribute_absent,Validates that the subject contains attributes in accordance with BR 7.1.2.10.2.: A required element is absent
+ERROR,cabf.serverauth.ca.organizational_unit_name_attribute_present,Validates that the subject contains attributes in accordance with BR 7.1.2.10.2.: A prohibited element is present
+ERROR,cabf.serverauth.ca.precertsigning_eku_present,Validates that the content of the extended key usage extension complies with BR 7.1.2.10.6.: A prohibited element is present
+ERROR,cabf.serverauth.ca.serverauth_eku_absent,Validates that the content of the extended key usage extension complies with BR 7.1.2.10.6.: A required element is absent
+ERROR,cabf.serverauth.ca.subject_key_identifier_extension_absent,"Validates that the included extensions conform with BR 7.1.2.4.1, 7.1.2.5.1, or 7.1.2.6.1 (depending on certificate type): A required element is absent"
+ERROR,cabf.serverauth.ca.unknown_aia_access_method_present,Validates that the content of the authority information access extension conforms to BR 7.1.2.10.3.: A prohibited element is present
+ERROR,cabf.serverauth.ca_anypolicy_with_other_policy_oid,Validates that the content of the certificate policies extension complies with BR 7.1.2.10.5.
+ERROR,cabf.serverauth.ca_basic_constraints_ca_bit_not_set,
+ERROR,cabf.serverauth.ca_external_anypolicy,Validates that the content of the certificate policies extension complies with BR 7.1.2.10.5.
+ERROR,cabf.serverauth.ca_missing_reserved_policy_oid,Validates that the content of the certificate policies extension complies with BR 7.1.2.10.5.
+ERROR,cabf.serverauth.ca_multiple_reserved_policy_oids,Validates that the content of the certificate policies extension complies with BR 7.1.2.10.5.
+ERROR,cabf.serverauth.ca_multiple_reserved_policy_oids,Validates that the certificate policy OID(s) conform to BR 7.1.2.7.9.
+ERROR,cabf.serverauth.ca_precert_signing.precertsigning_eku_absent,Validates that the content of the extended key usage extension complies with BR 7.1.2.4.2.: A required element is absent
+ERROR,cabf.serverauth.ca_precert_signing.unknown_eku_present,Validates that the content of the extended key usage extension complies with BR 7.1.2.4.2.: A prohibited element is present
+ERROR,cabf.serverauth.crldp_dp_prohibited_field_present,Validates that the fields included in the CRL distribution points extension conforms with BR 7.1.2.11.2.
+ERROR,cabf.serverauth.crldp_dpname_prohibited_field_present,Validates that the names included in the CRL distribution points extension conforms with BR 7.1.2.11.2.
+ERROR,cabf.serverauth.crldp_dpname_prohibited_generalname_type,Validates that the names included in the CRL distribution points extension conforms with BR 7.1.2.11.2.
+ERROR,cabf.serverauth.crldp_dpname_prohibited_uri_scheme,Validates that the names included in the CRL distribution points extension conforms with BR 7.1.2.11.2.
+ERROR,cabf.serverauth.cross_ca.authority_key_identifier_extension_absent,Validates that the extensions conform with BR 7.1.2.2.3.: A required element is absent
+ERROR,cabf.serverauth.cross_ca.basic_constraints_extension_absent,Validates that the extensions conform with BR 7.1.2.2.3.: A required element is absent
+ERROR,cabf.serverauth.cross_ca.certificate_policies_extension_absent,Validates that the extensions conform with BR 7.1.2.2.3.: A required element is absent
+ERROR,cabf.serverauth.cross_ca.codesigning_eku_present,Validates that the content of the extended key usage conforms to BR 7.1.2.2.4 and 7.1.2.2.5.: A prohibited element is present
+ERROR,cabf.serverauth.cross_ca.crl_distribution_points_extension_absent,Validates that the extensions conform with BR 7.1.2.2.3.: A required element is absent
+ERROR,cabf.serverauth.cross_ca.emailprotection_eku_present,Validates that the content of the extended key usage conforms to BR 7.1.2.2.4 and 7.1.2.2.5.: A prohibited element is present
+ERROR,cabf.serverauth.cross_ca.extended_key_usage_extension_absent,Validates that the extensions conform with BR 7.1.2.2.3.: A required element is absent
+ERROR,cabf.serverauth.cross_ca.external_anyeku_present,Validates that the content of the extended key usage conforms to BR 7.1.2.2.4 and 7.1.2.2.5.: A prohibited element is present
+ERROR,cabf.serverauth.cross_ca.internal_with_anyeku_and_other_eku,Validates that the content of the extended key usage conforms to BR 7.1.2.2.4 and 7.1.2.2.5.: A required element is absent
+ERROR,cabf.serverauth.cross_ca.key_usage_extension_absent,Validates that the extensions conform with BR 7.1.2.2.3.: A required element is absent
+ERROR,cabf.serverauth.cross_ca.name_constraints_extension_present,Validates that the extensions conform with BR 7.1.2.2.3.: A prohibited element is present
+ERROR,cabf.serverauth.cross_ca.ocspsigning_eku_present,Validates that the content of the extended key usage conforms to BR 7.1.2.2.4 and 7.1.2.2.5.: A prohibited element is present
+ERROR,cabf.serverauth.cross_ca.serverauth_eku_absent,Validates that the content of the extended key usage conforms to BR 7.1.2.2.4 and 7.1.2.2.5.: A required element is absent
+ERROR,cabf.serverauth.cross_ca.subject_key_identifier_extension_absent,Validates that the extensions conform with BR 7.1.2.2.3.: A required element is absent
+ERROR,cabf.serverauth.cross_ca.timestamping_eku_present,Validates that the content of the extended key usage conforms to BR 7.1.2.2.4 and 7.1.2.2.5.: A prohibited element is present
+ERROR,cabf.serverauth.dnsname_contains_prohibited_reserved_label,Validates that each dNSName conforms to the syntax in BR 7.1.2.7.12.
+ERROR,cabf.serverauth.domain_component_attribute_value_length_too_long,Validates that the length of domainComponent values does not exceed the limit stated in BR 7.1.4.2.
+ERROR,cabf.serverauth.dv.unknown_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.2.: A prohibited element is present
+ERROR,cabf.serverauth.invalid_dnsname_syntax,Validates that each dNSName conforms to the syntax in BR 7.1.2.7.12.
+ERROR,cabf.serverauth.invalid_jurisdiction_country_code,Validates that the jurisdictionCountryName value conforms to EVG 9.2.4.
+ERROR,cabf.serverauth.invalid_plabel_encoding,Validates that each dNSName conforms to the syntax in BR 7.1.2.7.12.
+ERROR,cabf.serverauth.invalid_rdn_order,Validates that the encoded order of subject attributes conforms to the list in BR 7.1.4.2.
+ERROR,cabf.serverauth.invalid_tor_checksum,Validates that each Onion Domain Name conforms to the Tor v3 specification.
+ERROR,cabf.serverauth.invalid_tor_v3_domain_name,Validates that each Onion Domain Name conforms to the Tor v3 specification.
+ERROR,cabf.serverauth.invalid_tor_version,Validates that each Onion Domain Name conforms to the Tor v3 specification.
+ERROR,cabf.serverauth.iv.country_attribute_absent,Validates that the content of the subject field conforms with BR 7.1.7.3.: A required element is absent
+ERROR,cabf.serverauth.iv.given_name_attribute_absent,Validates that the content of the subject field conforms with BR 7.1.7.3.: A required element is absent
+ERROR,cabf.serverauth.iv.organizational_unit_name_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.3.: A prohibited element is present
+ERROR,cabf.serverauth.iv.surname_attribute_absent,Validates that the content of the subject field conforms with BR 7.1.7.3.: A required element is absent
+ERROR,cabf.serverauth.name_attribute_value_too_long,Validates that the length of X520Name values does not exceed the limit stated in BR 7.1.4.2.
+ERROR,cabf.serverauth.non_tls_ca.anyeku_eku_present,: A prohibited element is present
+ERROR,cabf.serverauth.non_tls_ca.ocspsigning_eku_present,: A prohibited element is present
+ERROR,cabf.serverauth.non_tls_ca.precertsigning_eku_present,: A prohibited element is present
+ERROR,cabf.serverauth.non_tls_ca.serverauth_eku_present,: A prohibited element is present
+ERROR,cabf.serverauth.ocsp_responder.authority_key_identifier_extension_absent,Validates that the included extensions conform with BR 7.1.2.8.2.: A required element is absent
+ERROR,cabf.serverauth.ocsp_responder.basic_constraints_ca_bit_set,Validates that the basic constraints extension value conforms to BR 7.1.2.8.4.
+ERROR,cabf.serverauth.ocsp_responder.certificate_policies_extension_present,Validates that the included extensions conform with BR 7.1.2.8.2.: A prohibited element is present
+ERROR,cabf.serverauth.ocsp_responder.crl_distribution_points_extension_present,Validates that the included extensions conform with BR 7.1.2.8.2.: A prohibited element is present
+ERROR,cabf.serverauth.ocsp_responder.digitalsignature_bit_missing,Validates that the content of the key usage extension conforms with BR 7.1.2.8.7.
+ERROR,cabf.serverauth.ocsp_responder.extended_key_usage_extension_absent,Validates that the included extensions conform with BR 7.1.2.8.2.: A required element is absent
+ERROR,cabf.serverauth.ocsp_responder.key_usage_extension_absent,Validates that the included extensions conform with BR 7.1.2.8.2.: A required element is absent
+ERROR,cabf.serverauth.ocsp_responder.name_constraints_extension_present,Validates that the included extensions conform with BR 7.1.2.8.2.: A prohibited element is present
+ERROR,cabf.serverauth.ocsp_responder.ocsp_nocheck_extension_absent,Validates that the included extensions conform with BR 7.1.2.8.2.: A required element is absent
+ERROR,cabf.serverauth.ocsp_responder.ocspsigning_eku_absent,Validates that the extended key usage value conforms to BR 7.1.2.8.5.: A required element is absent
+ERROR,cabf.serverauth.ocsp_responder.prohibited_ku_present,Validates that the content of the key usage extension conforms with BR 7.1.2.8.7.
+ERROR,cabf.serverauth.ocsp_responder.subject_altname_extension_present,Validates that the included extensions conform with BR 7.1.2.8.2.: A prohibited element is present
+ERROR,cabf.serverauth.ocsp_responder.unknown_aia_access_method_present,Validates that the content of the AIA extension conforms with BR 7.1.2.8.3.: A prohibited element is present
+ERROR,cabf.serverauth.ocsp_responder.unknown_eku_present,Validates that the extended key usage value conforms to BR 7.1.2.8.5.: A prohibited element is present
+ERROR,cabf.serverauth.organization_identifier_ext_invalid_country,Validates that the content of the CA/B Forum organizationIdentifier extension conforms with EVG 9.8.2.
+ERROR,cabf.serverauth.organization_identifier_ext_invalid_registration_scheme,Validates that the content of the CA/B Forum organizationIdentifier extension conforms with EVG 9.8.2.
+ERROR,cabf.serverauth.organization_identifier_ext_invalid_state_province_for_scheme,Validates that the content of the CA/B Forum organizationIdentifier extension conforms with EVG 9.8.2.
+ERROR,cabf.serverauth.organization_identifier_extension_absent,"Validates that the content of the organizationIdentifier subject attributes and the organizationIdentifier extension are consistent, as per EVG 9.2.8 and 9.2.9."
+ERROR,cabf.serverauth.organization_identifier_mismatched_country_code,"Validates that the content of the organizationIdentifier subject attributes and the organizationIdentifier extension are consistent, as per EVG 9.2.8 and 9.2.9."
+ERROR,cabf.serverauth.organization_identifier_mismatched_registration_reference,"Validates that the content of the organizationIdentifier subject attributes and the organizationIdentifier extension are consistent, as per EVG 9.2.8 and 9.2.9."
+ERROR,cabf.serverauth.organization_identifier_mismatched_scheme,"Validates that the content of the organizationIdentifier subject attributes and the organizationIdentifier extension are consistent, as per EVG 9.2.8 and 9.2.9."
+ERROR,cabf.serverauth.organization_identifier_mismatched_state_province,"Validates that the content of the organizationIdentifier subject attributes and the organizationIdentifier extension are consistent, as per EVG 9.2.8 and 9.2.9."
+ERROR,cabf.serverauth.ov.country_attribute_absent,Validates that the content of the subject field conforms with BR 7.1.7.4.: A required element is absent
+ERROR,cabf.serverauth.ov.given_name_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.4.: A prohibited element is present
+ERROR,cabf.serverauth.ov.organization_name_attribute_absent,Validates that the content of the subject field conforms with BR 7.1.7.4.: A required element is absent
+ERROR,cabf.serverauth.ov.organizational_unit_name_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.4.: A prohibited element is present
+ERROR,cabf.serverauth.ov.surname_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.4.: A prohibited element is present
+ERROR,cabf.serverauth.prohibited_certificate_policy_qualifier_type,"Validates that the inclusion of policy qualifiers is in conformance with BR 7.1.2.3.2, 7.1.2.10.5, and 7.1.2.7.9."
+ERROR,cabf.serverauth.prohibited_duplicate_attribute_type,Validates that only specified attributes may appear multiple times as per BR 7.1.2.3 and 7.1.2.7.4.
+ERROR,cabf.serverauth.prohibited_san_type,Validates that the types of GeneralNames included in the SAN extension conform to BR 7.1.2.7.12.
+ERROR,cabf.serverauth.prohibited_signature_algorithm_encoding,Validates that the signature algorithm conforms with BR 7.1.3.2.
+ERROR,cabf.serverauth.prohibited_subject_public_key_algorithm_encoding,Validates that subject public key algorithm conforms with BR 7.1.3.1.
+ERROR,cabf.serverauth.rdn_contains_multiple_atvs,"Validates that each RelativeDistguishedName contains exactly one AttributeTypeAndValue, as per BR 7.1.4.2."
+ERROR,cabf.serverauth.root.basic_constraints_extension_absent,Validates that the included extensions conform to BR 7.1.2.1.2.: A required element is absent
+ERROR,cabf.serverauth.root.extended_key_usage_extension_present,Validates that the included extensions conform to BR 7.1.2.1.2.: A prohibited element is present
+ERROR,cabf.serverauth.root.key_usage_extension_absent,Validates that the included extensions conform to BR 7.1.2.1.2.: A required element is absent
+ERROR,cabf.serverauth.root.subject_key_identifier_extension_absent,Validates that the included extensions conform to BR 7.1.2.1.2.: A required element is absent
+ERROR,cabf.serverauth.root_aki_ski_not_equal,"Validates that the key identifier as encoded in the subject key identifier and authority key identifier extensions is identical, as per BR 7.1.2.1.3."
+ERROR,cabf.serverauth.root_basic_constraints_ca_not_present,Validates that the content of the basic constraints extension conforms to BR 7.1.2.1.4.
+ERROR,cabf.serverauth.root_subject_issuer_name_encoding_not_equal,"Validates that the encoding of the subject and issuer DN are identical, as per BR 7.1.2.1."
+ERROR,cabf.serverauth.root_validity_period_too_long,Validates that the validity period conforms with BR 7.1.2.1.1.
+ERROR,cabf.serverauth.root_validity_period_too_short,Validates that the validity period conforms with BR 7.1.2.1.1.
+ERROR,cabf.serverauth.subscriber.anyeku_eku_present,Validates that the content of the extended key usage extension conforms with BR 7.1.2.7.10.: A prohibited element is present
+ERROR,cabf.serverauth.subscriber.authority_info_access_extension_absent,Validates that the included extensions conform with BR 7.1.2.7.6.: A required element is absent
+ERROR,cabf.serverauth.subscriber.authority_key_identifier_extension_absent,Validates that the included extensions conform with BR 7.1.2.7.6.: A required element is absent
+ERROR,cabf.serverauth.subscriber.certificate_policies_extension_absent,Validates that the included extensions conform with BR 7.1.2.7.6.: A required element is absent
+ERROR,cabf.serverauth.subscriber.codesigning_eku_present,Validates that the content of the extended key usage extension conforms with BR 7.1.2.7.10.: A prohibited element is present
+ERROR,cabf.serverauth.subscriber.critical_authority_info_access_extension,Validates that the criticality of extensions conforms to BR 7.1.2.7.6.
+ERROR,cabf.serverauth.subscriber.critical_authority_key_identifier_extension,Validates that the criticality of extensions conforms to BR 7.1.2.7.6.
+ERROR,cabf.serverauth.subscriber.critical_certificate_policies_extension,Validates that the criticality of extensions conforms to BR 7.1.2.7.6.
+ERROR,cabf.serverauth.subscriber.critical_crl_distribution_points_extension,Validates that the criticality of extensions conforms to BR 7.1.2.7.6.
+ERROR,cabf.serverauth.subscriber.critical_extended_key_usage_extension,Validates that the criticality of extensions conforms to BR 7.1.2.7.6.
+ERROR,cabf.serverauth.subscriber.critical_sct_list_extension,Validates that the criticality of extensions conforms to BR 7.1.2.7.6.
+ERROR,cabf.serverauth.subscriber.critical_subject_key_identifier_extension,Validates that the criticality of extensions conforms to BR 7.1.2.7.6.
+ERROR,cabf.serverauth.subscriber.emailprotection_eku_present,Validates that the content of the extended key usage extension conforms with BR 7.1.2.7.10.: A prohibited element is present
+ERROR,cabf.serverauth.subscriber.extended_key_usage_extension_absent,Validates that the included extensions conform with BR 7.1.2.7.6.: A required element is absent
+ERROR,cabf.serverauth.subscriber.name_constraints_extension_present,Validates that the included extensions conform with BR 7.1.2.7.6.: A prohibited element is present
+ERROR,cabf.serverauth.subscriber.non_critical_basic_constraints_extension,Validates that the criticality of extensions conforms to BR 7.1.2.7.6.
+ERROR,cabf.serverauth.subscriber.non_critical_key_usage_extension,Validates that the criticality of extensions conforms to BR 7.1.2.7.6.
+ERROR,cabf.serverauth.subscriber.ocsp_aia_access_method_absent,Validates that AIA access methods conform to BR 7.1.2.10.3.: A required element is absent
+ERROR,cabf.serverauth.subscriber.ocspsigning_eku_present,Validates that the content of the extended key usage extension conforms with BR 7.1.2.7.10.: A prohibited element is present
+ERROR,cabf.serverauth.subscriber.precert_poison_extension_absent,Validates that the included extensions conform with BR 7.1.2.7.6.: A required element is absent
+ERROR,cabf.serverauth.subscriber.precert_poison_extension_present,Validates that the included extensions conform with BR 7.1.2.7.6.: A prohibited element is present
+ERROR,cabf.serverauth.subscriber.precertsigning_eku_present,Validates that the content of the extended key usage extension conforms with BR 7.1.2.7.10.: A prohibited element is present
+ERROR,cabf.serverauth.subscriber.sct_list_extension_present,Validates that the included extensions conform with BR 7.1.2.7.6.: A prohibited element is present
+ERROR,cabf.serverauth.subscriber.serverauth_eku_absent,Validates that the content of the extended key usage extension conforms with BR 7.1.2.7.10.: A required element is absent
+ERROR,cabf.serverauth.subscriber.subject_altname_extension_absent,Validates that the included extensions conform with BR 7.1.2.7.6.: A required element is absent
+ERROR,cabf.serverauth.subscriber.timestamping_eku_present,Validates that the content of the extended key usage extension conforms with BR 7.1.2.7.10.: A prohibited element is present
+ERROR,cabf.serverauth.subscriber.unknown_aia_access_method_present,Validates that AIA access methods conform to BR 7.1.2.10.3.: A prohibited element is present
+ERROR,cabf.serverauth.subscriber_anypolicy_oid_present,Validates that the certificate policy OID(s) conform to BR 7.1.2.7.9.
+ERROR,cabf.serverauth.subscriber_basic_constraints_ca_bit_set,
+ERROR,cabf.serverauth.subscriber_common_name_unknown_source,Validates that the content of the commonName attribute conforms to BR 7.1.4.3.
+ERROR,cabf.serverauth.subscriber_missing_reserved_policy_oid,Validates that the certificate policy OID(s) conform to BR 7.1.2.7.9.
+ERROR,cabf.serverauth.subscriber_prohibited_ku_present,Validates that the content of the key usage extension conforms with BR 7.1.2.7.11.
+ERROR,cabf.serverauth.subscriber_required_ku_missing,Validates that the content of the key usage extension conforms with BR 7.1.2.7.11.
+ERROR,cabf.serverauth.subscriber_stateprovince_and_locality_missing,"Validates that the stateOrProvinceName and/or localityName subject attributes are present, as per EVG 9.2.6, BR 7.1.2.7.3, and BR 7.1.2.7.4."
+ERROR,itu.bitstring_not_der_encoded,"X.690 2002-07, clause 11.2.2: ""Where ITU-T Rec. X.680 &#124; ISO/IEC 8824-1, 21.7, applies, the bitstring shall have all trailing 0 bits removed before it is encoded"""
+ERROR,itu.invalid_printablestring_character,"X.680 2002-07, clause 37.4: ""Table 8 lists the characters which can appear in the PrintableString type and PrintableString character abstract syntax"""
+ERROR,pkix.aki_with_cert_issuer_but_serial_number_absent,"RFC 5280 4.2.1.1: ""The identification MAY be based on either the key identifier (the subject key identifier in the issuer's certificate) or the issuer name and serial number"""
+ERROR,pkix.aki_with_serial_number_but_cert_issuer_absent,"RFC 5280 4.2.1.1: ""The identification MAY be based on either the key identifier (the subject key identifier in the issuer's certificate) or the issuer name and serial number"""
+ERROR,pkix.authority_information_access_extension_critical,"RFC 5280 4.2.2.1: ""Conforming CAs MUST mark this extension as non-critical."""
+ERROR,pkix.authority_key_identifier_critical,"RFC 5280 4.2.1.1: ""Conforming CAs MUST mark this extension as non-critical."""
+ERROR,pkix.authority_key_identifier_extension_absent,"RFC 5280 4.2.1.1: ""The keyIdentifier field of the authorityKeyIdentifier extension MUST be included in all certificates generated by conforming CAs to facilitate certification path construction"""
+ERROR,pkix.authority_key_identifier_keyid_missing,"RFC 5280 4.2.1.1: ""The keyIdentifier field of the authorityKeyIdentifier extension MUST be included in all certificates generated by conforming CAs to facilitate certification path construction"""
+ERROR,pkix.basic_constraints_extension_not_critical,"RFC 5280 4.2.1.9: ""Conforming CAs MUST include this extension in all CA certificates that contain public keys used to validate digital signatures on certificates and MUST mark the extension as critical in such certificates"""
+ERROR,pkix.basic_constraints_has_pathlen_for_non_ca,"RFC 5280 4.2.1.9: ""CAs MUST NOT include the pathLenConstraint field unless the cA boolean is asserted and the key usage extension asserts the keyCertSign bit."""
+ERROR,pkix.both_encipheronly_and_decipheronly_ku_set,"RFC 5280 4.2.1.3: ""When the encipherOnly bit is asserted and the keyAgreement bit is also set, the subject public key may be used only for enciphering data while performing key agreement."" ""When the decipherOnly bit is asserted and the keyAgreement bit is also set, the subject public key may be used only for deciphering data while performing key agreement."". Impossible to simultaneously permit both sets of operations."
+ERROR,pkix.ca_certificate_keycertsign_keyusage_not_set,"RFC 5280 4.2.1.3: ""Conforming CAs MUST include this extension in certificates that contain public keys that are used to validate digital signatures on other public key certificates or CRLs"""
+ERROR,pkix.ca_certificate_no_ku_extension,"RFC 5280 4.2.1.3: ""Conforming CAs MUST include this extension in certificates that contain public keys that are used to validate digital signatures on other public key certificates or CRLs"""
+ERROR,pkix.certificate_name_constraints_extension_not_critical,"RFC 5280 4.2.1.10: ""Conforming CAs MUST mark this extension as critical"""
+ERROR,pkix.certificate_negative_validity_period,"RFC 5280 4.1.2.5: ""The certificate validity period is the time interval during which the CA warrants that it will maintain information about the status of the certificate"". A notAfter value that is less than notBefore is non-sensical given this definition."
+ERROR,pkix.certificate_policies_anypolicy_has_prohibited_qualifier,"RFC 5280 4.2.1.4: ""When qualifiers are used with the special policy anyPolicy, they MUST be limited to the qualifiers identified in this section."""
+ERROR,pkix.certificate_serial_number_out_of_range,"RFC 5280 4.1.2.2: ""The serial number MUST be a positive integer assigned by the CA to each certificate."" ""Conforming CAs MUST NOT use serialNumber values longer than 20 octets."""
+ERROR,pkix.certificate_signature_algorithm_mismatch,"RFC 5280 4.1.1.2: ""This field MUST contain the same algorithm identifier as the signature field in the sequence tbsCertificate"""
+ERROR,pkix.certificate_skid_ca_missing,"RFC 5280 4.2.1.2: ""To facilitate certification path construction, this extension MUST appear in all conforming CA certificates, that is, all certificates including the basic constraints extension (Section 4.2.1.9) where the value of cA is TRUE"""
+ERROR,pkix.certificate_skid_extension_critical,"RFC 5280 4.2.1.2: ""Conforming CAs MUST mark this extension as non-critical"""
+ERROR,pkix.certificate_version_is_not_v3,"RFC 5280 4.1.2.1: ""When extensions are used, as expected in this profile, version MUST be 3 (value is 2)."""
+ERROR,pkix.ct_precert_poison_and_sctlist_extensions_present,It is not possible to be both a final certificate and a pre-certificate.
+ERROR,pkix.ct_precert_poison_extension_not_critical,"RFC 6962 3.1: ""The Precertificate is constructed from the certificate to be issued by adding a special critical poison extension"""
+ERROR,pkix.distribution_point_does_not_contain_name_or_issuer,"RFC 5280 4.2.1.13: "" While each of these fields is optional, a DistributionPoint MUST NOT consist of only the reasons field; either distributionPoint or cRLIssuer MUST be present."""
+ERROR,pkix.duplicate_certificate_policy_oids,"RFC 5280 4.2.1.4: ""A certificate policy OID MUST NOT appear more than once in a certificate policies extension"""
+ERROR,pkix.duplicate_extension,"RFC 5280 4.2: ""A certificate MUST NOT include more than one instance of a particular extension"""
+ERROR,pkix.ee_certificate_keycertsign_keyusage_set,"RFC 5280 4.2.1.9: ""If the cA boolean is not asserted, then the keyCertSign bit in the key usage extension MUST NOT be asserted"""
+ERROR,pkix.generalizedtime_incorrect_syntax,RFC 5280 4.1.2.5.2: 
+ERROR,pkix.invalid_domain_name_syntax,"RFC 5280 4.2.1.6: ""The name MUST be in the ""preferred name syntax"", as specified by Section 3.5 of [RFC1034] and as modified by Section 2.1 of [RFC1123]."""
+ERROR,pkix.invalid_email_address_syntax,"RFC 5280 4.2.1.6: ""The format of an rfc822Name is a ""Mailbox"" as defined in Section 4.1.2 of [RFC2821]."""
+ERROR,pkix.invalid_time_syntax,RFC 5280 4.1.2.5.1 and 4.1.2.5.2: 
+ERROR,pkix.invalid_uri_syntax,"RFC 5280 4.1.2.6: ""When the subjectAltName extension contains a URI, the name MUST be stored in the uniformResourceIdentifier (an IA5String). The name MUST NOT be a relative URI, and it MUST follow the URI syntax and encoding rules specified in [RFC3986]. The name MUST include both a scheme (e.g., ""http"" or ""ftp"") and a scheme-specific-part. URIs that include an authority ([RFC3986], Section 3.2) MUST include a fully qualified domain name or IP address as the host."""
+ERROR,pkix.ip_address_name_constraint_invalid_cidr,"RFC 5280 4.1.2.10: ""For IPv4 addresses, the iPAddress field of GeneralName MUST contain eight (8) octets, encoded in the style of RFC 4632 (CIDR) to represent an address range [RFC4632]. For IPv6 addresses, the iPAddress field MUST contain 32 octets similarly encoded."""
+ERROR,pkix.ip_address_name_constraint_wrong_length,"RFC 5280 4.1.2.10: ""For IPv4 addresses, the iPAddress field of GeneralName MUST contain eight (8) octets, encoded in the style of RFC 4632 (CIDR) to represent an address range [RFC4632]. For IPv6 addresses, the iPAddress field MUST contain 32 octets similarly encoded."""
+ERROR,pkix.ip_address_wrong_length,"RFC 5280 4.1.2.6: ""For IP version 4, as specified in [RFC791], the octet string MUST contain exactly four octets. For IP version 6, as specified in [RFC2460], the octet string MUST contain exactly sixteen octets."""
+ERROR,pkix.issuer_unique_id_present,"RFC 5280 4.1.2.8: ""CAs conforming to this profile MUST NOT generate certificates with unique identifiers"""
+ERROR,pkix.name_constraints_in_ee_certificate,"RFC 5280 4.2.1.10: ""The name constraints extension, which MUST be used only in a CA certificate�"""
+ERROR,pkix.name_constraints_maximum_specified,"RFC 5280 4.2.1.10: ""Within this profile, the minimum and maximum fields are not used with any name forms, thus, the minimum MUST be zero, and maximum MUST be absent"""
+ERROR,pkix.name_constraints_no_subtrees,"RFC 5280 4.2.1.10: ""Conforming CAs MUST NOT issue certificates where name constraints is an empty sequence."""
+ERROR,pkix.name_constraints_non_default_minimum,"RFC 5280 4.2.1.10: ""Within this profile, the minimum and maximum fields are not used with any name forms, thus, the minimum MUST be zero, and maximum MUST be absent"""
+ERROR,pkix.name_domain_components_invalid_domain_name,"RFC 4519 2.4: ""The 'dc' ('domainComponent' in RFC 1274) attribute type is a string holding one component, a label, of a DNS domain name [RFC1034][RFC2181] naming a host [RFC1123]."" The concatenation of all DC attributes yields an invalid domain name."
+ERROR,pkix.name_empty,"RFC 5280 4.1.2.4: ""The issuer field MUST contain a non-empty distinguished name (DN)."""
+ERROR,pkix.no_ku_bits_set,"RFC 5280 4.2.1.3: ""When the keyUsage extension appears in a certificate, at least one of the bits MUST be set to 1."""
+ERROR,pkix.rdn_contains_duplicate_attribute_types,"X.501 1997-08 9.3: ""The set that forms an RDN contains exactly one AttributeTypeAndDistinguishedValue for each attribute which contains distinguished values in the entry; that is, a given attribute type cannot appear twice in the same RDN."""
+ERROR,pkix.rfc5280_certificate_policies_invalid_explicit_text_encoding,"RFC 5280 4.2.1.4: ""Conforming CAs MUST NOT encode explicitText as VisibleString or BMPString."""
+ERROR,pkix.rfc6818_certificate_policies_invalid_explicit_text_encoding,"RFC 6818 3: ""Conforming CAs MUST NOT encode explicitText as IA5String"""
+ERROR,pkix.san_extension_not_critical_empty_subject,"RFC 5280 4.2.1.6: ""If the subject field contains an empty sequence, then the issuing CA MUST include a subjectAltName extension that is marked as critical"""
+ERROR,pkix.smime_capabilities_extension_critical,"RFC 4262 2: ""This extension MUST NOT be marked critical."""
+ERROR,pkix.smtp_utf8_mailbox_has_bom,"RFC 8398 3: ""The UTF8String encoding MUST NOT contain a Byte-Order-Mark (BOM) [RFC3629] to aid consistency across implementations, particularly for comparison."""
+ERROR,pkix.smtp_utf8_mailbox_has_uppercase,"RFC 8398 3: ""In SmtpUTF8Mailbox, domain labels that solely use ASCII characters (meaning neither A- nor U-labels) SHALL use NR-LDH restrictions as specified by Section 2.3.1 of [RFC5890] and SHALL be restricted to lowercase letters."""
+ERROR,pkix.smtp_utf8_mailbox_invalid_syntax,"RFC 8398 3: Value does not contain ""@"""
+ERROR,pkix.smtp_utf8_mailbox_is_ascii_only,"RFC 8398 3: ""When the local- part is ASCII, rfc822Name subjectAltName MUST be used instead of SmtpUTF8Mailbox."""
+ERROR,pkix.subject_directory_attributes_extension_critical,"RFC 5280 4.2.1.8: ""Conforming CAs MUST mark this extension as non-critical."""
+ERROR,pkix.subject_email_address_not_in_san,"RFC 5280 4.1.2.6: ""Conforming implementations generating new certificates with electronic mail addresses MUST use the rfc822Name in the subject alternative name extension (Section 4.2.1.6) to describe such identities."""
+ERROR,pkix.subject_information_access_extension_critical,"RFC 5280 4.2.2.2: ""Conforming CAs MUST mark this extension as non-critical."""
+ERROR,pkix.subject_unique_id_present,"RFC 5280 4.1.2.8: ""CAs conforming to this profile MUST NOT generate certificates with unique identifiers"""
+ERROR,pkix.utctime_incorrect_syntax,RFC 5280 4.1.2.5.1: 
+ERROR,pkix.validity_period_end_value_missing,"RFC 5280 4.1.2.5: "" The field is represented as a SEQUENCE of two dates: the date on which the certificate validity period begins (notBefore) and the date on which the certificate validity period ends (notAfter)."" Seeing this error when linting certificates is not possible due required inclusion of notAfter, but may be seen when linting CRLs or OCSP responses."
+ERROR,pkix.wrong_time_useful_type,"RFC 5280 4.1.2.5: ""CAs conforming to this profile MUST always encode certificate validity dates through the year 2049 as UTCTime; certificate validity dates in 2050 or later MUST be encoded as GeneralizedTime."""
+WARNING,cabf.certificate_validity_period_exceeds_397_days,Validates that the validity period conforms to BR 7.1.2.7.
+WARNING,cabf.ecdsa_key_validation_failed,"BR 6.1.6: ""For ECDSA key pairs: the CA SHOULD confirm the validity of all keys using either the ECC Full Public Key Validation Routine or the ECC Partial Public Key Validation Routine. """
+WARNING,cabf.ev_guidelines.common_name_attribute_present,Validates that the content of the subject conforms to EVG 9.2.: A discouraged element is present
+WARNING,cabf.rsa_exponent_not_in_recommended_range,"BR 6.1.6: ""Additionally, the public exponent SHOULD be in the range between 2^16 + 1 and 2^256 ? 1. The modulus SHOULD also have the following characteristics: an odd number, not the power of a prime, and have no factors smaller than 752."""
+WARNING,cabf.rsa_modulus_has_small_prime_factor,"BR 6.1.6: ""Additionally, the public exponent SHOULD be in the range between 2^16 + 1 and 2^256 ? 1. The modulus SHOULD also have the following characteristics: an odd number, not the power of a prime, and have no factors smaller than 752."""
+WARNING,cabf.serverauth.ca.authority_info_access_extension_absent,"Validates that the included extensions conform with BR 7.1.2.4.1, 7.1.2.5.1, or 7.1.2.6.1 (depending on certificate type): A recommended element is absent"
+WARNING,cabf.serverauth.ca.ocsp_aia_access_method_absent,Validates that the content of the authority information access extension conforms to BR 7.1.2.10.3.: A recommended element is absent
+WARNING,cabf.serverauth.ca.organizational_unit_name_attribute_present,Validates that the subject contains attributes in accordance with BR 7.1.2.10.2.: A discouraged element is present
+WARNING,cabf.serverauth.ca.unknown_attribute_present,Validates that the subject contains attributes in accordance with BR 7.1.2.10.2.: A discouraged element is present
+WARNING,cabf.serverauth.ca.unknown_eku_present,Validates that the content of the extended key usage extension complies with BR 7.1.2.10.6.: A discouraged element is present
+WARNING,cabf.serverauth.ca.unknown_extension_present,"Validates that the included extensions conform with BR 7.1.2.4.1, 7.1.2.5.1, or 7.1.2.6.1 (depending on certificate type): A discouraged element is present"
+WARNING,cabf.serverauth.ca_first_policy_oid_not_reserved,Validates that the content of the certificate policies extension complies with BR 7.1.2.10.5.
+WARNING,cabf.serverauth.certificate_policy_qualifier_present,"Validates that the inclusion of policy qualifiers is in conformance with BR 7.1.2.3.2, 7.1.2.10.5, and 7.1.2.7.9."
+WARNING,cabf.serverauth.crldp_multiple_distributionpoints_present,Validates that the number of distribution points conforms with BR 7.1.2.11.2.
+WARNING,cabf.serverauth.cross_ca.authority_info_access_extension_absent,Validates that the extensions conform with BR 7.1.2.2.3.: A recommended element is absent
+WARNING,cabf.serverauth.cross_ca.extended_key_usage_extension_absent,Validates that the extensions conform with BR 7.1.2.2.3.: A recommended element is absent
+WARNING,cabf.serverauth.cross_ca.unknown_eku_present,Validates that the content of the extended key usage conforms to BR 7.1.2.2.4 and 7.1.2.2.5.: A discouraged element is present
+WARNING,cabf.serverauth.cross_ca.unknown_extension_present,Validates that the extensions conform with BR 7.1.2.2.3.: A discouraged element is present
+WARNING,cabf.serverauth.dv.common_name_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.2.: A discouraged element is present
+WARNING,cabf.serverauth.iv.common_name_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.3.: A discouraged element is present
+WARNING,cabf.serverauth.iv.organization_name_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.3.: A discouraged element is present
+WARNING,cabf.serverauth.iv.postal_code_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.3.: A discouraged element is present
+WARNING,cabf.serverauth.iv.street_address_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.3.: A discouraged element is present
+WARNING,cabf.serverauth.iv.unknown_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.3.: A discouraged element is present
+WARNING,cabf.serverauth.name_constraints_dirname_in_excluded_subtrees,Validates that each subtree of a name constraints extension conforms with BR 7.1.2.10.8.
+WARNING,cabf.serverauth.name_constraints_discouraged_name_type,Validates that each subtree of a name constraints extension conforms with BR 7.1.2.10.8.
+WARNING,cabf.serverauth.ocsp_responder.authority_info_access_extension_present,Validates that the included extensions conform with BR 7.1.2.8.2.: A discouraged element is present
+WARNING,cabf.serverauth.ocsp_responder.ocsp_aia_access_method_present,Validates that the content of the AIA extension conforms with BR 7.1.2.8.3.: A discouraged element is present
+WARNING,cabf.serverauth.ocsp_responder.subject_key_identifier_extension_absent,Validates that the included extensions conform with BR 7.1.2.8.2.: A recommended element is absent
+WARNING,cabf.serverauth.ocsp_responder.unknown_extension_present,Validates that the included extensions conform with BR 7.1.2.8.2.: A discouraged element is present
+WARNING,cabf.serverauth.ov.common_name_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.4.: A discouraged element is present
+WARNING,cabf.serverauth.ov.postal_code_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.4.: A discouraged element is present
+WARNING,cabf.serverauth.ov.street_address_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.4.: A discouraged element is present
+WARNING,cabf.serverauth.ov.unknown_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.4.: A discouraged element is present
+WARNING,cabf.serverauth.root.authority_key_identifier_extension_absent,Validates that the included extensions conform to BR 7.1.2.1.2.: A recommended element is absent
+WARNING,cabf.serverauth.root.certificate_policies_extension_present,Validates that the included extensions conform to BR 7.1.2.1.2.: A discouraged element is present
+WARNING,cabf.serverauth.root.unknown_extension_present,Validates that the included extensions conform to BR 7.1.2.1.2.: A discouraged element is present
+WARNING,cabf.serverauth.root_basic_constraints_pathlenconstraint_present,Validates that the content of the basic constraints extension conforms to BR 7.1.2.1.4.
+WARNING,cabf.serverauth.subscriber.ca_issuers_aia_access_method_absent,Validates that AIA access methods conform to BR 7.1.2.10.3.: A recommended element is absent
+WARNING,cabf.serverauth.subscriber.key_usage_extension_absent,Validates that the included extensions conform with BR 7.1.2.7.6.: A recommended element is absent
+WARNING,cabf.serverauth.subscriber.subject_key_identifier_extension_present,Validates that the included extensions conform with BR 7.1.2.7.6.: A discouraged element is present
+WARNING,cabf.serverauth.subscriber.unknown_eku_present,Validates that the content of the extended key usage extension conforms with BR 7.1.2.7.10.: A discouraged element is present
+WARNING,cabf.serverauth.subscriber.unknown_extension_present,Validates that the included extensions conform with BR 7.1.2.7.6.: A discouraged element is present
+WARNING,cabf.serverauth.subscriber_discouraged_ku_present,Validates that the content of the key usage extension conforms with BR 7.1.2.7.11.
+WARNING,cabf.serverauth.subscriber_first_policy_oid_not_reserved,Validates that the certificate policy OID(s) conform to BR 7.1.2.7.9.
+WARNING,cabf.serverauth.subscriber_recommended_ku_missing,Validates that the content of the key usage extension conforms with BR 7.1.2.7.11.
+WARNING,cabf.serverauth.subscriber_rsa_digitalsignature_and_keyencipherment_present,Validates that the content of the key usage extension conforms with BR 7.1.2.7.11.
+WARNING,pkix.certificate_crldp_extension_critical,"RFC 5280 4.2.1.13: ""The extension SHOULD be non-critical"""
+WARNING,pkix.certificate_policies_explicit_text_has_control_character,"RFC 5280 4.2.1.4: ""The explicitText string SHOULD NOT include any control characters (e.g., U+0000 to U+001F and U+007F to U+009F)"""
+WARNING,pkix.certificate_policies_explicit_text_not_nfc_normalized,"RFC 5280 4.2.1.4: ""When the UTF8String encoding is used, all character sequences SHOULD be normalized according to Unicode normalization form C (NFC)"""
+WARNING,pkix.certificate_policies_usernotice_has_noticeRef,"RFC 5280 4.2.1.4: ""Conforming CAs SHOULD NOT use the noticeRef option."""
+WARNING,pkix.certificate_skid_end_entity_missing,"RFC 5280 4.2.1.2: ""To assist applications in identifying the appropriate end entity certificate, this extension SHOULD be included in all end entity certificates."""
+WARNING,pkix.key_usage_extension_not_critical,"RFC 5280 4.2.1.2: ""When present, conforming CAs SHOULD mark this extension as critical."""
+WARNING,pkix.san_extension_is_critical_non_empty_subject,"RFC 5280 4.2.1.6: "" When including the subjectAltName extension in a certificate that has a non-empty subject distinguished name, conforming CAs SHOULD mark the subjectAltName extension as non-critical."""
+NOTICE,cabf.ca_certificate_no_digital_signature_bit,CA certificates with no digitalSignature bit asserted imply that the CA Private Key cannot sign OCSP responses
+NOTICE,cabf.serverauth.unparsed_common_name_encountered,Validates that the content of the commonName attribute conforms to BR 7.1.4.3.
+NOTICE,cabf.serverauth.unparsed_san_extension_encountered,Validates that the content of the commonName attribute conforms to BR 7.1.4.3.
+NOTICE,pkix.certificate_policies_policy_has_qualifier,"RFC 5280 4.2.1.4: ""To promote interoperability, this profile RECOMMENDS that policy information terms consist of only an OID. Where an OID alone is insufficient, this profile strongly recommends that the use of qualifiers be limited to those identified in this section"""
+NOTICE,pkix.ldap_uri_not_validated,": Notice that the linter encountered a LDAP URI but did not validate the correctness of the URI, as support for LDAP validation has not (yet) been implemented. This NOTICE should probably be of a lower severity or supressed entirely."
+NOTICE,pkix.unknown_subject_key_identifier_calculation_method,RFC 5280 4.2.1.2: The Subject key identifier was not calculated using one of the algorithms defined in RFC 5280
+INFO,pkix.subject_key_identifier_method_1_identified,RFC 5280 4.2.1.2: The Subject key identifier was calculated using the first algorithm defined in RFC 5280
+INFO,pkix.subject_key_identifier_method_2_identified,RFC 5280 4.2.1.2: The Subject key identifier was calculated using the second algorithm defined in RFC 5280

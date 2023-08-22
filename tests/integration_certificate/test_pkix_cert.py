@@ -12,15 +12,16 @@ cur_dir = path.dirname(__file__)
 test_dir = path.join(cur_dir, 'pkix')
 this_module = sys.modules[__name__]
 
-files = glob.glob(path.join(test_dir, '*.tst'))
+files = glob.glob(path.join(test_dir, '*.crttest'))
 
 for file in files:
     validator = certificate.create_pkix_certificate_validator_container(
         [
             pkix.create_attribute_decoder(name.ATTRIBUTE_TYPE_MAPPINGS),
             pkix.create_extension_decoder(extension.EXTENSION_MAPPINGS),
-            pkix.create_algorithm_identifier_decoder(
-                algorithm.ALGORITHM_IDENTIFIER_MAPPINGS
+            pkix.create_signature_algorithm_identifier_decoder(
+                algorithm.SIGNATURE_ALGORITHM_IDENTIFIER_MAPPINGS,
+                path='certificate.tbsCertificate.signature'
             ),
             certificate.create_spki_decoder(
                 certificate_key.SUBJECT_PUBLIC_KEY_ALGORITHM_IDENTIFIER_MAPPINGS,

@@ -43,7 +43,7 @@ class PermittedExtensionValidator(validation.Validator):
 class UniqueExtensionValidator(validation.Validator):
     VALIDATION_EXTENSION_NOT_UNIQUE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'pkix.unique_extension'
+        'pkix.duplicate_extension'
     )
 
     def __init__(self):

@@ -173,7 +173,7 @@ class SaneValidityPeriodValidator(ValidityPeriodDifferenceValidator):
             )
 
 
-class ValidityPeriodRangeValidator(ValidityPeriodDifferenceValidator):
+class ValidityPeriodThresholdsValidator(ValidityPeriodDifferenceValidator):
     def __init__(self, *, end_validity_node_retriever, inclusive_second=False,
                  validity_period_thresholds, **kwargs
                  ):
@@ -219,7 +219,7 @@ class ValidityPeriodRangeValidator(ValidityPeriodDifferenceValidator):
 class UtcTimeCorrectSyntaxValidator(validation.Validator):
     VALIDATION_INCORRECT_SYNTAX = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'pkix.utctime_incorect_syntax'
+        'pkix.utctime_incorrect_syntax'
     )
 
     def __init__(self):
@@ -239,7 +239,7 @@ class UtcTimeCorrectSyntaxValidator(validation.Validator):
 class GeneralizedTimeCorrectSyntaxValidator(validation.Validator):
     VALIDATION_INCORRECT_SYNTAX = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'pkix.generalizedtime_incorect_syntax'
+        'pkix.generalizedtime_incorrect_syntax'
     )
 
     def __init__(self):

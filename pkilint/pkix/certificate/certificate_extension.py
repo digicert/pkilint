@@ -1,10 +1,10 @@
-import unicodedata
 from typing import NamedTuple, Set
 
+import unicodedata
 from pyasn1.type.univ import ObjectIdentifier
-from pyasn1_alt_modules import rfc5280, rfc4262
+from pyasn1_alt_modules import rfc5280, rfc4262, rfc6962
 
-from pkilint import validation
+from pkilint import validation, oid
 from pkilint.itu.bitstring import has_named_bit
 from pkilint.pkix import extension
 from pkilint.pkix.extension import (get_criticality_from_decoded_node,
@@ -20,11 +20,11 @@ CERTIFICATE_POLICY_QUALIFIER_MAPPINGS = {
 class BasicConstraintsValidator(validation.Validator):
     VALIDATION_ILLEGAL_PATHLEN_SET = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'pkix.basic_constraints.has_pathlen_for_non_ca'
+        'pkix.basic_constraints_has_pathlen_for_non_ca'
     )
     VALIDATION_NOT_CRITICAL = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'pkix.basic_constraints.extension_not_critical'
+        'pkix.basic_constraints_extension_not_critical'
     )
 
     def __init__(self):
@@ -58,10 +58,6 @@ class BasicConstraintsValidator(validation.Validator):
 class CertificatePolicySet(NamedTuple):
     required: bool
     policies: Set[ObjectIdentifier]
-
-
-def _format_policy_oids(oids):
-    return ', '.join(map(str, oids))
 
 
 class CertificatePolicyOIDValidator(validation.Validator):
@@ -118,7 +114,7 @@ class CertificatePolicyOIDValidator(validation.Validator):
 
             other_policies = policy_oids - all_specified_policies
             if len(other_policies) > 0:
-                other_policies_str = _format_policy_oids(other_policies)
+                other_policies_str = oid.format_oids(other_policies)
                 findings.append(validation.ValidationFindingDescription(
                     self.VALIDATION_UNKNOWN_POLICY_OID,
                     f'Unknown certificate policies: {other_policies_str}'
@@ -130,7 +126,7 @@ class CertificatePolicyOIDValidator(validation.Validator):
             policy_intersection = policy_set.policies & policy_oids
 
             if policy_set.required and len(policy_intersection) == 0:
-                policies_str = _format_policy_oids(policy_set.policies)
+                policies_str = oid.format_oids(policy_set.policies)
 
                 findings.append(validation.ValidationFindingDescription(
                     self.VALIDATION_REQUIRED_POLICY_OID_NOT_PRESENT,
@@ -139,7 +135,7 @@ class CertificatePolicyOIDValidator(validation.Validator):
                 ))
 
             if not is_ca and len(policy_intersection) > 1:
-                policies_str = _format_policy_oids(policy_intersection)
+                policies_str = oid.format_oids(policy_intersection)
 
                 findings.append(validation.ValidationFindingDescription(
                     self.VALIDATION_CONFLICTING_POLICY_OIDS,
@@ -654,7 +650,7 @@ class AuthorityKeyIdentifierPresenceValidator(validation.Validator):
             rfc5280.id_ce_authorityKeyIdentifier
         )
 
-        if not node.document.is_self_signed and ext is None:
+        if ext is None and not node.document.is_self_signed:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_AKI_EXTENSION_NOT_PRESENT
             )
@@ -709,12 +705,12 @@ class SubjectInformationAccessCriticalityValidator(
 class SubjectAlternativeNameCriticalityValidator(validation.TypeMatchingValidator):
     VALIDATION_SAN_NOT_CRITICAL = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'pkix.san_extension_not_critical'
+        'pkix.san_extension_not_critical_empty_subject'
     )
 
     VALIDATION_SAN_IS_CRITICAL = validation.ValidationFinding(
         validation.ValidationFindingSeverity.WARNING,
-        'pkix.san_extension_is_critical'
+        'pkix.san_extension_is_critical_non_empty_subject'
     )
 
     def __init__(self):
@@ -755,3 +751,32 @@ class SmimeCapabilitiesCriticalityValidator(ExtensionCriticalityValidator):
     def __init__(self):
         super().__init__(type_oid=rfc4262.smimeCapabilities, is_critical=False,
                          validation=self.VALIDATION_SMIME_CAPABILITIES_EXTENSION_CRITICAL)
+
+
+class CtPrecertPoisonCriticalityValidator(ExtensionCriticalityValidator):
+    VALIDATION_CT_PRECERT_POISON_NOT_CRITICAL = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.ct_precert_poison_extension_not_critical'
+    )
+
+    def __init__(self):
+        super().__init__(type_oid=rfc6962.id_ce_criticalPoison, is_critical=True,
+                         validation=self.VALIDATION_CT_PRECERT_POISON_NOT_CRITICAL)
+
+
+class CtPrecertPoisonSctListMutuallyExclusiveExtensionsValidator(validation.Validator):
+    VALIDATION_SIMULTANEOUS_PRECERT_POISON_SCTLIST_EXTENSIONS = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.ct_precert_poison_and_sctlist_extensions_present'
+    )
+
+    def __init__(self):
+        super().__init__(validations=self.VALIDATION_SIMULTANEOUS_PRECERT_POISON_SCTLIST_EXTENSIONS,
+                         pdu_class=rfc6962.SignedCertificateTimestampList)
+
+    def validate(self, node):
+        poison_ext = node.document.get_extension_by_oid(rfc6962.id_ce_criticalPoison)
+
+        if poison_ext is not None:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_SIMULTANEOUS_PRECERT_POISON_SCTLIST_EXTENSIONS)

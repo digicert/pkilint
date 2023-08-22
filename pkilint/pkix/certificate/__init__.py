@@ -230,13 +230,13 @@ def create_issuer_validator_container(additional_validators=None, **kwargs):
         kwargs['path'] = 'certificate.tbsCertificate.issuer'
 
     return create_name_validator_container([
-                                                 name.EmptyNameValidator(),
-                                                 general_name.MailboxAddressSyntaxValidator(
-                                                     pdu_class=rfc5280.EmailAddress
-                                                 )
-                                             ] + additional_validators,
+                                               name.EmptyNameValidator(),
+                                               general_name.MailboxAddressSyntaxValidator(
+                                                   pdu_class=rfc5280.EmailAddress
+                                               )
+                                           ] + additional_validators,
                                            **kwargs
-    )
+                                           )
 
 
 def create_subject_validator_container(additional_validators=None, **kwargs):
@@ -247,16 +247,16 @@ def create_subject_validator_container(additional_validators=None, **kwargs):
         kwargs['path'] = 'certificate.tbsCertificate.subject'
 
     return create_name_validator_container([
-                                                  certificate_name.SubjectEmailAddressInSanValidator(),
-                                                  general_name.MailboxAddressSyntaxValidator(
-                                                      pdu_class=rfc5280.EmailAddress
-                                                  ),
-                                                  name.DomainComponentValidDomainNameValidator(
-                                                      pdu_class=rfc5280.Name
-                                                  ),
-                                              ] + additional_validators,
+                                               certificate_name.SubjectEmailAddressInSanValidator(),
+                                               general_name.MailboxAddressSyntaxValidator(
+                                                   pdu_class=rfc5280.EmailAddress
+                                               ),
+                                               name.DomainComponentValidDomainNameValidator(
+                                                   pdu_class=rfc5280.Name
+                                               ),
+                                           ] + additional_validators,
                                            **kwargs
-    )
+                                           )
 
 
 def create_validity_validator_container(additional_validators=None):
@@ -303,6 +303,8 @@ def create_extensions_validator_container(additional_validators=None):
                        certificate_extension.SubjectDirectoryAttributesCriticalityValidator(),
                        certificate_extension.SmimeCapabilitiesCriticalityValidator(),
                        extension.DistributionPointValidator(),
+                       certificate_extension.CtPrecertPoisonCriticalityValidator(),
+                       certificate_extension.CtPrecertPoisonSctListMutuallyExclusiveExtensionsValidator(),
                    ] + additional_validators,
         path='certificate.tbsCertificate.extensions'
     )
@@ -340,20 +342,21 @@ def create_decoding_validators(name_mappings, extension_mappings, additional_dec
     if additional_decoding_validators is None:
         additional_decoding_validators = []
     return [
-               pkix.create_attribute_decoder(
-                   name_mappings
-               ),
-               pkix.create_extension_decoder(
-                   extension_mappings
-               ),
-               pkix.create_algorithm_identifier_decoder(
-                   algorithm.ALGORITHM_IDENTIFIER_MAPPINGS
-               ),
-               create_spki_decoder(
-                   certificate_key.SUBJECT_PUBLIC_KEY_ALGORITHM_IDENTIFIER_MAPPINGS,
-                   certificate_key.SUBJECT_KEY_PARAMETER_ALGORITHM_IDENTIFIER_MAPPINGS
-               ),
-               create_policy_qualifier_decoder(
-                   certificate_extension.CERTIFICATE_POLICY_QUALIFIER_MAPPINGS
-               ),
-           ] + additional_decoding_validators
+        pkix.create_attribute_decoder(
+            name_mappings
+        ),
+        pkix.create_extension_decoder(
+            extension_mappings
+        ),
+        pkix.create_signature_algorithm_identifier_decoder(
+            algorithm.SIGNATURE_ALGORITHM_IDENTIFIER_MAPPINGS,
+            path='certificate.tbsCertificate.signature'
+        ),
+        create_spki_decoder(
+            certificate_key.SUBJECT_PUBLIC_KEY_ALGORITHM_IDENTIFIER_MAPPINGS,
+            certificate_key.SUBJECT_KEY_PARAMETER_ALGORITHM_IDENTIFIER_MAPPINGS
+        ),
+        create_policy_qualifier_decoder(
+            certificate_extension.CERTIFICATE_POLICY_QUALIFIER_MAPPINGS
+        ),
+    ] + additional_decoding_validators

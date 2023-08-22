@@ -11,7 +11,6 @@ from pkilint.cabf import smime
 from pkilint.cabf.smime import smime_constants
 from pkilint.pkix import certificate
 
-
 _CERTIFICATE_TYPES = {}
 for g in smime_constants.Generation:
     for v in smime_constants.ValidationLevel:
@@ -58,7 +57,7 @@ class MappingFileAction(argparse.Action):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='CA/B Forum S/MIME BR Certificate Linter'
+        description=f'CA/Browser Forum S/MIME Baseline Requirements v{smime_constants.BR_VERSION} Certificate Linter'
     )
 
     subparsers = parser.add_subparsers(dest='command', required=True)
@@ -75,7 +74,7 @@ def main():
 
     detect_options_group.add_argument('-d', '--detect', action='store_true',
                                       help='Detect the type of S/MIME certificate from reserved CA/B Forum policy '
-                                      'OID. If the type cannot be detected, then refuse to lint the certificate.')
+                                           'OID. If the type cannot be detected, then refuse to lint the certificate.')
     detect_options_group.add_argument('-g', '--guess', action='store_true',
                                       help='Detect the type of S/MIME certificate from reserved CA/B Forum policy '
                                            'OID. If the type cannot be detected, then use heuristics to determine '
@@ -85,11 +84,11 @@ def main():
                                       choices=list(_CERTIFICATE_TYPES.keys()))
 
     lint_parser.add_argument('-m', '--mapping', type=argparse.FileType('r'), action=MappingFileAction,
-                                      help='Mapping file which contains OID to validation level and '
-                                      'generation mappings. Each line of the mapping file starts with a policy OID '
-                                      'followed by a non-numeric character and the certificate type to which the OID '
-                                      'maps (see -t/--type option for possible values)', default=None
-                                      )
+                             help='Mapping file which contains OID to validation level and '
+                                  'generation mappings. Each line of the mapping file starts with a policy OID '
+                                  'followed by a non-numeric character and the certificate type to which the OID '
+                                  'maps (see -t/--type option for possible values)', default=None
+                             )
     lint_parser.add_argument('-o', '--output', action='store_true',
                              help='Output the type of S/MIME certificate to standard error. This option may be '
                                   'useful when using the --detect, --guess, or --mapping options.')
@@ -97,9 +96,9 @@ def main():
     util.add_standard_args(lint_parser)
 
     lint_parser.add_argument('file',
-                        type=argparse.FileType('rb'),
-                        help='The certificate to lint'
-                        )
+                             type=argparse.FileType('rb'),
+                             help='The certificate to lint'
+                             )
 
     args = parser.parse_args()
 

@@ -256,7 +256,7 @@ class NodeVisitor(object):
 
 class ValueDecodingFailedError(Exception):
     def __init__(self, value_node: PDUNode, type_oid: ObjectIdentifier,
-                 pdu_type: Asn1Type, message: str
+                 pdu_type: Optional[Asn1Type], message: str
                  ):
         self.value_node = value_node
         self.type_oid = type_oid
@@ -265,42 +265,66 @@ class ValueDecodingFailedError(Exception):
 
 
 class ValueDecoder(object):
+    _BITSTRING_SCHEMA_OBJ = BitString()
+
+    VALUE_NODE_ABSENT = object()
+
     def __init__(self, *, type_path: str, value_path: str,
-                 type_mappings: Dict[ObjectIdentifier, Asn1Type], default: Optional[Asn1Type] = None):
+                 type_mappings: Dict[ObjectIdentifier, Optional[Asn1Type]], default: Optional[Asn1Type] = None):
         self.type_path = type_path
         self.value_path = value_path
         self.type_mappings = type_mappings.copy()
         self.default = default
 
     def filter_value(self, node, type_node, value_node, pdu_type):
-        if BitString().isSuperTypeOf(value_node.pdu):
+        if self._BITSTRING_SCHEMA_OBJ.isSuperTypeOf(value_node.pdu):
             return value_node.pdu.asOctets()
         else:
             return value_node.pdu
 
     def __call__(self, node):
         type_node = node.navigate(self.type_path)
+
+        try:
+            value_node = node.navigate(self.value_path)
+        except PDUNavigationFailedError:
+            value_node = None
+
         pdu_type = self.type_mappings.get(type_node.pdu, self.default)
 
         if pdu_type is not None:
-            value_node = node.navigate(self.value_path)
-
-            value_octets = self.filter_value(node, type_node, value_node, pdu_type)
-
-            try:
-                decode_substrate(value_node.document, value_octets,
-                                 pdu_type, value_node
-                                 )
-            except (PyAsn1Error, ValueError) as e:
-                logger.exception(
-                    'Error occurred when decoding %s value in %s',
-                    pdu_type,
-                    value_node.path
-                )
-
+            # value node must be absent, but it exists
+            if pdu_type is self.VALUE_NODE_ABSENT and value_node is not None:
                 raise ValueDecodingFailedError(
-                    value_node, type_node.pdu, pdu_type, str(e)
+                    value_node, type_node.pdu, pdu_type,
+                    'Value node is present, but the ASN.1 schema specifies that it must be absent'
                 )
+            # value node must be present, but it doesn't exist
+            if pdu_type is not self.VALUE_NODE_ABSENT and value_node is None:
+                raise ValueDecodingFailedError(
+                    node, type_node.pdu, pdu_type,
+                    'Value node is absent, but the ASN.1 schema specifies that it must be present'
+                )
+
+        if pdu_type is self.VALUE_NODE_ABSENT or pdu_type is None:
+            return
+
+        value_octets = self.filter_value(node, type_node, value_node, pdu_type)
+
+        try:
+            decode_substrate(value_node.document, value_octets,
+                             pdu_type, value_node
+                             )
+        except (PyAsn1Error, ValueError) as e:
+            logger.exception(
+                'Error occurred when decoding %s value in %s',
+                pdu_type,
+                value_node.path
+            )
+
+            raise ValueDecodingFailedError(
+                value_node, type_node.pdu, pdu_type, str(e)
+            )
 
 
 def get_node_name_for_pdu(pdu: Asn1Type) -> str:

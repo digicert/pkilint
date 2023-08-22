@@ -1,9 +1,10 @@
+import ipaddress
 import re
 import typing
-import unicodedata
 from urllib.parse import urlparse
 
 import publicsuffixlist
+import unicodedata
 from iso3166 import countries_by_alpha2
 from pyasn1_alt_modules import rfc5280, rfc8398
 
@@ -49,7 +50,7 @@ class ValidCountryValidator(ValidCountryCodeValidatorBase):
 
 _ORG_ID_REGEX = re.compile(
     r'^(?P<scheme>[A-Z]{3})(?P<country>[a-zA-Z]{2})?(\+(?P<sp>[a-zA-Z0-9]{1,3}))?'
-    r'-(?P<reference>.+)$'
+    r'(-(?P<reference>.+))?$'
 )
 
 
@@ -84,8 +85,8 @@ class OrganizationIdentifierAttributeValidator(validation.TypeMatchingValidator)
         'cabf.invalid_subject_organization_identifier_state_province_format'
     )
 
-    def __init__(self, additional_schemes: typing.Optional[
-            typing.Mapping[str, cabf_constants.RegistrationSchemeNamingConvention]]=None):
+    def __init__(self, relax_stateprovince_syntax=False, additional_schemes: typing.Optional[
+            typing.Mapping[str, cabf_constants.RegistrationSchemeNamingConvention]] = None):
         super().__init__(type_oid=x520_name.id_at_organizationIdentifier,
                          type_path='type', value_path='value.x520OrganizationIdentifier',
                          pdu_class=rfc5280.AttributeTypeAndValue,
@@ -102,6 +103,7 @@ class OrganizationIdentifierAttributeValidator(validation.TypeMatchingValidator)
         if additional_schemes is None:
             additional_schemes = {}
         self._allowed_schemes = {**REGISTRATION_SCHEMES, **additional_schemes}
+        self._relax_stateprovince_syntax = relax_stateprovince_syntax
 
     def validate_with_value(self, node, choice_node):
         name, value_node = choice_node.child
@@ -128,6 +130,17 @@ class OrganizationIdentifierAttributeValidator(validation.TypeMatchingValidator)
                 f'Invalid registration scheme: {m["scheme"]}'
             )
 
+        if scheme_info.require_registration_reference and m['reference'] is None:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
+                f'Missing Registration Reference: {value_node.pdu}'
+            )
+        elif not scheme_info.require_registration_reference and m['reference']:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
+                f'Prohibited Registration Reference is present: {value_node.pdu}'
+            )
+
         country_code = '' if m['country'] is None else m['country'].upper()
 
         if scheme_info.country_identifier_type == cabf_constants.RegistrationSchemeCountryIdentifierType.NONE:
@@ -152,7 +165,8 @@ class OrganizationIdentifierAttributeValidator(validation.TypeMatchingValidator)
                 f'Scheme "{m["scheme"]}" does not allow state/province values'
             )
 
-        if m['sp'] is not None and not (len(m['sp']) == 2 and m['sp'].isalpha()):
+        if m['sp'] is not None and not self._relax_stateprovince_syntax and not (
+                len(m['sp']) == 2 and m['sp'].isalpha()):
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_ORGANIZATION_ID_INVALID_SP_FORMAT,
                 f'State/province "{m["sp"]}" is not two letters (will be fixed in erratum ballot)'
@@ -202,16 +216,21 @@ class InternalDomainNameValidator(validation.Validator):
 
         return self.validate_with_value(node, domain_name)
 
-        
+
 class GeneralNameDnsNameInternalDomainNameValidator(InternalDomainNameValidator):
-    def __init__(self):
+    def __init__(self, allow_onion_tld=False):
+        self._allow_onion_tld = allow_onion_tld
+
         super().__init__(predicate=general_name.create_generalname_type_predicate('dNSName'))
-        
+
     def validate_with_value(self, node, value):
         if len(value) == 0 and general_name.is_nameconstraints_child_node(node):
             return
         else:
-            return super().validate_with_value(node, value)
+            if self._allow_onion_tld and value.lower().endswith('.onion'):
+                return
+            else:
+                return super().validate_with_value(node, value)
 
 
 class UriInternalDomainNameValidator(InternalDomainNameValidator):
@@ -230,11 +249,11 @@ class GeneralNameUriInternalDomainNameValidator(InternalDomainNameValidator):
         if general_name.is_nameconstraints_child_node(node):
             return str(node.pdu).lstrip('.')
         else:
-            return urlparse(str(node.pdu)).netloc
+            return urlparse(str(node.pdu)).hostname
 
     def validate_with_value(self, node, value):
         if len(value) == 0 and general_name.is_nameconstraints_child_node(node):
-                return
+            return
         else:
             return super().validate_with_value(node, value)
 
@@ -274,6 +293,45 @@ class SmtpUtf8MailboxInternalDomainNameValidator(EmailAddressInternalDomainNameV
         domain_part = super().extract_domain_name(node)
 
         return domain_part.encode('idna').decode()
+
+
+class InternalIpAddressValidator(validation.Validator):
+    VALIDATION_INTERNAL_IP_ADDRESS = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'cabf.internal_ip_address'
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(validations=self.VALIDATION_INTERNAL_IP_ADDRESS, **kwargs)
+
+    @staticmethod
+    def _extract_ip_address(node):
+        octets = node.pdu.asOctets()
+
+        if len(octets) == 4:
+            return ipaddress.IPv4Address(octets)
+        else:
+            return ipaddress.IPv6Address(octets)
+
+    def validate(self, node):
+        ip_addr = InternalIpAddressValidator._extract_ip_address(node)
+
+        if not ip_addr.is_global:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_INTERNAL_IP_ADDRESS,
+                f'Internal IP address: "{ip_addr}"'
+            )
+
+
+class GeneralNameInternalIpAddressValidator(InternalIpAddressValidator):
+    def __init__(self):
+        super().__init__(predicate=general_name.create_generalname_type_predicate('iPAddress'))
+
+    def validate(self, node):
+        if general_name.is_nameconstraints_child_node(node):
+            return
+
+        super().validate(node)
 
 
 class OrganizationNameTruncatedLegalNameValidator(validation.Validator):

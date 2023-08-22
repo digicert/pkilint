@@ -1,6 +1,6 @@
 import base64
-import re
 import functools
+import re
 import sys
 
 from pkilint.pkix.certificate import RFC5280Certificate

@@ -1,4 +1,5 @@
 import enum
+from typing import Optional
 
 from pyasn1.type.constraint import ValueRangeConstraint
 from pyasn1_alt_modules import rfc5280
@@ -31,7 +32,7 @@ def create_extension_decoder(type_mappings):
     return extension.ExtensionsDecodingValidator(decode_func=decoder)
 
 
-def create_algorithm_identifier_decoder(type_mappings):
+def create_signature_algorithm_identifier_decoder(type_mappings, **kwargs):
     decoder = ValueDecoder(
         type_path='algorithm',
         value_path='parameters',
@@ -39,7 +40,8 @@ def create_algorithm_identifier_decoder(type_mappings):
     )
 
     return algorithm.AlgorithmIdentifierDecodingValidator(
-        decode_func=decoder
+        decode_func=decoder,
+        **kwargs
     )
 
 
@@ -79,6 +81,16 @@ class Rfc2119Word(enum.IntEnum):
     MAY = 3
     MUST_NOT = 4
     SHALL_NOT = MUST_NOT
+    SHOULD_NOT = 5
 
     def __str__(self):
         return self.name
+
+    @property
+    def to_severity(self) -> Optional[validation.ValidationFindingSeverity]:
+        if self.value in {Rfc2119Word.SHALL, Rfc2119Word.SHALL_NOT}:
+            return validation.ValidationFindingSeverity.ERROR
+        elif self.value in {Rfc2119Word.SHOULD, Rfc2119Word.SHOULD_NOT}:
+            return validation.ValidationFindingSeverity.WARNING
+
+        return None

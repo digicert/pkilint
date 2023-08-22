@@ -1,10 +1,8 @@
 import csv
 import io
 import json
-import operator
 from typing import Iterable, Optional, Any
 
-from pkilint import validation
 from pkilint.validation import ValidationFindingSeverity, ValidationResult, ValidationFindingDescription
 
 
@@ -44,7 +42,7 @@ class ReportGeneratorPlaintext(ReportGeneratorBase):
 
     def handle_result(self, result):
         if self.is_relevant_result(result):
-            self.report_context.write( f'{result.validator} @ {result.node.path}\n')
+            self.report_context.write(f'{result.validator} @ {result.node.path}\n')
 
     def handle_finding_description(self, result: ValidationResult, finding_description: ValidationFindingDescription,
                                    result_context: Optional[Any]):
@@ -68,7 +66,6 @@ class ReportGeneratorCsv(ReportGeneratorBase):
             output_csv.writeheader()
 
         super().__init__(results, severity_threshold, output_csv)
-
 
     def handle_finding_description(self, result, finding_description, result_context):
         row = {
@@ -144,16 +141,7 @@ REPORT_FORMATS = {
     'JSON': ReportGeneratorJson,
 }
 
-
 _VALIDATION_LIST_CSV_FIELDNAMES = ['severity', 'code']
-
-def _validation_sorter(a, b):
-    diff = a.severity - b.severity
-
-    if diff != 0:
-        return diff
-
-    return a.code < b.code
 
 
 def report_included_validations(*args):

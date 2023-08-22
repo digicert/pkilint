@@ -24,7 +24,7 @@ class SignatureAlgorithmMatchValidator(validation.DEREqualityValidator):
             path='certificate.signatureAlgorithm',
             validation=validation.ValidationFinding(
                 validation.ValidationFindingSeverity.ERROR,
-                'pkix.certificate_signature_algorithm_match'
+                'pkix.certificate_signature_algorithm_mismatch'
             )
         )
 
