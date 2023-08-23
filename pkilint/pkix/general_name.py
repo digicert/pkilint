@@ -13,7 +13,7 @@ _GENERALNAME_TYPES = [str(n) for n in _GENERALNAME_INSTANCE.componentType]
 OTHER_NAME_MAPPINGS = rfc5280.anotherNameMap.copy()
 
 
-def _validators_predicate(func, value):
+def validators_predicate(func, value):
     ret = func(value)
 
     return isinstance(ret, bool) and ret
@@ -56,7 +56,7 @@ class UriSyntaxValidator(validation.Validator):
         if value.casefold().startswith('ldap://'.casefold()):
             raise validation.ValidationFindingEncountered(self.VALIDATION_LDAP_URI_NOT_VALIDATED, value)
 
-        return _validators_predicate(validators.url, value)
+        return validators_predicate(validators.url, value)
 
     def validate(self, node):
         if not self.validate_value(node):
@@ -64,10 +64,6 @@ class UriSyntaxValidator(validation.Validator):
                 self.VALIDATION_INVALID_URI_SYNTAX,
                 f'Invalid URI syntax: "{str(node.pdu)}"'
             )
-
-
-def filter_wildcards(node):
-    return str(node.pdu)
 
 
 class DomainNameSyntaxValidator(validation.Validator):
@@ -84,9 +80,9 @@ class DomainNameSyntaxValidator(validation.Validator):
         )
 
     def validate_value(self, node):
-        value = filter_wildcards(node)
+        value = str(node.pdu)
 
-        return _validators_predicate(validators.domain, value)
+        return validators_predicate(validators.domain, value)
 
     def validate(self, node):
         if not self.validate_value(node):
@@ -112,7 +108,7 @@ class MailboxAddressSyntaxValidator(validation.Validator):
     def validate_value(self, node):
         value = str(node.pdu)
 
-        return _validators_predicate(validators.email, value)
+        return validators_predicate(validators.email, value)
 
     def validate(self, node):
         if not self.validate_value(node):
@@ -142,7 +138,7 @@ class GeneralNameUriSyntaxValidator(UriSyntaxValidator):
             if value.startswith('.'):
                 value = value[1:]
 
-            return _validators_predicate(validators.domain, value)
+            return validators_predicate(validators.domain, value)
         else:
             return super().validate_value(node)
 
@@ -181,7 +177,7 @@ class GeneralNameMailboxAddressSyntaxValidator(MailboxAddressSyntaxValidator):
             if value.startswith('.'):
                 value = value[1:]
 
-            return _validators_predicate(validators.domain, value)
+            return validators_predicate(validators.domain, value)
         else:
             return super().validate_value(node)
 

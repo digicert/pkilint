@@ -40,12 +40,12 @@ will return the number of reported findings as the process exit code.
 
 The list of command line linters bundled with pkilint:
 
-* `lint_pkix_cert`
-* `lint_cabf_smime_cert`
-* `lint_cabf_serverauth_cert`
-* `lint_crl`
-* `lint_ocsp_response`
-* `lint_pkix_signer_signee_cert_chain`
+* [lint_pkix_cert](#lintpkixcert)
+* [lint_cabf_smime_cert](#lintcabfsmimecert)
+* [lint_cabf_serverauth_cert](#lintcabfserverauthcert)
+* [lint_crl](#lintcrl)
+* [lint_ocsp_response](#lintocspresponse)
+* [lint_pkix_signer_signee_cert_chain](#lintpkixsignersigneecertchain)
 
 
 Each of the linters share common command line parameters:
@@ -136,13 +136,67 @@ $
 
 ### lint_cabf_serverauth_cert
 
-This tool lints TLS server authentication certificates and Issuing CA certificates against the
-[CA/Browser Forum TLS Baseline Requirements](https://cabforum.org/baseline-requirements-documents/). This tool is still in its early stages in terms of the completeness of checks it performs. It is anticipated that this linter
-will be updated to encompass the changes proposed in the [SC-62 Certificate Profiles Ballot](https://cabforum.org/2023/03/17/ballot-sc62v2-certificate-profiles-update/).
+This tool lints TLS server authentication certificates (both final and pre-certificates), Intermediate CA certificates, Root CA certificates,
+and OCSP delegated responder certificates against the
+[CA/Browser Forum TLS Baseline Requirements](https://cabforum.org/baseline-requirements-documents/), notably with
+support for linting against the profile for certificates specified in ballot [SC-62](https://cabforum.org/2023/03/17/ballot-sc62v2-certificate-profiles-update/).
+
+The `lint` sub-command requires that the user provide the certificate type/profile of the certificate so that the appropriate
+validations are performed. There are two options:
+
+1. Explicitly specify the type certificate using the `-t`/`--type` option.
+2. Have the linter detect the type of certificate using the `-d`/`--detect` option. In this case, the linter will determine the certificate type using the values of various extensions and fields included in the certificate. The detection procedure may not always be accurate, so it is recommended to use the `--type` option for the best results.
+
+Several parts of the TLS Baseline Requirements supersede requirements specified in RFC 5280. For example, RFC 5280 specifies that the `nameConstraints` extension MUST be critical, but the TLS Baseline Requirements allows this extension to be non-critical. By default, findings related to the PKIX standards that are superseded by the
+TLS Baseline Requirements are not reported. To report superseded findings, specify the `--report-all` option.
+
+The `-o`/`--output` option is used to specify that the certificate type used by the linter is written to standard error. This is useful when using the `--detect` option to see which certificate type was determined by the heuristics logic.
+
+#### Example command execution
+
+```shell
+$ echo '-----BEGIN CERTIFICATE-----
+MIIFhzCCBG+gAwIBAgIKd3d3d3d3d3d3dzANBgkqhkiG9w0BAQsFADBFMQswCQYD
+VQQGEwJVUzETMBEGA1UEChMKQ2VydHMgUiBVczEhMB8GA1UEAxMYQ2VydHMgUiBV
+cyBJc3N1aW5nIENBIEcxMB4XDTIzMDYwMjAwMDAwMFoXDTI0MDYwMTIzNTk1OVow
+ADCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJjfM1nBO6c4jF2eL+PP
+y+pQOjb+d6eYUk3CypR4j+bzV104d/LT12ukkEL3cR5YapINlZFfMnGxkxz12+AK
+1tKo2m8agDlXTeWvl1hS0axCGOGZL16wvR078oxejK2nmfWlUdFhSmWpFyOeuxCG
+tTaeqjOHjABvKOwqXNlRTlw0CCQ6j2GFqLGPbJ5yfqGLiDGBB+iVdS8oCQ6RtPks
+HH/FNBVeWbwhHE6jrH+yTHbkxJzZwc5W86YHH0PwmsXdCT9gdyfYD1UFm4Ly9iBA
+CgUEYbnXEeYmiZV40yDFbwkZ2JvhmtjN4zJpEc4/DP40wMolSZ1F0Gd+2XjJDjSV
+iDkCAwEAAaOCArwwggK4MB8GA1UdIwQYMBaAFGpOUL+YaJ1beyB11FkBeUhmkjIG
+MB0GA1UdEQEB/wQTMBGCD3d3dy5leGFtcGxlLmNvbTAOBgNVHQ8BAf8EBAMCB4Aw
+HQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMDYGA1UdHwQvMC0wK6ApoCeG
+JWh0dHA6Ly9jcmwuY2VydHNydXMuY29tL0lzc3VpbmdDQS5jcmwwEwYDVR0gBAww
+CjAIBgZngQwBAgEwawYIKwYBBQUHAQEEXzBdMCQGCCsGAQUFBzABhhhodHRwOi8v
+b2NzcC5jZXJ0c3J1cy5jb20wNQYIKwYBBQUHMAKGKWh0dHA6Ly9jYWNlcnRzLmNl
+cnRzcnVzLmNvbS9Jc3N1aW5nQ0EuY3J0MAwGA1UdEwEB/wQCMAAwggF9BgorBgEE
+AdZ5AgQCBIIBbQSCAWkBZwB3AHb/iD8KtvuVUcJhzPWHujS0pM27KdxoQgqf5mdM
+Wjp0AAABiPi9rwAAAAQDAEgwRgIhAInr/dvQgE8xMHPYGfO0O0SWM6mVMosn7lou
+lKdMyLyeAiEAoDkG4x8Vb/ON0LbScu6OabUj/yuKQgOhJ3QzeMSsrxgAdQBIsONr
+2qZHNA/lagL6nTDrHFIBy1bdLIHZu7+rOdiEcwAAAYj4va8yAAAEAwBGMEQCIHmr
+Nj/5IrHhLfRXFledOIVw5wuKBMvMNzuRXheNBo83AiA+uJDHaE5gTN4E+nLf0bSV
+kz4UCyEyrTkUP1VGXrKDFgB1ADtTd3U+LbmAToswWwb+QDtn2E/D9Me9AA0tcm/h
++tQXAAABiPi9rywAAAQDAEYwRAIgOvSSVYIOHQamIZDDn/VBPidP0elZbtVQvpse
+DBVIgAUCIFRidEFgm6Xl7HnxMkai8KOLa055sKZ8bNvVyzoUgwcnMA0GCSqGSIb3
+DQEBCwUAA4IBAQBd9/ZFYiJ+k9yeWmIrPIrxBpuyGHfO+Tbc6jH4trtt53v+UhAg
+/9YSv+zkfXPF7izcJTjfnwMsGZf3cH2gyn5p+sc8mX9mQQC9WEQ60z457Cg6WNqi
+LxSZYLrSKZ4ZVPg0hkXsjeaKCZ3z7yu5ozAOBp9Fk3CZtkP1LlbS/heHGcywnTZn
+pHbT2YPixrn8+qi+5aAZyPrhiNKynKI1C6hhCb/8TmXu7h2f31l0ZhDZ+AGZN8/q
+yYM8aZGzLp3gLspWvfO2/Cee63bdQmWL6CUOUpaGxF8eAxstXZCHr95HR6i9+Txu
+3XxCq8enw/MZWJ1jmEp6jXrehGQQhXvmTU6f
+-----END CERTIFICATE-----' > dv_final_clean.pem
+
+$ lint_cabf_serverauth_cert lint -d dv_final_clean.pem
+
+$
+```
 
 ### lint_crl
 
-This tool lints CRLs against the RFC 5280 as well as against the CA/Browser Forum profile for CRLs.
+This tool lints CRLs against the RFC 5280 as well as against the CA/Browser Forum profile for CRLs. It is anticipated that this
+linter will be expanded to encompass the profile for CRLs specified in ballot [SC-63](https://cabforum.org/2023/07/14/ballot-sc-063-v4make-ocsp-optional-require-crls-and-incentivize-automation/).
 
 ### lint_ocsp_response
 
@@ -173,7 +227,6 @@ pkilint is built on several open source packages. In particular, these packages 
 | pyasn1             | BSD License                          | Christian Heimes and Simon Pichugin                            | https://github.com/pyasn1/pyasn1                  |
 | pyasn1-alt-modules | BSD License                          | Russ Housley                                                   | https://github.com/russhousley/pyasn1-alt-modules |
 | python-dateutil    | Apache Software License; BSD License | Gustavo Niemeyer                                               | https://github.com/dateutil/dateutil              |
-| PyYAML             | MIT License                          | Kirill Simonov                                                 | https://pyyaml.org/                               |
 | validators         | MIT License                          | Konsta Vesterinen                                              | https://github.com/kvesteri/validators            |
 
 The pkilint maintainers are grateful to the authors of these open source contributions.

@@ -1,7 +1,7 @@
 import enum
 import itertools
 import logging
-from typing import Any, Callable, Mapping, NamedTuple, List, Tuple, Union, Optional
+from typing import Any, Callable, Mapping, NamedTuple, List, Tuple, Optional
 
 from pyasn1.codec.der.encoder import encode
 from pyasn1.type.constraint import PermittedAlphabetConstraint, ValueRangeConstraint

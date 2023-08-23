@@ -4,6 +4,10 @@ import sys
 
 from pyasn1.type.univ import ObjectIdentifier
 
+
+BR_VERSION = '1.0.1'
+
+
 CABF_SMIME_OID_ARC = ObjectIdentifier('2.23.140.1.5')
 
 

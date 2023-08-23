@@ -213,7 +213,7 @@ def create_subscriber_certificate_subject_validator_container(
         SubjectAlternativeNameContainsSubjectEmailAddressesValidator(),
         cabf_name.ValidCountryValidator(),
         CommonNameValidator(validation_level, generation),
-        OrganizationIdentifierAttributeValidator({
+        OrganizationIdentifierAttributeValidator(relax_stateprovince_syntax=True, additional_schemes={
             'LEI': cabf_constants.RegistrationSchemeNamingConvention(
                 cabf_constants.RegistrationSchemeCountryIdentifierType.XG,
                 False, True

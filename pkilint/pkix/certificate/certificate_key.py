@@ -4,11 +4,10 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric import padding, rsa, ec
 from pyasn1.codec.der.encoder import encode
 from pyasn1.type import univ
-from pyasn1_alt_modules import rfc5280, rfc3279, rfc5480
+from pyasn1_alt_modules import rfc5280, rfc3279, rfc5480, rfc8410
 
 from pkilint import validation, util, document
 from pkilint.document import PDUNode
-
 
 SUBJECT_PUBLIC_KEY_ALGORITHM_IDENTIFIER_MAPPINGS = {
     rfc3279.rsaEncryption: rfc5480.RSAPublicKey(),
@@ -22,7 +21,12 @@ SUBJECT_KEY_PARAMETER_ALGORITHM_IDENTIFIER_MAPPINGS = {
     rfc5480.id_ecPublicKey: rfc5480.ECParameters(),
     rfc5480.id_ecDH: rfc5480.ECParameters(),
     rfc5480.id_ecMQV: rfc5480.ECParameters(),
-
+    **{o: document.ValueDecoder.VALUE_NODE_ABSENT for o in (
+        rfc8410.id_Ed448,
+        rfc8410.id_Ed25519,
+        rfc8410.id_X448,
+        rfc8410.id_X25519,
+    )}
 }
 
 EC_CURVE_OID_TO_OBJECT_MAPPINGS = {

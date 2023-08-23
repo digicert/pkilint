@@ -1,12 +1,12 @@
 from pyasn1_alt_modules import rfc5280, rfc3279, rfc5480, rfc8398, rfc8410, rfc3739
 
+import pkilint.adobe.asn1 as adobe_asn1
 from pkilint import oid, validation
 from pkilint.cabf.smime import smime_constants
-from pkilint.cabf.smime.smime_name import get_email_addresses_from_san
 from pkilint.cabf.smime.smime_constants import Generation, ValidationLevel
+from pkilint.cabf.smime.smime_name import get_email_addresses_from_san
 from pkilint.iso import lei
 from pkilint.pkix import extension
-import pkilint.adobe.asn1 as adobe_asn1
 
 
 class CertificatePoliciesPresenceValidator(extension.ExtensionPresenceValidator):
@@ -216,30 +216,6 @@ class SmimeUserNoticeValidator(validation.Validator):
             raise validation.ValidationFindingEncountered(self.VALIDATION_USERNOTICE_HAS_NOTICEREF)
 
 
-class CpsUriHttpValidator(validation.Validator):
-    VALIDATION_CPS_URI_NOT_HTTP = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.smime.cps_uri_is_not_http'
-    )
-
-    def __init__(self):
-        super().__init__(
-            validations=[self.VALIDATION_CPS_URI_NOT_HTTP],
-            pdu_class=rfc5280.PolicyQualifierInfo,
-            predicate=lambda n: n.children['policyQualifierId'] == rfc5280.id_qt_cps
-        )
-
-    def validate(self, node):
-        uri = str(node.navigate('qualifier.cPSUri').pdu)
-        scheme, _ = uri.split(':', maxsplit=1)
-
-        if scheme.lower() not in {'http', 'https'}:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_CPS_URI_NOT_HTTP,
-                f'Prohibited URI scheme: {scheme}'
-            )
-
-
 class AllowedExtendedKeyUsageValidator(validation.Validator):
     VALIDATION_EMAIL_PROTECTION_EKU_MISSING = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
@@ -252,7 +228,7 @@ class AllowedExtendedKeyUsageValidator(validation.Validator):
     )
 
     _LEGACY_MP_PROHIBITED_EKUS = {rfc5280.anyExtendedKeyUsage, rfc5280.id_kp_codeSigning, rfc5280.id_kp_OCSPSigning,
-                        rfc5280.id_kp_serverAuth, rfc5280.id_kp_timeStamping}
+                                  rfc5280.id_kp_serverAuth, rfc5280.id_kp_timeStamping}
 
     def __init__(self, generation):
         self._generation = generation
@@ -518,7 +494,7 @@ class GmailAuthorityInfoAccessCaIssuersValidator(validation.Validator):
 
     def validate(self, node):
         if not any((
-            ad for ad in node.children.values() if ad.children['accessMethod'].pdu == rfc5280.id_ad_caIssuers
+                ad for ad in node.children.values() if ad.children['accessMethod'].pdu == rfc5280.id_ad_caIssuers
         )):
             raise validation.ValidationFindingEncountered(self.VALIDATION_AIA_CA_ISSUERS_MISSING)
 
@@ -686,3 +662,16 @@ class AdobeArchiveRevInfoPresenceValidator(validation.Validator):
     def validate(self, node):
         if self._generation == smime_constants.Generation.STRICT:
             raise validation.ValidationFindingEncountered(self.VALIDATION_ADOBE_ARCHIVE_REVINFO_EXTENSION_PROHIBITED)
+
+
+class CrlDistributionPointPresenceValidator(extension.ExtensionPresenceValidator):
+    VALIDATION_CRLDP_MISSING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.WARNING,
+        'cabf.smime.crldp_extension_missing'
+    )
+
+    def __init__(self):
+        super().__init__(extension_oid=rfc5280.id_ce_cRLDistributionPoints,
+                         validation=self.VALIDATION_CRLDP_MISSING,
+                         pdu_class=rfc5280.Extensions
+                         )
