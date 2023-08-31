@@ -36,7 +36,7 @@ When a new version of pkilint is released, run the following command to upgrade 
 ### REST API Installation
 
 pkilint provides a REST API component that can be installed as a package extra. The REST API is implemented as an ASGI
-web application, so you will need to install a ASGI server in addition to the package extra. There are several ASGI
+web application, so you will need to install an ASGI server in addition to the package extra. There are several ASGI
 servers available; [Uvicorn](https://www.uvicorn.org/) has been confirmed to work well with the REST API application.
 
 To install the REST API component and Uvicorn ASGI server, run the following command:
