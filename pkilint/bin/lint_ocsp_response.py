@@ -7,7 +7,7 @@ from pkilint import util, loader, report
 from pkilint.pkix import extension, name, ocsp
 
 
-def main():
+def main(cli_args=None):
     parser = argparse.ArgumentParser(description='RFC 6960 OCSP Response Linter')
 
     subparsers = parser.add_subparsers(dest='command', required=True)
@@ -17,10 +17,10 @@ def main():
     util.add_standard_args(lint_parser)
 
     lint_parser.add_argument('file', type=argparse.FileType('rb'),
-                        help='The OCSP response to lint'
-                        )
+                             help='The OCSP response to lint'
+                             )
 
-    args = parser.parse_args()
+    args = parser.parse_args(cli_args)
 
     doc_validator = ocsp.create_pkix_ocsp_response_validator_container(
         [

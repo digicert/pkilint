@@ -5,12 +5,12 @@ from pkilint.pkix import extension
 
 
 class AuthorityInformationAccessPresenceValidator(extension.ExtensionPresenceValidator):
-    VALIDATION_TYPE = 'cabf.aia_extension_missing'
+    _VALIDATION_TYPE = 'cabf.aia_extension_missing'
 
     def __init__(self, severity):
         finding = validation.ValidationFinding(
             severity,
-            self.VALIDATION_TYPE
+            self._VALIDATION_TYPE
         )
 
         super().__init__(extension_oid=rfc5280.id_pe_authorityInfoAccess,

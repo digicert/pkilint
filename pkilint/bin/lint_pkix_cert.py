@@ -8,7 +8,7 @@ from pkilint.pkix import certificate, general_name, name, extension, algorithm
 from pkilint.pkix.certificate import certificate_extension, certificate_key
 
 
-def main():
+def main(cli_args=None):
     parser = argparse.ArgumentParser(description='RFC 5280 Certificate Linter')
 
     subparsers = parser.add_subparsers(dest='command', required=True)
@@ -21,7 +21,7 @@ def main():
                              help='The certificate to lint'
                              )
 
-    args = parser.parse_args()
+    args = parser.parse_args(cli_args)
 
     doc_validator = certificate.create_pkix_certificate_validator_container(
         [

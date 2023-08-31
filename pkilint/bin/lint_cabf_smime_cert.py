@@ -55,7 +55,7 @@ class MappingFileAction(argparse.Action):
         setattr(namespace, self.dest, mappings)
 
 
-def main():
+def main(cli_args=None):
     parser = argparse.ArgumentParser(
         description=f'CA/Browser Forum S/MIME Baseline Requirements v{smime_constants.BR_VERSION} Certificate Linter'
     )
@@ -100,7 +100,7 @@ def main():
                              help='The certificate to lint'
                              )
 
-    args = parser.parse_args()
+    args = parser.parse_args(cli_args)
 
     if args.command == 'validations':
         validation_level, generation = args.type

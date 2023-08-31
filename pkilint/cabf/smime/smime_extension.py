@@ -147,6 +147,7 @@ class RequiredPolicyIdentifierValidator(validation.Validator):
         super().__init__(validations=[
             self.VALIDATION_NO_CABF_RESERVED_OID,
             self.VALIDATION_MULTIPLE_RESERVED_OIDS,
+            self.VALIDATION_ANYPOLICY_PRESENT,
         ], pdu_class=rfc5280.CertificatePolicies)
 
     def validate(self, node):

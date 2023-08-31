@@ -10,7 +10,7 @@ pkilint is a linting framework for documents that are encoded using ASN.1. pkili
 be a highly extensible toolbox to quickly create linters for a variety of ASN.1 structure/"document" types to check for compliance with
 various standards and policies.
 
-There are several ready-to-use command-line tools bundled with pkilint, or the API can be used to create new linters.
+There are several ready-to-use command-line tools bundled with pkilint, or the Python API can be used to create new linters.
 
 ## Installation
 
@@ -33,10 +33,20 @@ When a new version of pkilint is released, run the following command to upgrade 
 
    `pipx upgrade pkilint`
 
+### REST API Installation
+
+pkilint provides a REST API component that can be installed as a package extra. The REST API is implemented as an ASGI
+web application, so you will need to install a ASGI server in addition to the package extra. There are several ASGI
+servers available; [Uvicorn](https://www.uvicorn.org/) has been confirmed to work well with the REST API application.
+
+To install the REST API component and Uvicorn ASGI server, run the following command:
+
+   `pipx install pkilint[rest] uvicorn`
+
 ## Usage
 
-In addition to the API, several command line tools are bundled with pkilint. Upon termination of execution, each linter
-will return the number of reported findings as the process exit code.
+Several command line linters are bundled with pkilint, each of which will return the number of reported findings as the
+process exit code.
 
 The list of command line linters bundled with pkilint:
 
@@ -62,7 +72,9 @@ is output to standard output in CSV format.
 When the `lint` sub-command is specified for each linter, a file which contains the document to lint must be specified. The document
 may be either DER- or PEM-encoded.
 
-Each of the command line tools wrap various linter APIs available within pkilint. 
+Each of the command line tools wrap various linter Python APIs available within pkilint.
+
+If you have installed the optional REST API, see the usage instructions [below](#rest-api-usage).
 
 ### lint_pkix_cert
 
@@ -206,6 +218,24 @@ This tool lints OCSP responses against the RFC 6960 profile.
 
 This tool lints subject/issuer certificate pairs to ensure consistency of fields and extension values across certificates.
 
+### REST API Usage
+
+The REST API is implemented as an ASGI application using the [FastAPI](https://fastapi.tiangolo.com) framework. Notably, FastAPI
+does not come bundled with a server component, so one will need to be installed separately. If you ran the `pipx` command
+in the [REST API Installation](#rest-api-installation) section above, then [Uvicorn](https://www.uvicorn.org/) has been installed. Otherwise, you can
+make your choice of server by reviewing the documentation for [deploying FastAPI](https://fastapi.tiangolo.com/deployment/manually/).
+
+Assuming that Uvicorn has been installed, the REST API server can be started with the following command:
+
+   `uvicorn pkilint.rest:app`
+
+This command will start the REST API server and listen for incoming requests on TCP/IP port 8000 of the loopback interface. Documentation
+is available on the following endpoints:
+
+* [Swagger UI](http://127.0.0.1:8000/docs)
+* [ReDoc](http://127.0.0.1:8000/redoc)
+* [OpenAPI Schema](http://127.0.0.1:8000/openapi.json)
+
 ## Bugs?
 
 If you find a bug or other issue with pkilint, please create a Github issue.
@@ -222,6 +252,7 @@ pkilint is built on several open source packages. In particular, these packages 
 | Name               | License                              | Author                                                         | URL                                               |
 |--------------------|--------------------------------------|----------------------------------------------------------------|---------------------------------------------------|
 | cryptography       | Apache Software License; BSD License | The Python Cryptographic Authority and individual contributors | https://github.com/pyca/cryptography              |
+| fastapi            | MIT License                          | Sebastián Ramírez                                              | https://github.com/tiangolo/fastapi               |
 | iso3166            | MIT License                          | Mike Spindel                                                   | http://github.com/deactivated/python-iso3166      |
 | publicsuffixlist   | Mozilla Public License 2.0 (MPL 2.0) | ko-zu                                                          | https://github.com/ko-zu/psl                      |
 | pyasn1             | BSD License                          | Christian Heimes and Simon Pichugin                            | https://github.com/pyasn1/pyasn1                  |

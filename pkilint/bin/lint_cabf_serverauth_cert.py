@@ -16,14 +16,12 @@ class ServerauthCertificateTypeAction(argparse.Action):
         super().__init__(*args, **kwargs)
 
     def __call__(self, parser, namespace, values, option_string=None):
-        values = values.replace('-', '_')
-
-        cert_type = serverauth_constants.CertificateType[values]
+        cert_type = serverauth_constants.CertificateType.from_option_str(values)
 
         setattr(namespace, self.dest, cert_type)
 
 
-def main():
+def main(cli_args=None):
     parser = argparse.ArgumentParser(
         description=f'CA/Browser Forum TLS Baseline Requirements v{serverauth_constants.BR_VERSION} Certificate Linter'
     )
@@ -60,7 +58,7 @@ def main():
                              help='The certificate to lint'
                              )
 
-    args = parser.parse_args()
+    args = parser.parse_args(cli_args)
 
     if args.command == 'validations':
         doc_validator = certificate.create_pkix_certificate_validator_container(
@@ -78,7 +76,7 @@ def main():
             certificate_type = serverauth.determine_certificate_type(cert)
 
         if args.output:
-            print(str(certificate_type).replace('_', '-'), file=sys.stderr)
+            print(certificate_type.to_option_str, file=sys.stderr)
 
         doc_validator = certificate.create_pkix_certificate_validator_container(
             serverauth.create_decoding_validators(),

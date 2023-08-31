@@ -26,7 +26,7 @@ class CaCertificatePoliciesValidator(validation.Validator):
         'cabf.serverauth.ca_missing_reserved_policy_oid'
     )
 
-    VALIDATION_NON_TLS_CA_HAS_serverauth_OID = validation.ValidationFinding(
+    VALIDATION_NON_TLS_CA_HAS_SERVERAUTH_OID = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
         'cabf.serverauth.ca_non_tls_has_reserved_policy_oid'
     )
@@ -45,7 +45,7 @@ class CaCertificatePoliciesValidator(validation.Validator):
         self._certificate_type = certificate_type
 
         super().__init__(validations=[self.VALIDATION_ANYPOLICY_EXTERNAL_CA, self.VALIDATION_MULTIPLE_RESERVED_OIDS,
-                                      self.VALIDATION_NO_RESERVED_OID,
+                                      self.VALIDATION_NO_RESERVED_OID, self.VALIDATION_NON_TLS_CA_HAS_SERVERAUTH_OID,
                                       self.VALIDATION_ANYPOLICY_WITH_OTHER_OID, self.VALIDATION_FIRST_OID_NOT_RESERVED],
                          pdu_class=rfc5280.CertificatePolicies)
 
@@ -68,7 +68,7 @@ class CaCertificatePoliciesValidator(validation.Validator):
                     oids = oid.format_oids(reserved_oids)
 
                     raise validation.ValidationFindingEncountered(
-                        self.VALIDATION_NON_TLS_CA_HAS_serverauth_OID,
+                        self.VALIDATION_NON_TLS_CA_HAS_SERVERAUTH_OID,
                         f'Non-TLS CA has reserved policy OIDs: {oids}'
                     )
             else:

@@ -23,6 +23,7 @@ ERROR,cabf.smime.adobe_timestamp_extension_critical,SMBR 7.1.2.3 (m),"""MAY be p
 ERROR,cabf.smime.adobe_timestamp_extension_prohibited,SMBR 7.1.2.3 (m),"""Strict: prohibited"""
 ERROR,cabf.smime.aia_prohibited_generalname_type,SMBR 7.1.2.3 (c),"""Allowed URI scheme"""
 ERROR,cabf.smime.aia_prohibited_uri_scheme,SMBR 7.1.2.3 (c),"Legacy: ""When provided, at least one accessMethod SHALL have the URI scheme HTTP"". MP and strict: ""When provided, every accessMethod SHALL have the URI scheme HTTP"""
+ERROR,cabf.smime.anypolicy_present,"An end-entity S/MIME certificate contains the anyPolicy policy identifier"
 ERROR,cabf.smime.certificate_policies_extension_missing,SMBR 7.1.2.3 (a),"""SHALL be present"""
 ERROR,cabf.smime.certificate_validity_period_exceeds_1185_days,SMBR 6.2.3,"""Legacy: 1185 days"""
 ERROR,cabf.smime.common_name_value_unknown_source,SMBR 7.1.4.2.2 (a),Common name attribute contains a value that does not correspond to any allowed value in the table in 7.1.4.2.2 (a)

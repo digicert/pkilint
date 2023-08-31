@@ -37,8 +37,8 @@ jobs:
           path: dist
       - name: Test wheel
         run: |
-          pip install dist/*.whl
-          pip install pytest
+          export WHEEL_FILE=`ls -1 dist/*.whl | head -n 1`
+          pip install "$WHEEL_FILE[dev]"
           pytest
 
   upload_pypi:

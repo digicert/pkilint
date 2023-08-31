@@ -18,11 +18,9 @@ def _create_pem_re(ascii_armor=('', '')) -> re.Pattern:
     return re.compile(f'^\\s*{ascii_armor[0]}(?P<pem>.+){ascii_armor[1]}\\s*$', re.DOTALL)
 
 
-
 _CERTIFICATE_PEM_REGEX = _create_pem_re(_create_ascii_armor('CERTIFICATE'))
 _CRL_PEM_REGEX = _create_pem_re(_create_ascii_armor('X509 CRL'))
 _GENERIC_BASE64_REGEX = _create_pem_re()
-
 
 _DOCUMENT_CLS_TO_PEM_REGEX = {
     RFC5280Certificate: _CERTIFICATE_PEM_REGEX,
@@ -45,8 +43,8 @@ def _convert_pem_bytes_to_der(regex: re.Pattern, pem_text: bytes) -> bytes:
     return _convert_pem_str_to_der(regex, pem_text.decode())
 
 
-def _load_der_document(document_cls, substrate: bytes, document_name: str=None,
-                       substrate_source: str=None, parent=None):
+def _load_der_document(document_cls, substrate: bytes, document_name: str = None,
+                       substrate_source: str = None, parent=None):
     if not substrate.startswith(b'\x30'):
         raise ValueError('Substrate is not DER-encoded')
 
@@ -56,8 +54,8 @@ def _load_der_document(document_cls, substrate: bytes, document_name: str=None,
     return doc
 
 
-def _load_pem_document(document_cls, substrate: str, document_name: str=None,
-                       substrate_source: str = None, parent = None):
+def _load_pem_document(document_cls, substrate: str, document_name: str = None,
+                       substrate_source: str = None, parent=None):
     regex = _DOCUMENT_CLS_TO_PEM_REGEX.get(document_cls, _GENERIC_BASE64_REGEX)
 
     der = _convert_pem_str_to_der(regex, substrate)
@@ -65,7 +63,7 @@ def _load_pem_document(document_cls, substrate: str, document_name: str=None,
     return _load_der_document(document_cls, der, document_name, substrate_source, parent)
 
 
-def _load_pem_file(document_cls, f, document_name: str=None, substrate_source: str=None, parent=None):
+def _load_pem_file(document_cls, f, document_name: str = None, substrate_source: str = None, parent=None):
     data = f.read()
 
     regex = _DOCUMENT_CLS_TO_PEM_REGEX.get(document_cls, _GENERIC_BASE64_REGEX)
@@ -78,14 +76,13 @@ def _load_pem_file(document_cls, f, document_name: str=None, substrate_source: s
     return _load_der_document(document_cls, der, document_name, substrate_source, parent)
 
 
-def _load_der_file(document_cls, f, document_name: str=None, substrate_source: str=None, parent=None):
+def _load_der_file(document_cls, f, document_name: str = None, substrate_source: str = None, parent=None):
     data = f.read()
 
     return _load_der_document(document_cls, data, document_name, substrate_source, parent)
 
 
 _this_module = sys.modules[__name__]
-
 
 for doc_name, doc_cls in [
     ('certificate', RFC5280Certificate),

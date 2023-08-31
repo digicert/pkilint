@@ -69,6 +69,7 @@ ERROR,cabf.serverauth.ca_external_anypolicy,Validates that the content of the ce
 ERROR,cabf.serverauth.ca_missing_reserved_policy_oid,Validates that the content of the certificate policies extension complies with BR 7.1.2.10.5.
 ERROR,cabf.serverauth.ca_multiple_reserved_policy_oids,Validates that the content of the certificate policies extension complies with BR 7.1.2.10.5.
 ERROR,cabf.serverauth.ca_multiple_reserved_policy_oids,Validates that the certificate policy OID(s) conform to BR 7.1.2.7.9.
+ERROR,cabf.serverauth.ca_non_tls_has_reserved_policy_oid,A non-TLS CA certificate contains a CA/Browser Forum serverauth reserved policy OID.
 ERROR,cabf.serverauth.ca_precert_signing.precertsigning_eku_absent,Validates that the content of the extended key usage extension complies with BR 7.1.2.4.2.: A required element is absent
 ERROR,cabf.serverauth.ca_precert_signing.unknown_eku_present,Validates that the content of the extended key usage extension complies with BR 7.1.2.4.2.: A prohibited element is present
 ERROR,cabf.serverauth.crldp_dp_prohibited_field_present,Validates that the fields included in the CRL distribution points extension conforms with BR 7.1.2.11.2.

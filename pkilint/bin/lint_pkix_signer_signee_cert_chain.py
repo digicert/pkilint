@@ -62,7 +62,7 @@ def create_subject_validation_container():
     )
 
 
-def main():
+def main(cli_args=None):
     parser = argparse.ArgumentParser('RFC 5280 Issuer/Subject Certificate Chain Linter')
 
     subparsers = parser.add_subparsers(dest='command', required=True)
@@ -78,7 +78,7 @@ def main():
                              help='The subject certificate to lint'
                              )
 
-    args = parser.parse_args()
+    args = parser.parse_args(cli_args)
 
     decoding_validation_container = create_decoder_validation_container()
     issuer_validation_container = create_issuer_validation_container()
