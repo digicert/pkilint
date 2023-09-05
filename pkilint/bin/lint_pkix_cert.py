@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import sys
 
 from pkilint import loader
 from pkilint import pkix, report, util
@@ -8,7 +9,7 @@ from pkilint.pkix import certificate, general_name, name, extension, algorithm
 from pkilint.pkix.certificate import certificate_extension, certificate_key
 
 
-def main(cli_args=None):
+def main(cli_args=None) -> int:
     parser = argparse.ArgumentParser(description='RFC 5280 Certificate Linter')
 
     subparsers = parser.add_subparsers(dest='command', required=True)
@@ -58,6 +59,8 @@ def main(cli_args=None):
 
     if args.command == 'validations':
         print(report.report_included_validations(doc_validator))
+
+        return 0
     else:
         cert = loader.load_certificate(args.file, args.file.name)
 
@@ -65,8 +68,8 @@ def main(cli_args=None):
 
         print(args.format(results, args.severity))
 
-        exit(report.get_findings_count(results, args.severity))
+        return report.get_findings_count(results, args.severity)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

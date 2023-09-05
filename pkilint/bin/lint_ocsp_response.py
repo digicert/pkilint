@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
 import argparse
+import sys
 
 from pkilint import pkix
 from pkilint import util, loader, report
 from pkilint.pkix import extension, name, ocsp
 
 
-def main(cli_args=None):
+def main(cli_args=None) -> int:
     parser = argparse.ArgumentParser(description='RFC 6960 OCSP Response Linter')
 
     subparsers = parser.add_subparsers(dest='command', required=True)
@@ -33,6 +34,8 @@ def main(cli_args=None):
 
     if args.command == 'validations':
         print(report.report_included_validations(doc_validator))
+
+        return 0
     else:
         ocsp_response = loader.load_ocsp_response(args.file, args.file.name)
 
@@ -40,8 +43,8 @@ def main(cli_args=None):
 
         print(args.format(results, args.severity))
 
-        exit(report.get_findings_count(results, args.severity))
+        return report.get_findings_count(results, args.severity)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

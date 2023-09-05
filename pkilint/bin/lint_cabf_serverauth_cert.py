@@ -21,7 +21,7 @@ class ServerauthCertificateTypeAction(argparse.Action):
         setattr(namespace, self.dest, cert_type)
 
 
-def main(cli_args=None):
+def main(cli_args=None) -> int:
     parser = argparse.ArgumentParser(
         description=f'CA/Browser Forum TLS Baseline Requirements v{serverauth_constants.BR_VERSION} Certificate Linter'
     )
@@ -67,6 +67,8 @@ def main(cli_args=None):
         )
 
         print(report.report_included_validations(doc_validator))
+
+        return 0
     else:
         cert = loader.load_certificate(args.file, args.file.name)
 
@@ -92,8 +94,8 @@ def main(cli_args=None):
 
         print(args.format(results, args.severity))
 
-        exit(report.get_findings_count(results, args.severity))
+        return report.get_findings_count(results, args.severity)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

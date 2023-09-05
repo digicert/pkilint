@@ -55,7 +55,7 @@ class MappingFileAction(argparse.Action):
         setattr(namespace, self.dest, mappings)
 
 
-def main(cli_args=None):
+def main(cli_args=None) -> int:
     parser = argparse.ArgumentParser(
         description=f'CA/Browser Forum S/MIME Baseline Requirements v{smime_constants.BR_VERSION} Certificate Linter'
     )
@@ -113,6 +113,8 @@ def main(cli_args=None):
         )
 
         print(report.report_included_validations(doc_validator))
+
+        return 0
     else:
         cert = loader.load_certificate(args.file, args.file.name)
 
@@ -142,8 +144,8 @@ def main(cli_args=None):
 
         print(args.format(results, args.severity))
 
-        exit(report.get_findings_count(results, args.severity))
+        return report.get_findings_count(results, args.severity)
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
