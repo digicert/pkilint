@@ -347,38 +347,3 @@ class NodePresenceValidator(Validator):
         except PDUNavigationFailedError:
             if self._absence_finding is not None:
                 raise ValidationFindingEncountered(self._absence_finding)
-
-
-class StatefulValidator(Validator):
-    def __init__(self, **kwargs):
-        self._state = {}
-
-        super().__init__(**kwargs)
-
-    def retrieve_and_validate(
-            self, node: PDUNode
-    ) -> Tuple[ValidationResult, Any]:
-        pass
-
-    def validate(self, node):
-        result_and_state = self.retrieve_and_validate(node)
-
-        if result_and_state is None:
-            return
-
-        result, state = result_and_state
-
-        self._state[node] = state
-
-        return result
-
-    @property
-    def state(self) -> Mapping[ValidationResult, Any]:
-        return self._state
-
-    def reset(self) -> Mapping[ValidationResult, Any]:
-        old_state = self._state
-
-        self._state = {}
-
-        return old_state
