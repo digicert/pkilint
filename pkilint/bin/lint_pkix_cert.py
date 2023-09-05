@@ -4,9 +4,8 @@ import argparse
 import sys
 
 from pkilint import loader
-from pkilint import pkix, report, util
-from pkilint.pkix import certificate, general_name, name, extension, algorithm
-from pkilint.pkix.certificate import certificate_extension, certificate_key
+from pkilint import report, util
+from pkilint.pkix import certificate, name, extension
 
 
 def main(cli_args=None) -> int:
