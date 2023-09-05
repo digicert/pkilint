@@ -13,10 +13,8 @@ class CabfServerauthLinterGroup(model.LinterGroup):
     def determine_linter(self, doc):
         cert_type = serverauth.determine_certificate_type(doc)
 
-        try:
-            return next((l for l in self.linters if l.name.casefold() == cert_type.to_option_str.casefold()))
-        except StopIteration:
-            raise HTTPException(status_code=400, detail='Could not determine certificate type')
+        # this doesn't fail, so we don't need to guard against not being able to determine the certificate type
+        return next((l for l in self.linters if l.name.casefold() == cert_type.to_option_str.casefold()))
 
 
 def create_linter_group_instance():
