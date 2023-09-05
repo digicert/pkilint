@@ -1,3 +1,4 @@
+import datetime
 import enum
 from typing import NamedTuple, List
 
@@ -32,6 +33,13 @@ class SignedCertificateTimestamp(NamedTuple):
     sig_alg: SignatureAlgorithm
     signature: bytes
     raw: bytes
+
+    @property
+    def timestamp_datetime(self):
+        return (
+            datetime.datetime(1970, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc) +
+            datetime.timedelta(milliseconds=self.timestamp_msec)
+        )
 
 
 # Thank you JHA
