@@ -37,4 +37,4 @@ vmQjXN7xuMpXmqcyUIhXVG1oC5vF3wTR0gFrNzb3c1fzKkFBEViN1RHU
 node_path,validator,severity,code,message
 certificate.tbsCertificate.subject.rdnSequence.1.0,ValidCountryValidator,ERROR,cabf.invalid_country_code,"Invalid country code: ""XG"""
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
-
+certificate.tbsCertificate.subject.rdnSequence.1.0.value.x520countryName,OrganizationIdentifierCountryNameConsistentValidator,ERROR,cabf.smime.org_identifier_and_country_name_attribute_inconsistent,"CountryName attribute value: ""XG"""", OrganizationIdentifier attribute country name value: ""US"""

@@ -38,12 +38,13 @@ ERROR,cabf.smime.is_ca_certificate,SMBR 7.1.2.3 (d),"""The cA field SHALL NOT be
 ERROR,cabf.smime.key_usage_extension_missing,SMBR 7.1.2.3 (e),"""SHALL be present"""
 ERROR,cabf.smime.lei_extension_critical,SMBR 7.1.2.3 (l),""" SHALL NOT be marked critical"""
 ERROR,cabf.smime.lei_extension_prohibited,SMBR 7.1.2.3 (l),Mailbox- and individual-validated: Prohibited
-ERROR,cabf.smime.lei_role_extension_critical,SMBR 7.1.2.3 (l),""" SHALL NOT be marked critical"""
+ERROR,cabf.smime.lei_role_extension_critical,SMBR 7.1.2.3 (l),"""SHALL NOT be marked critical"""
 ERROR,cabf.smime.lei_role_extension_prohibited,SMBR 7.1.2.3 (l),Mailbox- and individual-validated: Prohibited
 ERROR,cabf.smime.missing_required_attribute,"SMBR 7.1.4.2.3, 7.1.4.2.4, 7.1.4.2.5, 7.1.4.2.6",An SHALL-level attribute is not included in the DN
 ERROR,cabf.smime.mixed_name_and_pseudonym_attributes,SMBR 7.1.4.2.2 (e),"""The subject:givenName and/or subject:surname SHALL NOT be present if the subject:pseudonym is present"""
 ERROR,cabf.smime.multiple_reserved_policy_oids,SMBR 7.1.2.3 (a),"""It SHALL include exactly one of the reserved policyIdentifiers listed in Section 7.1.6."""
 ERROR,cabf.smime.no_required_reserved_policy_oid,SMBR 7.1.2.3 (a),"""It SHALL include exactly one of the reserved policyIdentifiers listed in Section 7.1.6."""
+ERROR,cabf.smime.org_identifier_and_country_name_attribute_inconsistent, SMBR Appendix A,"""The country code used in the Registration Scheme identifier SHALL match that of the subject:countryName in the Certificate as specified in Section 7.1.4.2.2."""
 ERROR,cabf.smime.prohibited_attribute,"SMBR 7.1.4.2.3, 7.1.4.2.4, 7.1.4.2.5, 7.1.4.2.6",A SHALL NOT-level attribute is included in the DN
 ERROR,cabf.smime.prohibited_eku_present,SMBR 7.1.2.3 (f),"Strict: ""Other values SHALL NOT be present"""
 ERROR,cabf.smime.prohibited_generalname_type_present,SMBR 7.1.4.2.1,"""The CA SHALL NOT include GeneralName entries that do not conform to the requirements of this section."""
