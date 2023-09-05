@@ -24,6 +24,9 @@ class SignatureAlgorithm(enum.IntEnum):
     ECDSA = 3
 
 
+_UNIX_EPOCH_DATETIME = datetime.datetime(1970, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
+
+
 class SignedCertificateTimestamp(NamedTuple):
     sct_version: int
     log_id: bytes
@@ -36,10 +39,7 @@ class SignedCertificateTimestamp(NamedTuple):
 
     @property
     def timestamp_datetime(self):
-        return (
-            datetime.datetime(1970, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc) +
-            datetime.timedelta(milliseconds=self.timestamp_msec)
-        )
+        return _UNIX_EPOCH_DATETIME + datetime.timedelta(milliseconds=self.timestamp_msec)
 
 
 # Thank you JHA
