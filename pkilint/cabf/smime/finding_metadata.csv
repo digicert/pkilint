@@ -106,6 +106,7 @@ ERROR,pkix.rdn_contains_unique_attribute_types,X.501 1997-08 9.3,"""The set that
 ERROR,pkix.rfc5280_certificate_policies_invalid_explicit_text_encoding,RFC 5280 4.2.1.4,"""Conforming CAs MUST NOT encode explicitText as VisibleString or BMPString."""
 ERROR,pkix.rfc6818_certificate_policies_invalid_explicit_text_encoding,RFC 6818 3,"""Conforming CAs MUST NOT encode explicitText as IA5String"""
 ERROR,pkix.san_extension_not_critical,RFC 5280 4.2.1.6,"""If the subject field contains an empty sequence, then the issuing CA MUST include a subjectAltName extension that is marked as critical"""
+ERROR,pkix.sct_list_empty,"RFC 6962 3.3: ""At least one SCT MUST be included"""
 ERROR,pkix.smime_capabilities_extension_critical,RFC 4262 2,"""This extension MUST NOT be marked critical."""
 ERROR,pkix.smtp_utf8_mailbox_has_bom,RFC 8398 3,"""The UTF8String encoding MUST NOT contain a Byte-Order-Mark (BOM) [RFC3629] to aid consistency across implementations, particularly for comparison."""
 ERROR,pkix.smtp_utf8_mailbox_has_uppercase,RFC 8398 3,"""In SmtpUTF8Mailbox, domain labels that solely use ASCII characters (meaning neither A- nor U-labels) SHALL use NR-LDH restrictions as specified by Section 2.3.1 of [RFC5890] and SHALL be restricted to lowercase letters."""

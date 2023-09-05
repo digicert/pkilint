@@ -16,7 +16,6 @@ from pkilint.cabf.serverauth import (
     serverauth_key, serverauth_root, serverauth_ca, serverauth_ocsp, serverauth_cross_ca, serverauth_finding_filter
 )
 from pkilint.pkix import name, certificate
-from pkilint.pkix.certificate import certificate_transparency
 
 OTHER_NAME_MAPPINGS = rfc4985.otherNamesMap.copy()
 
@@ -249,7 +248,6 @@ def create_extension_validators() -> List[validation.Validator]:
         serverauth_extension.AuthorityInformationAccessHttpUriLocationValidator(),
         serverauth_extension.AuthorityInformationAccessUniqueLocationValidator(),
         cabf_extension.CabfAuthorityKeyIdentifierValidator(),
-        certificate_transparency.SctListExtensionDecodingValidator(),
         cabf_name.GeneralNameDnsNameInternalDomainNameValidator(allow_onion_tld=True),
         cabf_name.GeneralNameRfc822NameInternalDomainNameValidator(),
         cabf_name.GeneralNameUriInternalDomainNameValidator(),

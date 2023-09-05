@@ -18,7 +18,7 @@ from pkilint.pkix import (extension, time, name,
                           )
 from pkilint.pkix.certificate import (
     certificate_validity, certificate_extension, certificate_validator,
-    certificate_key, certificate_name,
+    certificate_key, certificate_name, certificate_transparency,
 )
 
 logger = logging.getLogger(__name__)
@@ -305,6 +305,7 @@ def create_extensions_validator_container(additional_validators=None):
                        extension.DistributionPointValidator(),
                        certificate_extension.CtPrecertPoisonCriticalityValidator(),
                        certificate_extension.CtPrecertPoisonSctListMutuallyExclusiveExtensionsValidator(),
+                       certificate_transparency.SctListElementCountValidator(),
                    ] + additional_validators,
         path='certificate.tbsCertificate.extensions'
     )
@@ -359,4 +360,8 @@ def create_decoding_validators(name_mappings, extension_mappings, additional_dec
         create_policy_qualifier_decoder(
             certificate_extension.CERTIFICATE_POLICY_QUALIFIER_MAPPINGS
         ),
+        create_other_name_decoder(
+            general_name.OTHER_NAME_MAPPINGS
+        ),
+        certificate_transparency.SctListExtensionDecodingValidator(),
     ] + additional_decoding_validators
