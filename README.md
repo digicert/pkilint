@@ -23,7 +23,7 @@ the instructions on the [pipx homepage](https://pypa.github.io/pipx/) to install
 
 3. Use pipx to install pkilint:
 
-    `pipx install pkilint`
+`pipx install pkilint`
 
 Once installed, the bundled command line applications (listed below) and the API will be available on your machine.
 
@@ -31,7 +31,7 @@ Once installed, the bundled command line applications (listed below) and the API
 
 When a new version of pkilint is released, run the following command to upgrade your installation:
 
-   `pipx upgrade pkilint`
+`pipx upgrade pkilint`
 
 ### REST API Installation
 
@@ -39,9 +39,12 @@ pkilint provides a REST API component that can be installed as a package extra. 
 web application, so you will need to install an ASGI server in addition to the package extra. There are several ASGI
 servers available; [Uvicorn](https://www.uvicorn.org/) has been confirmed to work well with the REST API application.
 
-To install the REST API component and Uvicorn ASGI server, run the following command:
+To install the REST API component and Uvicorn ASGI server using pipx, run the following commands:
 
-   `pipx install pkilint[rest] uvicorn`
+```shell
+pipx install pkilint[rest]
+pipx inject pkilint --include-apps uvicorn
+```
 
 ## Usage
 
@@ -221,13 +224,13 @@ This tool lints subject/issuer certificate pairs to ensure consistency of fields
 ### REST API Usage
 
 The REST API is implemented as an ASGI application using the [FastAPI](https://fastapi.tiangolo.com) framework. Notably, FastAPI
-does not come bundled with a server component, so one will need to be installed separately. If you ran the `pipx` command
+does not come bundled with a server component, so one will need to be installed separately. If you ran the `pipx` commands
 in the [REST API Installation](#rest-api-installation) section above, then [Uvicorn](https://www.uvicorn.org/) has been installed. Otherwise, you can
 make your choice of server by reviewing the documentation for [deploying FastAPI](https://fastapi.tiangolo.com/deployment/manually/).
 
-Assuming that Uvicorn has been installed, the REST API server can be started with the following command:
+Assuming that Uvicorn has been installed via pipx, the REST API server can be started with the following command:
 
-   `uvicorn pkilint.rest:app`
+`uvicorn pkilint.rest:app`
 
 This command will start the REST API server and listen for incoming requests on TCP/IP port 8000 of the loopback interface. Documentation
 is available on the following endpoints:
