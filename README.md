@@ -23,7 +23,9 @@ the instructions on the [pipx homepage](https://pypa.github.io/pipx/) to install
 
 3. Use pipx to install pkilint:
 
-`pipx install pkilint`
+```shell
+pipx install pkilint
+```
 
 Once installed, the bundled command line applications (listed below) and the API will be available on your machine.
 
@@ -31,7 +33,9 @@ Once installed, the bundled command line applications (listed below) and the API
 
 When a new version of pkilint is released, run the following command to upgrade your installation:
 
-`pipx upgrade pkilint`
+```shell
+pipx upgrade pkilint
+```
 
 ### REST API Installation
 
@@ -230,7 +234,9 @@ make your choice of server by reviewing the documentation for [deploying FastAPI
 
 Assuming that Uvicorn has been installed via pipx, the REST API server can be started with the following command:
 
-`uvicorn pkilint.rest:app`
+```shell
+uvicorn pkilint.rest:app
+```
 
 This command will start the REST API server and listen for incoming requests on TCP/IP port 8000 of the loopback interface. Documentation
 is available on the following endpoints:
