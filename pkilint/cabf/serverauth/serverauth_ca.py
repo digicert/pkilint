@@ -2,7 +2,6 @@ from pyasn1_alt_modules import rfc5280, rfc6962
 
 import pkilint.common
 from pkilint import validation, oid, common, document
-from pkilint.cabf import cabf_name
 from pkilint.cabf.serverauth import serverauth_constants
 from pkilint.itu import x520_name
 from pkilint.pkix import Rfc2119Word
@@ -81,7 +80,8 @@ class CaCertificatePoliciesValidator(validation.Validator):
                 raise validation.ValidationFindingEncountered(self.VALIDATION_MULTIPLE_RESERVED_OIDS,
                                                               f'Multiple reserved policy OIDs present: {oids_str}')
 
-            if policy_oids[0] not in serverauth_constants.SERVERAUTH_RESERVED_POLICY_OIDS:
+            if (self._certificate_type != serverauth_constants.CertificateType.NON_TLS_CA and
+                    policy_oids[0] not in serverauth_constants.SERVERAUTH_RESERVED_POLICY_OIDS):
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_FIRST_OID_NOT_RESERVED
                 )
