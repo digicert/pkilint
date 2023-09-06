@@ -23,6 +23,7 @@ ERROR,cabf.smime.adobe_timestamp_extension_critical,SMBR 7.1.2.3 (m),"""MAY be p
 ERROR,cabf.smime.adobe_timestamp_extension_prohibited,SMBR 7.1.2.3 (m),"""Strict: prohibited"""
 ERROR,cabf.smime.aia_prohibited_generalname_type,SMBR 7.1.2.3 (c),"""Allowed URI scheme"""
 ERROR,cabf.smime.aia_prohibited_uri_scheme,SMBR 7.1.2.3 (c),"Legacy: ""When provided, at least one accessMethod SHALL have the URI scheme HTTP"". MP and strict: ""When provided, every accessMethod SHALL have the URI scheme HTTP"""
+ERROR,cabf.smime.anypolicy_present,"An end-entity S/MIME certificate contains the anyPolicy policy identifier"
 ERROR,cabf.smime.certificate_policies_extension_missing,SMBR 7.1.2.3 (a),"""SHALL be present"""
 ERROR,cabf.smime.certificate_validity_period_exceeds_1185_days,SMBR 6.2.3,"""Legacy: 1185 days"""
 ERROR,cabf.smime.common_name_value_unknown_source,SMBR 7.1.4.2.2 (a),Common name attribute contains a value that does not correspond to any allowed value in the table in 7.1.4.2.2 (a)
@@ -37,12 +38,13 @@ ERROR,cabf.smime.is_ca_certificate,SMBR 7.1.2.3 (d),"""The cA field SHALL NOT be
 ERROR,cabf.smime.key_usage_extension_missing,SMBR 7.1.2.3 (e),"""SHALL be present"""
 ERROR,cabf.smime.lei_extension_critical,SMBR 7.1.2.3 (l),""" SHALL NOT be marked critical"""
 ERROR,cabf.smime.lei_extension_prohibited,SMBR 7.1.2.3 (l),Mailbox- and individual-validated: Prohibited
-ERROR,cabf.smime.lei_role_extension_critical,SMBR 7.1.2.3 (l),""" SHALL NOT be marked critical"""
+ERROR,cabf.smime.lei_role_extension_critical,SMBR 7.1.2.3 (l),"""SHALL NOT be marked critical"""
 ERROR,cabf.smime.lei_role_extension_prohibited,SMBR 7.1.2.3 (l),Mailbox- and individual-validated: Prohibited
 ERROR,cabf.smime.missing_required_attribute,"SMBR 7.1.4.2.3, 7.1.4.2.4, 7.1.4.2.5, 7.1.4.2.6",An SHALL-level attribute is not included in the DN
 ERROR,cabf.smime.mixed_name_and_pseudonym_attributes,SMBR 7.1.4.2.2 (e),"""The subject:givenName and/or subject:surname SHALL NOT be present if the subject:pseudonym is present"""
 ERROR,cabf.smime.multiple_reserved_policy_oids,SMBR 7.1.2.3 (a),"""It SHALL include exactly one of the reserved policyIdentifiers listed in Section 7.1.6."""
 ERROR,cabf.smime.no_required_reserved_policy_oid,SMBR 7.1.2.3 (a),"""It SHALL include exactly one of the reserved policyIdentifiers listed in Section 7.1.6."""
+ERROR,cabf.smime.org_identifier_and_country_name_attribute_inconsistent, SMBR Appendix A,"""The country code used in the Registration Scheme identifier SHALL match that of the subject:countryName in the Certificate as specified in Section 7.1.4.2.2."""
 ERROR,cabf.smime.prohibited_attribute,"SMBR 7.1.4.2.3, 7.1.4.2.4, 7.1.4.2.5, 7.1.4.2.6",A SHALL NOT-level attribute is included in the DN
 ERROR,cabf.smime.prohibited_eku_present,SMBR 7.1.2.3 (f),"Strict: ""Other values SHALL NOT be present"""
 ERROR,cabf.smime.prohibited_generalname_type_present,SMBR 7.1.4.2.1,"""The CA SHALL NOT include GeneralName entries that do not conform to the requirements of this section."""
@@ -105,6 +107,7 @@ ERROR,pkix.rdn_contains_unique_attribute_types,X.501 1997-08 9.3,"""The set that
 ERROR,pkix.rfc5280_certificate_policies_invalid_explicit_text_encoding,RFC 5280 4.2.1.4,"""Conforming CAs MUST NOT encode explicitText as VisibleString or BMPString."""
 ERROR,pkix.rfc6818_certificate_policies_invalid_explicit_text_encoding,RFC 6818 3,"""Conforming CAs MUST NOT encode explicitText as IA5String"""
 ERROR,pkix.san_extension_not_critical,RFC 5280 4.2.1.6,"""If the subject field contains an empty sequence, then the issuing CA MUST include a subjectAltName extension that is marked as critical"""
+ERROR,pkix.sct_list_empty,"RFC 6962 3.3: ""At least one SCT MUST be included"""
 ERROR,pkix.smime_capabilities_extension_critical,RFC 4262 2,"""This extension MUST NOT be marked critical."""
 ERROR,pkix.smtp_utf8_mailbox_has_bom,RFC 8398 3,"""The UTF8String encoding MUST NOT contain a Byte-Order-Mark (BOM) [RFC3629] to aid consistency across implementations, particularly for comparison."""
 ERROR,pkix.smtp_utf8_mailbox_has_uppercase,RFC 8398 3,"""In SmtpUTF8Mailbox, domain labels that solely use ASCII characters (meaning neither A- nor U-labels) SHALL use NR-LDH restrictions as specified by Section 2.3.1 of [RFC5890] and SHALL be restricted to lowercase letters."""

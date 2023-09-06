@@ -48,7 +48,7 @@ class ValidCountryValidator(ValidCountryCodeValidatorBase):
                          )
 
 
-_ORG_ID_REGEX = re.compile(
+ORG_ID_REGEX = re.compile(
     r'^(?P<scheme>[A-Z]{3})(?P<country>[a-zA-Z]{2})?(\+(?P<sp>[a-zA-Z0-9]{1,3}))?'
     r'(-(?P<reference>.+))?$'
 )
@@ -114,7 +114,7 @@ class OrganizationIdentifierAttributeValidator(validation.TypeMatchingValidator)
                 f'Invalid ASN.1 encoding: {name}'
             )
 
-        m = _ORG_ID_REGEX.match(str(value_node.pdu))
+        m = ORG_ID_REGEX.match(str(value_node.pdu))
 
         if m is None:
             raise validation.ValidationFindingEncountered(

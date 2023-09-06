@@ -14,7 +14,6 @@ SHALL = pkix.Rfc2119Word.SHALL
 SHALL_NOT = pkix.Rfc2119Word.SHALL_NOT
 MAY = pkix.Rfc2119Word.MAY
 
-
 _MV_ATTRIBUTES = {
     rfc5280.id_at_commonName: (MAY, MAY, MAY),
     rfc5280.id_at_organizationName: (SHALL_NOT, SHALL_NOT, SHALL_NOT),
@@ -32,7 +31,6 @@ _MV_ATTRIBUTES = {
     x520_name.id_at_postalCode: (SHALL_NOT, SHALL_NOT, SHALL_NOT),
     rfc5280.id_at_countryName: (SHALL_NOT, SHALL_NOT, SHALL_NOT),
 }
-
 
 _OV_ATTRIBUTES = {
     rfc5280.id_at_commonName: (MAY, MAY, MAY),
@@ -52,7 +50,6 @@ _OV_ATTRIBUTES = {
     rfc5280.id_at_countryName: (MAY, MAY, MAY),
 }
 
-
 _SV_ATTRIBUTES = {
     rfc5280.id_at_commonName: (MAY, MAY, MAY),
     rfc5280.id_at_organizationName: (SHALL, SHALL, SHALL),
@@ -70,7 +67,6 @@ _SV_ATTRIBUTES = {
     x520_name.id_at_postalCode: (MAY, MAY, SHALL_NOT),
     rfc5280.id_at_countryName: (MAY, MAY, MAY),
 }
-
 
 _IV_ATTRIBUTES = {
     rfc5280.id_at_commonName: (MAY, MAY, MAY),
@@ -90,13 +86,11 @@ _IV_ATTRIBUTES = {
     rfc5280.id_at_countryName: (MAY, MAY, MAY),
 }
 
-
 _GENERATION_INDEXES = {
     Generation.LEGACY: 0,
     Generation.MULTIPURPOSE: 1,
     Generation.STRICT: 2,
 }
-
 
 _VALIDATION_LEVEL_TO_TABLE = {
     ValidationLevel.MAILBOX: _MV_ATTRIBUTES,
@@ -104,7 +98,6 @@ _VALIDATION_LEVEL_TO_TABLE = {
     ValidationLevel.SPONSORED: _SV_ATTRIBUTES,
     ValidationLevel.INDIVIDUAL: _IV_ATTRIBUTES,
 }
-
 
 _VALIDATION_LEVEL_TO_OTHER_ATTRIBUTE_ALLOWANCE = {
     ValidationLevel.MAILBOX: (False, False, False),
@@ -117,15 +110,15 @@ _REQUIRED_ONE_OF_N = {
     (ValidationLevel.SPONSORED, Generation.LEGACY): {rfc5280.id_at_givenName, rfc5280.id_at_surname,
                                                      rfc5280.id_at_pseudonym, rfc5280.id_at_commonName},
     (ValidationLevel.INDIVIDUAL, Generation.LEGACY): {rfc5280.id_at_givenName, rfc5280.id_at_surname,
-                                                     rfc5280.id_at_pseudonym, rfc5280.id_at_commonName},
+                                                      rfc5280.id_at_pseudonym, rfc5280.id_at_commonName},
     (ValidationLevel.SPONSORED, Generation.MULTIPURPOSE): {rfc5280.id_at_givenName, rfc5280.id_at_surname,
-                                                     rfc5280.id_at_pseudonym},
-    (ValidationLevel.INDIVIDUAL, Generation.MULTIPURPOSE): {rfc5280.id_at_givenName, rfc5280.id_at_surname,
-                                                      rfc5280.id_at_pseudonym},
-    (ValidationLevel.SPONSORED, Generation.STRICT): {rfc5280.id_at_givenName, rfc5280.id_at_surname,
                                                            rfc5280.id_at_pseudonym},
-    (ValidationLevel.INDIVIDUAL, Generation.STRICT): {rfc5280.id_at_givenName, rfc5280.id_at_surname,
+    (ValidationLevel.INDIVIDUAL, Generation.MULTIPURPOSE): {rfc5280.id_at_givenName, rfc5280.id_at_surname,
                                                             rfc5280.id_at_pseudonym},
+    (ValidationLevel.SPONSORED, Generation.STRICT): {rfc5280.id_at_givenName, rfc5280.id_at_surname,
+                                                     rfc5280.id_at_pseudonym},
+    (ValidationLevel.INDIVIDUAL, Generation.STRICT): {rfc5280.id_at_givenName, rfc5280.id_at_surname,
+                                                      rfc5280.id_at_pseudonym},
 }
 
 
@@ -147,10 +140,10 @@ class SubscriberSubjectValidator(validation.Validator):
 
     def __init__(self, validation_level, generation):
         super().__init__(validations=[
-                self.VALIDATION_PROHIBITED_ATTRIBUTE,
-                self.VALIDATION_MISSING_ATTRIBUTE,
-                self.VALIDATION_MIXED_NAME_AND_PSEUDONYM_ATTRIBUTES,
-            ],
+            self.VALIDATION_PROHIBITED_ATTRIBUTE,
+            self.VALIDATION_MISSING_ATTRIBUTE,
+            self.VALIDATION_MIXED_NAME_AND_PSEUDONYM_ATTRIBUTES,
+        ],
             pdu_class=rfc5280.RDNSequence,
             predicate=lambda n: n.path != 'certificate.tbsCertificate.issuer.rdnSequence')
 
@@ -182,7 +175,7 @@ class SubscriberSubjectValidator(validation.Validator):
             oids = oid.format_oids(self._required_one_of_n_attributes)
 
             findings.append(validation.ValidationFindingDescription(self.VALIDATION_MISSING_ATTRIBUTE,
-                                                    f'Missing one of these required attributes: {oids}'))
+                                                                    f'Missing one of these required attributes: {oids}'))
 
         findings.extend((
             validation.ValidationFindingDescription(self.VALIDATION_PROHIBITED_ATTRIBUTE,
@@ -228,6 +221,7 @@ def create_subscriber_certificate_subject_validator_container(
             )
         }),
         OrganizationIdentifierLeiValidator(),
+        OrganizationIdentifierCountryNameConsistentValidator(),
         cabf_name.RelativeDistinguishedNameContainsOneElementValidator(),
     ]
 
@@ -404,12 +398,12 @@ class OrganizationIdentifierLeiValidator(validation.Validator):
 
     def __init__(self):
         super().__init__(validations=[
-                            lei.VALIDATION_INVALID_LEI_CHECKSUM, lei.VALIDATION_INVALID_LEI_FORMAT,
-                            self.VALIDATION_INVALID_ORGID_LEI_FORMAT
-                            ],
-                         pdu_class=x520_name.X520OrganizationIdentifier,
-                         predicate=lambda n: any(n.children) and str(n.child[1].pdu).startswith('LEI')
-                         )
+            lei.VALIDATION_INVALID_LEI_CHECKSUM, lei.VALIDATION_INVALID_LEI_FORMAT,
+            self.VALIDATION_INVALID_ORGID_LEI_FORMAT
+        ],
+            pdu_class=x520_name.X520OrganizationIdentifier,
+            predicate=lambda n: any(n.children) and str(n.child[1].pdu).startswith('LEI')
+        )
 
     def validate(self, node):
         value = str(node.child[1].pdu)
@@ -423,6 +417,50 @@ class OrganizationIdentifierLeiValidator(validation.Validator):
         lei_value = value[len(self._LEI_PREFIX):]
 
         lei.validate_lei(lei_value)
+
+
+class OrganizationIdentifierCountryNameConsistentValidator(validation.Validator):
+    VALIDATION_ORGID_COUNTRYNAME_INCONSISTENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'cabf.smime.org_identifier_and_country_name_attribute_inconsistent'
+    )
+
+    def __init__(self):
+        super().__init__(validations=self.VALIDATION_ORGID_COUNTRYNAME_INCONSISTENT,
+                         pdu_class=rfc5280.X520countryName)
+
+    def validate(self, node):
+        country_name_value = str(node.pdu)
+
+        for atv, _ in node.document.get_subject_attributes_by_type(x520_name.id_at_organizationIdentifier):
+            attr_value_node = atv.navigate('value')
+
+            try:
+                _, x520_dirstring_value_node = attr_value_node.child
+            except ValueError:
+                continue
+
+            _, x520_value_node = x520_dirstring_value_node.child
+
+            x520_value_str = str(x520_value_node.pdu)
+
+            m = cabf_name.ORG_ID_REGEX.match(x520_value_str)
+
+            if m is None:
+                continue
+
+            orgid_country_name = m['country']
+
+            # skip this orgId attribute if it doesn't contain a countryName or contains XG
+            if not orgid_country_name or orgid_country_name.upper() == 'XG':
+                continue
+
+            if orgid_country_name != country_name_value:
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_ORGID_COUNTRYNAME_INCONSISTENT,
+                    f'CountryName attribute value: "{country_name_value}", '
+                    f'OrganizationIdentifier attribute country name value: "{orgid_country_name}"'
+                )
 
 
 def get_email_addresses_from_san(cert_document):

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import sys
 
 from pyasn1_alt_modules import rfc5280
 
@@ -62,7 +63,7 @@ def create_subject_validation_container():
     )
 
 
-def main():
+def main(cli_args=None) -> int:
     parser = argparse.ArgumentParser('RFC 5280 Issuer/Subject Certificate Chain Linter')
 
     subparsers = parser.add_subparsers(dest='command', required=True)
@@ -78,7 +79,7 @@ def main():
                              help='The subject certificate to lint'
                              )
 
-    args = parser.parse_args()
+    args = parser.parse_args(cli_args)
 
     decoding_validation_container = create_decoder_validation_container()
     issuer_validation_container = create_issuer_validation_container()
@@ -87,6 +88,8 @@ def main():
     if args.command == 'validations':
         print(report.report_included_validations(decoding_validation_container, issuer_validation_container,
                                                  subject_validation_container))
+
+        return 0
     else:
         doc_collection = {}
 
@@ -107,8 +110,8 @@ def main():
 
         print(args.format(results, args.severity))
 
-        exit(report.get_findings_count(results, args.severity))
+        return report.get_findings_count(results, args.severity)
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

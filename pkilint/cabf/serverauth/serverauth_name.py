@@ -7,7 +7,7 @@ from pyasn1_alt_modules import rfc5280
 
 from pkilint import validation, document
 from pkilint.cabf.asn1 import ev_guidelines
-from pkilint.cabf.cabf_name import ValidCountryCodeValidatorBase, _ORG_ID_REGEX
+from pkilint.cabf.cabf_name import ValidCountryCodeValidatorBase, ORG_ID_REGEX
 from pkilint.cabf.serverauth import serverauth_constants
 from pkilint.itu import x520_name
 from pkilint.pkix import name, general_name
@@ -127,7 +127,7 @@ class OrganizationIdentifierConsistentSubjectAndExtensionValidator(validation.Va
 
         attr_value = str(node.child[1].pdu)
 
-        m = _ORG_ID_REGEX.match(attr_value)
+        m = ORG_ID_REGEX.match(attr_value)
         if m is None:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_CABF_ORG_ID_INVALID_SYNTAX,

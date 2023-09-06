@@ -102,14 +102,13 @@ class ReportGeneratorJson(ReportGeneratorBase):
 
     def handle_finding_description(self, result: ValidationResult, finding_description: ValidationFindingDescription,
                                    result_context: Optional[Any]):
-        for finding_description in self.get_finding_descriptions_for_result(result):
-            result_context.append(
-                {
-                    'severity': finding_description.finding.severity.name,
-                    'code': finding_description.finding.code,
-                    'message': finding_description.message,
-                }
-            )
+        result_context.append(
+            {
+                'severity': finding_description.finding.severity.name,
+                'code': finding_description.finding.code,
+                'message': finding_description.message,
+            }
+        )
 
     def generate(self):
         super().generate()

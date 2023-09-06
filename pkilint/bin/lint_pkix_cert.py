@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 import argparse
+import sys
 
 from pkilint import loader
-from pkilint import pkix, report, util
-from pkilint.pkix import certificate, general_name, name, extension, algorithm
-from pkilint.pkix.certificate import certificate_extension, certificate_key
+from pkilint import report, util
+from pkilint.pkix import certificate, name, extension
 
 
-def main():
+def main(cli_args=None) -> int:
     parser = argparse.ArgumentParser(description='RFC 5280 Certificate Linter')
 
     subparsers = parser.add_subparsers(dest='command', required=True)
@@ -21,27 +21,10 @@ def main():
                              help='The certificate to lint'
                              )
 
-    args = parser.parse_args()
+    args = parser.parse_args(cli_args)
 
     doc_validator = certificate.create_pkix_certificate_validator_container(
-        [
-            pkix.create_attribute_decoder(name.ATTRIBUTE_TYPE_MAPPINGS),
-            pkix.create_extension_decoder(extension.EXTENSION_MAPPINGS),
-            pkix.create_signature_algorithm_identifier_decoder(
-                algorithm.SIGNATURE_ALGORITHM_IDENTIFIER_MAPPINGS,
-                path='certificate.tbsCertificate.signature'
-            ),
-            certificate.create_spki_decoder(
-                certificate_key.SUBJECT_PUBLIC_KEY_ALGORITHM_IDENTIFIER_MAPPINGS,
-                certificate_key.SUBJECT_KEY_PARAMETER_ALGORITHM_IDENTIFIER_MAPPINGS
-            ),
-            certificate.create_policy_qualifier_decoder(
-                certificate_extension.CERTIFICATE_POLICY_QUALIFIER_MAPPINGS
-            ),
-            certificate.create_other_name_decoder(
-                general_name.OTHER_NAME_MAPPINGS
-            ),
-        ],
+        certificate.create_decoding_validators(name.ATTRIBUTE_TYPE_MAPPINGS, extension.EXTENSION_MAPPINGS),
         [
             certificate.create_issuer_validator_container(
                 []
@@ -58,6 +41,8 @@ def main():
 
     if args.command == 'validations':
         print(report.report_included_validations(doc_validator))
+
+        return 0
     else:
         cert = loader.load_certificate(args.file, args.file.name)
 
@@ -65,8 +50,8 @@ def main():
 
         print(args.format(results, args.severity))
 
-        exit(report.get_findings_count(results, args.severity))
+        return report.get_findings_count(results, args.severity)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

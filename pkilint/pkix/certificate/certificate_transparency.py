@@ -1,3 +1,4 @@
+import datetime
 import enum
 from typing import NamedTuple, List
 
@@ -23,6 +24,9 @@ class SignatureAlgorithm(enum.IntEnum):
     ECDSA = 3
 
 
+_UNIX_EPOCH_DATETIME = datetime.datetime(1970, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
+
+
 class SignedCertificateTimestamp(NamedTuple):
     sct_version: int
     log_id: bytes
@@ -32,6 +36,10 @@ class SignedCertificateTimestamp(NamedTuple):
     sig_alg: SignatureAlgorithm
     signature: bytes
     raw: bytes
+
+    @property
+    def timestamp_datetime(self):
+        return _UNIX_EPOCH_DATETIME + datetime.timedelta(milliseconds=self.timestamp_msec)
 
 
 # Thank you JHA
@@ -76,9 +84,6 @@ def _decode_sct(octets: bytes, offset: int):
 
 
 def _decode(instance) -> List[SignedCertificateTimestamp]:
-    if hasattr(instance, 'decoded'):
-        return instance.decoded
-
     octets = instance.asOctets()
 
     expected_length = int.from_bytes(octets[0:2], 'big')
@@ -96,7 +101,7 @@ def _decode(instance) -> List[SignedCertificateTimestamp]:
 
         scts.append(sct)
 
-    setattr(instance, 'decoded', scts)
+    return scts
 
 
 class SctListExtensionDecodingValidator(validation.Validator):
@@ -105,15 +110,39 @@ class SctListExtensionDecodingValidator(validation.Validator):
         'pkix.sct_list_extension_invalid_encoding'
     )
 
-    def __init__(self):
+    def __init__(self, append_decoded=True):
         super().__init__(validations=self.VALIDATION_SCT_EXTENSION_INVALID_ENCODING,
                          pdu_class=rfc6962.SignedCertificateTimestampList)
 
+        self._append_decoded = append_decoded
+
     def validate(self, node):
         try:
-            _ = _decode(node.pdu)
+            decoded = _decode(node.pdu)
+
+            if self._append_decoded:
+                setattr(node.pdu, 'decoded', decoded)
         except ValueError as e:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_SCT_EXTENSION_INVALID_ENCODING,
                 str(e)
             )
+
+
+class SctListElementCountValidator(validation.Validator):
+    VALIDATION_SCT_LIST_EMPTY = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.sct_list_empty'
+    )
+
+    def __init__(self):
+        super().__init__(validations=self.VALIDATION_SCT_LIST_EMPTY, pdu_class=rfc6962.SignedCertificateTimestampList)
+
+    def validate(self, node):
+        try:
+            decoded = getattr(node.pdu, 'decoded')
+        except AttributeError:
+            return
+
+        if len(decoded) == 0:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_SCT_LIST_EMPTY)

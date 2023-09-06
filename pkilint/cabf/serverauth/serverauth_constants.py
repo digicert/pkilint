@@ -2,7 +2,6 @@ import enum
 
 from pyasn1.type.univ import ObjectIdentifier
 
-
 BR_VERSION = '2.0.0'
 
 
@@ -39,6 +38,16 @@ class CertificateType(enum.IntEnum):
 
     def __str__(self):
         return self.name
+
+    @property
+    def to_option_str(self):
+        return self.name.replace('_', '-')
+
+    @staticmethod
+    def from_option_str(value):
+        value = value.replace('-', '_').upper()
+
+        return CertificateType[value]
 
 
 INTERMEDIATE_CERTIFICATE_TYPES = {

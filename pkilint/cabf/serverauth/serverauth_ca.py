@@ -2,7 +2,6 @@ from pyasn1_alt_modules import rfc5280, rfc6962
 
 import pkilint.common
 from pkilint import validation, oid, common, document
-from pkilint.cabf import cabf_name
 from pkilint.cabf.serverauth import serverauth_constants
 from pkilint.itu import x520_name
 from pkilint.pkix import Rfc2119Word
@@ -26,7 +25,7 @@ class CaCertificatePoliciesValidator(validation.Validator):
         'cabf.serverauth.ca_missing_reserved_policy_oid'
     )
 
-    VALIDATION_NON_TLS_CA_HAS_serverauth_OID = validation.ValidationFinding(
+    VALIDATION_NON_TLS_CA_HAS_SERVERAUTH_OID = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
         'cabf.serverauth.ca_non_tls_has_reserved_policy_oid'
     )
@@ -45,7 +44,7 @@ class CaCertificatePoliciesValidator(validation.Validator):
         self._certificate_type = certificate_type
 
         super().__init__(validations=[self.VALIDATION_ANYPOLICY_EXTERNAL_CA, self.VALIDATION_MULTIPLE_RESERVED_OIDS,
-                                      self.VALIDATION_NO_RESERVED_OID,
+                                      self.VALIDATION_NO_RESERVED_OID, self.VALIDATION_NON_TLS_CA_HAS_SERVERAUTH_OID,
                                       self.VALIDATION_ANYPOLICY_WITH_OTHER_OID, self.VALIDATION_FIRST_OID_NOT_RESERVED],
                          pdu_class=rfc5280.CertificatePolicies)
 
@@ -68,7 +67,7 @@ class CaCertificatePoliciesValidator(validation.Validator):
                     oids = oid.format_oids(reserved_oids)
 
                     raise validation.ValidationFindingEncountered(
-                        self.VALIDATION_NON_TLS_CA_HAS_serverauth_OID,
+                        self.VALIDATION_NON_TLS_CA_HAS_SERVERAUTH_OID,
                         f'Non-TLS CA has reserved policy OIDs: {oids}'
                     )
             else:
@@ -81,7 +80,8 @@ class CaCertificatePoliciesValidator(validation.Validator):
                 raise validation.ValidationFindingEncountered(self.VALIDATION_MULTIPLE_RESERVED_OIDS,
                                                               f'Multiple reserved policy OIDs present: {oids_str}')
 
-            if policy_oids[0] not in serverauth_constants.SERVERAUTH_RESERVED_POLICY_OIDS:
+            if (self._certificate_type != serverauth_constants.CertificateType.NON_TLS_CA and
+                    policy_oids[0] not in serverauth_constants.SERVERAUTH_RESERVED_POLICY_OIDS):
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_FIRST_OID_NOT_RESERVED
                 )
