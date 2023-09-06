@@ -458,7 +458,7 @@ class OrganizationIdentifierCountryNameConsistentValidator(validation.Validator)
             if orgid_country_name != country_name_value:
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_ORGID_COUNTRYNAME_INCONSISTENT,
-                    f'CountryName attribute value: "{country_name_value}"", '
+                    f'CountryName attribute value: "{country_name_value}", '
                     f'OrganizationIdentifier attribute country name value: "{orgid_country_name}"'
                 )
 

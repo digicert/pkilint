@@ -39,4 +39,4 @@ jdUR1A==
 
 node_path,validator,severity,code,message
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
-certificate.tbsCertificate.subject.rdnSequence.0.0.value.x520countryName,OrganizationIdentifierCountryNameConsistentValidator,ERROR,cabf.smime.org_identifier_and_country_name_attribute_inconsistent,"CountryName attribute value: ""JP"""", OrganizationIdentifier attribute country name value: ""US"""
+certificate.tbsCertificate.subject.rdnSequence.0.0.value.x520countryName,OrganizationIdentifierCountryNameConsistentValidator,ERROR,cabf.smime.org_identifier_and_country_name_attribute_inconsistent,"CountryName attribute value: ""JP"", OrganizationIdentifier attribute country name value: ""US"""
