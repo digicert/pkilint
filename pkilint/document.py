@@ -24,10 +24,9 @@ class PDUNavigationFailedError(Exception):
                  ):
         """Creates an instance of an exception that represents a PDU node lookup failure.
 
-        Args:
-            requested_path: The requested path relative to the node which :py:method:`pkilint.document.PDUNode.navigate was called.
-            traversed_path: The relative path that was able to be traversed, as those nodes exist.
-            missing_node_name: The name of the node which could not be found.
+        Args: requested_path: The requested path relative to the node which
+        :py:method:`pkilint.document.PDUNode.navigate was called. traversed_path: The relative path that was able to
+        be traversed, as those nodes exist. missing_node_name: The name of the node which could not be found.
         """
         self.requested_path = requested_path
         self.traversed_path = traversed_path

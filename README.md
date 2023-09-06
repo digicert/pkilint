@@ -23,9 +23,9 @@ the instructions on the [pipx homepage](https://pypa.github.io/pipx/) to install
 
 3. Use pipx to install pkilint:
 
-```shell
-pipx install pkilint
-```
+    ```shell
+    pipx install pkilint
+    ```
 
 Once installed, the bundled command line applications (listed below) and the API will be available on your machine.
 

@@ -463,7 +463,6 @@ class OrganizationIdentifierCountryNameConsistentValidator(validation.Validator)
                 )
 
 
-
 def get_email_addresses_from_san(cert_document):
     san_ext_and_idx = cert_document.get_extension_by_oid(rfc5280.id_ce_subjectAltName)
 
