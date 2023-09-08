@@ -191,7 +191,7 @@ class NameConstraintsBaseTypeValidator(validation.Validator):
         if gn_type not in {'dNSName', 'iPAddress', 'directoryName'}:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_DISCOURAGED_BASE_NAME_TYPE,
-                f'Discouraged GeneralTree base type: {gn_type}'
+                f'Discouraged GeneralSubtree base type: {gn_type}'
             )
 
         if node.parent.name == 'excludedSubtrees' and gn_type == 'directoryName':

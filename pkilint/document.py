@@ -339,7 +339,7 @@ def get_document_by_name(node: PDUNode, document_name: str) -> Document:
 
 def decode_substrate(source_document: Document, substrate: bytes,
                      pdu_instance: Asn1Type, parent_node: Optional[PDUNode] = None) -> PDUNode:
-    if parent_node is not None and len(parent_node.children) > 0:
+    if parent_node is not None and any(parent_node.children):
         logger.debug("%s has child node; not creating new PDU node",
                      parent_node.path
                      )
