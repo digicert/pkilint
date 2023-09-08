@@ -1,7 +1,5 @@
-import ipaddress
 from typing import List
 
-from cryptography import x509
 from pyasn1_alt_modules import rfc5280, rfc4985, rfc6962
 
 import pkilint.cabf.cabf_name
@@ -20,49 +18,21 @@ from pkilint.pkix import name, certificate
 OTHER_NAME_MAPPINGS = rfc4985.otherNamesMap.copy()
 
 
-def _has_full_name_constraints(crypto_cert: x509.Certificate):
-    has_dirname_constraint = False
-    has_ipv4_constraint = False
-    has_ipv6_constraint = False
-    has_dnsname_constraint = False
-
-    try:
-        ext = crypto_cert.extensions.get_extension_for_oid(x509.OID_NAME_CONSTRAINTS)
-
-        gns = (
-            [] if ext.value.permitted_subtrees is None else ext.value.permitted_subtrees +
-            [] if ext.value.excluded_subtrees is None else ext.value.excluded_subtrees
-        )
-
-        for gn in gns:
-            if isinstance(gn, x509.DNSName):
-                has_dnsname_constraint = True
-            elif isinstance(gn, x509.DirectoryName):
-                has_dirname_constraint = True
-            elif isinstance(gn.value, ipaddress.IPv4Network):
-                has_ipv4_constraint = True
-            elif isinstance(gn.value, ipaddress.IPv6Network):
-                has_ipv6_constraint = True
-
-        return all((has_dirname_constraint, has_ipv4_constraint, has_ipv6_constraint, has_dnsname_constraint))
-
-    except x509.ExtensionNotFound:
-        return False
+def _has_name_constraints(cert: certificate.RFC5280Certificate):
+    return cert.get_extension_by_oid(rfc5280.id_ce_nameConstraints) is not None
 
 
-def _get_intermediate_ca_type(crypto_cert: x509.Certificate):
-    try:
-        ext = crypto_cert.extensions.get_extension_for_oid(x509.OID_EXTENDED_KEY_USAGE)
+def _determine_intermediate_ca_type(cert: certificate.RFC5280Certificate):
+    ekus = cert.extended_key_usages
 
-        ekus = set(ext.value)
-    except x509.ExtensionNotFound:
+    if not ekus:
         # assume serverauth
-        ekus = {x509.OID_SERVER_AUTH}
+        ekus = {rfc5280.id_kp_serverAuth}
 
-    if x509.ObjectIdentifier(str(rfc6962.id_kp_precertificateSigning)) in ekus:
+    if rfc6962.id_kp_precertificateSigning in ekus:
         return serverauth_constants.CertificateType.PRECERT_SIGNING_CA
-    elif x509.OID_SERVER_AUTH in ekus or x509.ObjectIdentifier(str(rfc5280.anyExtendedKeyUsage)) in ekus:
-        if _has_full_name_constraints(crypto_cert):
+    elif rfc5280.id_kp_serverAuth in ekus or rfc5280.anyExtendedKeyUsage in ekus:
+        if _has_name_constraints(cert):
             return serverauth_constants.CertificateType.INTERNAL_CONSTRAINED_TLS_CA
         else:
             return serverauth_constants.CertificateType.INTERNAL_UNCONSTRAINED_TLS_CA
@@ -70,55 +40,30 @@ def _get_intermediate_ca_type(crypto_cert: x509.Certificate):
         return serverauth_constants.CertificateType.NON_TLS_CA
 
 
-def _is_ca(crypto_cert: x509.Certificate) -> bool:
-    try:
-        ext = crypto_cert.extensions.get_extension_for_oid(x509.OID_BASIC_CONSTRAINTS)
-
-        return ext.value.ca
-    except x509.ExtensionNotFound:
-        return False
+def _is_ocsp_responder(cert: certificate.RFC5280Certificate):
+    return rfc5280.id_kp_OCSPSigning in cert.extended_key_usages
 
 
-def _is_ocsp_responder(crypto_cert: x509.Certificate):
-    try:
-        ext = crypto_cert.extensions.get_extension_for_oid(x509.OID_EXTENDED_KEY_USAGE)
-
-        return x509.OID_OCSP_SIGNING in ext.value
-    except x509.ExtensionNotFound:
-        return False
+def _is_precert(cert: certificate.RFC5280Certificate):
+    return cert.get_extension_by_oid(rfc6962.id_ce_criticalPoison) is not None
 
 
-def _is_precert(crypto_cert: x509.Certificate):
-    try:
-        _ = crypto_cert.extensions.get_extension_for_class(x509.PrecertPoison)
+def _determine_subscriber_certificate_type(cert: certificate.RFC5280Certificate):
+    is_precert = _is_precert(cert)
 
-        return True
-    except x509.ExtensionNotFound:
-        return False
+    policy_oids = cert.policy_oids
 
-
-def _determine_subscriber_certificate_type(crypto_cert: x509.Certificate):
-    is_precert = _is_precert(crypto_cert)
-
-    try:
-        ext = crypto_cert.extensions.get_extension_for_oid(x509.OID_CERTIFICATE_POLICIES)
-
-        policy_oids = {pi.policy_identifier.dotted_string for pi in ext.value}
-
-        if str(serverauth_constants.ID_POLICY_EV) in policy_oids:
-            return (serverauth_constants.CertificateType.EV_PRE_CERTIFICATE if is_precert
-                    else serverauth_constants.CertificateType.EV_FINAL_CERTIFICATE)
-        elif str(serverauth_constants.ID_POLICY_IV) in policy_oids:
-            return (serverauth_constants.CertificateType.IV_PRE_CERTIFICATE if is_precert
-                    else serverauth_constants.CertificateType.IV_FINAL_CERTIFICATE)
-        elif str(serverauth_constants.ID_POLICY_OV) in policy_oids:
-            return (serverauth_constants.CertificateType.OV_PRE_CERTIFICATE if is_precert
-                    else serverauth_constants.CertificateType.OV_FINAL_CERTIFICATE)
-        else:
-            return (serverauth_constants.CertificateType.DV_PRE_CERTIFICATE if is_precert
-                    else serverauth_constants.CertificateType.DV_FINAL_CERTIFICATE)
-    except x509.ExtensionNotFound:
-        # at a loss, guess DV?
+    if serverauth_constants.ID_POLICY_EV in policy_oids:
+        return (serverauth_constants.CertificateType.EV_PRE_CERTIFICATE if is_precert
+                else serverauth_constants.CertificateType.EV_FINAL_CERTIFICATE)
+    elif serverauth_constants.ID_POLICY_IV in policy_oids:
+        return (serverauth_constants.CertificateType.IV_PRE_CERTIFICATE if is_precert
+                else serverauth_constants.CertificateType.IV_FINAL_CERTIFICATE)
+    elif serverauth_constants.ID_POLICY_OV in policy_oids:
+        return (serverauth_constants.CertificateType.OV_PRE_CERTIFICATE if is_precert
+                else serverauth_constants.CertificateType.OV_FINAL_CERTIFICATE)
+    else:
+        # "unknown" certificate types are consider to be DV Subscriber certs
         return (serverauth_constants.CertificateType.DV_PRE_CERTIFICATE if is_precert
                 else serverauth_constants.CertificateType.DV_FINAL_CERTIFICATE)
 
@@ -127,15 +72,13 @@ def determine_certificate_type(cert: certificate.RFC5280Certificate) -> serverau
     if cert.is_self_issued:
         return serverauth_constants.CertificateType.ROOT_CA
 
-    crypto_cert = cert.cryptography_object
-
-    if _is_ca(crypto_cert):
-        return _get_intermediate_ca_type(crypto_cert)
+    if cert.is_ca:
+        return _determine_intermediate_ca_type(cert)
     else:
-        if _is_ocsp_responder(crypto_cert):
+        if _is_ocsp_responder(cert):
             return serverauth_constants.CertificateType.OCSP_RESPONDER
         else:
-            return _determine_subscriber_certificate_type(crypto_cert)
+            return _determine_subscriber_certificate_type(cert)
 
 
 def create_decoding_validators():

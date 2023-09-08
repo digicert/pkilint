@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 from pyasn1_alt_modules import rfc5280
 
 from pkilint import validation
@@ -61,7 +63,7 @@ class CrlDpDistributionPointNameValidator(validation.Validator):
             )
 
         for uri_node in (gn.child[1] for gn in gns.children.values()):
-            scheme, _ = str(uri_node.pdu).split(':', maxsplit=1)
+            scheme = urlparse(str(uri_node.pdu)).scheme
 
             if scheme.lower() != 'http':
                 raise validation.ValidationFindingEncountered(

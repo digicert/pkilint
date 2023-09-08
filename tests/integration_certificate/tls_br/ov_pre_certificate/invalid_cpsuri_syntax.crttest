@@ -31,7 +31,7 @@ OglgrGWAMg==
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.extensions.5.extnValue.certificatePolicies.0.policyQualifiers.0.qualifier.cPSuri,CpsUriHttpValidator,ERROR,cabf.cps_uri_is_not_http,Prohibited URI scheme: www.twca.com.tw
+certificate.tbsCertificate.extensions.5.extnValue.certificatePolicies.0.policyQualifiers.0.qualifier.cPSuri,CpsUriHttpValidator,ERROR,cabf.cps_uri_is_not_http,"Prohibited URI scheme: """""
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.subject_key_identifier_extension_present,
 certificate.tbsCertificate.extensions.5.extnValue.certificatePolicies.0.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
 certificate.tbsCertificate.extensions.1.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,NOTICE,pkix.unknown_subject_key_identifier_calculation_method,

@@ -1,12 +1,14 @@
 import functools
 import logging
-from typing import Optional
+from typing import Set, Optional
 
 from cryptography import x509, exceptions
 from cryptography.hazmat.primitives.asymmetric import (
     padding, rsa, dsa, ec, ed25519, ed448
 )
 from pyasn1.codec.der.encoder import encode
+from pyasn1.type import univ
+from pyasn1.type.base import Asn1Type
 from pyasn1_alt_modules import rfc5280, rfc3739
 
 from pkilint import validation, pkix, document
@@ -44,19 +46,29 @@ class RFC5280Certificate(Document):
             self.root.navigate('tbsCertificate.validity.notAfter')
         )
 
-    @property
-    def is_ca(self) -> Optional[bool]:
-        ext_and_idx = self.get_extension_by_oid(rfc5280.id_ce_basicConstraints)
+    def _decode_and_append_extension(
+            self, ext_oid: univ.ObjectIdentifier, ext_asn1_spec: Asn1Type) -> Optional[document.PDUNode]:
+        ext_and_idx = self.get_extension_by_oid(ext_oid)
 
         if ext_and_idx is None:
-            return False
+            return None
 
         ext, _ = ext_and_idx
+        ext_value = ext.children['extnValue']
 
-        try:
-            return bool(ext.navigate('extnValue.basicConstraints.cA').pdu)
-        except document.PDUNavigationFailedError:
-            return None
+        return document.decode_substrate(self, ext_value.pdu.asOctets(), ext_asn1_spec, ext_value)
+
+    @functools.cached_property
+    def is_ca(self) -> bool:
+        decoded = self._decode_and_append_extension(rfc5280.id_ce_basicConstraints, rfc5280.BasicConstraints())
+
+        return bool(decoded.navigate('cA').pdu) if decoded else False
+
+    @functools.cached_property
+    def extended_key_usages(self) -> Set[univ.ObjectIdentifier]:
+        decoded = self._decode_and_append_extension(rfc5280.id_ce_extKeyUsage, rfc5280.ExtKeyUsageSyntax())
+
+        return {eku_node.pdu for eku_node in decoded.children.values()} if decoded else set()
 
     @functools.cached_property
     def cryptography_object(self):
@@ -110,8 +122,6 @@ class RFC5280Certificate(Document):
                     tbs_octets
                 )
         except exceptions.InvalidSignature:
-            logger.exception('Signature validation failed')
-
             return False
 
         return True
@@ -144,27 +154,11 @@ class RFC5280Certificate(Document):
     def get_subject_attributes_by_type(self, oid):
         return self.get_name_attributes_by_type(oid, 'tbsCertificate.subject')
 
-    def has_policy_oid(self, oid, inhibit_anypolicy=False):
-        ext = self.get_extension_by_oid(rfc5280.id_ce_certificatePolicies)
+    @functools.cached_property
+    def policy_oids(self) -> Set[univ.ObjectIdentifier]:
+        decoded = self._decode_and_append_extension(rfc5280.id_ce_certificatePolicies, rfc5280.CertificatePolicies())
 
-        if ext is None:
-            return False
-
-        ext_value, _ = ext
-
-        oids = [
-            pi.children['policyIdentifier'].pdu
-            for pi in (
-                ext_value.navigate(
-                    'extnValue.certificatePolicies'
-                ).children.values()
-            )
-        ]
-
-        if not inhibit_anypolicy and rfc5280.anyPolicy in oids:
-            return True
-
-        return oid in oids
+        return {pi.children['policyIdentifier'].pdu for pi in decoded.children.values()} if decoded else set()
 
 
 def create_spki_decoder(subject_public_key_type_mappings, subject_public_key_parameters_type_mappings):

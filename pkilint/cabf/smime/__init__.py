@@ -32,33 +32,26 @@ OTHER_NAME_MAPPINGS = {
 }
 
 
-def determine_validation_level_and_generation(cert,
+def determine_validation_level_and_generation(cert: certificate.RFC5280Certificate,
                                               config: Mapping[univ.ObjectIdentifier,
                                               Tuple[
-                                                  smime_constants.ValidationLevel, smime_extension.Generation]] = None):
-    crypto_cert = cert.cryptography_object
+                                                  smime_constants.ValidationLevel,
+                                                  smime_extension.Generation]] = None):
+    oids = cert.policy_oids
 
-    try:
-        ext = crypto_cert.extensions.get_extension_for_oid(x509.OID_CERTIFICATE_POLICIES)
+    for v in smime_constants.ValidationLevel:
+        for g in smime_constants.Generation:
+            oid = smime_constants.get_policy_oid(v, g)
 
-        oids = {ObjectIdentifier(pi.policy_identifier.dotted_string) for pi in ext.value}
+            if oid in oids:
+                return v, g
 
-        for v in smime_constants.ValidationLevel:
-            for g in smime_constants.Generation:
-                oid = smime_constants.get_policy_oid(v, g)
+    if config is not None:
+        for o in oids:
+            v_g = config.get(o)
 
-                if oid in oids:
-                    return v, g
-
-        if config is not None:
-            for o in oids:
-                v_g = config.get(o)
-
-                if v_g is not None:
-                    return v_g
-
-    except x509.ExtensionNotFound:
-        pass
+            if v_g is not None:
+                return v_g
 
     return None
 
@@ -85,7 +78,7 @@ def _get_first_subject_attr_dirstring_value(cert, attr, attr_asn1_cls):
         return None
 
 
-def guess_validation_level_and_generation(cert,
+def guess_validation_level_and_generation(cert: certificate.RFC5280Certificate,
                                           config: Mapping[univ.ObjectIdentifier,
                                           Tuple[smime_constants.ValidationLevel, smime_extension.Generation]] = None):
     v_g = determine_validation_level_and_generation(cert, config)

@@ -59,9 +59,9 @@ certificate.tbsCertificate.subject.rdnSequence,OvSubscriberAttributeAllowanceVal
 certificate.tbsCertificate.extensions.2,SubscriberExtensionCriticalityValidator,ERROR,cabf.serverauth.subscriber.non_critical_basic_constraints_extension,
 certificate.tbsCertificate.subject.rdnSequence,ServerauthDuplicateAttributeTypeValidator,ERROR,cabf.serverauth.prohibited_duplicate_attribute_type,Prohibited multiple instances of attribute types: 2.5.4.11
 certificate.tbsCertificate.subject.rdnSequence,OvSubscriberAttributeAllowanceValidator,ERROR,cabf.serverauth.ov.organizational_unit_name_attribute_present,
-certificate.tbsCertificate.extensions.0.extnValue.certificatePolicies.1.policyQualifiers.0.qualifier.cPSuri,CpsUriHttpValidator,ERROR,cabf.cps_uri_is_not_http,Prohibited URI scheme: www.eCert.gov.hk
+certificate.tbsCertificate.extensions.0.extnValue.certificatePolicies.1.policyQualifiers.0.qualifier.cPSuri,CpsUriHttpValidator,ERROR,cabf.cps_uri_is_not_http,"Prohibited URI scheme: """""
 certificate.tbsCertificate.extensions.8.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
-certificate.tbsCertificate.extensions.0.extnValue.certificatePolicies.0.policyQualifiers.0.qualifier.cPSuri,CpsUriHttpValidator,ERROR,cabf.cps_uri_is_not_http,Prohibited URI scheme: www.eCert.gov.hk
+certificate.tbsCertificate.extensions.0.extnValue.certificatePolicies.0.policyQualifiers.0.qualifier.cPSuri,CpsUriHttpValidator,ERROR,cabf.cps_uri_is_not_http,"Prohibited URI scheme: """""
 certificate.tbsCertificate.subject.rdnSequence.7.0.value.x520CommonName,SubscriberCommonNameValidator,ERROR,cabf.serverauth.subscriber_common_name_unknown_source,"Unknown source for value of common name: ""香港獸醫管理局.組織.hk"""
 certificate.tbsCertificate.extensions.0.extnValue.certificatePolicies.1.policyQualifiers.0.qualifier.cPSuri,UriInternalDomainNameValidator,ERROR,cabf.internal_domain_name,"Internal domain name: """""
 certificate.tbsCertificate.extensions.4.extnValue.keyUsage,SubscriberKeyUsageValidator,WARNING,cabf.serverauth.subscriber_rsa_digitalsignature_and_keyencipherment_present,

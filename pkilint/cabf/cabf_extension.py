@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 from pyasn1_alt_modules import rfc5280
 
 from pkilint import validation, common
@@ -192,10 +194,10 @@ class CpsUriHttpValidator(validation.Validator):
 
     def validate(self, node):
         uri = str(node.pdu)
-        scheme = uri.split(':', maxsplit=1)[0]
+        scheme = urlparse(uri).scheme
 
         if scheme.lower() not in {'http', 'https'}:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_CPS_URI_NOT_HTTP,
-                f'Prohibited URI scheme: {scheme}'
+                f'Prohibited URI scheme: "{scheme}"'
             )
