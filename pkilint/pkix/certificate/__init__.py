@@ -1,6 +1,6 @@
 import functools
 import logging
-from typing import Set
+from typing import Set, Optional
 
 from cryptography import x509, exceptions
 from cryptography.hazmat.primitives.asymmetric import (
@@ -8,6 +8,7 @@ from cryptography.hazmat.primitives.asymmetric import (
 )
 from pyasn1.codec.der.encoder import encode
 from pyasn1.type import univ
+from pyasn1.type.base import Asn1Type
 from pyasn1_alt_modules import rfc5280, rfc3739
 
 from pkilint import validation, pkix, document
@@ -45,36 +46,29 @@ class RFC5280Certificate(Document):
             self.root.navigate('tbsCertificate.validity.notAfter')
         )
 
-    @functools.cached_property
-    def is_ca(self) -> bool:
-        ext_and_idx = self.get_extension_by_oid(rfc5280.id_ce_basicConstraints)
+    def _decode_and_append_extension(
+            self, ext_oid: univ.ObjectIdentifier, ext_asn1_spec: Asn1Type) -> Optional[document.PDUNode]:
+        ext_and_idx = self.get_extension_by_oid(ext_oid)
 
         if ext_and_idx is None:
-            return False
+            return None
 
         ext, _ = ext_and_idx
         ext_value = ext.children['extnValue']
 
-        decoded = document.decode_substrate(
-            self, ext_value.pdu.asOctets(), rfc5280.BasicConstraints(), ext_value)
+        return document.decode_substrate(self, ext_value.pdu.asOctets(), ext_asn1_spec, ext_value)
 
-        return bool(decoded.navigate('cA').pdu)
+    @functools.cached_property
+    def is_ca(self) -> bool:
+        decoded = self._decode_and_append_extension(rfc5280.id_ce_basicConstraints, rfc5280.BasicConstraints())
+
+        return bool(decoded.navigate('cA').pdu) if decoded else False
 
     @functools.cached_property
     def extended_key_usages(self) -> Set[univ.ObjectIdentifier]:
-        ext_and_idx = self.get_extension_by_oid(rfc5280.id_ce_extKeyUsage)
+        decoded = self._decode_and_append_extension(rfc5280.id_ce_extKeyUsage, rfc5280.ExtKeyUsageSyntax())
 
-        if ext_and_idx is None:
-            return set()
-
-        ext, _ = ext_and_idx
-        ext_value = ext.children['extnValue']
-
-        decoded = document.decode_substrate(
-            self, ext_value.pdu.asOctets(), rfc5280.ExtKeyUsageSyntax(), ext_value
-        )
-
-        return {eku_node.pdu for eku_node in decoded.children.values()}
+        return {eku_node.pdu for eku_node in decoded.children.values()} if decoded else set()
 
     @functools.cached_property
     def cryptography_object(self):
@@ -164,17 +158,9 @@ class RFC5280Certificate(Document):
 
     @functools.cached_property
     def policy_oids(self) -> Set[univ.ObjectIdentifier]:
-        ext_and_idx = self.get_extension_by_oid(rfc5280.id_ce_certificatePolicies)
+        decoded = self._decode_and_append_extension(rfc5280.id_ce_certificatePolicies, rfc5280.CertificatePolicies())
 
-        if ext_and_idx is None:
-            return set()
-
-        ext, _ = ext_and_idx
-        ext_value = ext.children['extnValue']
-
-        decoded = document.decode_substrate(self, ext_value.pdu.asOctets(), rfc5280.CertificatePolicies(), ext_value)
-
-        return {pi.children['policyIdentifier'].pdu for pi in decoded.children.values()}
+        return {pi.children['policyIdentifier'].pdu for pi in decoded.children.values()} if decoded else set()
 
 
 def create_spki_decoder(subject_public_key_type_mappings, subject_public_key_parameters_type_mappings):
