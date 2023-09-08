@@ -194,7 +194,7 @@ class CpsUriHttpValidator(validation.Validator):
 
     def validate(self, node):
         uri = str(node.pdu)
-        scheme = urlparse(uri).scheme or ''
+        scheme = urlparse(uri).scheme
 
         if scheme.lower() not in {'http', 'https'}:
             raise validation.ValidationFindingEncountered(

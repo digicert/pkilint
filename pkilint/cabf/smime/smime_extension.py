@@ -532,7 +532,7 @@ class AllowedCrldpFullNameValidator(validation.Validator):
 
         allowed_schemes = {'http', 'ldap', 'ftp'} if self._generation == Generation.LEGACY else {'http'}
         for u in uris:
-            scheme = urlparse(u).scheme or ''
+            scheme = urlparse(u).scheme
 
             if scheme.lower() not in allowed_schemes:
                 raise validation.ValidationFindingEncountered(self.VALIDATION_CRLDP_FULLNAME_PROHIBITED_URI_SCHEME,
@@ -571,7 +571,7 @@ class AllowedAiaUriSchemeValidator(validation.Validator):
                 f'Prohibited AIA GeneralName type: {name}'
             )
 
-        scheme = urlparse(str(value.pdu)).scheme or ''
+        scheme = urlparse(str(value.pdu)).scheme
 
         allowed_schemes = {'http', 'ftp', 'ldap'} if self._generation == Generation.LEGACY else {'http'}
         if scheme.lower() not in allowed_schemes:

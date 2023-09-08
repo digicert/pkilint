@@ -63,7 +63,7 @@ class CrlDpDistributionPointNameValidator(validation.Validator):
             )
 
         for uri_node in (gn.child[1] for gn in gns.children.values()):
-            scheme = urlparse(str(uri_node.pdu)).scheme or ''
+            scheme = urlparse(str(uri_node.pdu)).scheme
 
             if scheme.lower() != 'http':
                 raise validation.ValidationFindingEncountered(
