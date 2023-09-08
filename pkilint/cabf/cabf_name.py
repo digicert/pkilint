@@ -238,7 +238,7 @@ class UriInternalDomainNameValidator(InternalDomainNameValidator):
         super().__init__(*args, **kwargs)
 
     def extract_domain_name(self, node):
-        return urlparse(str(node.pdu)).netloc
+        return urlparse(str(node.pdu)).hostname or ''
 
 
 class GeneralNameUriInternalDomainNameValidator(InternalDomainNameValidator):
@@ -249,7 +249,7 @@ class GeneralNameUriInternalDomainNameValidator(InternalDomainNameValidator):
         if general_name.is_nameconstraints_child_node(node):
             return str(node.pdu).lstrip('.')
         else:
-            return urlparse(str(node.pdu)).hostname
+            return urlparse(str(node.pdu)).hostname or ''
 
     def validate_with_value(self, node, value):
         if len(value) == 0 and general_name.is_nameconstraints_child_node(node):
@@ -263,9 +263,9 @@ class EmailAddressInternalDomainNameValidator(InternalDomainNameValidator):
         super().__init__(*args, **kwargs)
 
     def extract_domain_name(self, node):
-        _, domain_part = str(node.pdu).split('@', maxsplit=1)
+        parts = str(node.pdu).split('@', maxsplit=1)
 
-        return domain_part
+        return parts[1] if len(parts) == 2 else ''
 
 
 class GeneralNameRfc822NameInternalDomainNameValidator(EmailAddressInternalDomainNameValidator):

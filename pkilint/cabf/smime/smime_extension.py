@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 from pyasn1_alt_modules import rfc5280, rfc3279, rfc5480, rfc8398, rfc8410, rfc3739
 
 import pkilint.adobe.asn1 as adobe_asn1
@@ -530,11 +532,11 @@ class AllowedCrldpFullNameValidator(validation.Validator):
 
         allowed_schemes = {'http', 'ldap', 'ftp'} if self._generation == Generation.LEGACY else {'http'}
         for u in uris:
-            scheme, _ = u.split(':', maxsplit=1)
+            scheme = urlparse(u).scheme or ''
 
             if scheme.lower() not in allowed_schemes:
                 raise validation.ValidationFindingEncountered(self.VALIDATION_CRLDP_FULLNAME_PROHIBITED_URI_SCHEME,
-                                                              f'Prohibited URI scheme: {scheme}')
+                                                              f'Prohibited URI scheme: "{scheme}"')
 
 
 class AllowedAiaUriSchemeValidator(validation.Validator):
@@ -569,10 +571,10 @@ class AllowedAiaUriSchemeValidator(validation.Validator):
                 f'Prohibited AIA GeneralName type: {name}'
             )
 
-        scheme = str(value.pdu).split(':', maxsplit=1)[0].lower()
+        scheme = urlparse(str(value.pdu)).scheme or ''
 
         allowed_schemes = {'http', 'ftp', 'ldap'} if self._generation == Generation.LEGACY else {'http'}
-        if scheme not in allowed_schemes:
+        if scheme.lower() not in allowed_schemes:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_PROHIBITED_URI_SCHEME,
                 f'Prohibited AIA URI scheme: {scheme}'
