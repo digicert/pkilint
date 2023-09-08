@@ -315,12 +315,6 @@ class ValueDecoder(object):
                              pdu_type, value_node
                              )
         except (PyAsn1Error, ValueError) as e:
-            logger.exception(
-                'Error occurred when decoding %s value in %s',
-                pdu_type,
-                value_node.path
-            )
-
             raise ValueDecodingFailedError(
                 value_node, type_node.pdu, pdu_type, str(e)
             )

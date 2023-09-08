@@ -122,8 +122,6 @@ class RFC5280Certificate(Document):
                     tbs_octets
                 )
         except exceptions.InvalidSignature:
-            logger.exception('Signature validation failed')
-
             return False
 
         return True
