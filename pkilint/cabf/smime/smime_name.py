@@ -240,7 +240,7 @@ class SubjectAlternativeNameContainsSubjectEmailAddressesValidator(
     )
 
     VALIDATION_EMAIL_ADDRESS_IN_ATTRIBUTE_MISSING_FROM_SAN = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.WARNING,
+        validation.ValidationFindingSeverity.ERROR,
         'cabf.smime.email_address_in_attribute_not_in_san'
     )
 
