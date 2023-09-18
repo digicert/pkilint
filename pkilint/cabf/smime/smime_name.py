@@ -455,7 +455,7 @@ class OrganizationIdentifierCountryNameConsistentValidator(validation.Validator)
             if not orgid_country_name or orgid_country_name.upper() == 'XG':
                 continue
 
-            if orgid_country_name != country_name_value:
+            if orgid_country_name.casefold() != country_name_value.casefold():
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_ORGID_COUNTRYNAME_INCONSISTENT,
                     f'CountryName attribute value: "{country_name_value}", '
