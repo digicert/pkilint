@@ -4,8 +4,11 @@ from importlib.metadata import version
 
 from fastapi.testclient import TestClient
 
+from pkilint import report
+from pkilint.cabf import serverauth
 from pkilint.cabf.serverauth import serverauth_constants
 from pkilint.cabf.smime import smime_constants
+from pkilint.pkix import certificate
 from pkilint.rest import app as web_app
 
 
@@ -273,3 +276,19 @@ def test_detect_and_lint_serverauth_with_smime(client):
     j = resp.json()
 
     assert j['linter']['name'] == serverauth_constants.CertificateType.DV_FINAL_CERTIFICATE.to_option_str
+
+
+def test_validations_list(client):
+    resp = client.get('/certificate/cabf-serverauth/root-ca')
+    assert resp.status_code == HTTPStatus.OK
+
+    j = resp.json()
+
+    v = certificate.create_pkix_certificate_validator_container(
+        serverauth.create_decoding_validators(),
+        serverauth.create_validators(serverauth_constants.CertificateType.ROOT_CA)
+    )
+
+    for actual, expected in zip(j, report.get_included_validations(v)):
+        assert actual['code'] == expected.code
+        assert actual['severity'] == str(expected.severity)

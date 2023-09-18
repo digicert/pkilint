@@ -7,7 +7,7 @@ from pkilint.rest import cabf_serverauth, cabf_smime
 from pkilint.rest import model
 
 _PKILINT_VERSION = version('pkilint')
-_API_VERSION = 'v1'
+_API_VERSION = 'v1.1'
 
 app = FastAPI(
     title='pkilint API',
@@ -72,6 +72,16 @@ def certificate_determine_type(linter_group_name: str, doc: model.CertificateMod
     parsed_doc = doc.parsed_document
 
     return linter_group_instance.determine_linter(parsed_doc)
+
+
+@app.get('/certificate/{linter_group_name}/{linter_name}')
+def linter_validations(linter_group_name: str, linter_name: str) -> List[model.Validation]:
+    """Returns the set of validations performed by the specified linter"""
+    linter_group_instance = _get_linter_group_by_name(linter_group_name)
+
+    linter_instance = linter_group_instance.get_linter_by_name(linter_name)
+
+    return linter_instance.validations
 
 
 @app.post('/certificate/{linter_group_name}/{linter_name}')
