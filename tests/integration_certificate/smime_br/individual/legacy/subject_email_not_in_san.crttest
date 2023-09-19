@@ -33,6 +33,6 @@ fvIxRAYBvTkh/dWMDVr06pxeZgQW685QDDOFno9Ev4YCQFu6paaJ2Pz/5hJeMzMC
 +KIDg6NtlaijbvLmwVnK5xh4KOJ5Tiac
 -----END CERTIFICATE-----
 node_path,validator,severity,code,message
-certificate.tbsCertificate.subject.rdnSequence.0.0,SubjectAlternativeNameContainsSubjectEmailAddressesValidator,ERROR,cabf.smime.email_address_in_common_name_not_in_san,hanako.yamada+alt@example.com
+certificate.tbsCertificate.subject.rdnSequence.0.0,SubjectAlternativeNameContainsSubjectEmailAddressesValidator,ERROR,cabf.smime.email_address_in_attribute_not_in_san,"Attribute 2.5.4.3 with value ""hanako.yamada+alt@example.com"" not found in SAN"
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 

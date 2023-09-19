@@ -31,7 +31,6 @@ ERROR,cabf.smime.cps_uri_is_not_http,SMBR 7.1.2.3 (a),"""If the value of this ex
 ERROR,cabf.smime.crldp_fullname_prohibited_generalname_type,SMBR 7.1.2.3 (b),"""Allowed URI scheme"""
 ERROR,cabf.smime.crldp_fullname_prohibited_uri_scheme,SMBR 7.1.2.3 (b),"Legacy: ""At least one uniformResourceIdentifier SHALL have the URI scheme HTTP"". MP and strict: ""Every uniformResourceIdentifier SHALL have the URI scheme HTTP"""
 ERROR,cabf.smime.email_address_in_attribute_not_in_san,SMBR 7.1.4.2.1,"""All Mailbox Addresses in the subject field or entries of type dirName of this extension SHALL be repeated as rfc822Name or otherName values of type id-on-SmtpUTF8Mailbox in this extension"""
-ERROR,cabf.smime.email_address_in_common_name_not_in_san,SMBR 7.1.4.2.2 (a),"""If present, the Mailbox Address SHALL contain a rfc822Name or otherName value of type id-on-SmtpUTF8Mailbox from extensions:subjectAltName"""
 ERROR,cabf.smime.emailprotection_eku_missing,SMBR 7.1.2.3 (f),"""id-kp-emailProtection SHALL be present"""
 ERROR,cabf.smime.extended_key_usage_extension_missing,SMBR 7.1.2.3 (f),"""SHALL be present"""
 ERROR,cabf.smime.invalid_lei_scheme_format,SMBR 7.1.4.2.2 (d) and SMBR 7.1.2.3 (l),LEI value does not conform to standard LEI format (20 alphanumeric characters)
