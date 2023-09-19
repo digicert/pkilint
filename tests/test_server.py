@@ -106,6 +106,41 @@ CTe59IndMLJ8wwru0OHco8qL4Qf9VcuDMpNWUZGDp6o9EaAJgzlOHGRsk5NZTCZk
 XpOaUjkNSs4=
 -----END CERTIFICATE-----'''
 
+_BAD_CERT_POLICIES_DER_PEM = '''-----BEGIN CERTIFICATE-----
+MIIFxjCCBK6gAwIBAgIQAROrI6zwQH6igXlKWdEvgjANBgkqhkiG9w0BAQsFADBP
+MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMSkwJwYDVQQDEyBE
+aWdpQ2VydCBUTFMgUlNBIFNIQTI1NiAyMDIwIENBMTAeFw0yMjExMDcwMDAwMDBa
+Fw0yMzEyMDcyMzU5NTlaMG4xCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9y
+bmlhMRYwFAYDVQQHEw1TYW4gRnJhbmNpc2NvMRgwFgYDVQQKEw9BdGxhc3NpYW4s
+IEluYy4xGDAWBgNVBAMMDyouYXRsYXNzaWFuLm5ldDBZMBMGByqGSM49AgEGCCqG
+SM49AwEHA0IABAA5f4xySbL2RYn5iN2hWUkfiN1P4SUDSRnXJEUQHXpF8l/END0J
+OeR35O6YsNujZ1K4v1jgd9A0IUjZiSv5v0yjggNIMIIDRDAfBgNVHSMEGDAWgBS3
+a6LqqKqEjHnqtNoPmLLFlXa59DAdBgNVHQ4EFgQU+mkBUo1ciX5KgAIDvHbxaU2f
+7uQwKQYDVR0RBCIwIIIPKi5hdGxhc3NpYW4ubmV0gg1hdGxhc3NpYW4ubmV0MA4G
+A1UdDwEB/wQEAwIHgDAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwgY8G
+A1UdHwSBhzCBhDBAoD6gPIY6aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lD
+ZXJ0VExTUlNBU0hBMjU2MjAyMENBMS00LmNybDBAoD6gPIY6aHR0cDovL2NybDQu
+ZGlnaWNlcnQuY29tL0RpZ2lDZXJ0VExTUlNBU0hBMjU2MjAyMENBMS00LmNybDAJ
+BgNVHSAEAjAAMH8GCCsGAQUFBwEBBHMwcTAkBggrBgEFBQcwAYYYaHR0cDovL29j
+c3AuZGlnaWNlcnQuY29tMEkGCCsGAQUFBzAChj1odHRwOi8vY2FjZXJ0cy5kaWdp
+Y2VydC5jb20vRGlnaUNlcnRUTFNSU0FTSEEyNTYyMDIwQ0ExLTEuY3J0MAkGA1Ud
+EwQCMAAwggF9BgorBgEEAdZ5AgQCBIIBbQSCAWkBZwB1AOg+0No+9QY1MudXKLyJ
+a8kD08vREWvs62nhd31tBr1uAAABhFR4zfEAAAQDAEYwRAIgc6t8bZ2KunnZ69sG
+tr1FwJNkUnziV4paMfwCcUlLt+gCIDQmxKSdxplZkpSC44oGd8ELazQ/pcdt6Cd8
+DwGvYHZ6AHYAs3N3B+GEUPhjhtYFqdwRCUp5LbFnDAuH3PADDnk2pZoAAAGEVHjO
+GQAABAMARzBFAiBCp50y65Mv9ywP1ZEmtOU5RCaoZnj6FHCYCKRCLiiZhQIhAMVi
+1/hXezSaBvGupxA9YK+U+nUvMI9WfNCsF1SCTJkZAHYAtz77JN+cTbp18jnFulj0
+bF38Qs96nzXEnh0JgSXttJkAAAGEVHjN0AAABAMARzBFAiBOrjjpLggkFE0tTvs3
+sYYMtOnD2hBCtVdrLVkCNggTBQIhAPV5tvqy9MkgEZxT01TCs13BhHfHf+PAAMSI
+bqNorCSMMA0GCSqGSIb3DQEBCwUAA4IBAQCSYtQLKmsr3Mm1MiXSrcx5ZLYmNjbV
+ngYf1T8+eQWIdSLdHYJwJ4hE44XsRS4F/HBJWldKJyqZ5RUP0fL5KxnH3/7wKD1F
+ZjFu9ITmHjNz/55f5BwD7SHi5ZqbT8wYEN1Oy+duFTpeZgJzZFYw8cEIrEYVGrNn
+TcujtM2w710EQ+DXIPlXMpMJmtCzzrLzVYdPmIGwiIUoj9BwhgMtBtPInxe7qjm6
+B0iBclRQb246wAEPjF/sWAUS+LgmJL2u1CclSWu3h/Ae+yIMKAbdL6Vn5GeLHfCD
+kJePcGspl/I0jGLIvpG34YRy9mLrgiWskyETVNFDPIzddBDAqWu2JkDK
+-----END CERTIFICATE-----
+'''
+
 
 def test_groups(client):
     resp = client.get('/certificate')
@@ -158,6 +193,11 @@ def test_smime_detect(client):
     j = resp.json()
 
     assert j['linter']['name'] == f'{smime_constants.ValidationLevel.SPONSORED}-{smime_constants.Generation.STRICT}'
+
+
+def test_smime_detect_bad_extension_der(client):
+    resp = client.post('/certificate/cabf-smime', json={'pem': _BAD_CERT_POLICIES_DER_PEM})
+    assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
 def test_smime_detect_not_smime(client):
@@ -242,6 +282,11 @@ def test_serverauth_detect_not_serverauth(client):
     j = resp.json()
 
     assert j['linter']['name'] == serverauth_constants.CertificateType.DV_FINAL_CERTIFICATE.to_option_str
+
+
+def test_serverauth_detect_bad_extension_der(client):
+    resp = client.post('/certificate/cabf-serverauth', json={'pem': _BAD_CERT_POLICIES_DER_PEM})
+    assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
 def test_lint_serverauth_unknown_linter(client):
