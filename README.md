@@ -163,7 +163,7 @@ support for linting against the profile for certificates specified in ballot [SC
 The `lint` sub-command requires that the user provide the certificate type/profile of the certificate so that the appropriate
 validations are performed. There are two options:
 
-1. Explicitly specify the type certificate using the `-t`/`--type` option.
+1. Explicitly specify the type of certificate using the `-t`/`--type` option.
 2. Have the linter detect the type of certificate using the `-d`/`--detect` option. In this case, the linter will determine the certificate type using the values of various extensions and fields included in the certificate. The detection procedure may not always be accurate, so it is recommended to use the `--type` option for the best results.
 
 Several parts of the TLS Baseline Requirements supersede requirements specified in RFC 5280. For example, RFC 5280 specifies that the `nameConstraints` extension MUST be critical, but the TLS Baseline Requirements allows this extension to be non-critical. By default, findings related to the PKIX standards that are superseded by the
