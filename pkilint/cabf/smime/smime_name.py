@@ -389,7 +389,7 @@ class OrganizationIdentifierLeiValidator(validation.Validator):
         if not value.startswith(self._LEI_PREFIX):
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_INVALID_ORGID_LEI_FORMAT,
-                f'Invalid Organization Identifier format: {value}'
+                f'Invalid Organization Identifier format: "{value}"'
             )
 
         lei_value = value[len(self._LEI_PREFIX):]

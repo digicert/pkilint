@@ -119,7 +119,7 @@ class OrganizationIdentifierAttributeValidator(validation.TypeMatchingValidator)
         if m is None:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
-                f'Invalid format: {value_node.pdu}'
+                f'Invalid format: "{value_node.pdu}"'
             )
 
         scheme_info = self._allowed_schemes.get(m['scheme'])
@@ -127,18 +127,18 @@ class OrganizationIdentifierAttributeValidator(validation.TypeMatchingValidator)
         if scheme_info is None:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_ORGANIZATION_ID_INVALID_SCHEME,
-                f'Invalid registration scheme: {m["scheme"]}'
+                f'Invalid registration scheme: "{m["scheme"]}"'
             )
 
         if scheme_info.require_registration_reference and m['reference'] is None:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
-                f'Missing Registration Reference: {value_node.pdu}'
+                f'Missing Registration Reference: "{value_node.pdu}"'
             )
         elif not scheme_info.require_registration_reference and m['reference']:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
-                f'Prohibited Registration Reference is present: {value_node.pdu}'
+                f'Prohibited Registration Reference is present: "{value_node.pdu}"'
             )
 
         country_code = '' if m['country'] is None else m['country'].upper()
@@ -156,7 +156,7 @@ class OrganizationIdentifierAttributeValidator(validation.TypeMatchingValidator)
         if not valid_country_code:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY,
-                f'Invalid country code for scheme "{m["scheme"]}": {country_code}'
+                f'Invalid country code for scheme "{m["scheme"]}": "{country_code}"'
             )
 
         if m['sp'] is not None and not scheme_info.allow_state_province:

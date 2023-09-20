@@ -152,7 +152,7 @@ class AuthorityInformationAccessUniqueLocationValidator(validation.Validator):
 
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_DUPLICATE_LOCATION_URI,
-                f'Duplicate AIA access locations: {dup_locations_str}'
+                f'Duplicate AIA access locations: "{dup_locations_str}"'
             )
 
 

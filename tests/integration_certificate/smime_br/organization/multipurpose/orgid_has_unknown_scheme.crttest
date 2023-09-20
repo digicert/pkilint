@@ -35,6 +35,6 @@ i0RWgPiGAy2tyXdzzIzsL9yle2aVG+Tj1GckmJI+dJL7fgjYMqaFLtkKodE/JR0T
 p5tQtb5kI1ze8bjKV5qnMlCIV1RtaAubxd8E0dIBazc293NX8ypBQRFYjdUR1A==
 -----END CERTIFICATE-----
 node_path,validator,severity,code,message
-certificate.tbsCertificate.subject.rdnSequence.0.0,OrganizationIdentifierAttributeValidator,ERROR,cabf.invalid_subject_organization_identifier_registration_scheme,Invalid registration scheme: TAX
+certificate.tbsCertificate.subject.rdnSequence.0.0,OrganizationIdentifierAttributeValidator,ERROR,cabf.invalid_subject_organization_identifier_registration_scheme,"Invalid registration scheme: ""TAX"""
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 
