@@ -38,4 +38,4 @@ tND4nmyLRFaA+IYDLa3Jd3PMjOwv3KV7ZpUb5OPUZySYkj50kvt+CNgypoUu2Qqh
 
 node_path,validator,severity,code,message
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
-certificate.tbsCertificate.subject.rdnSequence.0.0,OrganizationIdentifierAttributeValidator,ERROR,cabf.invalid_subject_organization_identifier_format,Invalid format: NTRFR+PARI-AEYE00EKXESVZUUEBP67
+certificate.tbsCertificate.subject.rdnSequence.0.0,OrganizationIdentifierAttributeValidator,ERROR,cabf.invalid_subject_organization_identifier_format,"Invalid format: ""NTRFR+PARI-AEYE00EKXESVZUUEBP67"""

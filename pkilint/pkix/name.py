@@ -199,7 +199,7 @@ class DomainComponentValidDomainNameValidator(validation.Validator):
             if not isinstance(ret, bool) or not ret:
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_NAME_DC_NOT_A_VALID_DOMAIN_NAME,
-                    f'Invalid domain name in domainComponents: {domain_name}'
+                    f'Invalid domain name in domainComponents: "{domain_name}"'
                 )
 
 

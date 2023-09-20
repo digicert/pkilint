@@ -234,13 +234,8 @@ def create_subscriber_certificate_subject_validator_container(
 class SubjectAlternativeNameContainsSubjectEmailAddressesValidator(
     validation.Validator
 ):
-    VALIDATION_EMAIL_ADDRESS_IN_CN_MISSING_FROM_SAN = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.smime.email_address_in_common_name_not_in_san'
-    )
-
     VALIDATION_EMAIL_ADDRESS_IN_ATTRIBUTE_MISSING_FROM_SAN = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.WARNING,
+        validation.ValidationFindingSeverity.ERROR,
         'cabf.smime.email_address_in_attribute_not_in_san'
     )
 
@@ -252,7 +247,6 @@ class SubjectAlternativeNameContainsSubjectEmailAddressesValidator(
     def __init__(self):
         super().__init__(
             validations=[
-                self.VALIDATION_EMAIL_ADDRESS_IN_CN_MISSING_FROM_SAN,
                 self.VALIDATION_EMAIL_ADDRESS_IN_ATTRIBUTE_MISSING_FROM_SAN,
                 self.VALIDATION_UNPARSED_ATTRIBUTE,
             ],
@@ -285,29 +279,13 @@ class SubjectAlternativeNameContainsSubjectEmailAddressesValidator(
         value_str = str(value.pdu)
 
         if bool(validators.email(value_str)):
-            san_ext = node.document.get_extension_by_oid(
-                rfc5280.id_ce_subjectAltName
-            )
-            if san_ext is None:
-                email_sans = set()
-            else:
-                email_sans = set((
-                    str(gn.child[1].pdu)
-                    for gn in san_ext[0].navigate('extnValue.subjectAltName').children.values()
-                    if gn.child[0] == 'rfc822Name'
-                ))
+            san_email_addresses = get_email_addresses_from_san(node.document)
 
-            if value_str not in email_sans:
-                if oid == rfc5280.id_at_commonName:
-                    raise validation.ValidationFindingEncountered(
-                        self.VALIDATION_EMAIL_ADDRESS_IN_CN_MISSING_FROM_SAN,
-                        value_str
-                    )
-                else:
-                    raise validation.ValidationFindingEncountered(
-                        self.VALIDATION_EMAIL_ADDRESS_IN_ATTRIBUTE_MISSING_FROM_SAN,
-                        f'Attribute {str(oid)} with value "{value_str}" not found in SAN'
-                    )
+            if value_str not in san_email_addresses:
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_EMAIL_ADDRESS_IN_ATTRIBUTE_MISSING_FROM_SAN,
+                    f'Attribute {str(oid)} with value "{value_str}" not found in SAN'
+                )
 
 
 class CommonNameValidator(validation.Validator):
@@ -411,7 +389,7 @@ class OrganizationIdentifierLeiValidator(validation.Validator):
         if not value.startswith(self._LEI_PREFIX):
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_INVALID_ORGID_LEI_FORMAT,
-                f'Invalid Organization Identifier format: {value}'
+                f'Invalid Organization Identifier format: "{value}"'
             )
 
         lei_value = value[len(self._LEI_PREFIX):]
@@ -455,7 +433,7 @@ class OrganizationIdentifierCountryNameConsistentValidator(validation.Validator)
             if not orgid_country_name or orgid_country_name.upper() == 'XG':
                 continue
 
-            if orgid_country_name != country_name_value:
+            if orgid_country_name.casefold() != country_name_value.casefold():
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_ORGID_COUNTRYNAME_INCONSISTENT,
                     f'CountryName attribute value: "{country_name_value}", '

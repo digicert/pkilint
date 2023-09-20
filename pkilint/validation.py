@@ -115,18 +115,18 @@ class Validator(NodeVisitor):
         pass
 
     @property
-    def tags(self):
+    def tags(self) -> List[str]:
         return ['static']
 
     @property
-    def validations(self):
+    def validations(self) -> List[ValidationFinding]:
         return self._validations + [self.VALIDATION_FINDING_UNHANDLED_EXCEPTION]
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.__class__.__name__
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
 

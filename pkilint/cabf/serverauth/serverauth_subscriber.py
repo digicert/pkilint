@@ -55,7 +55,7 @@ class CABFOrganizationIdentifierExtensionValidator(validation.Validator):
         if scheme_info is None:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_ORGANIZATION_ID_INVALID_SCHEME,
-                f'Invalid registration scheme: {scheme}'
+                f'Invalid registration scheme: "{scheme}"'
             )
 
         if scheme_info.country_identifier_type == cabf_constants.RegistrationSchemeCountryIdentifierType.NONE:
@@ -71,7 +71,7 @@ class CABFOrganizationIdentifierExtensionValidator(validation.Validator):
         if not valid_country_code:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY,
-                f'Invalid country code for scheme "{scheme}": {country}'
+                f'Invalid country code for scheme "{scheme}": "{country}"'
             )
 
         if sp is not None and not scheme_info.allow_state_province:

@@ -1,8 +1,9 @@
 import csv
 import io
 import json
-from typing import Iterable, Optional, Any
+from typing import Iterable, Optional, Any, List
 
+from pkilint import validation
 from pkilint.validation import ValidationFindingSeverity, ValidationResult, ValidationFindingDescription
 
 
@@ -143,17 +144,21 @@ REPORT_FORMATS = {
 _VALIDATION_LIST_CSV_FIELDNAMES = ['severity', 'code']
 
 
-def report_included_validations(*args):
+def get_included_validations(*args) -> List[validation.ValidationFinding]:
+    all_validations = set()
+    for validator in args:
+        all_validations.update(validator.validations)
+
+    return sorted(all_validations, key=lambda v: f'{int(v.severity)}-{v.code}')
+
+
+def report_included_validations(*args) -> str:
     s = io.StringIO()
 
     c = csv.DictWriter(s, fieldnames=_VALIDATION_LIST_CSV_FIELDNAMES)
     c.writeheader()
 
-    all_validations = set()
-    for validator in args:
-        all_validations.update(validator.validations)
-
-    validations = sorted(all_validations, key=lambda v: f'{int(v.severity)}-{v.code}')
+    validations = get_included_validations(*args)
 
     for v in validations:
         c.writerow({'severity': str(v.severity), 'code': v.code})

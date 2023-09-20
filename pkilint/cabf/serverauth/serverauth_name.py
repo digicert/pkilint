@@ -57,7 +57,7 @@ class ValidBusinessCategoryValidator(validation.Validator):
         if business_category not in self._ALLOWED_VALUES:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_INVALID_BUSINESS_CATEGORY,
-                f'Invalid business category: {business_category}'
+                f'Invalid business category: "{business_category}"'
             )
 
 
@@ -131,7 +131,7 @@ class OrganizationIdentifierConsistentSubjectAndExtensionValidator(validation.Va
         if m is None:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_CABF_ORG_ID_INVALID_SYNTAX,
-                f'Invalid syntax: {attr_value}'
+                f'Invalid syntax: "{attr_value}"'
             )
 
         findings = []

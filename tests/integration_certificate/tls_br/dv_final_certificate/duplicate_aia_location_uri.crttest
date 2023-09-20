@@ -33,4 +33,5 @@ neAuyla987b8J57rdt1CZYvoJQ5SlobEXx4DGy1dkIev3kdHqL35PG7dfEKrx6fD
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.extensions.6.extnValue.authorityInfoAccessSyntax,AuthorityInformationAccessUniqueLocationValidator,ERROR,cabf.serverauth.aia_duplicate_location,Duplicate AIA access locations: http://ocsp.certsrus.com
+certificate.tbsCertificate.extensions.6.extnValue.authorityInfoAccessSyntax,AuthorityInformationAccessUniqueLocationValidator,ERROR,cabf.serverauth.aia_duplicate_location,"Duplicate AIA access locations: ""http://ocsp.certsrus.com"""
+

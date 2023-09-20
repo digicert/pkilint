@@ -122,7 +122,9 @@ def main(cli_args=None) -> int:
             v_g = smime.determine_validation_level_and_generation(cert, args.mapping)
 
             if v_g is None:
-                raise ValueError('Could not determine validation level and generation')
+                print('Could not determine validation level and generation', file=sys.stderr)
+
+                return 1
             else:
                 validation_level, generation = v_g
         elif args.guess:

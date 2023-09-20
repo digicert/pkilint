@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from pyasn1.error import PyAsn1Error
 
 from pkilint.cabf import smime
 from pkilint.cabf.smime import smime_constants
@@ -11,7 +12,12 @@ class CabfSmimeLinterGroup(model.LinterGroup):
         super().__init__(name='cabf-smime', linters=linters)
 
     def determine_linter(self, doc):
-        v_g = smime.determine_validation_level_and_generation(doc)
+        try:
+            v_g = smime.determine_validation_level_and_generation(doc)
+        except (ValueError, PyAsn1Error) as e:
+            message = f'Parsing error occurred: {e}'
+
+            raise HTTPException(status_code=422, detail=message)
 
         if v_g is None:
             raise HTTPException(status_code=422, detail='Could not determine certificate type')

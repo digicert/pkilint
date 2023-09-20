@@ -61,7 +61,7 @@ def validate_lei(lei: str):
 
     if m is None:
         raise validation.ValidationFindingEncountered(
-            VALIDATION_INVALID_LEI_FORMAT, f'Invalid LEI format: {lei}'
+            VALIDATION_INVALID_LEI_FORMAT, f'Invalid LEI format: "{lei}"'
         )
 
     value_part = m.group('value')

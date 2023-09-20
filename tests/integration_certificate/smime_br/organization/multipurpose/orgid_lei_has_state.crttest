@@ -37,6 +37,6 @@ JR0Tp5tQtb5kI1ze8bjKV5qnMlCIV1RtaAubxd8E0dIBazc293NX8ypBQRFYjdUR
 -----END CERTIFICATE-----
 node_path,validator,severity,code,message
 certificate.tbsCertificate.subject.rdnSequence.0.0,OrganizationIdentifierAttributeValidator,ERROR,cabf.invalid_subject_organization_identifier_state_province_for_scheme,"Scheme ""LEI"" does not allow state/province values"
-certificate.tbsCertificate.subject.rdnSequence.0.0.value.x520OrganizationIdentifier,OrganizationIdentifierLeiValidator,ERROR,cabf.smime.invalid_lei_scheme_format,Invalid Organization Identifier format: LEIXG+PA-AEYE00EKXESVZUUEBP67
+certificate.tbsCertificate.subject.rdnSequence.0.0.value.x520OrganizationIdentifier,OrganizationIdentifierLeiValidator,ERROR,cabf.smime.invalid_lei_scheme_format,"Invalid Organization Identifier format: ""LEIXG+PA-AEYE00EKXESVZUUEBP67"""
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 

@@ -16,6 +16,11 @@ class Version(BaseModel):
 _SEVERITY_DESCRIPTION = f'The severity of the finding ({", ".join(map(str, validation.ValidationFindingSeverity))})'
 
 
+class Validation(BaseModel):
+    severity: Annotated[str, Field(description=_SEVERITY_DESCRIPTION)]
+    code: Annotated[str, Field(description='The code that identifies the type of validation')]
+
+
 class FindingDescription(BaseModel):
     severity: Annotated[str, Field(description=_SEVERITY_DESCRIPTION)]
     code: Annotated[str, Field(description='The code that identifies the type of finding')]
@@ -44,6 +49,13 @@ class Linter(BaseModel):
 
         self._validator = validator
         self._finding_filters = finding_filters
+
+    @property
+    def validations(self) -> List[Validation]:
+        return [
+            Validation(severity=str(v.severity), code=v.code)
+            for v in report.get_included_validations(self._validator)
+        ]
 
     def lint(self, doc) -> LintResultList:
         results = self._validator.validate(doc.root)
