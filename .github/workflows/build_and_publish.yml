@@ -47,7 +47,7 @@ jobs:
 
   build_and_push_docker:
     needs: [test_wheel]
-    name: Build Docker image
+    name: Build and push Docker image
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -99,7 +99,7 @@ jobs:
           sudo curl -H "X-API-Key:${{ secrets.SM_API_KEY }}" "https://one.digicert.com/signingmanager/api-ui/v1/releases/smpkcs11-linux-x64/download" -o /usr/local/lib/smpkcs11.so
           echo "name=signingmanager" | sudo tee -a /usr/local/lib/pkcs11properties.cfg > /dev/null
           echo "library=/usr/local/lib/smpkcs11.so" | sudo tee -a /usr/local/lib/pkcs11properties.cfg > /dev/null
-          echo "slotListIndex=0" |sudo tee -a /usr/local/lib/pkcs11properties.cfg > /dev/null
+          echo "slotListIndex=0" | sudo tee -a /usr/local/lib/pkcs11properties.cfg > /dev/null
         
           echo "SM_API_KEY=${{ secrets.SM_API_KEY }}" >> $GITHUB_ENV
           echo "SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}" >> $GITHUB_ENV
@@ -120,7 +120,7 @@ jobs:
           TAGS: ${{ steps.meta.outputs.tags }}
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
         run: |
-          echo "${TAGS}" | xargs -I {} ./cosign sign --key "${{ secrets.SM_KEY_URI }}" --yes {}@${DIGEST}
+          echo "${TAGS}" | xargs -I {} ./cosign sign --recursive --key "${{ secrets.SM_KEY_URI }}" --yes {}@${DIGEST}
 
   upload_pypi:
     needs: [build_wheel, test_wheel]
