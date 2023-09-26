@@ -2,6 +2,12 @@
 
 ALl notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.9.4 - 2023-09-27
+
+### New features/enhancements
+
+- Publish Docker images (#43)
+
 ## 0.9.3 - 2023-09-20
 
 ### New features/enhancements
