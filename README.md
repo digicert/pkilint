@@ -14,6 +14,8 @@ There are several ready-to-use command-line tools bundled with pkilint, or the P
 
 ## Installation
 
+### Installing locally
+
 1. Python 3.9 or newer must be installed. Python can be downloaded and installed from https://www.python.org/downloads/, or
 use your operating system's package manager.
 
@@ -27,9 +29,9 @@ the instructions on the [pipx homepage](https://pypa.github.io/pipx/) to install
     pipx install pkilint
     ```
 
-Once installed, the bundled command line applications (listed below) and the API will be available on your machine.
+Once installed, the bundled command line applications (listed below) and the Python API will be available on your machine.
 
-### Upgrading
+#### Upgrading
 
 When a new version of pkilint is released, run the following command to upgrade your installation:
 
@@ -37,7 +39,7 @@ When a new version of pkilint is released, run the following command to upgrade 
 pipx upgrade pkilint
 ```
 
-### REST API Installation
+#### REST API Installation
 
 pkilint provides a REST API component that can be installed as a package extra. The REST API is implemented as an ASGI
 web application, so you will need to install an ASGI server in addition to the package extra. There are several ASGI
@@ -48,6 +50,87 @@ To install the REST API component and Uvicorn ASGI server using pipx, run the fo
 ```shell
 pipx install pkilint[rest]
 pipx inject pkilint --include-apps uvicorn
+```
+
+### Docker
+
+Starting with v0.9.4, Docker images are provided with each release. In addition to the pkilint Python package, the image includes
+[Uvicorn](https://www.uvicorn.org/) and [Gunicorn](https://gunicorn.org/). This allows the Docker image to be readily used to
+run a server that provides the pkilint REST API.
+
+To pull the latest version of the Docker image, execute the following command:
+
+```shell
+docker pull ghcr.io/digicert/pkilint
+```
+
+After the Docker image has been pulled, all command-line linters are available, as well as the Uvicorn and Gunicorn commands to start the
+REST API server.
+
+A few examples:
+
+Linting an S/MIME certificate:
+
+```shell
+$ echo '-----BEGIN CERTIFICATE-----
+MIIF1DCCA7ygAwIBAgIUI+v/jTtadau/a5lLVGP50z0FoW8wDQYJKoZIhvcNAQEL
+BQAwSDELMAkGA1UEBhMCVVMxHzAdBgNVBAoMFkZvbyBJbmR1c3RyaWVzIExpbWl0
+ZWQxGDAWBgNVBAMMD0ludGVybWVkaWF0ZSBDQTAeFw0yMzA0MTkwMDAwMDBaFw0y
+MzA3MTgyMzU5NTlaMEIxFjAUBgNVBAMMDVlBTUFEQSBIYW5ha28xKDAmBgkqhkiG
+9w0BCQEWGWhhbmFrby55YW1hZGFAZXhhbXBsZS5jb20wggEiMA0GCSqGSIb3DQEB
+AQUAA4IBDwAwggEKAoIBAQCw+egZQ6eumJKq3hfKfED4dE/tL4FI5sjqont9ABVI
++1GSqyi1bFBgsRjM0THllIdMbKmJtWwnKW8J+5OgNN8y6Xxv8JmM/Y5vQt2lis0f
+qXmG8UTz0VTWdlAXXmhUs6lSADvAaIe4RVrCsZ97L3ZQTryY7JRVcbB4khUN3Gp0
+yg+801SXzoFTTa+UGIRLE66jH51aa5VXu99hnv1OiH8tQrjdi8mH6uG/icq4XuIe
+NWMF32wHqIOOPvQcWV3M5D2vxJEj702Ku6k9OQXkAo17qRSEonWW4HtLbtmS8He1
+JNPc/n3dVUm+fM6NoDXPoLP7j55G9zKyqGtGAWXAj1MTAgMBAAGjggG6MIIBtjAM
+BgNVHRMBAf8EAjAAMA4GA1UdDwEB/wQEAwIHgDAfBgNVHSMEGDAWgBTWRAAyfKgN
+/6xPa2buta6bLMU4VDAdBgNVHQ4EFgQUiRlZXg7xafXLvUfhNPzimMxpMJEwFAYD
+VR0gBA0wCzAJBgdngQwBBQQBMD0GA1UdHwQ2MDQwMqAwoC6GLGh0dHA6Ly9jcmwu
+Y2EuZXhhbXBsZS5jb20vaXNzdWluZ19jYV9jcmwuY3JsMEsGCCsGAQUFBwEBBD8w
+PTA7BggrBgEFBQcwAoYvaHR0cDovL3JlcG9zaXRvcnkuY2EuZXhhbXBsZS5jb20v
+aXNzdWluZ19jYS5kZXIwHQYDVR0lBBYwFAYIKwYBBQUHAwQGCCsGAQUFBwMCMIGU
+BgNVHREEgYwwgYmBGWhhbmFrby55YW1hZGFAZXhhbXBsZS5jb22gKQYKKwYBBAGC
+NxQCA6AbDBloYW5ha28ueWFtYWRhQGV4YW1wbGUuY29toCYGCCsGAQUFBwgJoBoM
+GOWxseeUsOiKseWtkEBleGFtcGxlLmNvbaQZMBcxFTATBgNVBAMMDOWxseeUsOiK
+seWtkDANBgkqhkiG9w0BAQsFAAOCAgEAB3UHyqEUNiG3h2cDl9O0jfsIUwOSxSOo
+TI9X81QsoCb1JZpcDNJWyvBDalUSChHLAxBxImGa+WZw7dCFxhKLds8NKGtScefk
+7FNVxHT7iR77DcaqqyCz3UGYT5nwoPFMJ1Iu3Vb7h1zn9zHn9BlVCFEHr19ORXHp
+vjyi4cEU5/1zhfbm09tJE+2F4mrDK10AGG6BD6QTw0vV+vA+pSfxzcEmmfH0lcPL
+ORgN4/A/bP4c57A7ZXG1YAbmEDJK07b6wF53EoUumalV7WvynrD9Jx1QrUera3yQ
+LhOqfyWz7Ib2+dQnLlaLPw7n7gnSlo8EqfiyuY2XmOlr6i/KBGdWLnxE+t1yC/YC
+FKVVykJEItSqyngEKAHZyu6Qh+v68uorMO7nMhWQ/toLEeYxjig38qMi+oJ5oMey
+SlNKUQpLRTr7IRdvQ9gM2hHKTv/KrbmCa8vJv+pH0jbvE2WuHRkIQxmK/qYqkXKH
+cCHQU8NkafPEeQaE2hidSZV7AUzD4t2VoySASeh5qRC3QhNTIueFEjgBkJVGbynR
+nYIS9bOMsNASk8p5PYFcmDhHxOBHInjT5k+ai82xWruI5FV8ITf+qOiVgavPssSa
+YFtmhJZx0eimy04HG4O2CobSjQrt7Ue+Yzzi/DWxhPfKPHOKTSqcxvS4ym37F2ly
+bO2MTo+BW7w=
+-----END CERTIFICATE-----' | docker run -i ghcr.io/digicert/pkilint lint_cabf_smime_cert lint -d -
+SubjectKeyIdentifierValidator @ certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier
+    pkix.subject_key_identifier_method_1_identified (INFO)
+    
+$
+```
+
+Starting a REST API server with 8 worker processes, listening for requests on TCP/IP port 8000 on all interfaces:
+
+```shell
+$ docker run -d -p 8000:8000 ghcr.io/digicert/pkilint gunicorn -w 8 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 pkilint.rest:app
+7a87146998609343490808cb6a37a8d72c3d5a2bf796af837f37e71e2bc9b144
+$ curl -X POST -H "Content-Type: application/json" -d '{"b64":"MIIF1DCCA7ygAwIBAgIUI+v/jTtadau/a5lLVGP50z0FoW8wDQYJKoZIhvcNAQELBQAwSDELMAkGA1UEBhMCVVMxHzAdBgNVBAoMFkZvbyBJbmR1c3RyaWVzIExpbWl0ZWQxGDAWBgNVBAMMD0ludGVybWVkaWF0ZSBDQTAeFw0yMzA0MTkwMDAwMDBaFw0yMzA3MTgyMzU5NTlaMEIxFjAUBgNVBAMMDVlBTUFEQSBIYW5ha28xKDAmBgkqhkiG9w0BCQEWGWhhbmFrby55YW1hZGFAZXhhbXBsZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCw+egZQ6eumJKq3hfKfED4dE/tL4FI5sjqont9ABVI+1GSqyi1bFBgsRjM0THllIdMbKmJtWwnKW8J+5OgNN8y6Xxv8JmM/Y5vQt2lis0fqXmG8UTz0VTWdlAXXmhUs6lSADvAaIe4RVrCsZ97L3ZQTryY7JRVcbB4khUN3Gp0yg+801SXzoFTTa+UGIRLE66jH51aa5VXu99hnv1OiH8tQrjdi8mH6uG/icq4XuIeNWMF32wHqIOOPvQcWV3M5D2vxJEj702Ku6k9OQXkAo17qRSEonWW4HtLbtmS8He1JNPc/n3dVUm+fM6NoDXPoLP7j55G9zKyqGtGAWXAj1MTAgMBAAGjggG6MIIBtjAMBgNVHRMBAf8EAjAAMA4GA1UdDwEB/wQEAwIHgDAfBgNVHSMEGDAWgBTWRAAyfKgN/6xPa2buta6bLMU4VDAdBgNVHQ4EFgQUiRlZXg7xafXLvUfhNPzimMxpMJEwFAYDVR0gBA0wCzAJBgdngQwBBQQBMD0GA1UdHwQ2MDQwMqAwoC6GLGh0dHA6Ly9jcmwuY2EuZXhhbXBsZS5jb20vaXNzdWluZ19jYV9jcmwuY3JsMEsGCCsGAQUFBwEBBD8wPTA7BggrBgEFBQcwAoYvaHR0cDovL3JlcG9zaXRvcnkuY2EuZXhhbXBsZS5jb20vaXNzdWluZ19jYS5kZXIwHQYDVR0lBBYwFAYIKwYBBQUHAwQGCCsGAQUFBwMCMIGUBgNVHREEgYwwgYmBGWhhbmFrby55YW1hZGFAZXhhbXBsZS5jb22gKQYKKwYBBAGCNxQCA6AbDBloYW5ha28ueWFtYWRhQGV4YW1wbGUuY29toCYGCCsGAQUFBwgJoBoMGOWxseeUsOiKseWtkEBleGFtcGxlLmNvbaQZMBcxFTATBgNVBAMMDOWxseeUsOiKseWtkDANBgkqhkiG9w0BAQsFAAOCAgEAB3UHyqEUNiG3h2cDl9O0jfsIUwOSxSOoTI9X81QsoCb1JZpcDNJWyvBDalUSChHLAxBxImGa+WZw7dCFxhKLds8NKGtScefk7FNVxHT7iR77DcaqqyCz3UGYT5nwoPFMJ1Iu3Vb7h1zn9zHn9BlVCFEHr19ORXHpvjyi4cEU5/1zhfbm09tJE+2F4mrDK10AGG6BD6QTw0vV+vA+pSfxzcEmmfH0lcPLORgN4/A/bP4c57A7ZXG1YAbmEDJK07b6wF53EoUumalV7WvynrD9Jx1QrUera3yQLhOqfyWz7Ib2+dQnLlaLPw7n7gnSlo8EqfiyuY2XmOlr6i/KBGdWLnxE+t1yC/YCFKVVykJEItSqyngEKAHZyu6Qh+v68uorMO7nMhWQ/toLEeYxjig38qMi+oJ5oMeySlNKUQpLRTr7IRdvQ9gM2hHKTv/KrbmCa8vJv+pH0jbvE2WuHRkIQxmK/qYqkXKHcCHQU8NkafPEeQaE2hidSZV7AUzD4t2VoySASeh5qRC3QhNTIueFEjgBkJVGbynRnYIS9bOMsNASk8p5PYFcmDhHxOBHInjT5k+ai82xWruI5FV8ITf+qOiVgavPssSaYFtmhJZx0eimy04HG4O2CobSjQrt7Ue+Yzzi/DWxhPfKPHOKTSqcxvS4ym37F2lybO2MTo+BW7w="}' http://localhost:8000/certificate/cabf-smime
+{"results":[{"validator":"SubjectKeyIdentifierValidator","node_path":"certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier","finding_descriptions":[{"severity":"INFO","code":"pkix.subject_key_identifier_method_1_identified","message":null}]}],"linter":{"name":"INDIVIDUAL-LEGACY"}}
+
+$
+```
+
+#### Sigstore signature verification
+
+Docker images are signed using [Sigstore](https://www.sigstore.dev/)'s [cosign](https://docs.sigstore.dev/signing/quickstart/) tool.
+To verify the signature on a Docker image, [install the cosign utility](https://docs.sigstore.dev/system_config/installation/) and execute the following
+command:
+
+```shell
+cosign verify --key https://raw.githubusercontent.com/digicert/pkilint/main/docker/cosign_public_key.pem ghcr.io/digicert/pkilint
 ```
 
 ## Usage
