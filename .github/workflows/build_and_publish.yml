@@ -7,6 +7,10 @@ on:
     types:
       - published
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build_wheel:
     name: Build pure-Python wheel and source distribution
@@ -37,9 +41,87 @@ jobs:
           path: dist
       - name: Test wheel
         run: |
-          export WHEEL_FILE=`ls -1 dist/*.whl | head -n 1`
-          pip install "$WHEEL_FILE[dev]"
+          export WHEELFILE=`ls -1 dist/*.whl | head -n 1`
+          pip install "$WHEELFILE[dev]"
           pytest
+
+  build_and_push_docker:
+    needs: [test_wheel]
+    name: Build and push Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: docker/dist
+      - name: Set environment variables
+        run: |
+          cd docker/dist && echo WHEELFILE=$(ls -1 *.whl) >> $GITHUB_ENV
+      -
+         name: Setup QEMU
+         uses: docker/setup-qemu-action@v2
+      -
+         name: Setup Docker Buildx
+         uses: docker/setup-buildx-action@v2
+      -
+        name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      -
+        name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v5
+        with:
+          build-args:
+            WHEELFILE=${{ env.WHEELFILE }}
+          context: docker
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      -
+        name: Download and configure Software Trust Manager
+        if: github.event_name != 'pull_request'
+        run: |
+          sudo curl -H "X-API-Key:${{ secrets.SM_API_KEY }}" "https://${{ secrets.DC1_API_HOST }}/signingmanager/api-ui/v1/releases/smpkcs11-linux-x64/download" -o /usr/local/lib/smpkcs11.so
+          echo "name=signingmanager" | sudo tee -a /usr/local/lib/pkcs11properties.cfg > /dev/null
+          echo "library=/usr/local/lib/smpkcs11.so" | sudo tee -a /usr/local/lib/pkcs11properties.cfg > /dev/null
+          echo "slotListIndex=0" | sudo tee -a /usr/local/lib/pkcs11properties.cfg > /dev/null
+        
+          echo "SM_API_KEY=${{ secrets.SM_API_KEY }}" >> $GITHUB_ENV
+          echo "SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}" >> $GITHUB_ENV
+          echo "SM_HOST=${{ secrets.SM_HOST }}" >> $GITHUB_ENV
+          echo "SM_CLIENT_CERT_FILE=ApiClientP12.p12" >> $GITHUB_ENV
+          
+          echo "${{ secrets.SM_CLIENT_CERT_FILE_B64 }}" | base64 -d > ApiClientP12.p12
+      -
+        name: Install cosign
+        if: github.event_name != 'pull_request'
+        run: |
+          sudo apt update && sudo apt install pcscd
+          curl -L https://github.com/sigstore/cosign/releases/download/v2.2.0/cosign-linux-pivkey-pkcs11key-amd64 -o cosign
+          chmod 755 cosign
+      -
+        name: Sign Docker image
+        if: github.event_name != 'pull_request'
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+        run: |
+          echo "${TAGS}" | xargs -I {} ./cosign sign --recursive --key "${{ secrets.SM_KEY_URI }}" --yes {}@${DIGEST}
 
   upload_pypi:
     needs: [build_wheel, test_wheel]
