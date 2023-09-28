@@ -55,8 +55,8 @@ pipx inject pkilint --include-apps uvicorn
 ### Docker
 
 Starting with v0.9.4, Docker images are provided with each release. In addition to the pkilint Python package, the image includes
-[Uvicorn](https://www.uvicorn.org/) and [Gunicorn](https://gunicorn.org/). This allows the Docker image to be readily used to
-run a server that provides the pkilint REST API.
+[Uvicorn](https://www.uvicorn.org/) and [Gunicorn](https://gunicorn.org/). These additional packages allow the Docker image to be
+readily used to run a server that provides the pkilint REST API.
 
 To pull the latest version of the Docker image, execute the following command:
 
