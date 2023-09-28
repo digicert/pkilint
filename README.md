@@ -67,9 +67,9 @@ docker pull ghcr.io/digicert/pkilint
 After the Docker image has been pulled, all command-line linters are available, as well as the Uvicorn and Gunicorn commands to start the
 REST API server.
 
-A few examples:
+A few examples demonstrating use of the Docker image are provided below.
 
-Linting an S/MIME certificate:
+#### Linting an S/MIME certificate
 
 ```shell
 $ echo '-----BEGIN CERTIFICATE-----
@@ -112,7 +112,7 @@ SubjectKeyIdentifierValidator @ certificate.tbsCertificate.extensions.3.extnValu
 $
 ```
 
-Starting a REST API server with 8 worker processes, listening for requests on TCP/IP port 8000 on all interfaces:
+#### Starting a REST API server with 8 worker processes, listening for requests on TCP/IP port 8000 on all interfaces
 
 ```shell
 $ docker run -d -p 8000:8000 ghcr.io/digicert/pkilint gunicorn -w 8 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 pkilint.rest:app
