@@ -2,6 +2,12 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.9.5 - 2023-09-29
+
+### Fixes
+
+- Stopping Docker container when executing external command results in immediate shutdown of container (#45)
+
 ## 0.9.4 - 2023-09-28
 
 ### New features/enhancements
