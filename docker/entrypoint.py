@@ -2,7 +2,7 @@
 
 import functools
 import sys
-import subprocess
+import os
 
 from pkilint.bin import (
     lint_cabf_serverauth_cert,
@@ -23,10 +23,8 @@ _ENTRYPOINTS = {
 }
 
 
-def _run(cmd, args) -> int:
-    completed_proc = subprocess.run([cmd] + args)
-
-    return completed_proc.returncode
+def _run(cmd, args):
+    os.execvp(cmd, [cmd] + args)
 
 
 def main():

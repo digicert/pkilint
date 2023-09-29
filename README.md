@@ -105,7 +105,7 @@ cCHQU8NkafPEeQaE2hidSZV7AUzD4t2VoySASeh5qRC3QhNTIueFEjgBkJVGbynR
 nYIS9bOMsNASk8p5PYFcmDhHxOBHInjT5k+ai82xWruI5FV8ITf+qOiVgavPssSa
 YFtmhJZx0eimy04HG4O2CobSjQrt7Ue+Yzzi/DWxhPfKPHOKTSqcxvS4ym37F2ly
 bO2MTo+BW7w=
------END CERTIFICATE-----' | docker run -i ghcr.io/digicert/pkilint lint_cabf_smime_cert lint -d -
+-----END CERTIFICATE-----' | docker run --rm -i ghcr.io/digicert/pkilint lint_cabf_smime_cert lint -d -
 SubjectKeyIdentifierValidator @ certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier
     pkix.subject_key_identifier_method_1_identified (INFO)
     
@@ -115,7 +115,7 @@ $
 #### Starting a REST API server with 8 worker processes, listening for requests on TCP/IP port 8000 on all interfaces
 
 ```shell
-$ docker run -d -p 8000:8000 ghcr.io/digicert/pkilint gunicorn -w 8 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 pkilint.rest:app
+$ docker run --rm -d -p 8000:8000 ghcr.io/digicert/pkilint gunicorn -w 8 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 pkilint.rest:app
 7a87146998609343490808cb6a37a8d72c3d5a2bf796af837f37e71e2bc9b144
 $ curl -X POST -H "Content-Type: application/json" -d '{"b64":"MIIF1DCCA7ygAwIBAgIUI+v/jTtadau/a5lLVGP50z0FoW8wDQYJKoZIhvcNAQELBQAwSDELMAkGA1UEBhMCVVMxHzAdBgNVBAoMFkZvbyBJbmR1c3RyaWVzIExpbWl0ZWQxGDAWBgNVBAMMD0ludGVybWVkaWF0ZSBDQTAeFw0yMzA0MTkwMDAwMDBaFw0yMzA3MTgyMzU5NTlaMEIxFjAUBgNVBAMMDVlBTUFEQSBIYW5ha28xKDAmBgkqhkiG9w0BCQEWGWhhbmFrby55YW1hZGFAZXhhbXBsZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCw+egZQ6eumJKq3hfKfED4dE/tL4FI5sjqont9ABVI+1GSqyi1bFBgsRjM0THllIdMbKmJtWwnKW8J+5OgNN8y6Xxv8JmM/Y5vQt2lis0fqXmG8UTz0VTWdlAXXmhUs6lSADvAaIe4RVrCsZ97L3ZQTryY7JRVcbB4khUN3Gp0yg+801SXzoFTTa+UGIRLE66jH51aa5VXu99hnv1OiH8tQrjdi8mH6uG/icq4XuIeNWMF32wHqIOOPvQcWV3M5D2vxJEj702Ku6k9OQXkAo17qRSEonWW4HtLbtmS8He1JNPc/n3dVUm+fM6NoDXPoLP7j55G9zKyqGtGAWXAj1MTAgMBAAGjggG6MIIBtjAMBgNVHRMBAf8EAjAAMA4GA1UdDwEB/wQEAwIHgDAfBgNVHSMEGDAWgBTWRAAyfKgN/6xPa2buta6bLMU4VDAdBgNVHQ4EFgQUiRlZXg7xafXLvUfhNPzimMxpMJEwFAYDVR0gBA0wCzAJBgdngQwBBQQBMD0GA1UdHwQ2MDQwMqAwoC6GLGh0dHA6Ly9jcmwuY2EuZXhhbXBsZS5jb20vaXNzdWluZ19jYV9jcmwuY3JsMEsGCCsGAQUFBwEBBD8wPTA7BggrBgEFBQcwAoYvaHR0cDovL3JlcG9zaXRvcnkuY2EuZXhhbXBsZS5jb20vaXNzdWluZ19jYS5kZXIwHQYDVR0lBBYwFAYIKwYBBQUHAwQGCCsGAQUFBwMCMIGUBgNVHREEgYwwgYmBGWhhbmFrby55YW1hZGFAZXhhbXBsZS5jb22gKQYKKwYBBAGCNxQCA6AbDBloYW5ha28ueWFtYWRhQGV4YW1wbGUuY29toCYGCCsGAQUFBwgJoBoMGOWxseeUsOiKseWtkEBleGFtcGxlLmNvbaQZMBcxFTATBgNVBAMMDOWxseeUsOiKseWtkDANBgkqhkiG9w0BAQsFAAOCAgEAB3UHyqEUNiG3h2cDl9O0jfsIUwOSxSOoTI9X81QsoCb1JZpcDNJWyvBDalUSChHLAxBxImGa+WZw7dCFxhKLds8NKGtScefk7FNVxHT7iR77DcaqqyCz3UGYT5nwoPFMJ1Iu3Vb7h1zn9zHn9BlVCFEHr19ORXHpvjyi4cEU5/1zhfbm09tJE+2F4mrDK10AGG6BD6QTw0vV+vA+pSfxzcEmmfH0lcPLORgN4/A/bP4c57A7ZXG1YAbmEDJK07b6wF53EoUumalV7WvynrD9Jx1QrUera3yQLhOqfyWz7Ib2+dQnLlaLPw7n7gnSlo8EqfiyuY2XmOlr6i/KBGdWLnxE+t1yC/YCFKVVykJEItSqyngEKAHZyu6Qh+v68uorMO7nMhWQ/toLEeYxjig38qMi+oJ5oMeySlNKUQpLRTr7IRdvQ9gM2hHKTv/KrbmCa8vJv+pH0jbvE2WuHRkIQxmK/qYqkXKHcCHQU8NkafPEeQaE2hidSZV7AUzD4t2VoySASeh5qRC3QhNTIueFEjgBkJVGbynRnYIS9bOMsNASk8p5PYFcmDhHxOBHInjT5k+ai82xWruI5FV8ITf+qOiVgavPssSaYFtmhJZx0eimy04HG4O2CobSjQrt7Ue+Yzzi/DWxhPfKPHOKTSqcxvS4ym37F2lybO2MTo+BW7w="}' http://localhost:8000/certificate/cabf-smime
 {"results":[{"validator":"SubjectKeyIdentifierValidator","node_path":"certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier","finding_descriptions":[{"severity":"INFO","code":"pkix.subject_key_identifier_method_1_identified","message":null}]}],"linter":{"name":"INDIVIDUAL-LEGACY"}}
