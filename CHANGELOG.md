@@ -2,6 +2,12 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.9.6 - 2023-10-25
+
+### Fixes
+
+- PrintableStringConstraintValidator should flag invalid characters in tagged PrintableStrings (#48)
+
 ## 0.9.5 - 2023-09-29
 
 ### Fixes
