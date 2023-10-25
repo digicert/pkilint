@@ -8,6 +8,10 @@ All notable changes to this project from version 0.9.3 onwards are documented in
 
 - PrintableStringConstraintValidator should flag invalid characters in tagged PrintableStrings (#48)
 
+### New features/enhancements
+
+- Bump Docker image to Python 3.12 (#50)
+
 ## 0.9.5 - 2023-09-29
 
 ### Fixes
