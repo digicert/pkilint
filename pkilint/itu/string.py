@@ -19,7 +19,7 @@ class PrintableStringConstraintValidator(validation.ASN1ConstraintValidator):
         )
         c = constraint.PermittedAlphabetConstraint(*allowed_chars)
 
-        super().__init__(pdu_supertype=PrintableString(), constraint=c,
+        super().__init__(pdu_class=PrintableString, constraint=c,
                          validations=validation.ValidationFinding(
                              validation.ValidationFindingSeverity.ERROR,
                              'itu.invalid_printablestring_character'
