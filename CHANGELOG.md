@@ -2,6 +2,12 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.9.7 - 2023-11-03
+
+### Fixes
+
+- cabf.smime.common_name_value_unknown_source finding is incorrectly reported when SmtpUtf8Mailbox SAN values appear in the subject CN (#52 - reported and fixed by @hablutzel1)
+
 ## 0.9.6 - 2023-10-25
 
 ### Fixes

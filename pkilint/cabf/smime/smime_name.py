@@ -456,6 +456,6 @@ def get_email_addresses_from_san(cert_document):
         if name == 'rfc822Name':
             email_addresses.append(value.pdu)
         elif name == 'otherName' and value.navigate('type-id').pdu == rfc8398.id_on_SmtpUTF8Mailbox:
-            email_addresses.append(value.navigate('value').pdu)
+            email_addresses.append(value.navigate('value').child[1].pdu)
 
     return email_addresses
