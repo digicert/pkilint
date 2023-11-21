@@ -135,6 +135,6 @@ def create_unprocessable_entity_error_detail(message: str, error_type: str = 'va
         {
             'loc': ['body'],
             'type': error_type,
-            'message': message,
+            'msg': message,
         }
     ]

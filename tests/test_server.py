@@ -151,7 +151,7 @@ def _assert_validationerror_list_present(resp):
     detail_0 = detail_list[0]
     assert detail_0['loc'] == ['body']
     assert detail_0['type'] == 'value_error'
-    assert 'message' in detail_0
+    assert 'msg' in detail_0
 
 
 def test_groups(client):
