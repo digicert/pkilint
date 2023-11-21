@@ -128,3 +128,13 @@ class CertificateModel(DocumentModel):
     @property
     def parsed_document(self):
         return self._parsed_document
+
+
+def create_unprocessable_entity_error_detail(message: str, error_type: str = 'value_error'):
+    return [
+        {
+            'loc': ['body'],
+            'type': error_type,
+            'message': message,
+        }
+    ]

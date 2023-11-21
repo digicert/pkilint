@@ -2,6 +2,12 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.9.8 - 2023-11-21
+
+### Fixes
+
+- HTTP 422 errors from REST API do not return a list of ValidationErrors in some cases (#54)
+
 ## 0.9.7 - 2023-11-03
 
 ### Fixes

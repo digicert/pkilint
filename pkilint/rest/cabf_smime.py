@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from pyasn1.error import PyAsn1Error
+from starlette import status
 
 from pkilint.cabf import smime
 from pkilint.cabf.smime import smime_constants
@@ -17,10 +18,16 @@ class CabfSmimeLinterGroup(model.LinterGroup):
         except (ValueError, PyAsn1Error) as e:
             message = f'Parsing error occurred: {e}'
 
-            raise HTTPException(status_code=422, detail=message)
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=model.create_unprocessable_entity_error_detail(message)
+            )
 
         if v_g is None:
-            raise HTTPException(status_code=422, detail='Could not determine certificate type')
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=model.create_unprocessable_entity_error_detail('Could not determine certificate type')
+            )
 
         v, g = v_g
 

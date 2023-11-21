@@ -142,6 +142,18 @@ kJePcGspl/I0jGLIvpG34YRy9mLrgiWskyETVNFDPIzddBDAqWu2JkDK
 '''
 
 
+def _assert_validationerror_list_present(resp):
+    j = resp.json()
+
+    detail_list = j['detail']
+    assert len(detail_list) == 1
+
+    detail_0 = detail_list[0]
+    assert detail_0['loc'] == ['body']
+    assert detail_0['type'] == 'value_error'
+    assert 'message' in detail_0
+
+
 def test_groups(client):
     resp = client.get('/certificate')
     assert resp.status_code == HTTPStatus.OK
@@ -199,10 +211,14 @@ def test_smime_detect_bad_extension_der(client):
     resp = client.post('/certificate/cabf-smime', json={'pem': _BAD_CERT_POLICIES_DER_PEM})
     assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
+    _assert_validationerror_list_present(resp)
+
 
 def test_smime_detect_not_smime(client):
     resp = client.post('/certificate/cabf-smime', json={'pem': _OV_FINAL_CLEAN_PEM})
     assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+    _assert_validationerror_list_present(resp)
 
 
 def test_lint_smime_unknown_linter(client):
@@ -251,6 +267,8 @@ def test_detect_and_lint_smime_with_tls(client):
     resp = client.post('/certificate/cabf-smime', json={'pem': _OV_FINAL_CLEAN_PEM})
     assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
+    _assert_validationerror_list_present(resp)
+
 
 def test_serverauth_no_cert(client):
     resp = client.post('/certificate/cabf-serverauth', json={})
@@ -287,6 +305,8 @@ def test_serverauth_detect_not_serverauth(client):
 def test_serverauth_detect_bad_extension_der(client):
     resp = client.post('/certificate/cabf-serverauth', json={'pem': _BAD_CERT_POLICIES_DER_PEM})
     assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+    _assert_validationerror_list_present(resp)
 
 
 def test_lint_serverauth_unknown_linter(client):
