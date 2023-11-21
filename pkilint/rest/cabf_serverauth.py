@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from pyasn1.error import PyAsn1Error
+from starlette import status
 
 from pkilint.cabf import serverauth
 from pkilint.cabf.serverauth import serverauth_constants
@@ -17,7 +18,10 @@ class CabfServerauthLinterGroup(model.LinterGroup):
         except (ValueError, PyAsn1Error) as e:
             message = f'Parsing error occurred: {e}'
 
-            raise HTTPException(status_code=422, detail=message)
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=model.create_unprocessable_entity_error_detail(message)
+            )
 
         # this doesn't fail, so we don't need to guard against not being able to determine the certificate type
         return next((l for l in self.linters if l.name.casefold() == cert_type.to_option_str.casefold()))
