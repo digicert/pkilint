@@ -158,6 +158,8 @@ class ValidityPeriodDifferenceValidator(validation.Validator):
 
 class SaneValidityPeriodValidator(ValidityPeriodDifferenceValidator):
     def __init__(self, *, end_validity_node_retriever, validation, **kwargs):
+        self._invalid_validity_period_validation = validation
+
         super().__init__(
             end_validity_node_retriever=end_validity_node_retriever,
             validations=[validation],
@@ -167,7 +169,7 @@ class SaneValidityPeriodValidator(ValidityPeriodDifferenceValidator):
     def validate_date_range(self, start_datetime, end_datetime):
         if start_datetime > end_datetime:
             raise validation.ValidationFindingEncountered(
-                self._validations[0],
+                self._invalid_validity_period_validation,
                 f'Start of validity period "{start_datetime}" is greater than '
                 f'end of validity period "{end_datetime}"'
             )
