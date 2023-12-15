@@ -17,4 +17,4 @@ AZvTbDmzq9nfzN4wz4KGkMuy0Ab7nuguoYht4LNEZG/M+uz3eh6rCEzoxIoy8w==
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix_subject_key_identifier_rfc7093_method_1_identified
+certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_rfc7093_method_1_identified

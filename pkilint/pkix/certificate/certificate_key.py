@@ -123,17 +123,17 @@ class SubjectKeyIdentifierValidator(validation.Validator):
 
     VALIDATION_RFC7093_METHOD_1 = validation.ValidationFinding(
         validation.ValidationFindingSeverity.INFO,
-        'pkix_subject_key_identifier_rfc7093_method_1_identified'
+        'pkix.subject_key_identifier_rfc7093_method_1_identified'
     )
 
     VALIDATION_RFC7093_METHOD_2 = validation.ValidationFinding(
         validation.ValidationFindingSeverity.INFO,
-        'pkix_subject_key_identifier_rfc7093_method_2_identified'
+        'pkix.subject_key_identifier_rfc7093_method_2_identified'
     )
 
     VALIDATION_RFC7093_METHOD_3 = validation.ValidationFinding(
         validation.ValidationFindingSeverity.INFO,
-        'pkix_subject_key_identifier_rfc7093_method_3_identified'
+        'pkix.subject_key_identifier_rfc7093_method_3_identified'
     )
 
     def __init__(self):
