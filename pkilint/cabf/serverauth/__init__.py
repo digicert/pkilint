@@ -7,7 +7,8 @@ import pkilint.cabf.serverauth.serverauth_extension
 import pkilint.cabf.serverauth.serverauth_name
 import pkilint.cabf.serverauth.serverauth_subscriber
 import pkilint.common
-from pkilint import validation, cabf, etsi
+import pkilint.etsi.asn1
+from pkilint import validation, cabf
 from pkilint.cabf import cabf_key, cabf_name, cabf_extension, cabf_ca
 from pkilint.cabf.serverauth import (
     serverauth_name, serverauth_extension, serverauth_constants,
@@ -86,7 +87,7 @@ def create_decoding_validators():
         cabf.NAME_ATTRIBUTE_MAPPINGS,
         cabf.EXTENSION_MAPPINGS,
         [certificate.create_other_name_decoder(OTHER_NAME_MAPPINGS),
-         certificate.create_qc_statements_decoder(etsi.ETSI_QC_STATEMENTS_MAPPINGS)]
+         certificate.create_qc_statements_decoder(pkilint.etsi.asn1.ETSI_QC_STATEMENTS_MAPPINGS)]
     )
 
 

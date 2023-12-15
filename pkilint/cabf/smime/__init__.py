@@ -1,18 +1,17 @@
 import operator
 from typing import Mapping, Tuple
 
-from cryptography import x509
 from dateutil.relativedelta import relativedelta
 from pyasn1.type import univ
-from pyasn1.type.univ import ObjectIdentifier
 from pyasn1_alt_modules import rfc8398, rfc5280, rfc4262
 
 import pkilint.adobe.asn1 as adobe_asn1
 import pkilint.cabf.cabf_extension
 import pkilint.cabf.smime.smime_extension
 import pkilint.common
+import pkilint.etsi.asn1
 import pkilint.pkix.certificate
-from pkilint import validation, cabf, document, etsi
+from pkilint import validation, cabf, document
 from pkilint.adobe import adobe_validator
 from pkilint.cabf import cabf_extension, cabf_key, cabf_name
 from pkilint.cabf.smime import (
@@ -121,7 +120,7 @@ def create_decoding_validators():
         cabf.NAME_ATTRIBUTE_MAPPINGS,
         _SMIME_EXTENSION_MAPPINGS,
         [certificate.create_other_name_decoder(OTHER_NAME_MAPPINGS),
-         certificate.create_qc_statements_decoder(etsi.ETSI_QC_STATEMENTS_MAPPINGS)]
+         certificate.create_qc_statements_decoder(pkilint.etsi.asn1.ETSI_QC_STATEMENTS_MAPPINGS)]
     )
 
 
