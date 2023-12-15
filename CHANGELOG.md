@@ -2,6 +2,17 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.9.9 - 2023-12-18
+
+### Fixes
+
+- SaneValidityPeriodValidator incorrectly reports "pkix.invalid_time_syntax" for negative validity periods (#57)
+- Decoder mapping for QcCompliance and QcSSCD statements incorrectly mapped to None (#58)
+
+### New features/enhancements
+
+- Add detection of SKI calculation methods described in RFC 7093 to SubjectKeyIdentifierValidator (#56)
+
 ## 0.9.8 - 2023-11-21
 
 ### Fixes
