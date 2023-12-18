@@ -1,10 +1,8 @@
 import operator
 from typing import Mapping, Tuple
 
-from cryptography import x509
 from dateutil.relativedelta import relativedelta
 from pyasn1.type import univ
-from pyasn1.type.univ import ObjectIdentifier
 from pyasn1_alt_modules import rfc8398, rfc5280, rfc4262
 
 import pkilint.adobe.asn1 as adobe_asn1

@@ -308,3 +308,6 @@ NOTICE,pkix.ldap_uri_not_validated,": Notice that the linter encountered a LDAP 
 NOTICE,pkix.unknown_subject_key_identifier_calculation_method,RFC 5280 4.2.1.2: The Subject key identifier was not calculated using one of the algorithms defined in RFC 5280
 INFO,pkix.subject_key_identifier_method_1_identified,RFC 5280 4.2.1.2: The Subject key identifier was calculated using the first algorithm defined in RFC 5280
 INFO,pkix.subject_key_identifier_method_2_identified,RFC 5280 4.2.1.2: The Subject key identifier was calculated using the second algorithm defined in RFC 5280
+INFO,pkix.subject_key_identifier_rfc7093_method_1_identified,"RFC 7093 2: The keyIdentifier is composed of the leftmost 160-bits of the SHA-256 hash of the value of the BIT STRING subjectPublicKey (excluding the tag, length, and number of unused bits)."
+INFO,pkix.subject_key_identifier_rfc7093_method_2_identified,"RFC 7093 2: The keyIdentifier is composed of the leftmost 160-bits of the SHA-384 hash of the value of the BIT STRING subjectPublicKey (excluding the tag, length, and number of unused bits)."
+INFO,pkix.subject_key_identifier_rfc7093_method_3_identified,"RFC 7093 2: The keyIdentifier is composed of the leftmost 160-bits of the SHA-512 hash of the value of the BIT STRING subjectPublicKey (excluding the tag, length, and number of unused bits)."

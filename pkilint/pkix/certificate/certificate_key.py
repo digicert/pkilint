@@ -1,6 +1,7 @@
 import binascii
 
 from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding, rsa, ec
 from pyasn1.codec.der.encoder import encode
 from pyasn1.type import univ
@@ -102,27 +103,37 @@ class SubjectPublicKeyParametersDecodingValidator(validation.DecodingValidator):
                          )
 
 
-def _calculate_method2_hash(sha1_hash):
-    last_8_octets = bytearray(sha1_hash[12:])
-    last_8_octets[0] = 0x40 | (last_8_octets[0] & 0xF)
-
-    return bytes(last_8_octets)
-
-
 class SubjectKeyIdentifierValidator(validation.Validator):
     VALIDATION_UNKNOWN_METHOD = validation.ValidationFinding(
         validation.ValidationFindingSeverity.NOTICE,
         'pkix.unknown_subject_key_identifier_calculation_method'
     )
 
+    # TODO: consider renaming the finding code after weighing risk of user breakage
     VALIDATION_METHOD_1 = validation.ValidationFinding(
         validation.ValidationFindingSeverity.INFO,
         'pkix.subject_key_identifier_method_1_identified'
     )
 
+    # TODO: consider renaming the finding code after weighing risk of user breakage
     VALIDATION_METHOD_2 = validation.ValidationFinding(
         validation.ValidationFindingSeverity.INFO,
         'pkix.subject_key_identifier_method_2_identified'
+    )
+
+    VALIDATION_RFC7093_METHOD_1 = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.INFO,
+        'pkix.subject_key_identifier_rfc7093_method_1_identified'
+    )
+
+    VALIDATION_RFC7093_METHOD_2 = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.INFO,
+        'pkix.subject_key_identifier_rfc7093_method_2_identified'
+    )
+
+    VALIDATION_RFC7093_METHOD_3 = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.INFO,
+        'pkix.subject_key_identifier_rfc7093_method_3_identified'
     )
 
     def __init__(self):
@@ -131,28 +142,53 @@ class SubjectKeyIdentifierValidator(validation.Validator):
                 self.VALIDATION_UNKNOWN_METHOD,
                 self.VALIDATION_METHOD_1,
                 self.VALIDATION_METHOD_2,
+                self.VALIDATION_RFC7093_METHOD_1,
+                self.VALIDATION_RFC7093_METHOD_2,
+                self.VALIDATION_RFC7093_METHOD_3,
             ],
             pdu_class=rfc5280.SubjectKeyIdentifier
         )
+
+    @staticmethod
+    def _calculate_rfc5280_method2_id(sha1_hash):
+        last_8_octets = bytearray(sha1_hash[12:])
+        last_8_octets[0] = 0x40 | (last_8_octets[0] & 0xF)
+
+        return bytes(last_8_octets)
+
+    _RFC7093_HASH_CLS_TO_FINDINGS = {
+        hashes.SHA256: VALIDATION_RFC7093_METHOD_1,
+        hashes.SHA384: VALIDATION_RFC7093_METHOD_2,
+        hashes.SHA512: VALIDATION_RFC7093_METHOD_3,
+    }
+
+    # TODO: support RFC 7093 method 4
+    @staticmethod
+    def _calculate_rfc7093_method_hash(public_key_octets, hash_cls):
+        h = util.calculate_hash(public_key_octets, hash_cls())
+
+        # leftmost 160 bits (i.e., 20 octets)
+        return h[:20]
 
     def validate(self, node):
         public_key_node = node.document.root.navigate(
             'tbsCertificate.subjectPublicKeyInfo.subjectPublicKey'
         )
 
-        public_key_bytes = public_key_node.pdu.asOctets()
-        public_key_sha1 = util.calculate_sha1_hash(public_key_bytes)
-
-        method2_hash = _calculate_method2_hash(public_key_sha1)
+        public_key_octets = public_key_node.pdu.asOctets()
 
         identifier_octets = bytes(node.pdu)
 
-        if public_key_sha1 == identifier_octets:
+        public_key_sha1 = util.calculate_sha1_hash(public_key_octets)
+
+        if identifier_octets == public_key_sha1:
             finding = self.VALIDATION_METHOD_1
-        elif method2_hash == identifier_octets:
+        elif identifier_octets == SubjectKeyIdentifierValidator._calculate_rfc5280_method2_id(public_key_sha1):
             finding = self.VALIDATION_METHOD_2
         else:
-            finding = self.VALIDATION_UNKNOWN_METHOD
+            finding = next((f for h, f in SubjectKeyIdentifierValidator._RFC7093_HASH_CLS_TO_FINDINGS.items() if
+                           SubjectKeyIdentifierValidator._calculate_rfc7093_method_hash(
+                               public_key_octets, h) == identifier_octets), self.VALIDATION_UNKNOWN_METHOD)
 
         raise validation.ValidationFindingEncountered(finding)
 
