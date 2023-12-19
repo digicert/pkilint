@@ -7,15 +7,15 @@ from pkilint import validation, report
 from pkilint.report import report_wrapper, REPORT_FORMATS
 
 
-def _calculate_hash(octets, hash_algo):
+def calculate_hash(octets: bytes, hash_algo: hashes.HashAlgorithm) -> bytes:
     h = hashes.Hash(hash_algo)
     h.update(octets)
 
     return h.finalize()
 
 
-def calculate_sha1_hash(octets):
-    return _calculate_hash(octets, hashes.SHA1())
+def calculate_sha1_hash(octets: bytes) -> bytes:
+    return calculate_hash(octets, hashes.SHA1())
 
 
 def argparse_enum_type_parser(enum_type):
