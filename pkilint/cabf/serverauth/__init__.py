@@ -82,16 +82,27 @@ def determine_certificate_type(cert: certificate.RFC5280Certificate) -> serverau
             return _determine_subscriber_certificate_type(cert)
 
 
-def create_decoding_validators():
+def create_decoding_validators(additional_validators=None):
+    if additional_validators is None:
+        additional_validators = []
+
+    additional_validators += [
+        certificate.create_other_name_decoder(OTHER_NAME_MAPPINGS),
+        certificate.create_qc_statements_decoder(pkilint.etsi.asn1.ETSI_QC_STATEMENTS_MAPPINGS)
+    ]
+
     return pkilint.pkix.certificate.create_decoding_validators(
         cabf.NAME_ATTRIBUTE_MAPPINGS,
         cabf.EXTENSION_MAPPINGS,
-        [certificate.create_other_name_decoder(OTHER_NAME_MAPPINGS),
-         certificate.create_qc_statements_decoder(pkilint.etsi.asn1.ETSI_QC_STATEMENTS_MAPPINGS)]
+        additional_validators
     )
 
 
-def create_top_level_certificate_validators(certificate_type: serverauth_constants.CertificateType):
+def create_top_level_certificate_validators(certificate_type: serverauth_constants.CertificateType,
+                                            additional_validators=None):
+    if additional_validators is None:
+        additional_validators = []
+
     validators = [
         serverauth_key.ServerauthAllowedSignatureAlgorithmEncodingValidator(
             path='certificate.tbsCertificate.signature'
@@ -115,18 +126,21 @@ def create_top_level_certificate_validators(certificate_type: serverauth_constan
     else:
         raise ValueError(f'Unsupported certificate type: {certificate_type}')
 
-    return validators
+    return validators + additional_validators
 
 
-def create_spki_validator_container():
+def create_spki_validator_container(additional_validators=None):
+    if additional_validators is None:
+        additional_validators = []
+
     return validation.ValidatorContainer(validators=[
-        serverauth_key.ServerauthAllowedPublicKeyAlgorithmEncodingValidator(
-            path='certificate.tbsCertificate.subjectPublicKeyInfo.algorithm'
-        ),
-        cabf_key.RsaKeyValidator(),
-        cabf_key.EcdsaKeyValidator(),
-    ],
-        path='certificate.tbsCertificate.subjectPublicKeyInfo')
+                                                        serverauth_key.ServerauthAllowedPublicKeyAlgorithmEncodingValidator(
+                                                            path='certificate.tbsCertificate.subjectPublicKeyInfo.algorithm'
+                                                        ),
+                                                        cabf_key.RsaKeyValidator(),
+                                                        cabf_key.EcdsaKeyValidator(),
+                                                    ] + additional_validators,
+                                         path='certificate.tbsCertificate.subjectPublicKeyInfo')
 
 
 def create_subject_name_validators() -> List[validation.Validator]:
@@ -143,7 +157,11 @@ def create_subject_name_validators() -> List[validation.Validator]:
     ]
 
 
-def create_ca_name_validator_container(certificate_type: serverauth_constants.CertificateType):
+def create_ca_name_validator_container(certificate_type: serverauth_constants.CertificateType,
+                                       additional_validators=None):
+    if additional_validators is None:
+        additional_validators = []
+
     validators = [
         serverauth_ca.CaRequiredSubjectAttributesValidator(certificate_type),
         serverauth_name.ServerauthDuplicateAttributeTypeValidator(certificate_type),
@@ -153,10 +171,14 @@ def create_ca_name_validator_container(certificate_type: serverauth_constants.Ce
     if certificate_type == serverauth_constants.CertificateType.ROOT_CA:
         validators.append(serverauth_root.RootSubjectIssuerIdenticalEncodingValidator())
 
-    return certificate.create_subject_validator_container(validators)
+    return certificate.create_subject_validator_container(validators + additional_validators)
 
 
-def create_subscriber_name_validator_container(certificate_type: serverauth_constants.CertificateType):
+def create_subscriber_name_validator_container(certificate_type: serverauth_constants.CertificateType,
+                                               additional_validators=None):
+    if additional_validators is None:
+        additional_validators = []
+
     validators = create_subject_name_validators()
     validators.extend([
         serverauth_subscriber.SubscriberCommonNameValidator(),
@@ -181,7 +203,7 @@ def create_subscriber_name_validator_container(certificate_type: serverauth_cons
     if certificate_type in serverauth_constants.IDENTITY_CERTIFICATE_TYPES:
         validators.append(serverauth_subscriber.IdentityCertificateStateProvinceAndLocalityPresenceValidator())
 
-    return certificate.create_subject_validator_container(validators)
+    return certificate.create_subject_validator_container(validators + additional_validators)
 
 
 def create_extension_validators() -> List[validation.Validator]:
@@ -204,7 +226,11 @@ def create_extension_validators() -> List[validation.Validator]:
     ]
 
 
-def create_ca_extension_validator_container(certificate_type: serverauth_constants.CertificateType):
+def create_ca_extension_validator_container(certificate_type: serverauth_constants.CertificateType,
+                                            additional_validators=None):
+    if additional_validators is None:
+        additional_validators = []
+
     validators = create_extension_validators()
 
     validators.extend([
@@ -237,10 +263,14 @@ def create_ca_extension_validator_container(certificate_type: serverauth_constan
     if certificate_type in serverauth_constants.CONSTRAINED_TLS_CA_TYPES:
         validators.append(serverauth_ca.TlsCaTechnicallyConstrainedValidator())
 
-    return certificate.create_extensions_validator_container(validators)
+    return certificate.create_extensions_validator_container(validators + additional_validators)
 
 
-def create_subscriber_extension_validator_container(certificate_type: serverauth_constants.CertificateType):
+def create_subscriber_extension_validator_container(certificate_type: serverauth_constants.CertificateType,
+                                                    additional_validators=None):
+    if additional_validators is None:
+        additional_validators = []
+
     validators = create_extension_validators()
 
     validators.extend([
@@ -262,10 +292,13 @@ def create_subscriber_extension_validator_container(certificate_type: serverauth
     else:
         validators.append(serverauth_subscriber.SubscriberSanGeneralNameTypeValidator())
 
-    return certificate.create_extensions_validator_container(validators)
+    return certificate.create_extensions_validator_container(validators + additional_validators)
 
 
-def create_ocsp_extension_validator_container():
+def create_ocsp_extension_validator_container(additional_validators=None):
+    if additional_validators is None:
+        additional_validators = []
+
     validators = create_extension_validators()
 
     validators.extend([
@@ -275,10 +308,13 @@ def create_ocsp_extension_validator_container():
         serverauth_ocsp.OcspBasicConstraintsValidator(),
     ])
 
-    return certificate.create_extensions_validator_container(validators)
+    return certificate.create_extensions_validator_container(validators + additional_validators)
 
 
-def create_validity_validator_container(certificate_type):
+def create_validity_validator_container(certificate_type, additional_validators=None):
+    if additional_validators is None:
+        additional_validators = []
+
     validators = []
 
     if certificate_type == serverauth_constants.CertificateType.ROOT_CA:
@@ -286,59 +322,103 @@ def create_validity_validator_container(certificate_type):
     elif certificate_type in serverauth_constants.SUBSCRIBER_CERTIFICATE_TYPES:
         validators.append(serverauth_subscriber.SubscriberValidityPeriodValidator())
 
-    return certificate.create_validity_validator_container(validators)
+    return certificate.create_validity_validator_container(validators + additional_validators)
 
 
-def create_root_ca_validators():
+def create_root_ca_validators(
+        additional_validity_validators=None, additional_spki_validators=None, additional_name_validators=None,
+        additional_extension_validators=None, additional_top_level_validators=None
+):
     return [
-        create_validity_validator_container(serverauth_constants.CertificateType.ROOT_CA),
-        create_spki_validator_container(),
-        create_ca_name_validator_container(serverauth_constants.CertificateType.ROOT_CA),
-        create_ca_extension_validator_container(serverauth_constants.CertificateType.ROOT_CA),
-    ] + create_top_level_certificate_validators(serverauth_constants.CertificateType.ROOT_CA)
+        create_validity_validator_container(
+            serverauth_constants.CertificateType.ROOT_CA, additional_validity_validators
+        ),
+        create_spki_validator_container(additional_spki_validators),
+        create_ca_name_validator_container(serverauth_constants.CertificateType.ROOT_CA, additional_name_validators),
+        create_ca_extension_validator_container(
+            serverauth_constants.CertificateType.ROOT_CA, additional_extension_validators
+        ),
+    ] + create_top_level_certificate_validators(
+        serverauth_constants.CertificateType.ROOT_CA, additional_top_level_validators
+    )
 
 
-def create_intermediate_ca_validators(certificate_type: serverauth_constants.CertificateType):
+def create_intermediate_ca_validators(certificate_type: serverauth_constants.CertificateType,
+                                      additional_validity_validators=None, additional_spki_validators=None,
+                                      additional_name_validators=None,
+                                      additional_extension_validators=None, additional_top_level_validators=None
+                                      ):
     return [
-        create_validity_validator_container(certificate_type),
-        create_spki_validator_container(),
-        create_ca_name_validator_container(certificate_type),
-        create_ca_extension_validator_container(certificate_type),
-    ] + create_top_level_certificate_validators(certificate_type)
+        create_validity_validator_container(certificate_type, additional_validity_validators),
+        create_spki_validator_container(additional_spki_validators),
+        create_ca_name_validator_container(certificate_type, additional_name_validators),
+        create_ca_extension_validator_container(certificate_type, additional_extension_validators),
+    ] + create_top_level_certificate_validators(certificate_type, additional_top_level_validators)
 
 
-def create_subscriber_validators(certificate_type: serverauth_constants.CertificateType):
+def create_subscriber_validators(certificate_type: serverauth_constants.CertificateType,
+                                 additional_validity_validators=None, additional_spki_validators=None,
+                                 additional_name_validators=None,
+                                 additional_extension_validators=None, additional_top_level_validators=None
+                                 ):
     return [
-        create_validity_validator_container(certificate_type),
-        create_spki_validator_container(),
-        create_subscriber_name_validator_container(certificate_type),
-        create_subscriber_extension_validator_container(certificate_type),
-    ] + create_top_level_certificate_validators(certificate_type)
+        create_validity_validator_container(certificate_type, additional_validity_validators),
+        create_spki_validator_container(additional_spki_validators),
+        create_subscriber_name_validator_container(certificate_type, additional_name_validators),
+        create_subscriber_extension_validator_container(certificate_type, additional_extension_validators),
+    ] + create_top_level_certificate_validators(certificate_type, additional_top_level_validators)
 
 
-def create_ocsp_responder_validators():
+def create_ocsp_responder_validators(
+        additional_validity_validators=None, additional_spki_validators=None,
+        additional_name_validators=None,
+        additional_extension_validators=None, additional_top_level_validators=None
+):
     return [
-        create_validity_validator_container(serverauth_constants.CertificateType.OCSP_RESPONDER),
-        create_spki_validator_container(),
-        create_ca_name_validator_container(serverauth_constants.CertificateType.OCSP_RESPONDER),
-        create_ocsp_extension_validator_container(),
-    ] + create_top_level_certificate_validators(serverauth_constants.CertificateType.OCSP_RESPONDER)
+        create_validity_validator_container(
+            serverauth_constants.CertificateType.OCSP_RESPONDER, additional_validity_validators
+        ),
+        create_spki_validator_container(additional_spki_validators),
+        create_ca_name_validator_container(
+            serverauth_constants.CertificateType.OCSP_RESPONDER, additional_name_validators
+        ),
+        create_ocsp_extension_validator_container(additional_extension_validators),
+    ] + create_top_level_certificate_validators(
+        serverauth_constants.CertificateType.OCSP_RESPONDER, additional_top_level_validators
+    )
 
 
-def create_validators(certificate_type: serverauth_constants.CertificateType):
+def create_validators(certificate_type: serverauth_constants.CertificateType,
+                      additional_validity_validators=None, additional_spki_validators=None,
+                      additional_name_validators=None,
+                      additional_extension_validators=None, additional_top_level_validators=None
+                      ):
     if certificate_type == serverauth_constants.CertificateType.ROOT_CA:
-        return create_root_ca_validators()
+        return create_root_ca_validators(additional_validity_validators, additional_spki_validators,
+                                         additional_name_validators, additional_extension_validators,
+                                         additional_top_level_validators)
     elif certificate_type in serverauth_constants.INTERMEDIATE_CERTIFICATE_TYPES:
-        return create_intermediate_ca_validators(certificate_type)
+        return create_intermediate_ca_validators(certificate_type, additional_validity_validators,
+                                                 additional_spki_validators,
+                                                 additional_name_validators, additional_extension_validators,
+                                                 additional_top_level_validators)
     elif certificate_type in serverauth_constants.SUBSCRIBER_CERTIFICATE_TYPES:
-        return create_subscriber_validators(certificate_type)
+        return create_subscriber_validators(certificate_type, additional_validity_validators,
+                                            additional_spki_validators,
+                                            additional_name_validators, additional_extension_validators,
+                                            additional_top_level_validators)
     elif certificate_type == serverauth_constants.CertificateType.OCSP_RESPONDER:
-        return create_ocsp_responder_validators()
+        return create_ocsp_responder_validators(additional_validity_validators, additional_spki_validators,
+                                                additional_name_validators, additional_extension_validators,
+                                                additional_top_level_validators)
     else:
         raise ValueError(f'Unsupported certificate type: {certificate_type}')
 
 
-def create_serverauth_finding_filters(certificate_type: serverauth_constants.CertificateType):
+def create_serverauth_finding_filters(certificate_type: serverauth_constants.CertificateType, additional_filters=None):
+    if additional_filters is None:
+        additional_filters = []
+
     filters = [
         serverauth_finding_filter.NameConstraintsCriticalityFilter(),
         serverauth_finding_filter.PolicyQualifierPresentFilter(),
@@ -350,4 +430,4 @@ def create_serverauth_finding_filters(certificate_type: serverauth_constants.Cer
             serverauth_finding_filter.EndEntitySubjectKeyIdentifierMissingFilter(),
         ]
 
-    return filters
+    return filters + additional_filters

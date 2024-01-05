@@ -4,6 +4,7 @@ import subprocess
 
 from pkilint.cabf.serverauth import serverauth_constants
 from pkilint.cabf.smime import smime_constants
+from pkilint.etsi import etsi_constants
 
 
 def _test_program(name, args=None):
@@ -22,7 +23,7 @@ def _test_program(name, args=None):
 
 def test_lint_cabf_serverauth_cert():
     for cert_type in serverauth_constants.CertificateType:
-        _test_program('lint_cabf_serverauth_cert', ['-t', cert_type.name.replace('_', '-')])
+        _test_program('lint_cabf_serverauth_cert', ['-t', cert_type.to_option_str])
 
 
 def test_lint_cabf_smime_cert():
@@ -47,3 +48,8 @@ def test_lint_pkix_cert():
 
 def test_lint_pkix_signer_signee_cert_chain():
     _test_program('lint_pkix_signer_signee_cert_chain')
+
+
+def test_lint_etsi_cert():
+    for cert_type in etsi_constants.CertificateType:
+        _test_program('lint_etsi_cert', ['-t', cert_type.to_option_str])

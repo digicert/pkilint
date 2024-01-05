@@ -3,8 +3,8 @@
 import argparse
 import sys
 
+from pkilint import etsi
 from pkilint import loader, report, util, finding_filter
-from pkilint.cabf import serverauth
 from pkilint.etsi import etsi_constants
 from pkilint.pkix import certificate
 
@@ -41,7 +41,7 @@ def main(cli_args=None) -> int:
     detect_options_group = lint_parser.add_mutually_exclusive_group(required=True)
     detect_options_group.add_argument('-d', '--detect', action='store_true',
                                       help='Detect the type of certificate from reserved CA/B Forum policy '
-                                           'OID, EKU(s), name constraints, and basic constraints.')
+                                           'OIDs and qualified certificate statements.')
     detect_options_group.add_argument('-t', '--type',
                                       type=str.upper,
                                       action=EtsiCertificateTypeAction,
@@ -51,7 +51,7 @@ def main(cli_args=None) -> int:
                              help='Output the type of certificate to standard error. This option may be '
                                   'useful when using the --detect option.')
     lint_parser.add_argument('-r', '--report-all', action='store_true', help='Report all findings without filtering '
-                             'any PKIX findings that are superseded by ETSI requirements')
+                             'any PKIX findings that are superseded by CA/Browser Forum or ETSI requirements')
 
     util.add_standard_args(lint_parser)
     lint_parser.add_argument('file', type=argparse.FileType('rb'),
@@ -62,8 +62,8 @@ def main(cli_args=None) -> int:
 
     if args.command == 'validations':
         doc_validator = certificate.create_pkix_certificate_validator_container(
-            serverauth.create_decoding_validators(),
-            serverauth.create_validators(args.type)
+            etsi.create_decoding_validators(),
+            etsi.create_validators(args.type)
         )
 
         print(report.report_included_validations(doc_validator))
@@ -75,21 +75,21 @@ def main(cli_args=None) -> int:
         if args.type:
             certificate_type = args.type
         else:
-            certificate_type = serverauth.determine_certificate_type(cert)
+            certificate_type = etsi.determine_certificate_type(cert)
 
         if args.output:
             print(certificate_type.to_option_str, file=sys.stderr)
 
         doc_validator = certificate.create_pkix_certificate_validator_container(
-            serverauth.create_decoding_validators(),
-            serverauth.create_validators(certificate_type)
+            etsi.create_decoding_validators(),
+            etsi.create_validators(certificate_type)
         )
 
         results = doc_validator.validate(cert.root)
 
         if not args.report_all:
             results, _ = finding_filter.filter_results(
-                serverauth.create_serverauth_finding_filters(certificate_type), results
+                etsi.create_etsi_finding_filters(certificate_type), results
             )
 
         print(args.format(results, args.severity))

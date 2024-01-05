@@ -71,6 +71,12 @@ class RFC5280Certificate(Document):
         return {eku_node.pdu for eku_node in decoded.children.values()} if decoded else set()
 
     @functools.cached_property
+    def qualified_statement_ids(self) -> Set[univ.ObjectIdentifier]:
+        decoded = self._decode_and_append_extension(rfc3739.id_pe_qcStatements, rfc3739.QCStatements())
+
+        return {qs.children['statementId'].pdu for qs in decoded.children.values()} if decoded else set()
+
+    @functools.cached_property
     def cryptography_object(self):
         return x509.load_der_x509_certificate(self.substrate)
 
