@@ -15,7 +15,7 @@ def determine_certificate_type(cert: certificate.RFC5280Certificate) -> Certific
     is_qualified = en_319_412_5.id_etsi_qcs_QcCompliance in qualified_statement_ids
 
     if serverauth_constants.ID_POLICY_EV in policy_oids:
-        return CertificateType.QEVCP_W if is_qualified else CertificateType.QEVCP_W
+        return CertificateType.QEVCP_W if is_qualified else CertificateType.EVCP
     elif serverauth_constants.ID_POLICY_OV in policy_oids:
         return CertificateType.QNCP_W_OV if is_qualified else CertificateType.OVCP
     elif serverauth_constants.ID_POLICY_IV in policy_oids:

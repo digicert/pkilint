@@ -9,12 +9,13 @@ class CertificateType(enum.IntEnum):
     DVCP = 1,
     IVCP = 2,
     OVCP = 3,
-    NCP = 4,
-    QEVCP_W = 5,
-    QNCP_W_DV = 6,
-    QNCP_W_IV = 7,
-    QNCP_W_OV = 8,
-    QNCP_W_GEN = 9,
+    EVCP = 4,
+    NCP = 5,
+    QEVCP_W = 6,
+    QNCP_W_DV = 7,
+    QNCP_W_IV = 8,
+    QNCP_W_OV = 9,
+    QNCP_W_GEN = 10,
 
     def __str__(self):
         return self.name
