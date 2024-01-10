@@ -51,7 +51,7 @@ def main(cli_args=None) -> int:
                              help='Output the type of certificate to standard error. This option may be '
                                   'useful when using the --detect option.')
     lint_parser.add_argument('-r', '--report-all', action='store_true', help='Report all findings without filtering '
-                             'any PKIX findings that are superseded by CA/Browser Forum or ETSI requirements')
+                             'any findings that are superseded by other requirements')
 
     util.add_standard_args(lint_parser)
     lint_parser.add_argument('file', type=argparse.FileType('rb'),
