@@ -57,18 +57,18 @@ def determine_certificate_type(cert: certificate.RFC5280Certificate) -> Certific
 
         if is_natural_person:
             if is_qualified:
-                return (CertificateType.QNCP_W_GEN_NP_PRE_CERTIFICATE if is_precert
-                        else CertificateType.QNCP_W_GEN_NP_FINAL_CERTIFICATE)
+                return (CertificateType.QNCP_W_GEN_NATURAL_PERSON_PRE_CERTIFICATE if is_precert
+                        else CertificateType.QNCP_W_GEN_NATURAL_PERSON_FINAL_CERTIFICATE)
             else:
-                return (CertificateType.NCP_NP_PRE_CERTIFICATE if is_precert
-                        else CertificateType.NCP_NP_FINAL_CERTIFICATE)
+                return (CertificateType.NCP_NATURAL_PERSON_PRE_CERTIFICATE if is_precert
+                        else CertificateType.NCP_NATURAL_PERSON_FINAL_CERTIFICATE)
         else:
             if is_qualified:
-                return (CertificateType.QNCP_W_GEN_LP_PRE_CERTIFICATE if is_precert
-                        else CertificateType.QNCP_W_GEN_LP_FINAL_CERTIFICATE)
+                return (CertificateType.QNCP_W_GEN_LEGAL_PERSON_PRE_CERTIFICATE if is_precert
+                        else CertificateType.QNCP_W_GEN_LEGAL_PERSON_FINAL_CERTIFICATE)
             else:
-                return (CertificateType.NCP_LP_PRE_CERTIFICATE if is_precert
-                        else CertificateType.NCP_LP_FINAL_CERTIFICATE)
+                return (CertificateType.NCP_LEGAL_PERSON_PRE_CERTIFICATE if is_precert
+                        else CertificateType.NCP_LEGAL_PERSON_FINAL_CERTIFICATE)
 
 
 def create_decoding_validators() -> List[validation.Validator]:
