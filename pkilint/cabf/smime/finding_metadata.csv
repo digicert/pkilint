@@ -8,7 +8,7 @@ ERROR,cabf.authority_key_identifier_has_issuer_cert,SMBR 7.1.2.3 (g),"""authorit
 ERROR,cabf.crldp_extension_missing,SMBR 7.1.2.3 (b),"""SHALL be present"""
 ERROR,cabf.internal_domain_name,,The use of an internal domain name (whose superior domain labels do not appear on the PSL)
 ERROR,cabf.invalid_country_code,,The use of a country code that does not appear on ISO 3166.
-ERROR,cabf.invalid_subject_organization_identifier_country,SMBR 7.1.4.2.2 (d),The use of a country code that is not allowed in the organizationIdentifier attribute
+ERROR,cabf.invalid_organization_identifier_country,SMBR 7.1.4.2.2 (d),The use of a country code that is not allowed in the organizationIdentifier attribute
 ERROR,cabf.invalid_subject_organization_identifier_encoding,SMBR 7.1.4.2.2 (d),The use of a legacy encoding for new subject names (which all S/MIME certificates will have)
 ERROR,cabf.invalid_subject_organization_identifier_format,SMBR 7.1.4.2.2 (d),The inclusion of a value which does not adhere to the specified attribute format
 ERROR,cabf.invalid_subject_organization_identifier_registration_scheme,SMBR 7.1.4.2.2 (d),The inclusion of a scheme which is not recognized

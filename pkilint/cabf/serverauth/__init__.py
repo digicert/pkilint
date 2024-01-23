@@ -152,7 +152,7 @@ def create_subject_name_validators() -> List[validation.Validator]:
         serverauth_name.ValidJurisdictionCountryValidator(),
         cabf_name.ValidCountryValidator(),
         serverauth_name.ValidBusinessCategoryValidator(),
-        cabf_name.OrganizationIdentifierAttributeValidator(relax_stateprovince_syntax=False),
+        cabf_name.CabfOrganizationIdentifierAttributeValidator(),
         serverauth_name.ServerauthRelativeDistinguishedNameContainsOneElementValidator(),
     ]
 
@@ -189,7 +189,7 @@ def create_subscriber_name_validator_container(certificate_type: serverauth_cons
         validators.extend([
             serverauth_subscriber.EvSubscriberAttributeAllowanceValidator(),
             serverauth_subscriber.EvSubscriberJurisdictionPresenceValidator(),
-            serverauth_name.OrganizationIdentifierConsistentSubjectAndExtensionValidator()
+            pkilint.cabf.serverauth.serverauth_subscriber.OrganizationIdentifierConsistentSubjectAndExtensionValidator()
         ])
     elif certificate_type in serverauth_constants.IV_CERTIFICATE_TYPES:
         validators.append(serverauth_subscriber.IvSubscriberAttributeAllowanceValidator())

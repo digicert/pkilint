@@ -1,5 +1,4 @@
 import ipaddress
-import re
 import typing
 from urllib.parse import urlparse
 
@@ -9,10 +8,9 @@ from iso3166 import countries_by_alpha2
 from pyasn1_alt_modules import rfc5280, rfc8398
 
 from pkilint import validation
-from pkilint.cabf import cabf_constants
-from pkilint.cabf.cabf_constants import REGISTRATION_SCHEMES
+from pkilint.common import organization_id
 from pkilint.itu import x520_name
-from pkilint.pkix import general_name
+from pkilint.pkix import general_name, Rfc2119Word
 
 
 class ValidCountryCodeValidatorBase(validation.TypeMatchingValidator):
@@ -48,13 +46,96 @@ class ValidCountryValidator(ValidCountryCodeValidatorBase):
                          )
 
 
-ORG_ID_REGEX = re.compile(
-    r'^(?P<scheme>[A-Z]{3})(?P<country>[a-zA-Z]{2})?(\+(?P<sp>[a-zA-Z0-9]{1,3}))?'
-    r'(-(?P<reference>.+))?$'
-)
+class CabfOrganizationIdentifierValidatorBase(organization_id.OrganizationIdentifierValidatorBase):
+    VALIDATION_ORGANIZATION_ID_INVALID_SCHEME = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'cabf.invalid_organization_identifier_registration_scheme'
+    )
+
+    VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'cabf.invalid_organization_identifier_country'
+    )
+
+    # the attribute name for this finding is prefixed with an underscore so it's not flagged by the "validation report"
+    # test
+    _VALIDATION_ORGANIZATION_ID_INVALID_SP_FORMAT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'cabf.invalid_organization_identifier_state_province_format'
+    )
+
+    REFERENCE_REQUIRED = (Rfc2119Word.MUST, 'cabf.organization_identifier_reference_missing_for_scheme')
+
+    STATE_PROVINCE_PROHIBITED = (Rfc2119Word.MUST_NOT,
+                                 'cabf.invalid_subject_organization_identifier_state_province_for_scheme')
+
+    _NTR_SCHEME = organization_id.OrganizationIdentifierElementAllowance(
+        country_codes=(organization_id.ISO3166_1_COUNTRY_CODES,
+                       VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY),
+        state_province=(Rfc2119Word.MAY, None),
+        reference=REFERENCE_REQUIRED
+    )
+
+    _VAT_SCHEME = organization_id.OrganizationIdentifierElementAllowance(
+        country_codes=(organization_id.ISO3166_1_COUNTRY_CODES | {organization_id.COUNTRY_CODE_GREECE_TRADITIONAL,
+                                                                  organization_id.COUNTRY_CODE_NORTHERN_IRELAND},
+                       VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY),
+        state_province=STATE_PROVINCE_PROHIBITED,
+        reference=REFERENCE_REQUIRED
+    )
+
+    _PSD_SCHEME = organization_id.OrganizationIdentifierElementAllowance(
+        country_codes=(organization_id.ISO3166_1_COUNTRY_CODES,
+                       VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY),
+        state_province=STATE_PROVINCE_PROHIBITED,
+        reference=REFERENCE_REQUIRED
+    )
+
+    _ALLOWED_SCHEME_MAPPINGS = {
+        'NTR': _NTR_SCHEME,
+        'VAT': _VAT_SCHEME,
+        'PSD': _PSD_SCHEME,
+    }
+
+    def __init__(self,
+                 invalid_format_validation: typing.Optional[validation.ValidationFinding],
+                 additional_schemes: typing.Optional[
+                     typing.Mapping[str, organization_id.OrganizationIdentifierElementAllowance]
+                 ] = None,
+                 enforce_strict_state_province_format=True,
+                 additional_validations=None,
+                 **kwargs):
+        self._allowed_schemes = self._ALLOWED_SCHEME_MAPPINGS.copy()
+
+        if additional_schemes:
+            self._allowed_schemes.update(additional_schemes)
+
+        self._enforce_strict_state_province_format = enforce_strict_state_province_format
+
+        additional_validations = [] if additional_validations is None else additional_validations.copy()
+
+        if self._enforce_strict_state_province_format:
+            additional_validations.append(self._VALIDATION_ORGANIZATION_ID_INVALID_SP_FORMAT)
+
+        super().__init__(self._allowed_schemes,
+                         invalid_format_validation,
+                         self.VALIDATION_ORGANIZATION_ID_INVALID_SCHEME,
+                         additional_validations,
+                         **kwargs
+                         )
+
+    def validate_with_parsed_value(self, node, parsed):
+        if self._enforce_strict_state_province_format and parsed.state_province is not None:
+            if len(parsed.state_province) != 2 or not parsed.state_province.isalpha():
+                raise validation.ValidationFindingEncountered(
+                    self._VALIDATION_ORGANIZATION_ID_INVALID_SP_FORMAT,
+                    f'State/province "{parsed.state_province}" is not two letters (will be fixed in erratum ballot)'
+                )
+
+        return super().validate_with_parsed_value(node, parsed)
 
 
-class OrganizationIdentifierAttributeValidator(validation.TypeMatchingValidator):
+class CabfOrganizationIdentifierAttributeValidator(CabfOrganizationIdentifierValidatorBase):
     VALIDATION_ORGANIZATION_ID_INVALID_ENCODING = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
         'cabf.invalid_subject_organization_identifier_encoding'
@@ -65,112 +146,28 @@ class OrganizationIdentifierAttributeValidator(validation.TypeMatchingValidator)
         'cabf.invalid_subject_organization_identifier_format'
     )
 
-    VALIDATION_ORGANIZATION_ID_INVALID_SCHEME = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.invalid_subject_organization_identifier_registration_scheme'
-    )
+    def __init__(self,
+                 additional_schemes: typing.Optional[
+                     typing.Mapping[str, organization_id.OrganizationIdentifierElementAllowance]
+                 ] = None,
+                 enforce_strict_state_province_format=True):
+        super().__init__(self.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
+                         additional_schemes,
+                         enforce_strict_state_province_format,
+                         [self.VALIDATION_ORGANIZATION_ID_INVALID_ENCODING],
+                         pdu_class=x520_name.X520OrganizationIdentifier)
 
-    VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.invalid_subject_organization_identifier_country'
-    )
-
-    VALIDATION_ORGANIZATION_ID_INVALID_SP = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.invalid_subject_organization_identifier_state_province_for_scheme'
-    )
-
-    VALIDATION_ORGANIZATION_ID_INVALID_SP_FORMAT = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.invalid_subject_organization_identifier_state_province_format'
-    )
-
-    def __init__(self, relax_stateprovince_syntax=False, additional_schemes: typing.Optional[
-            typing.Mapping[str, cabf_constants.RegistrationSchemeNamingConvention]] = None):
-        super().__init__(type_oid=x520_name.id_at_organizationIdentifier,
-                         type_path='type', value_path='value.x520OrganizationIdentifier',
-                         pdu_class=rfc5280.AttributeTypeAndValue,
-                         validations=[
-                             self.VALIDATION_ORGANIZATION_ID_INVALID_ENCODING,
-                             self.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
-                             self.VALIDATION_ORGANIZATION_ID_INVALID_SCHEME,
-                             self.VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY,
-                             self.VALIDATION_ORGANIZATION_ID_INVALID_SP,
-                             self.VALIDATION_ORGANIZATION_ID_INVALID_SP_FORMAT,
-                         ]
-                         )
-
-        if additional_schemes is None:
-            additional_schemes = {}
-        self._allowed_schemes = {**REGISTRATION_SCHEMES, **additional_schemes}
-        self._relax_stateprovince_syntax = relax_stateprovince_syntax
-
-    def validate_with_value(self, node, choice_node):
-        name, value_node = choice_node.child
+    @classmethod
+    def parse_organization_id_node(cls, node) -> organization_id.ParsedOrganizationIdentifier:
+        name, value_node = node.child
 
         if name not in {'utf8String', 'printableString'}:
             raise validation.ValidationFindingEncountered(
-                self.VALIDATION_ORGANIZATION_ID_INVALID_ENCODING,
+                cls.VALIDATION_ORGANIZATION_ID_INVALID_ENCODING,
                 f'Invalid ASN.1 encoding: {name}'
             )
 
-        m = ORG_ID_REGEX.match(str(value_node.pdu))
-
-        if m is None:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
-                f'Invalid format: "{value_node.pdu}"'
-            )
-
-        scheme_info = self._allowed_schemes.get(m['scheme'])
-
-        if scheme_info is None:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_ORGANIZATION_ID_INVALID_SCHEME,
-                f'Invalid registration scheme: "{m["scheme"]}"'
-            )
-
-        if scheme_info.require_registration_reference and m['reference'] is None:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
-                f'Missing Registration Reference: "{value_node.pdu}"'
-            )
-        elif not scheme_info.require_registration_reference and m['reference']:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
-                f'Prohibited Registration Reference is present: "{value_node.pdu}"'
-            )
-
-        country_code = '' if m['country'] is None else m['country'].upper()
-
-        if scheme_info.country_identifier_type == cabf_constants.RegistrationSchemeCountryIdentifierType.NONE:
-            valid_country_code = (country_code == '')
-        elif scheme_info.country_identifier_type == cabf_constants.RegistrationSchemeCountryIdentifierType.XG:
-            valid_country_code = (country_code == 'XG')
-        elif scheme_info.country_identifier_type == cabf_constants.RegistrationSchemeCountryIdentifierType.ISO3166:
-            valid_country_code = (country_code in countries_by_alpha2)
-        else:
-            raise ValueError(f'Unknown country identifier type for scheme "{m["scheme"]}": '
-                             f'{scheme_info.country_identifier_type}')
-
-        if not valid_country_code:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY,
-                f'Invalid country code for scheme "{m["scheme"]}": "{country_code}"'
-            )
-
-        if m['sp'] is not None and not scheme_info.allow_state_province:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_ORGANIZATION_ID_INVALID_SP,
-                f'Scheme "{m["scheme"]}" does not allow state/province values'
-            )
-
-        if m['sp'] is not None and not self._relax_stateprovince_syntax and not (
-                len(m['sp']) == 2 and m['sp'].isalpha()):
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_ORGANIZATION_ID_INVALID_SP_FORMAT,
-                f'State/province "{m["sp"]}" is not two letters (will be fixed in erratum ballot)'
-            )
+        return organization_id.parse_organization_identifier(str(value_node.pdu))
 
 
 class RelativeDistinguishedNameContainsOneElementValidator(validation.Validator):

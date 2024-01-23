@@ -35,6 +35,6 @@ G+Tj1GckmJI+dJL7fgjYMqaFLtkKodE/JR0Tp5tQtb5kI1ze8bjKV5qnMlCIV1Rt
 aAubxd8E0dIBazc293NX8ypBQRFYjdUR1A==
 -----END CERTIFICATE-----
 node_path,validator,severity,code,message
-certificate.tbsCertificate.subject.rdnSequence.0.0,OrganizationIdentifierAttributeValidator,ERROR,cabf.invalid_subject_organization_identifier_country,"Invalid country code for scheme ""GOV"": ""XG"""
-certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 
+certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
+certificate.tbsCertificate.subject.rdnSequence.0.0.value.x520OrganizationIdentifier,CabfSmimeOrganizationIdentifierAttributeValidator,ERROR,cabf.invalid_organization_identifier_country,"Invalid country code for registration scheme ""GOV"": ""XG"""

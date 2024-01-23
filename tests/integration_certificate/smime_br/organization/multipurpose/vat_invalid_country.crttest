@@ -35,6 +35,6 @@ pXtmlRvk49RnJJiSPnSS+34I2DKmhS7ZCqHRPyUdE6ebULW+ZCNc3vG4yleapzJQ
 iFdUbWgLm8XfBNHSAWs3NvdzV/MqQUERWI3VEdQ=
 -----END CERTIFICATE-----
 node_path,validator,severity,code,message
-certificate.tbsCertificate.subject.rdnSequence.0.0,OrganizationIdentifierAttributeValidator,ERROR,cabf.invalid_subject_organization_identifier_country,"Invalid country code for scheme ""VAT"": ""XG"""
+certificate.tbsCertificate.subject.rdnSequence.0.0.value.x520OrganizationIdentifier,CabfSmimeOrganizationIdentifierAttributeValidator,ERROR,cabf.invalid_organization_identifier_country,"Invalid country code for registration scheme ""VAT"": ""XG"""
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 

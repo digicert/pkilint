@@ -128,10 +128,7 @@ ERROR,cabf.serverauth.organization_identifier_ext_invalid_country,Validates that
 ERROR,cabf.serverauth.organization_identifier_ext_invalid_registration_scheme,Validates that the content of the CA/B Forum organizationIdentifier extension conforms with EVG 9.8.2.
 ERROR,cabf.serverauth.organization_identifier_ext_invalid_state_province_for_scheme,Validates that the content of the CA/B Forum organizationIdentifier extension conforms with EVG 9.8.2.
 ERROR,cabf.serverauth.organization_identifier_extension_absent,"Validates that the content of the organizationIdentifier subject attributes and the organizationIdentifier extension are consistent, as per EVG 9.2.8 and 9.2.9."
-ERROR,cabf.serverauth.organization_identifier_mismatched_country_code,"Validates that the content of the organizationIdentifier subject attributes and the organizationIdentifier extension are consistent, as per EVG 9.2.8 and 9.2.9."
-ERROR,cabf.serverauth.organization_identifier_mismatched_registration_reference,"Validates that the content of the organizationIdentifier subject attributes and the organizationIdentifier extension are consistent, as per EVG 9.2.8 and 9.2.9."
-ERROR,cabf.serverauth.organization_identifier_mismatched_scheme,"Validates that the content of the organizationIdentifier subject attributes and the organizationIdentifier extension are consistent, as per EVG 9.2.8 and 9.2.9."
-ERROR,cabf.serverauth.organization_identifier_mismatched_state_province,"Validates that the content of the organizationIdentifier subject attributes and the organizationIdentifier extension are consistent, as per EVG 9.2.8 and 9.2.9."
+ERROR,cabf.serverauth.organization_identifier_mismatched_value,"Validates that the content of the organizationIdentifier subject attributes and the organizationIdentifier extension are consistent, as per EVG 9.2.8 and 9.2.9."
 ERROR,cabf.serverauth.ov.country_attribute_absent,Validates that the content of the subject field conforms with BR 7.1.7.4.: A required element is absent
 ERROR,cabf.serverauth.ov.given_name_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.4.: A prohibited element is present
 ERROR,cabf.serverauth.ov.organization_name_attribute_absent,Validates that the content of the subject field conforms with BR 7.1.7.4.: A required element is absent

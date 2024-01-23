@@ -43,6 +43,6 @@ qj0RoAmDOU4cZGyTk1lMJmRek5pSOQ1Kzg==
 
 node_path,validator,severity,code,message
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.unknown_extension_present,Unknown extension present: 2.23.140.3.1
-certificate.tbsCertificate.subject.rdnSequence.7.0.value.x520OrganizationIdentifier,OrganizationIdentifierConsistentSubjectAndExtensionValidator,ERROR,cabf.serverauth.organization_identifier_mismatched_country_code,"Mismatched country: subject: ""ZZ"", extension: ""FR"""
+certificate.tbsCertificate.subject.rdnSequence.7.0.value.x520OrganizationIdentifier,OrganizationIdentifierConsistentSubjectAndExtensionValidator,ERROR,cabf.serverauth.organization_identifier_mismatched_value,"Mismatched country: attribute: ""ZZ"", extension: ""FR"""
 certificate.tbsCertificate.extensions.2.extnValue.certificatePolicies.0.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
-certificate.tbsCertificate.subject.rdnSequence.7.0,OrganizationIdentifierAttributeValidator,ERROR,cabf.invalid_subject_organization_identifier_country,"Invalid country code for scheme ""VAT"": ""ZZ"""
+certificate.tbsCertificate.subject.rdnSequence.7.0.value.x520OrganizationIdentifier,CabfOrganizationIdentifierAttributeValidator,ERROR,cabf.invalid_organization_identifier_country,"Invalid country code for registration scheme ""VAT"": ""ZZ"""
