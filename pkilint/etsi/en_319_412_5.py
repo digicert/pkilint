@@ -1,5 +1,6 @@
 from pkilint import validation
 from pkilint.etsi.asn1 import en_319_412_5
+from iso3166 import countries_by_alpha2
 
 
 class CountryCodeNeededValidator(validation.Validator):
@@ -14,17 +15,12 @@ class CountryCodeNeededValidator(validation.Validator):
         super().__init__(validations=[self.VALIDATION_ISO_COUNTRY_BAD_EMPTY], pdu_class=en_319_412_5.QcCClegislation)
 
     def validate(self, node):
-        print("line 17 ----", type(node))
-        if type(node) == list:
-            for country in node:
+        if not node.children:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_ISO_COUNTRY_BAD_EMPTY)
+        else:
+            for children in node.children.values():
+                country = str(children.pdu)
                 if country not in countries_by_alpha2:
                     raise validation.ValidationFindingEncountered(self.VALIDATION_ISO_COUNTRY_BAD_EMPTY)
-                else:
+                else: 
                     return
-        elif type(node) == str:
-            if node not in countries_by_alpha2:
-                raise validation.ValidationFindingEncountered(self.VALIDATION_ISO_COUNTRY_BAD_EMPTY)
-            else:
-                return
-        else:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_ISO_COUNTRY_BAD_EMPTY)
