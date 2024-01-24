@@ -78,7 +78,8 @@ def create_decoding_validators() -> List[validation.Validator]:
 def create_validators(certificate_type: CertificateType) -> List[validation.Validator]:
     return [
         ts_119_495.RolesOfPspContainsRolesValidator(),
-        en_319_412_5.CountryCodeNeededValidator()
+        en_319_412_5.CountryCodeNeededValidator(),
+        en_319_412_5.CountryCodeNotValidValidator()
     ]
 
     # if certificate_type == CertificateType.QNCP_W:
