@@ -21,6 +21,6 @@ class CountryCodeNeededValidator(validation.Validator):
             for children in node.children.values():
                 country = str(children.pdu)
                 if country not in countries_by_alpha2:
-                    raise validation.ValidationFindingEncountered(self.VALIDATION_ISO_COUNTRY_BAD_EMPTY)
-                else: 
+                    raise validation.ValidationFindingEncountered(self.VALIDATION_ISO_COUNTRY_BAD_EMPTY, f'invalid country code, value found {country}')
+                else:
                     return
