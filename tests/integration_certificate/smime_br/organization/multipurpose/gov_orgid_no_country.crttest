@@ -35,6 +35,6 @@ koohmnIEidKmO4lhGqavh8bSVLy00PiebItEVoD4hgMtrcl3c8yM7C/cpXtmlRvk
 m8XfBNHSAWs3NvdzV/MqQUERWI3VEdQ=
 -----END CERTIFICATE-----
 node_path,validator,severity,code,message
-certificate.tbsCertificate.subject.rdnSequence.0.0,OrganizationIdentifierAttributeValidator,ERROR,cabf.invalid_subject_organization_identifier_country,"Invalid country code for scheme ""GOV"": """""
+certificate.tbsCertificate.subject.rdnSequence.0.0.value.x520OrganizationIdentifier,CabfSmimeOrganizationIdentifierAttributeValidator,ERROR,cabf.invalid_subject_organization_identifier_format,"Invalid organization identifier syntax: ""GOV"""
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 

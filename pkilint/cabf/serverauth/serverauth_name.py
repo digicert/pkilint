@@ -5,9 +5,9 @@ import re
 from cryptography.hazmat.primitives import hashes
 from pyasn1_alt_modules import rfc5280
 
-from pkilint import validation, document
+from pkilint import validation
 from pkilint.cabf.asn1 import ev_guidelines
-from pkilint.cabf.cabf_name import ValidCountryCodeValidatorBase, ORG_ID_REGEX
+from pkilint.cabf.cabf_name import ValidCountryCodeValidatorBase
 from pkilint.cabf.serverauth import serverauth_constants
 from pkilint.itu import x520_name
 from pkilint.pkix import name, general_name
@@ -59,127 +59,6 @@ class ValidBusinessCategoryValidator(validation.Validator):
                 self.VALIDATION_INVALID_BUSINESS_CATEGORY,
                 f'Invalid business category: "{business_category}"'
             )
-
-
-class OrganizationIdentifierConsistentSubjectAndExtensionValidator(validation.Validator):
-    """Validates that the content of the organizationIdentifier subject attributes and the organizationIdentifier
-    extension are consistent, as per EVG 9.2.8 and 9.2.9."""
-
-    VALIDATION_CABF_ORG_ID_NO_EXT = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.organization_identifier_extension_absent'
-    )
-
-    VALIDATION_CABF_ORG_ID_INVALID_SYNTAX = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.FATAL,
-        'cabf.serverauth.organization_identifier_invalid_syntax'
-    )
-
-    VALIDATION_CABF_ORG_ID_MISMATCHED_SCHEME = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.organization_identifier_mismatched_scheme'
-    )
-
-    VALIDATION_CABF_ORG_ID_MISMATCHED_COUNTRY = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.organization_identifier_mismatched_country_code'
-    )
-
-    VALIDATION_CABF_ORG_ID_MISMATCHED_SP = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.organization_identifier_mismatched_state_province'
-    )
-
-    VALIDATION_CABF_ORG_ID_MISMATCHED_REFERENCE = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.organization_identifier_mismatched_registration_reference'
-    )
-
-    def __init__(self):
-        super().__init__(
-            validations=[
-                self.VALIDATION_CABF_ORG_ID_NO_EXT,
-                self.VALIDATION_CABF_ORG_ID_INVALID_SYNTAX,
-                self.VALIDATION_CABF_ORG_ID_MISMATCHED_SCHEME,
-                self.VALIDATION_CABF_ORG_ID_MISMATCHED_COUNTRY,
-                self.VALIDATION_CABF_ORG_ID_MISMATCHED_SP,
-                self.VALIDATION_CABF_ORG_ID_MISMATCHED_REFERENCE,
-            ],
-            pdu_class=x520_name.X520OrganizationIdentifier,
-            predicate=lambda n: any(n.children)
-        )
-
-    def validate(self, node):
-        ext_and_idx = node.document.get_extension_by_oid(
-            ev_guidelines.id_CABFOrganizationIdentifier
-        )
-
-        if ext_and_idx is None:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_CABF_ORG_ID_NO_EXT
-            )
-
-        ext, _ = ext_and_idx
-        try:
-            ext = ext.navigate('extnValue.cABFOrganizationIdentifier')
-        except document.PDUNavigationFailedError:
-            return
-
-        attr_value = str(node.child[1].pdu)
-
-        m = ORG_ID_REGEX.match(attr_value)
-        if m is None:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_CABF_ORG_ID_INVALID_SYNTAX,
-                f'Invalid syntax: "{attr_value}"'
-            )
-
-        findings = []
-        ext_scheme = str(ext.children['registrationSchemeIdentifier'].pdu)
-        if m['scheme'] != ext_scheme:
-            findings.append(validation.ValidationFindingDescription(
-                self.VALIDATION_CABF_ORG_ID_MISMATCHED_SCHEME,
-                f'Mismatched scheme: subject: "{m["scheme"]}", extension: '
-                f'"{ext_scheme}"'
-            ))
-
-        ext_country = str(ext.children['registrationCountry'].pdu)
-        if m['country'] != ext_country:
-            findings.append(validation.ValidationFindingDescription(
-                self.VALIDATION_CABF_ORG_ID_MISMATCHED_COUNTRY,
-                f'Mismatched country: subject: "{m["country"]}", extension: '
-                f'"{ext_country}"'
-            ))
-
-        ext_sp_node = ext.children.get('registrationStateOrProvince')
-        ext_sp = None if ext_sp_node is None else str(ext_sp_node.pdu)
-        if m['sp'] is None and ext_sp is not None:
-            findings.append(validation.ValidationFindingDescription(
-                self.VALIDATION_CABF_ORG_ID_MISMATCHED_SP,
-                'Extension has state/province value but subject does not'
-            ))
-        elif m['sp'] is not None and ext_sp is None:
-            findings.append(validation.ValidationFindingDescription(
-                self.VALIDATION_CABF_ORG_ID_MISMATCHED_SP,
-                'Extension does not have state/province value but subject does'
-            ))
-        elif m['sp'] is not None and ext_sp is not None:
-            if ext_sp != m['sp']:
-                findings.append(validation.ValidationFindingDescription(
-                    self.VALIDATION_CABF_ORG_ID_MISMATCHED_SP,
-                    f'Mismatched state/province value: subject: "{m["sp"]}", '
-                    f'extension: "{ext_sp}"'
-                ))
-
-        ext_reg_ref = str(ext.children['registrationReference'].pdu)
-        if m['reference'] != ext_reg_ref:
-            findings.append(validation.ValidationFindingDescription(
-                self.VALIDATION_CABF_ORG_ID_MISMATCHED_REFERENCE,
-                f'Mismatched Registration Reference: subject: "{m["reference"]}"'
-                f', extension: "{ext_reg_ref}"'
-            ))
-
-        return validation.ValidationResult(self, node, findings)
 
 
 class X520NameAttributeValueLengthValidator(validation.Validator):

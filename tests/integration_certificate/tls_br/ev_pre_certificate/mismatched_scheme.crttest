@@ -56,4 +56,4 @@ certificate.tbsCertificate.extensions.8.extnValue.subjectKeyIdentifier,SubjectKe
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies.2.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.unknown_extension_present,Unknown extension present: 2.23.140.3.1
 certificate.tbsCertificate.subject.rdnSequence,EvSubscriberAttributeAllowanceValidator,WARNING,cabf.ev_guidelines.common_name_attribute_present,
-certificate.tbsCertificate.subject.rdnSequence.6.0.value.x520OrganizationIdentifier,OrganizationIdentifierConsistentSubjectAndExtensionValidator,ERROR,cabf.serverauth.organization_identifier_mismatched_scheme,"Mismatched scheme: subject: ""VAT"", extension: ""NTR"""
+certificate.tbsCertificate.subject.rdnSequence.6.0.value.x520OrganizationIdentifier,OrganizationIdentifierConsistentSubjectAndExtensionValidator,ERROR,cabf.serverauth.organization_identifier_mismatched_value,"Mismatched scheme: attribute: ""VAT"", extension: ""NTR"""

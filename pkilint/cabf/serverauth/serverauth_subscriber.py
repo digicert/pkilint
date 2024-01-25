@@ -2,83 +2,51 @@ import ipaddress
 import operator
 from datetime import timedelta
 
-from iso3166 import countries_by_alpha2
 from pyasn1_alt_modules import rfc5280, rfc6962, rfc5480
 
 import pkilint.common
 from pkilint import validation, document, oid, common
-from pkilint.cabf import cabf_constants
+from pkilint.cabf import cabf_name
 from pkilint.cabf.asn1 import ev_guidelines
-from pkilint.cabf.cabf_constants import REGISTRATION_SCHEMES
 from pkilint.cabf.serverauth import serverauth_constants
+from pkilint.common import organization_id
+from pkilint.common.organization_id import ParsedOrganizationIdentifier
 from pkilint.itu import x520_name, bitstring
 from pkilint.pkix import Rfc2119Word, general_name, time
 
 
-class CABFOrganizationIdentifierExtensionValidator(validation.Validator):
+def _parse_organization_identifier_extension(
+        ext_node: document.PDUNode) -> organization_id.ParsedOrganizationIdentifier:
+    state_province_node = ext_node.children.get('registrationStateOrProvince')
+
+    state_province = str(state_province_node.pdu) if state_province_node else None
+
+    reference_node = ext_node.children.get('registrationReference')
+    reference = str(reference_node.pdu) if reference_node else None
+
+    return organization_id.ParsedOrganizationIdentifier(
+        raw=None,
+        scheme=str(ext_node.children['registrationSchemeIdentifier'].pdu),
+        is_national_scheme=False,
+        country=str(ext_node.children['registrationCountry'].pdu),
+        state_province=state_province,
+        reference=reference
+    )
+
+
+class CABFOrganizationIdentifierExtensionValidator(cabf_name.CabfOrganizationIdentifierValidatorBase):
     """Validates that the content of the CA/B Forum organizationIdentifier extension conforms with EVG 9.8.2."""
-
-    VALIDATION_ORGANIZATION_ID_INVALID_SCHEME = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.organization_identifier_ext_invalid_registration_scheme'
-    )
-
-    VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.organization_identifier_ext_invalid_country'
-    )
-
-    VALIDATION_ORGANIZATION_ID_INVALID_SP = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.organization_identifier_ext_invalid_state_province_for_scheme'
-    )
 
     def __init__(self):
         super().__init__(
-            pdu_class=ev_guidelines.CABFOrganizationIdentifier,
-            validations=[
-                self.VALIDATION_ORGANIZATION_ID_INVALID_SCHEME,
-                self.VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY,
-                self.VALIDATION_ORGANIZATION_ID_INVALID_SP,
-            ]
+            invalid_format_validation=None,
+            enforce_strict_state_province_format=True,
+            pdu_class=ev_guidelines.CABFOrganizationIdentifier
         )
 
-    def validate(self, node):
-        scheme = str(node.children['registrationSchemeIdentifier'].pdu)
-        country = str(node.children['registrationCountry'].pdu).upper()
-
-        scheme_node = node.children.get('registrationStateOrProvince')
-        sp = None if scheme_node is None else str(scheme_node.pdu)
-
-        scheme_info = REGISTRATION_SCHEMES.get(scheme)
-
-        if scheme_info is None:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_ORGANIZATION_ID_INVALID_SCHEME,
-                f'Invalid registration scheme: "{scheme}"'
-            )
-
-        if scheme_info.country_identifier_type == cabf_constants.RegistrationSchemeCountryIdentifierType.NONE:
-            valid_country_code = (country == '')
-        elif scheme_info.country_identifier_type == cabf_constants.RegistrationSchemeCountryIdentifierType.XG:
-            valid_country_code = (country == 'XG')
-        elif scheme_info.country_identifier_type == cabf_constants.RegistrationSchemeCountryIdentifierType.ISO3166:
-            valid_country_code = country in countries_by_alpha2
-        else:
-            raise ValueError(f'Unknown country identifier type for scheme "{scheme}": '
-                             f'{scheme_info.country_identifier_type}')
-
-        if not valid_country_code:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY,
-                f'Invalid country code for scheme "{scheme}": "{country}"'
-            )
-
-        if sp is not None and not scheme_info.allow_state_province:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_ORGANIZATION_ID_INVALID_SP,
-                f'Scheme "{scheme}" does not allow state/province values'
-            )
+    @classmethod
+    def parse_organization_id_node(cls, node: document.PDUNode) -> ParsedOrganizationIdentifier:
+        return _parse_organization_identifier_extension(node)
 
 
 class EvSubscriberAttributeAllowanceValidator(pkilint.common.AttributeIdentifierAllowanceValidator):
@@ -649,3 +617,69 @@ class SubscriberAuthorityInformationAccessAccessMethodPresenceValidator(
 
     def __init__(self):
         super().__init__(self._ACCESS_METHOD_ALLOWANCES, self._CODE_CLASSIFIER, Rfc2119Word.MUST_NOT)
+
+
+class OrganizationIdentifierConsistentSubjectAndExtensionValidator(validation.Validator):
+    """Validates that the content of the organizationIdentifier subject attributes and the organizationIdentifier
+    extension are consistent, as per EVG 9.2.8 and 9.2.9."""
+
+    VALIDATION_CABF_ORG_ID_NO_EXT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'cabf.serverauth.organization_identifier_extension_absent'
+    )
+
+    VALIDATION_CABF_ORG_ID_MISMATCHED_VALUE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'cabf.serverauth.organization_identifier_mismatched_value'
+    )
+
+    def __init__(self):
+        super().__init__(
+            validations=[
+                self.VALIDATION_CABF_ORG_ID_NO_EXT,
+                cabf_name.CabfOrganizationIdentifierAttributeValidator.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
+                self.VALIDATION_CABF_ORG_ID_MISMATCHED_VALUE,
+            ],
+            pdu_class=x520_name.X520OrganizationIdentifier,
+            predicate=lambda n: any(n.children)
+        )
+
+    def validate(self, node):
+        ext_and_idx = node.document.get_extension_by_oid(
+            ev_guidelines.id_CABFOrganizationIdentifier
+        )
+
+        if ext_and_idx is None:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_CABF_ORG_ID_NO_EXT
+            )
+
+        ext_node, _ = ext_and_idx
+        try:
+            ext_node = ext_node.navigate('extnValue.cABFOrganizationIdentifier')
+        except document.PDUNavigationFailedError:
+            return
+
+        attr_value = str(node.child[1].pdu)
+
+        try:
+            org_id_attr_parsed = organization_id.parse_organization_identifier(attr_value)
+        except ValueError as e:
+            raise validation.ValidationFindingEncountered(
+                cabf_name.CabfOrganizationIdentifierAttributeValidator.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
+                str(e)
+            )
+
+        org_id_ext_parsed = _parse_organization_identifier_extension(ext_node)
+
+        try:
+            organization_id.assert_parsed_organization_identifier_equal(
+                org_id_attr_parsed, 'attribute', org_id_ext_parsed, 'extension'
+            )
+        except ValueError as e:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_CABF_ORG_ID_MISMATCHED_VALUE,
+                str(e)
+            )
+
+

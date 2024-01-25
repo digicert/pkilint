@@ -48,7 +48,7 @@ MdcOLOsv8z8EwQKKyIklBYVKq6S0vP7z
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.subject.rdnSequence.6.0.value.x520OrganizationIdentifier,OrganizationIdentifierConsistentSubjectAndExtensionValidator,ERROR,cabf.serverauth.organization_identifier_mismatched_registration_reference,"Mismatched Registration Reference: subject: ""27380835"", extension: ""27380834"""
+certificate.tbsCertificate.subject.rdnSequence.6.0.value.x520OrganizationIdentifier,OrganizationIdentifierConsistentSubjectAndExtensionValidator,ERROR,cabf.serverauth.organization_identifier_mismatched_value,"Mismatched registration reference: attribute: ""27380835"", extension: ""27380834"""
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.unknown_extension_present,Unknown extension present: 1.3.6.1.5.5.7.1.3
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies,SubscriberPoliciesValidator,WARNING,cabf.serverauth.subscriber_first_policy_oid_not_reserved,
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.subject_key_identifier_extension_present,

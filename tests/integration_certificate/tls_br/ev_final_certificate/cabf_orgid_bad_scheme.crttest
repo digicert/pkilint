@@ -44,4 +44,4 @@ k5pSOQ1Kzg==
 node_path,validator,severity,code,message
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.unknown_extension_present,Unknown extension present: 2.23.140.3.1
 certificate.tbsCertificate.extensions.2.extnValue.certificatePolicies.0.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
-certificate.tbsCertificate.extensions.4.extnValue.cABFOrganizationIdentifier,CABFOrganizationIdentifierExtensionValidator,ERROR,cabf.serverauth.organization_identifier_ext_invalid_registration_scheme,"Invalid registration scheme: ""FOO"""
+certificate.tbsCertificate.extensions.4.extnValue.cABFOrganizationIdentifier,CABFOrganizationIdentifierExtensionValidator,ERROR,cabf.invalid_organization_identifier_registration_scheme,"Invalid registration scheme: ""FOO"""
