@@ -3,7 +3,7 @@ from pkilint.etsi.asn1 import en_319_412_5
 from iso3166 import countries_by_alpha2
 
 
-class CountryCodeValidator(validation.Validator):
+class QcCClegislationCountryCodeValidator(validation.Validator):
     """EN 319 412-5 4.2.4.: QCStatement stating the country or set of countries under the legislation of which the certificate
     is issued as a qualified certificate. Constrained by ISO 3166-1 alpha-2 codes only. This Validator will check to see if there is a country
     code at all or if it is a valid code.."""
