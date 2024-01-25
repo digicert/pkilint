@@ -43,4 +43,4 @@ oQ==
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.extensions.1.extnValue.qCStatements.2.statementInfo.qcCClegislation,CountryCodeValidator,ERROR,etsi.en_319_412_5.gen-4.2.4.iso_country_bad,"invalid country code, value found ZZ"
+certificate.tbsCertificate.extensions.1.extnValue.qCStatements.2.statementInfo.qcCClegislation,QcCClegislationCountryCodeValidator,ERROR,etsi.en_319_412_5.gen-4.2.4.iso_country_bad,"invalid country code, value found ZZ"
