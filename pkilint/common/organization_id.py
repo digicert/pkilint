@@ -96,7 +96,6 @@ class OrganizationIdentifierElementAllowance(NamedTuple):
 class OrganizationIdentifierValidatorBase(validation.Validator):
     def __init__(self, element_allowances: Dict[str, OrganizationIdentifierElementAllowance],
                  invalid_format_validation: Optional[validation.ValidationFinding],
-                 unknown_scheme_validation: Optional[validation.ValidationFinding],
                  additional_validations: Optional[List[validation.ValidationFinding]] = None,
                  **kwargs):
         if additional_validations is None:
@@ -105,15 +104,11 @@ class OrganizationIdentifierValidatorBase(validation.Validator):
         self._element_allowances = element_allowances.copy()
 
         self._invalid_format_validation = invalid_format_validation
-        self._unknown_scheme_validation = unknown_scheme_validation
 
         validations = [] + additional_validations
 
         if self._invalid_format_validation is not None:
             validations.append(self._invalid_format_validation)
-
-        if self._unknown_scheme_validation is not None:
-            validations.append(self._unknown_scheme_validation)
 
         for allowance in element_allowances.values():
             validations.append(allowance.country_codes[1])
@@ -136,17 +131,15 @@ class OrganizationIdentifierValidatorBase(validation.Validator):
     def parse_organization_id_node(cls, node: document.PDUNode) -> ParsedOrganizationIdentifier:
         pass
 
+    @classmethod
+    def handle_unknown_scheme(cls, node: document.PDUNode, parsed: ParsedOrganizationIdentifier):
+        pass
+
     def validate_with_parsed_value(self, node: document.PDUNode, parsed: ParsedOrganizationIdentifier):
         scheme_allowance = self._element_allowances.get(parsed.scheme)
 
         if scheme_allowance is None:
-            if self._unknown_scheme_validation is None:
-                return
-            else:
-                raise validation.ValidationFindingEncountered(
-                    self._unknown_scheme_validation,
-                    f'Invalid registration scheme: "{parsed.scheme}"'
-                )
+            return self.handle_unknown_scheme(node, parsed)
 
         allowed_country_codes, finding = scheme_allowance.country_codes
 

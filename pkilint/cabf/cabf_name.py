@@ -7,8 +7,9 @@ import unicodedata
 from iso3166 import countries_by_alpha2
 from pyasn1_alt_modules import rfc5280, rfc8398
 
-from pkilint import validation
+from pkilint import validation, document
 from pkilint.common import organization_id
+from pkilint.common.organization_id import ParsedOrganizationIdentifier
 from pkilint.itu import x520_name
 from pkilint.pkix import general_name, Rfc2119Word
 
@@ -113,16 +114,23 @@ class CabfOrganizationIdentifierValidatorBase(organization_id.OrganizationIdenti
         self._enforce_strict_state_province_format = enforce_strict_state_province_format
 
         additional_validations = [] if additional_validations is None else additional_validations.copy()
+        additional_validations.append(self.VALIDATION_ORGANIZATION_ID_INVALID_SCHEME)
 
         if self._enforce_strict_state_province_format:
             additional_validations.append(self._VALIDATION_ORGANIZATION_ID_INVALID_SP_FORMAT)
 
         super().__init__(self._allowed_schemes,
                          invalid_format_validation,
-                         self.VALIDATION_ORGANIZATION_ID_INVALID_SCHEME,
-                         additional_validations,
+                         additional_validations=additional_validations,
                          **kwargs
                          )
+
+    @classmethod
+    def handle_unknown_scheme(cls, node: document.PDUNode, parsed: ParsedOrganizationIdentifier):
+        raise validation.ValidationFindingEncountered(
+            cls.VALIDATION_ORGANIZATION_ID_INVALID_SCHEME,
+            f'Invalid registration scheme: "{parsed.scheme}"'
+        )
 
     def validate_with_parsed_value(self, node, parsed):
         if self._enforce_strict_state_province_format and parsed.state_province is not None:
