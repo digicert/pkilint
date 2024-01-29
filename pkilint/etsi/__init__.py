@@ -79,7 +79,8 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
     return [
         ts_119_495.RolesOfPspContainsRolesValidator(),
         en_319_412_5.QcCClegislationCountryCodeValidator(),
-        en_319_412_5.QcEuRetentionPeriodValidator()
+        en_319_412_5.QcEuRetentionPeriodValidator(),
+        en_319_412_5.QcTypeValidator()
     ]
 
     # if certificate_type == CertificateType.QNCP_W:
