@@ -5,7 +5,7 @@ from pyasn1_alt_modules import rfc5280, rfc6962
 from pkilint import validation, finding_filter
 from pkilint.cabf import serverauth
 from pkilint.cabf.serverauth import serverauth_constants
-from pkilint.etsi import etsi_constants, ts_119_495, en_319_412_5
+from pkilint.etsi import etsi_constants, ts_119_495, en_319_412_5, en_319_412_1
 from pkilint.etsi.asn1 import (
     en_319_412_1 as en_319_412_asn1, en_319_412_5 as en_319_412_5_asn1, ts_119_495 as ts_119_495_asn1
 )
@@ -80,7 +80,8 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         ts_119_495.RolesOfPspContainsRolesValidator(),
         en_319_412_5.QcCClegislationCountryCodeValidator(),
         en_319_412_5.QcEuRetentionPeriodValidator(),
-        en_319_412_5.QcTypeValidator()
+        en_319_412_5.QcTypeValidator(),
+        en_319_412_1.LegalPersonOrganizationIdentifierValidator()
     ]
 
     # if certificate_type == CertificateType.QNCP_W:
