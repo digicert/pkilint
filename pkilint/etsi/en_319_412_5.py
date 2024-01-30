@@ -45,3 +45,29 @@ class QcEuRetentionPeriodValidator(validation.Validator):
         valid_yrs = node.pdu
         if not valid_yrs > 0:
             raise validation.ValidationFindingEncountered(self.VALIDATION_QCRetention_POSITIVE)
+
+class QcTypeValidator(validation.Validator):
+    """EN 319 412-5 4.2.3 Declares that a certificate is issued as one and only one of the purposes
+    of electronic signature, electronic seal or web site authentication. According to Stephen
+    a qwac should never have seal or sign but may have psd2."""
+    VALIDATION_QCType_Web = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
+    'etsi.en_319_412_5.gen-4.2.3.qctype_not_web')
+
+    VALIDATION_QCType_not_one = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
+    'etsi.en_319_412_5.gen-4.2.3.not_one')
+
+    VALIDATION_QCType_empty = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
+    'etsi.en_319_412_5.gen-4.2.3qctype_empty')
+
+    def __init__(self):
+        super().__init__(validations=[self.VALIDATION_QCType_Web, self.VALIDATION_QCType_empty, self.VALIDATION_QCType_not_one], 
+        pdu_class=en_319_412_5.QcType)
+    
+    def validate(self, node):
+        if not node.children.values():
+            raise validation.ValidationFindingEncountered(self.VALIDATION_QCType_empty)
+        if len(node.children.values()) != 1:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_QCType_not_one)
+        _, qctype_value = node.child
+        if qctype_value.pdu != en_319_412_5.id_etsi_qct_web:
+                raise validation.ValidationFindingEncountered(self.VALIDATION_QCType_Web)
