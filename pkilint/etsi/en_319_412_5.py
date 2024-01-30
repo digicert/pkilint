@@ -60,13 +60,14 @@ class QcTypeValidator(validation.Validator):
     'etsi.en_319_412_5.gen-4.2.3qctype_empty')
 
     def __init__(self):
-        super().__init__(validations=[self.VALIDATION_QCType_Web], pdu_class=en_319_412_5.QcType)
+        super().__init__(validations=[self.VALIDATION_QCType_Web, self.VALIDATION_QCType_empty, self.VALIDATION_QCType_not_one], 
+        pdu_class=en_319_412_5.QcType)
     
     def validate(self, node):
         if not node.children.values():
             raise validation.ValidationFindingEncountered(self.VALIDATION_QCType_empty)
         if len(node.children.values()) != 1:
             raise validation.ValidationFindingEncountered(self.VALIDATION_QCType_not_one)
-        for children in node.children.values():
-            if str(children.pdu) != '0.4.0.1862.1.6.3':
+        _, qctype_value = node.child
+        if qctype_value.pdu != en_319_412_5.id_etsi_qct_web:
                 raise validation.ValidationFindingEncountered(self.VALIDATION_QCType_Web)
