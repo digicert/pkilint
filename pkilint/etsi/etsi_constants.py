@@ -9,31 +9,46 @@ EN_319_412_VERSION = '2023-09'
 
 @enum.unique
 class CertificateType(enum.IntEnum):
+    # pre-certificate types
     DVCP_PRE_CERTIFICATE = auto()
     IVCP_PRE_CERTIFICATE = auto()
     OVCP_PRE_CERTIFICATE = auto()
     EVCP_PRE_CERTIFICATE = auto()
     NCP_NATURAL_PERSON_PRE_CERTIFICATE = auto()
     NCP_LEGAL_PERSON_PRE_CERTIFICATE = auto()
-    QEVCP_W_PRE_CERTIFICATE = auto()
-    QNCP_W_DV_PRE_CERTIFICATE = auto()
-    QNCP_W_IV_PRE_CERTIFICATE = auto()
-    QNCP_W_OV_PRE_CERTIFICATE = auto()
-    QNCP_W_GEN_NATURAL_PERSON_PRE_CERTIFICATE = auto()
-    QNCP_W_GEN_LEGAL_PERSON_PRE_CERTIFICATE = auto()
+    QEVCP_W_EIDAS_PRE_CERTIFICATE = auto()
+    QNCP_W_DV_EIDAS_PRE_CERTIFICATE = auto()
+    QNCP_W_IV_EIDAS_PRE_CERTIFICATE = auto()
+    QNCP_W_OV_EIDAS_PRE_CERTIFICATE = auto()
+    QNCP_W_GEN_NATURAL_PERSON_EIDAS_PRE_CERTIFICATE = auto()
+    QNCP_W_GEN_LEGAL_PERSON_EIDAS_PRE_CERTIFICATE = auto()
+    QEVCP_W_NON_EIDAS_PRE_CERTIFICATE = auto()
+    QNCP_W_DV_NON_EIDAS_PRE_CERTIFICATE = auto()
+    QNCP_W_IV_NON_EIDAS_PRE_CERTIFICATE = auto()
+    QNCP_W_OV_NON_EIDAS_PRE_CERTIFICATE = auto()
+    QNCP_W_GEN_NATURAL_PERSON_NON_EIDAS_PRE_CERTIFICATE = auto()
+    QNCP_W_GEN_LEGAL_PERSON_NON_EIDAS_PRE_CERTIFICATE = auto()
     QEVCP_W_PSD2_PRE_CERTIFICATE = auto()
+    
+    # final certificate types
     DVCP_FINAL_CERTIFICATE = auto()
     IVCP_FINAL_CERTIFICATE = auto()
     OVCP_FINAL_CERTIFICATE = auto()
     EVCP_FINAL_CERTIFICATE = auto()
     NCP_NATURAL_PERSON_FINAL_CERTIFICATE = auto()
     NCP_LEGAL_PERSON_FINAL_CERTIFICATE = auto()
-    QEVCP_W_FINAL_CERTIFICATE = auto()
-    QNCP_W_DV_FINAL_CERTIFICATE = auto()
-    QNCP_W_IV_FINAL_CERTIFICATE = auto()
-    QNCP_W_OV_FINAL_CERTIFICATE = auto()
-    QNCP_W_GEN_NATURAL_PERSON_FINAL_CERTIFICATE = auto()
-    QNCP_W_GEN_LEGAL_PERSON_FINAL_CERTIFICATE = auto()
+    QEVCP_W_EIDAS_FINAL_CERTIFICATE = auto()
+    QNCP_W_DV_EIDAS_FINAL_CERTIFICATE = auto()
+    QNCP_W_IV_EIDAS_FINAL_CERTIFICATE = auto()
+    QNCP_W_OV_EIDAS_FINAL_CERTIFICATE = auto()
+    QNCP_W_GEN_NATURAL_PERSON_EIDAS_FINAL_CERTIFICATE = auto()
+    QNCP_W_GEN_LEGAL_PERSON_EIDAS_FINAL_CERTIFICATE = auto()
+    QEVCP_W_NON_EIDAS_FINAL_CERTIFICATE = auto()
+    QNCP_W_DV_NON_EIDAS_FINAL_CERTIFICATE = auto()
+    QNCP_W_IV_NON_EIDAS_FINAL_CERTIFICATE = auto()
+    QNCP_W_OV_NON_EIDAS_FINAL_CERTIFICATE = auto()
+    QNCP_W_GEN_NATURAL_PERSON_NON_EIDAS_FINAL_CERTIFICATE = auto()
+    QNCP_W_GEN_LEGAL_PERSON_NON_EIDAS_FINAL_CERTIFICATE = auto()
     QEVCP_W_PSD2_FINAL_CERTIFICATE = auto()
 
     def __str__(self):
@@ -58,14 +73,30 @@ NCP_NP_CERTIFICATE_TYPES = {CertificateType.NCP_NATURAL_PERSON_PRE_CERTIFICATE,
                             CertificateType.NCP_NATURAL_PERSON_FINAL_CERTIFICATE}
 NCP_LP_CERTIFICATE_TYPES = {CertificateType.NCP_LEGAL_PERSON_PRE_CERTIFICATE,
                             CertificateType.NCP_LEGAL_PERSON_FINAL_CERTIFICATE}
-QEVCP_W_CERTIFICATE_TYPES = {CertificateType.QEVCP_W_PRE_CERTIFICATE, CertificateType.QEVCP_W_FINAL_CERTIFICATE}
-QNCP_W_DV_CERTIFICATE_TYPES = {CertificateType.QNCP_W_DV_PRE_CERTIFICATE, CertificateType.QNCP_W_DV_FINAL_CERTIFICATE}
-QNCP_W_IV_CERTIFICATE_TYPES = {CertificateType.QNCP_W_IV_PRE_CERTIFICATE, CertificateType.QNCP_W_IV_FINAL_CERTIFICATE}
-QNCP_W_OV_CERTIFICATE_TYPES = {CertificateType.QNCP_W_OV_PRE_CERTIFICATE, CertificateType.QNCP_W_OV_FINAL_CERTIFICATE}
-QNCP_W_GEN_NP_CERTIFICATE_TYPES = {CertificateType.QNCP_W_GEN_NATURAL_PERSON_PRE_CERTIFICATE,
-                                   CertificateType.QNCP_W_GEN_NATURAL_PERSON_FINAL_CERTIFICATE}
-QNCP_W_GEN_LP_CERTIFICATE_TYPES = {CertificateType.QNCP_W_GEN_LEGAL_PERSON_PRE_CERTIFICATE,
-                                   CertificateType.QNCP_W_GEN_LEGAL_PERSON_FINAL_CERTIFICATE}
+QEVCP_W_CERTIFICATE_TYPES = {CertificateType.QEVCP_W_EIDAS_PRE_CERTIFICATE,
+                             CertificateType.QEVCP_W_EIDAS_FINAL_CERTIFICATE,
+                             CertificateType.QEVCP_W_NON_EIDAS_PRE_CERTIFICATE,
+                             CertificateType.QEVCP_W_NON_EIDAS_FINAL_CERTIFICATE}
+QNCP_W_DV_CERTIFICATE_TYPES = {CertificateType.QNCP_W_DV_EIDAS_PRE_CERTIFICATE,
+                               CertificateType.QNCP_W_DV_EIDAS_FINAL_CERTIFICATE,
+                               CertificateType.QNCP_W_DV_NON_EIDAS_PRE_CERTIFICATE,
+                               CertificateType.QNCP_W_DV_NON_EIDAS_FINAL_CERTIFICATE}
+QNCP_W_IV_CERTIFICATE_TYPES = {CertificateType.QNCP_W_IV_EIDAS_PRE_CERTIFICATE,
+                               CertificateType.QNCP_W_IV_EIDAS_FINAL_CERTIFICATE,
+                               CertificateType.QNCP_W_IV_NON_EIDAS_PRE_CERTIFICATE,
+                               CertificateType.QNCP_W_IV_NON_EIDAS_FINAL_CERTIFICATE}
+QNCP_W_OV_CERTIFICATE_TYPES = {CertificateType.QNCP_W_OV_EIDAS_PRE_CERTIFICATE,
+                               CertificateType.QNCP_W_OV_EIDAS_FINAL_CERTIFICATE,
+                               CertificateType.QNCP_W_OV_NON_EIDAS_PRE_CERTIFICATE,
+                               CertificateType.QNCP_W_OV_NON_EIDAS_FINAL_CERTIFICATE}
+QNCP_W_GEN_NP_CERTIFICATE_TYPES = {CertificateType.QNCP_W_GEN_NATURAL_PERSON_EIDAS_PRE_CERTIFICATE,
+                                   CertificateType.QNCP_W_GEN_NATURAL_PERSON_EIDAS_FINAL_CERTIFICATE,
+                                   CertificateType.QNCP_W_GEN_NATURAL_PERSON_NON_EIDAS_PRE_CERTIFICATE,
+                                   CertificateType.QNCP_W_GEN_NATURAL_PERSON_NON_EIDAS_FINAL_CERTIFICATE}
+QNCP_W_GEN_LP_CERTIFICATE_TYPES = {CertificateType.QNCP_W_GEN_LEGAL_PERSON_EIDAS_PRE_CERTIFICATE,
+                                   CertificateType.QNCP_W_GEN_LEGAL_PERSON_EIDAS_FINAL_CERTIFICATE,
+                                   CertificateType.QNCP_W_GEN_LEGAL_PERSON_EIDAS_PRE_CERTIFICATE,
+                                   CertificateType.QNCP_W_GEN_LEGAL_PERSON_NON_EIDAS_FINAL_CERTIFICATE}
 QEVCP_W_PSD2_CERTIFICATE_TYPES = {CertificateType.QEVCP_W_PSD2_PRE_CERTIFICATE,
                                   CertificateType.QEVCP_W_PSD2_FINAL_CERTIFICATE}
 
@@ -98,19 +129,27 @@ ETSI_TYPE_TO_CABF_SERVERAUTH_TYPE_MAPPINGS = {
     CertificateType.IVCP_PRE_CERTIFICATE: serverauth_constants.CertificateType.IV_PRE_CERTIFICATE,
     CertificateType.OVCP_PRE_CERTIFICATE: serverauth_constants.CertificateType.OV_PRE_CERTIFICATE,
     CertificateType.EVCP_PRE_CERTIFICATE: serverauth_constants.CertificateType.EV_PRE_CERTIFICATE,
-    CertificateType.QEVCP_W_PRE_CERTIFICATE: serverauth_constants.CertificateType.EV_PRE_CERTIFICATE,
-    CertificateType.QNCP_W_DV_PRE_CERTIFICATE: serverauth_constants.CertificateType.DV_PRE_CERTIFICATE,
-    CertificateType.QNCP_W_IV_PRE_CERTIFICATE: serverauth_constants.CertificateType.IV_PRE_CERTIFICATE,
-    CertificateType.QNCP_W_OV_PRE_CERTIFICATE: serverauth_constants.CertificateType.OV_PRE_CERTIFICATE,
+    CertificateType.QEVCP_W_EIDAS_PRE_CERTIFICATE: serverauth_constants.CertificateType.EV_PRE_CERTIFICATE,
+    CertificateType.QNCP_W_DV_EIDAS_PRE_CERTIFICATE: serverauth_constants.CertificateType.DV_PRE_CERTIFICATE,
+    CertificateType.QNCP_W_IV_EIDAS_PRE_CERTIFICATE: serverauth_constants.CertificateType.IV_PRE_CERTIFICATE,
+    CertificateType.QNCP_W_OV_EIDAS_PRE_CERTIFICATE: serverauth_constants.CertificateType.OV_PRE_CERTIFICATE,
+    CertificateType.QEVCP_W_NON_EIDAS_PRE_CERTIFICATE: serverauth_constants.CertificateType.EV_PRE_CERTIFICATE,
+    CertificateType.QNCP_W_DV_NON_EIDAS_PRE_CERTIFICATE: serverauth_constants.CertificateType.DV_PRE_CERTIFICATE,
+    CertificateType.QNCP_W_IV_NON_EIDAS_PRE_CERTIFICATE: serverauth_constants.CertificateType.IV_PRE_CERTIFICATE,
+    CertificateType.QNCP_W_OV_NON_EIDAS_PRE_CERTIFICATE: serverauth_constants.CertificateType.OV_PRE_CERTIFICATE,
     CertificateType.QEVCP_W_PSD2_PRE_CERTIFICATE: serverauth_constants.CertificateType.EV_PRE_CERTIFICATE,
 
     CertificateType.DVCP_FINAL_CERTIFICATE: serverauth_constants.CertificateType.DV_FINAL_CERTIFICATE,
     CertificateType.IVCP_FINAL_CERTIFICATE: serverauth_constants.CertificateType.IV_FINAL_CERTIFICATE,
     CertificateType.OVCP_FINAL_CERTIFICATE: serverauth_constants.CertificateType.OV_FINAL_CERTIFICATE,
     CertificateType.EVCP_FINAL_CERTIFICATE: serverauth_constants.CertificateType.EV_FINAL_CERTIFICATE,
-    CertificateType.QEVCP_W_FINAL_CERTIFICATE: serverauth_constants.CertificateType.EV_FINAL_CERTIFICATE,
-    CertificateType.QNCP_W_DV_FINAL_CERTIFICATE: serverauth_constants.CertificateType.DV_FINAL_CERTIFICATE,
-    CertificateType.QNCP_W_IV_FINAL_CERTIFICATE: serverauth_constants.CertificateType.IV_FINAL_CERTIFICATE,
-    CertificateType.QNCP_W_OV_FINAL_CERTIFICATE: serverauth_constants.CertificateType.OV_FINAL_CERTIFICATE,
+    CertificateType.QEVCP_W_EIDAS_FINAL_CERTIFICATE: serverauth_constants.CertificateType.EV_FINAL_CERTIFICATE,
+    CertificateType.QNCP_W_DV_EIDAS_FINAL_CERTIFICATE: serverauth_constants.CertificateType.DV_FINAL_CERTIFICATE,
+    CertificateType.QNCP_W_IV_EIDAS_FINAL_CERTIFICATE: serverauth_constants.CertificateType.IV_FINAL_CERTIFICATE,
+    CertificateType.QNCP_W_OV_EIDAS_FINAL_CERTIFICATE: serverauth_constants.CertificateType.OV_FINAL_CERTIFICATE,
+    CertificateType.QEVCP_W_NON_EIDAS_FINAL_CERTIFICATE: serverauth_constants.CertificateType.EV_FINAL_CERTIFICATE,
+    CertificateType.QNCP_W_DV_NON_EIDAS_FINAL_CERTIFICATE: serverauth_constants.CertificateType.DV_FINAL_CERTIFICATE,
+    CertificateType.QNCP_W_IV_NON_EIDAS_FINAL_CERTIFICATE: serverauth_constants.CertificateType.IV_FINAL_CERTIFICATE,
+    CertificateType.QNCP_W_OV_NON_EIDAS_FINAL_CERTIFICATE: serverauth_constants.CertificateType.OV_FINAL_CERTIFICATE,
     CertificateType.QEVCP_W_PSD2_FINAL_CERTIFICATE: serverauth_constants.CertificateType.EV_FINAL_CERTIFICATE,
 }

@@ -1,4 +1,5 @@
-from pkilint import validation
+from pkilint import validation, etsi
+from pkilint.etsi import etsi_constants
 from pkilint.pkix import certificate
 from pkilint.cabf import serverauth, smime
 
@@ -40,3 +41,15 @@ def test_smime():
             context = f'cabf.smime.{validation_level}-{generation}'
 
             _test(validator, context)
+
+
+def test_etsi():
+    for certificate_type in etsi_constants.CertificateType:
+        validator = certificate.create_pkix_certificate_validator_container(
+            serverauth.create_decoding_validators(),
+            etsi.create_validators(certificate_type)
+        )
+
+        context = f'etsi.{certificate_type}'
+
+        _test(validator, context)
