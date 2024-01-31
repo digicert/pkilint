@@ -350,6 +350,7 @@ pkilint is built on several open source packages. In particular, these packages 
 | pyasn1             | BSD License                          | Christian Heimes and Simon Pichugin                            | https://github.com/pyasn1/pyasn1                  |
 | pyasn1-alt-modules | BSD License                          | Russ Housley                                                   | https://github.com/russhousley/pyasn1-alt-modules |
 | python-dateutil    | Apache Software License; BSD License | Gustavo Niemeyer                                               | https://github.com/dateutil/dateutil              |
+| python-iso639      | Apache Software License              | Jackson L. Lee                                                 | https://github.com/jacksonllee/iso639             |
 | validators         | MIT License                          | Konsta Vesterinen                                              | https://github.com/kvesteri/validators            |
 
 The pkilint maintainers are grateful to the authors of these open source contributions.

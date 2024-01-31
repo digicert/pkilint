@@ -80,6 +80,8 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         ts_119_495.RolesOfPspContainsRolesValidator(),
         en_319_412_5.QcCClegislationCountryCodeValidator(),
         en_319_412_5.QcEuRetentionPeriodValidator(),
+        en_319_412_5.QcEuPDSLanguageValidator(),
+        en_319_412_5.QcEuPDSHttpsURLValidator(),
         en_319_412_5.QcTypeValidator(),
         en_319_412_1.LegalPersonOrganizationIdentifierValidator()
     ]
