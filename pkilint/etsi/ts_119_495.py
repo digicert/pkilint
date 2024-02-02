@@ -24,3 +24,17 @@ class RolesOfPspContainsRolesValidator(validation.Validator):
     def validate(self, node):
         if not any(node.children):
             raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_EMPTY)
+
+class Presence_of_QCEUPDS_statement_Validator(validation.Validator):
+    """GEN-5.1.1 The Open Banking Attributes shall be included in a QCSTatement within the qcStatements extension
+    as specified in clause 3.2.5 of IETF RFC 3739."""
+    VALIDATION_QC_EU_PDS_EMPTY = validation.ValidationFindingEncountered(validation.ValidationFindingSeverity.ERROR,
+    'etsi.ts_119_495.gen-5.1.1.qc_eu_pds_empty')
+
+    def __init__(self):
+        super().__init__(validations=[self.VALIDATION_QC_EU_PDS_EMPTY], pdu_class=ts_119_495_asn1.PSD2QcType)
+
+    def validate(self, node):
+        print(node.children)
+        if not any(node.children):
+            raise validation.ValidationFindingEncountered(self.VALIDATION_QC_EU_PDS_EMPTY)
