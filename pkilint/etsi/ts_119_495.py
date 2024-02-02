@@ -1,5 +1,6 @@
 from pkilint import validation
 from pkilint.etsi.asn1 import ts_119_495 as ts_119_495_asn1
+from pyasn1_alt_modules import rfc3739
 
 
 _ROLE_OID_TO_NAME_MAPPINGS = {
@@ -25,16 +26,16 @@ class RolesOfPspContainsRolesValidator(validation.Validator):
         if not any(node.children):
             raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_EMPTY)
 
-class Presence_of_QCEUPDS_statement_Validator(validation.Validator):
+class PresenceofQCEUPDSStatementValidator(validation.Validator):
     """GEN-5.1.1 The Open Banking Attributes shall be included in a QCSTatement within the qcStatements extension
     as specified in clause 3.2.5 of IETF RFC 3739."""
-    VALIDATION_QC_EU_PDS_EMPTY = validation.ValidationFindingEncountered(validation.ValidationFindingSeverity.ERROR,
-    'etsi.ts_119_495.gen-5.1.1.qc_eu_pds_empty')
+    VALIDATION_QC_EU_PDS_MISSING = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
+    'etsi.ts_119_495.gen-5.1.1.qc_eu_pds_missing')
 
     def __init__(self):
-        super().__init__(validations=[self.VALIDATION_QC_EU_PDS_EMPTY], pdu_class=ts_119_495_asn1.PSD2QcType)
+        super().__init__(validations=[self.VALIDATION_QC_EU_PDS_MISSING], pdu_class=rfc3739.QCStatements)
 
     def validate(self, node):
-        print(node.children)
-        if not any(node.children):
-            raise validation.ValidationFindingEncountered(self.VALIDATION_QC_EU_PDS_EMPTY)
+        print(node.document.qualified_statement_ids)
+        if ts_119_495_asn1.id_etsi_psd2_qcStatement not in node.document.qualified_statement_ids:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_QC_EU_PDS_MISSING)

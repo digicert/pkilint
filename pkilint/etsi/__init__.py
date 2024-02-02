@@ -136,7 +136,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
             en_319_412_5.QcTypeValidator(),
             en_319_412_5.QcEuPDSHttpsURLValidator(),
             en_319_412_5.QcEuPDSLanguageValidator(),
-            ts_119_495.Presence_of_QCEUPDS_statement_Validator()
+            ts_119_495.PresenceofQCEUPDSStatementValidator()
         ],
         pdu_class=rfc3739.QCStatements
     )
