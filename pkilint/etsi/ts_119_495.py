@@ -36,6 +36,5 @@ class PresenceofQCEUPDSStatementValidator(validation.Validator):
         super().__init__(validations=[self.VALIDATION_QC_EU_PDS_MISSING], pdu_class=rfc3739.QCStatements)
 
     def validate(self, node):
-        print(node.document.qualified_statement_ids)
         if ts_119_495_asn1.id_etsi_psd2_qcStatement not in node.document.qualified_statement_ids:
             raise validation.ValidationFindingEncountered(self.VALIDATION_QC_EU_PDS_MISSING)
