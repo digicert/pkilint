@@ -12,18 +12,54 @@ _ROLE_OID_TO_NAME_MAPPINGS = {
 
 class RolesOfPspContainsRolesValidator(validation.Validator):
     """GEN-5.2.2-1: RolesOfPSP shall contain one or more roles or contain a single entry indicating that the role is
-    unspecified."""
+    unspecified.
+    GEN-5.2.2-2 If the certificate is issued for EU PSD2 the role object identifier shall be the appropriate one of the four OIDS
+    defined in the ASN.1 snippet below; and 
+    GEN-5.2.2-3 If the certificate is issued for EU PSD2 the role name shall be  the appropriate one of the abbreviated names 
+    defined in clause 5.1 PSP_AS, PSP_PI, or PSP_IC. 
+    GEN-5.2.2-3A If the role is unspecified the role name shall be "Unspecified"
+    GEN-5.2.2-5 The TSP shall ensure that the name in roleofPSPName is the one associated with the role object 
+    identifier held in roleofPSPOid. 
+    """
     VALIDATION_PSP_ROLES_EMPTY = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
         'etsi.ts_119_495.gen-5.2.2-1.roles_of_psp_empty'
     )
+    VALIDATION_PSP_ROLES_INVALID = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
+    'etsi.ts_119_495.gen-5.2-2.invalid_psp_role')
+
+    VALIDATION_PSP_OIDS_INVALID = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
+    'etsi.ts_119_495.gen-5.2-2.invalid_psp_oid')
+
+    VALIDATION_PSP_ROLES_MISMATCH = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
+    'etsi.ts_119_495.gen-5.2.2-5.psp_role_mismatch')
+
+    VALIDATION_PSP_ROLES_UNSPECIFIED = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
+    'etsi.ts_119_495.gen-5.2.2-3a.psp_roles_not_unspecified')
 
     def __init__(self):
-        super().__init__(validations=[self.VALIDATION_PSP_ROLES_EMPTY], pdu_class=ts_119_495_asn1.RolesOfPSP)
+        super().__init__(validations=[self.VALIDATION_PSP_ROLES_EMPTY, self.VALIDATION_PSP_ROLES_INVALID, self.VALIDATION_PSP_ROLES_MISMATCH,
+        self.VALIDATION_PSP_ROLES_UNSPECIFIED], pdu_class=ts_119_495_asn1.RolesOfPSP)
+        self._expected_roles = {'PSP_AI': '0.4.0.19495.1.3', 'PSP_AS': '0.4.0.19495.1.1',
+        'PSP_IC': '0.4.0.19495.1.4', 'PSP_PI': '0.4.0.19495.1.2', 'Unspecified': '0.4.0.19495.1.0'}
 
     def validate(self, node):
         if not any(node.children):
             raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_EMPTY)
+        
+        for children in node.children.values():
+            psp_oid = children.pdu['roleOfPspOid']
+            role_psp = children.pdu['roleOfPspName']
+            expected_role = self._expected_roles.get(psp_oid)
+
+            if psp_oid not in self._expected_roles:
+                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_OIDS_INVALID)
+            if role_psp not in self._expected_roles.values():
+                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_INVALID)
+            if role_psp != expected_role:
+                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_MISMATCH)
+            if psp_oid == "0.4.0.19495.1.0" and rolse_psp != expected_role:
+                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_UNSPECIFIED)
 
 
 class NCANameLatinCharactersValidator(validation.Validator):
