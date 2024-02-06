@@ -123,13 +123,15 @@ def create_decoding_validators() -> List[validation.Validator]:
 
 
 def create_validators(certificate_type: CertificateType) -> List[validation.Validator]:
+
     subject_validators = [
         en_319_412_1.LegalPersonOrganizationIdentifierValidator(),
-        organization_id.OrganizationIdentifierLeiValidator(),
+        organization_id.OrganizationIdentifierLeiValidator()
     ]
 
     validators=[
             ts_119_495.RolesOfPspContainsRolesValidator(),
+            ts_119_495.NCANameLatinCharactersValidator(),
             en_319_412_5.QcCClegislationCountryCodeValidator(),
             en_319_412_5.QcEuRetentionPeriodValidator(),
             en_319_412_5.QcTypeValidator(),
@@ -141,6 +143,9 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
 
     qc_statements_validator_container = validation.ValidatorContainer(
         validators=validators,
+            en_319_412_5.QcEuPDSLanguageValidator(),
+            en_319_412_5.QcEuLimitValueValidator()
+        ],
         pdu_class=rfc3739.QCStatements
     )
 

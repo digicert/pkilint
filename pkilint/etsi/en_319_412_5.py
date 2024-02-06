@@ -1,6 +1,7 @@
 from pkilint import validation
 from pkilint.etsi.asn1 import en_319_412_5
 from iso3166 import countries_by_alpha2
+from iso4217 import Currency
 from urllib.parse import urlparse
 import iso639
 
@@ -118,4 +119,74 @@ class QcTypeValidator(validation.Validator):
             raise validation.ValidationFindingEncountered(self.VALIDATION_QCType_not_one)
         _, qctype_value = node.child
         if qctype_value.pdu != en_319_412_5.id_etsi_qct_web:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_QCType_Web)
+
+                raise validation.ValidationFindingEncountered(self.VALIDATION_QCType_Web)
+
+class QcEuLimitValueValidator(validation.Validator):
+    """
+    This QCStatement declares a limitation on the value of transaction for which a certificate
+    can be used. 
+    MonetaryValue:: == SEQUENCE {
+        currency Iso4217CurrencyCode,
+        amount INTEGER,
+        exponent INTEGR
+    }
+    -- value = amount * 10^exponent
+    Iso4217CurrencyCode:: = CHOICE {
+        alphabetic PrintableString (Size (3)), -- Recommended
+        numeric INTEGER (1..999) } 
+        -- Alphabetic or numeric currency code as defined in ISO 4217
+        -- It is recommended that the Alphabetic form is used 
+    }
+    QCS-4.3.2-01: The currency codes shall be defined in ISO 4217.
+    QCS-4.3.2-02: The alphabetic form of currency codes should be used.
+
+    Things to validate - valid iso 4217 currency code 
+                       - warning if the numeric code is used 
+                       - Positive amount and exponent value
+    """
+    VALIDATION_INVALID_CURRENCY = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
+    'etsi.en_319_412_5.gen-4.3.2.invalid_currency')
+
+    VALIDATION_ALPHABETIC_CODE_NOT_FOUND = validation.ValidationFinding(validation.ValidationFindingSeverity.WARNING,
+    'etsi.en_319_412_5.gen-4.3.2.alphabetic_code_not_found')
+
+    VALIDATION_AMOUNT_NEGATIVE = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
+    'etsi.en_319_412_5.gen-4.3.2.amount_negative')
+
+    VALIDATION_EXPONENT_NEGATIVE = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
+    'etsi.en_319_412_5.gen-4.3.2.exponent_negative')
+
+    def __init__(self):
+        self._alpha_codes = set()
+        self._numeric_codes = set()
+        for currency in Currency:
+            self._alpha_codes.add(currency.code)
+            self._numeric_codes.add(currency.number)
+        # Let's remove the testing and unknown currency codes from the set. 
+        alpha_bad_codes = {'XTS', 'XXX'}
+        numeric_bad_codes = {'999', '963'}
+        self._alpha_codes -= alpha_bad_codes
+        self._numeric_codes -= numeric_bad_codes
+        super().__init__(validations=[self.VALIDATION_INVALID_CURRENCY, self.VALIDATION_ALPHABETIC_CODE_NOT_FOUND,
+        self.VALIDATION_AMOUNT_NEGATIVE, self.VALIDATION_EXPONENT_NEGATIVE], 
+        pdu_class=en_319_412_5.MonetaryValue)
+    
+    def validate(self, node):
+        findings = []
+        currency_code_type, iso_code = node.children["currency"].child
+        if currency_code_type != "alphabetic":
+            findings.append(validation.ValidationFindingDescription(self.VALIDATION_ALPHABETIC_CODE_NOT_FOUND, None))
+            iso_code = int(iso_code.pdu)
+        else: 
+            iso_code = str(iso_code.pdu)
+        # One of these codes I used for my example (triple X) but apparently they are in the iso library as 
+        # no currency and code reserved for testing so I'll include this on the conditional
+        if iso_code not in self._alpha_codes and iso_code not in self._numeric_codes:
+            findings.append(validation.ValidationFindingDescription(self.VALIDATION_INVALID_CURRENCY, None))
+        if node.children["amount"].pdu < 0:
+            findings.append(validation.ValidationFindingDescription(self.VALIDATION_AMOUNT_NEGATIVE, None))
+        if node.children["exponent"].pdu < 0:
+            findings.append(validation.ValidationFindingEncountered(self.VALIDATION_EXPONENT_NEGATIVE, None))
+
+        return validation.ValidationResult(self,node,findings)
