@@ -780,3 +780,51 @@ class CtPrecertPoisonSctListMutuallyExclusiveExtensionsValidator(validation.Vali
         if poison_ext is not None:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_SIMULTANEOUS_PRECERT_POISON_SCTLIST_EXTENSIONS)
+
+
+class PolicyConstraintsPresenceValidator(extension.ExtensionTypeMatchingValidator):
+    VALIDATION_EE_POLICY_CONSTRAINTS_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.end_entity_policy_constraints_extension_present'
+    )
+
+    def __init__(self):
+        super().__init__(
+            extension_oid=rfc5280.id_ce_policyConstraints, validations=[self.VALIDATION_EE_POLICY_CONSTRAINTS_PRESENT]
+         )
+
+    def validate(self, node):
+        if not node.document.is_ca:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_EE_POLICY_CONSTRAINTS_PRESENT)
+
+
+class InhibitAnyPolicyPresenceValidator(extension.ExtensionTypeMatchingValidator):
+    VALIDATION_EE_INHIBIT_ANYPOLICY_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.end_entity_inhibit_anypolicy_extension_present'
+    )
+
+    def __init__(self):
+        super().__init__(
+            extension_oid=rfc5280.id_ce_inhibitAnyPolicy, validations=[self.VALIDATION_EE_INHIBIT_ANYPOLICY_PRESENT]
+        )
+
+    def validate(self, node):
+        if not node.document.is_ca:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_EE_INHIBIT_ANYPOLICY_PRESENT)
+
+
+class PolicyMappingsPresenceValidator(extension.ExtensionTypeMatchingValidator):
+    VALIDATION_EE_POLICY_MAPPINGS_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.end_entity_policy_mappings_extension_present'
+    )
+
+    def __init__(self):
+        super().__init__(
+            extension_oid=rfc5280.id_ce_policyMappings, validations=[self.VALIDATION_EE_POLICY_MAPPINGS_PRESENT]
+        )
+
+    def validate(self, node):
+        if not node.document.is_ca:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_EE_POLICY_MAPPINGS_PRESENT)
