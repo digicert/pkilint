@@ -128,16 +128,20 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         organization_id.OrganizationIdentifierLeiValidator(),
     ]
 
-    qc_statements_validator_container = validation.ValidatorContainer(
-        validators=[
+    validators=[
             ts_119_495.RolesOfPspContainsRolesValidator(),
             en_319_412_5.QcCClegislationCountryCodeValidator(),
             en_319_412_5.QcEuRetentionPeriodValidator(),
             en_319_412_5.QcTypeValidator(),
             en_319_412_5.QcEuPDSHttpsURLValidator(),
-            en_319_412_5.QcEuPDSLanguageValidator(),
-            ts_119_495.PresenceofQCEUPDSStatementValidator()
-        ],
+            en_319_412_5.QcEuPDSLanguageValidator()
+            ]
+    print("line 139 - certificate type is ", certificate_type)
+    if certificate_type in etsi_constants.QEVCP_W_CERTIFICATE_TYPES:
+        validators.append( ts_119_495.PresenceofQCEUPDSStatementValidator())
+
+    qc_statements_validator_container = validation.ValidatorContainer(
+        validators=validators,
         pdu_class=rfc3739.QCStatements
     )
 
