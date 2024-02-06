@@ -85,8 +85,14 @@ class OrganizationIdentifierAttributeValidator(validation.TypeMatchingValidator)
         'cabf.invalid_subject_organization_identifier_state_province_format'
     )
 
-    def __init__(self, relax_stateprovince_syntax=False, additional_schemes: typing.Optional[
-            typing.Mapping[str, cabf_constants.RegistrationSchemeNamingConvention]] = None):
+    _ISO3166_AND_ARTICLE_215_COUNTRY_CODES = set(countries_by_alpha2.keys()) | {'EL', 'XI'}
+
+    def __init__(
+            self,
+            relax_stateprovince_syntax=False,
+            additional_schemes: typing.Optional[
+                typing.Mapping[str, cabf_constants.RegistrationSchemeNamingConvention]] = None
+    ):
         super().__init__(type_oid=x520_name.id_at_organizationIdentifier,
                          type_path='type', value_path='value.x520OrganizationIdentifier',
                          pdu_class=rfc5280.AttributeTypeAndValue,
@@ -148,7 +154,15 @@ class OrganizationIdentifierAttributeValidator(validation.TypeMatchingValidator)
         elif scheme_info.country_identifier_type == cabf_constants.RegistrationSchemeCountryIdentifierType.XG:
             valid_country_code = (country_code == 'XG')
         elif scheme_info.country_identifier_type == cabf_constants.RegistrationSchemeCountryIdentifierType.ISO3166:
-            valid_country_code = (country_code in countries_by_alpha2)
+            # HACK: this comparison with "_relax_stateprovince_syntax" is a hack to differentiate between SMBR and
+            # TLSBR validators. The EVGs don't allow the relaxed state/province syntax, so we can use that to
+            # determine whether to allow the "EL" and "XI" country codes permitted by the amended Article 215 of
+            # Council Directive 2006/112/EC. This is dirty, but this logic is getting replaced by the (much
+            # improved) OrgId validation logic when the QWAC linter is released in a few months
+            if m['scheme'] == 'VAT' and not self._relax_stateprovince_syntax:
+                valid_country_code = (country_code in self._ISO3166_AND_ARTICLE_215_COUNTRY_CODES)
+            else:
+                valid_country_code = (country_code in countries_by_alpha2)
         else:
             raise ValueError(f'Unknown country identifier type for scheme "{m["scheme"]}": '
                              f'{scheme_info.country_identifier_type}')
