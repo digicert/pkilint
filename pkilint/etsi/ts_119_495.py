@@ -24,3 +24,21 @@ class RolesOfPspContainsRolesValidator(validation.Validator):
     def validate(self, node):
         if not any(node.children):
             raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_EMPTY)
+
+
+class NCANameLatinCharactersValidator(validation.Validator):
+    """GEN-5.2.3-1: The NCAName shall be plain text using Latin alphabet provided by the Competent Authority itself for purpose of identification in certificates."""
+    VALIDATION_NCA_NAME_NON_LATIN = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.ts_119_495.gen-5.2.3-1.nca_name_non_latin'
+    )
+
+    def __init__(self):
+        super().__init__(validations=[self.VALIDATION_NCA_NAME_NON_LATIN], pdu_class=ts_119_495_asn1.NCAName)
+
+    def validate(self, node):
+        nca_name = str(node.pdu)
+
+        if not nca_name.isascii():
+            raise validation.ValidationFindingEncountered(self.VALIDATION_NCA_NAME_NON_LATIN,
+                                                          f'invalid NCA name: {nca_name}')
