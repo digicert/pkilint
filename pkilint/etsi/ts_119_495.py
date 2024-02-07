@@ -40,26 +40,26 @@ class RolesOfPspContainsRolesValidator(validation.Validator):
     def __init__(self):
         super().__init__(validations=[self.VALIDATION_PSP_ROLES_EMPTY, self.VALIDATION_PSP_ROLES_INVALID, self.VALIDATION_PSP_ROLES_MISMATCH,
         self.VALIDATION_PSP_ROLES_UNSPECIFIED], pdu_class=ts_119_495_asn1.RolesOfPSP)
-        self._expected_roles = {'PSP_AI': '0.4.0.19495.1.3', 'PSP_AS': '0.4.0.19495.1.1',
-        'PSP_IC': '0.4.0.19495.1.4', 'PSP_PI': '0.4.0.19495.1.2', 'Unspecified': '0.4.0.19495.1.0'}
+        self._expected_roles = {'0.4.0.19495.1.3': 'PSP_AI', '0.4.0.19495.1.1': 'PSP_AS',
+        '0.4.0.19495.1.4': 'PSP_IC', '0.4.0.19495.1.2': 'PSP_PI', '0.4.0.19495.1.0': 'Unspecified'}
 
     def validate(self, node):
         if not any(node.children):
             raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_EMPTY)
         
         for children in node.children.values():
-            psp_oid = children.pdu['roleOfPspOid']
-            role_psp = children.pdu['roleOfPspName']
+            psp_oid = str(children.pdu['roleOfPspOid'])
+            role_psp = str(children.pdu['roleOfPspName'])
             expected_role = self._expected_roles.get(psp_oid)
 
-            if psp_oid not in self._expected_roles:
+            if psp_oid  == "0.4.0.19495.1.0" and role_psp != expected_role:
+                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_UNSPECIFIED)
+            if psp_oid not in self._expected_roles.keys():
                 raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_OIDS_INVALID)
             if role_psp not in self._expected_roles.values():
                 raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_INVALID)
             if role_psp != expected_role:
                 raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_MISMATCH)
-            if psp_oid == "0.4.0.19495.1.0" and rolse_psp != expected_role:
-                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_UNSPECIFIED)
 
 
 class NCANameLatinCharactersValidator(validation.Validator):
