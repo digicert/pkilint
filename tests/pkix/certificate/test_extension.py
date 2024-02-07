@@ -2,7 +2,8 @@ import pytest
 from pyasn1.codec.der.encoder import encode
 from pyasn1_alt_modules import rfc5280
 
-from pkilint import document
+from pkilint import document, validation
+from pkilint.pkix.certificate import certificate_extension
 from pkilint.pkix.certificate.certificate_extension import BasicConstraintsValidator
 from pkilint.validation import ValidationFindingEncountered
 from tests import util
@@ -61,3 +62,48 @@ def test_basic_constraints_not_ca_with_pathlen():
         validator.validate(bc)
 
     assert e.value.finding == validator.VALIDATION_ILLEGAL_PATHLEN_SET
+
+
+def _ee_extension_presence_test(ext_oid, validator, expected_finding):
+    class Cert:
+        @property
+        def is_ca(self):
+            return False
+
+    ext = rfc5280.Extension()
+    ext['extnID'] = ext_oid
+    ext['extnValue'] = b''
+
+    # noinspection PyTypeChecker
+    node = document.PDUNode(Cert(), 'ext', ext, None)
+
+    assert validator.match(node)
+
+    with pytest.raises(validation.ValidationFindingEncountered) as e:
+        validator.validate(node)
+
+    assert e.value.finding == expected_finding
+
+
+def test_ee_policy_mappings_presence():
+    _ee_extension_presence_test(
+        rfc5280.id_ce_policyMappings,
+        certificate_extension.PolicyMappingsPresenceValidator(),
+        certificate_extension.PolicyMappingsPresenceValidator.VALIDATION_EE_POLICY_MAPPINGS_PRESENT
+    )
+
+
+def test_ee_policy_constaints_presence():
+    _ee_extension_presence_test(
+        rfc5280.id_ce_policyConstraints,
+        certificate_extension.PolicyConstraintsPresenceValidator(),
+        certificate_extension.PolicyConstraintsPresenceValidator.VALIDATION_EE_POLICY_CONSTRAINTS_PRESENT
+    )
+
+
+def test_ee_inhibit_anypolicy_presence():
+    _ee_extension_presence_test(
+        rfc5280.id_ce_inhibitAnyPolicy,
+        certificate_extension.InhibitAnyPolicyPresenceValidator(),
+        certificate_extension.InhibitAnyPolicyPresenceValidator.VALIDATION_EE_INHIBIT_ANYPOLICY_PRESENT
+    )

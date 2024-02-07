@@ -180,6 +180,14 @@ class ExtensionPresenceValidator(validation.Validator):
             raise validation.ValidationFindingEncountered(self._validation)
 
 
+class ExtensionTypeMatchingValidator(validation.TypeMatchingValidator):
+    def __init__(self, *, extension_oid, validations):
+        super().__init__(
+            type_path='extnID', type_oid=extension_oid, value_path='extnValue', validations=validations,
+            pdu_class=rfc5280.Extension
+        )
+
+
 class AuthorityKeyIdentifierValidator(validation.Validator):
     VALIDATION_AKI_NO_KEY_ID = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
