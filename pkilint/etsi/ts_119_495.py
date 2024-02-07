@@ -1,5 +1,6 @@
 from pkilint import validation
 from pkilint.etsi.asn1 import ts_119_495 as ts_119_495_asn1
+from iso3166 import countries_by_alpha2
 
 
 _ROLE_OID_TO_NAME_MAPPINGS = {
@@ -42,3 +43,47 @@ class NCANameLatinCharactersValidator(validation.Validator):
         if not nca_name.isascii():
             raise validation.ValidationFindingEncountered(self.VALIDATION_NCA_NAME_NON_LATIN,
                                                           f'invalid NCA name: {nca_name}')
+
+
+class NCAIdValidator(validation.Validator):
+    """GEN-5.2.3-2: Validator for NCAId structure.
+    The NCAId shall contain information using the following structure in the presented order:
+    • 2 character ISO 3166-1 country code representing the Competent Authority country;
+    • hyphen-minus "-" (0x2D (ASCII), U+002D (UTF-8)); and
+    • 2-8 character Competent Authority identifier without country code (A-Z uppercase only, no separator)."""
+
+    VALIDATION_INVALID_STRUCTURE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.ts_119_495.gen-5.2.3-2.invalid_structure'
+    )
+    VALIDATION_INVALID_ISO_COUNTRY = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.ts_119_495.gen-5.2.3-2.invalid_iso_country'
+    )
+    VALIDATION_INVALID_CA_IDENTIFIER = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.ts_119_495.gen-5.2.3-2.invalid_ca_identifier'
+    )
+
+    def __init__(self):
+        super().__init__(validations=[self.VALIDATION_INVALID_STRUCTURE,
+                                      self.VALIDATION_INVALID_ISO_COUNTRY,
+                                      self.VALIDATION_INVALID_CA_IDENTIFIER],
+                                      pdu_class=ts_119_495_asn1.NCAId)
+
+    def validate(self, node):
+        nca_id = str(node.pdu)
+
+        if nca_id.count('-') != 1:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_INVALID_STRUCTURE,
+                                                           f'Invalid separator in NCAId: {nca_id}')
+
+        iso_country_code, ca_identifier = nca_id.rsplit('-', 1)
+
+        if iso_country_code not in countries_by_alpha2:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_INVALID_ISO_COUNTRY,
+                                                           f'Invalid ISO country code: {iso_country_code}')
+
+        if not (2 <= len(ca_identifier) <= 8 and ca_identifier.isalpha() and ca_identifier.isupper()):
+            raise validation.ValidationFindingEncountered(self.VALIDATION_INVALID_CA_IDENTIFIER,
+                                                           f'Invalid Competent Authority identifier: {ca_identifier}')

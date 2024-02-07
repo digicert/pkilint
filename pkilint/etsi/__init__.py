@@ -133,6 +133,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         validators=[
             ts_119_495.RolesOfPspContainsRolesValidator(),
             ts_119_495.NCANameLatinCharactersValidator(),
+            ts_119_495.NCAIdValidator(),
             en_319_412_5.QcCClegislationCountryCodeValidator(),
             en_319_412_5.QcEuRetentionPeriodValidator(),
             en_319_412_5.QcTypeValidator(),
