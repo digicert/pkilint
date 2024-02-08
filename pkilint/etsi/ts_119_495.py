@@ -34,12 +34,8 @@ class RolesOfPspValidator(validation.Validator):
     VALIDATION_PSP_ROLES_MISMATCH = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
     'etsi.ts_119_495.gen-5.2.2-5.psp_role_mismatch')
 
-    VALIDATION_PSP_ROLES_UNSPECIFIED = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
-    'etsi.ts_119_495.gen-5.2.2-3a.psp_roles_not_unspecified')
-
     def __init__(self):
-        super().__init__(validations=[self.VALIDATION_PSP_ROLES_EMPTY, self.VALIDATION_PSP_ROLES_INVALID, self.VALIDATION_PSP_ROLES_MISMATCH,
-        self.VALIDATION_PSP_ROLES_UNSPECIFIED, self.VALIDATION_PSP_OIDS_INVALID], pdu_class=ts_119_495_asn1.RolesOfPSP)
+        super().__init__(validations=[self.VALIDATION_PSP_ROLES_EMPTY, self.VALIDATION_PSP_ROLES_INVALID, self.VALIDATION_PSP_ROLES_MISMATCH, self.VALIDATION_PSP_OIDS_INVALID], pdu_class=ts_119_495_asn1.RolesOfPSP)
         self._expected_roles = {ts_119_495_asn1.id_psd2_role_psp_ai: 'PSP_AI', ts_119_495_asn1.id_psd2_role_psp_as: 'PSP_AS',
         ts_119_495_asn1.id_psd2_role_psp_ic: 'PSP_IC', ts_119_495_asn1.id_psd2_role_psp_pi: 'PSP_PI', ts_119_495_asn1.id_psd2_role_psp_unspecified: 'Unspecified'}
 
@@ -52,14 +48,12 @@ class RolesOfPspValidator(validation.Validator):
             role_psp = str(children.pdu['roleOfPspName'])
             expected_role = self._expected_roles.get(psp_oid)
 
-            if psp_oid  == ts_119_495_asn1.id_psd2_role_psp_unspecified and role_psp != expected_role:
-                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_UNSPECIFIED)
             if psp_oid not in self._expected_roles.keys():
-                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_OIDS_INVALID)
+                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_OIDS_INVALID, f'expected oid values are {self._expected_roles.keys()} got {psp_oid}')
             if role_psp not in self._expected_roles.values():
-                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_INVALID)
+                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_INVALID, f'expected role values are {self._expected_roles.values()} got {role_psp}')
             if role_psp != expected_role:
-                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_MISMATCH)
+                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_MISMATCH, f'expected role is {expected_role} role in cert is {role_psp} oid in cert is {psp_oid}')
 
 
 class NCANameLatinCharactersValidator(validation.Validator):
