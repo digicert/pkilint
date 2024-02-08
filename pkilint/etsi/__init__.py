@@ -131,7 +131,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
 
     qc_statements_validator_container = validation.ValidatorContainer(
         validators=[
-            ts_119_495.RolesOfPspContainsRolesValidator(),
+            ts_119_495.RolesOfPspValidator(),
             ts_119_495.NCANameLatinCharactersValidator(),
             en_319_412_5.QcCClegislationCountryCodeValidator(),
             en_319_412_5.QcEuRetentionPeriodValidator(),

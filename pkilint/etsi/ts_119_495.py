@@ -40,8 +40,8 @@ class RolesOfPspContainsRolesValidator(validation.Validator):
     def __init__(self):
         super().__init__(validations=[self.VALIDATION_PSP_ROLES_EMPTY, self.VALIDATION_PSP_ROLES_INVALID, self.VALIDATION_PSP_ROLES_MISMATCH,
         self.VALIDATION_PSP_ROLES_UNSPECIFIED, self.VALIDATION_PSP_OIDS_INVALID], pdu_class=ts_119_495_asn1.RolesOfPSP)
-        self._expected_roles = {'0.4.0.19495.1.3': 'PSP_AI', '0.4.0.19495.1.1': 'PSP_AS',
-        '0.4.0.19495.1.4': 'PSP_IC', '0.4.0.19495.1.2': 'PSP_PI', '0.4.0.19495.1.0': 'Unspecified'}
+        self._expected_roles = {str(ts_119_495_asn1.id_psd2_role_psp_ai): 'PSP_AI', str(ts_119_495_asn1.id_psd2_role_psp_as): 'PSP_AS',
+        str(ts_119_495_asn1.id_psd2_role_psp_ic): 'PSP_IC', str(ts_119_495_asn1.id_psd2_role_psp_pi): 'PSP_PI', str(ts_119_495_asn1.id_psd2_role_psp_unspecified): 'Unspecified'}
 
     def validate(self, node):
         if not any(node.children):
