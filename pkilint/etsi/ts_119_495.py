@@ -52,7 +52,7 @@ class RolesOfPspValidator(validation.Validator):
             role_psp = str(children.pdu['roleOfPspName'])
             expected_role = self._expected_roles.get(psp_oid)
 
-            if psp_oid  == "0.4.0.19495.1.0" and role_psp != expected_role:
+            if psp_oid  == ts_119_495_asn1.id_psd2_role_psp_unspecified and role_psp != expected_role:
                 raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_UNSPECIFIED)
             if psp_oid not in self._expected_roles.keys():
                 raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_OIDS_INVALID)
