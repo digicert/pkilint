@@ -10,7 +10,7 @@ _ROLE_OID_TO_NAME_MAPPINGS = {
 }
 
 
-class RolesOfPspContainsRolesValidator(validation.Validator):
+class RolesOfPspValidator(validation.Validator):
     """GEN-5.2.2-1: RolesOfPSP shall contain one or more roles or contain a single entry indicating that the role is
     unspecified.
     GEN-5.2.2-2 If the certificate is issued for EU PSD2 the role object identifier shall be the appropriate one of the four OIDS
