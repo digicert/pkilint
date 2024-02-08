@@ -144,7 +144,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         validators.append( ts_119_495.PresenceofQCEUPDSStatementValidator())
 
         qc_statements_validator_container = validation.ValidatorContainer(
-        validators, pdu_class=rfc3739.QCStatements)
+        validators=validators, pdu_class=rfc3739.QCStatements)
 
     qc_statements_validator_container = validation.ValidatorContainer(
         validators=validators,
