@@ -128,9 +128,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         en_319_412_1.LegalPersonOrganizationIdentifierValidator(),
         organization_id.OrganizationIdentifierLeiValidator()
     ]
-
-    qc_statements_validator_container = validation.ValidatorContainer(
-        validators=[
+    validators = validators=[
             ts_119_495.RolesOfPspValidator(),
             ts_119_495.NCANameLatinCharactersValidator(),
             ts_119_495.NCAIdValidator(),
@@ -140,9 +138,13 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
             en_319_412_5.QcEuPDSHttpsURLValidator(),
             en_319_412_5.QcEuLimitValueValidator(),
             en_319_412_5.QcEuPDSLanguageValidator()
-            ])
+            ]
+
     if certificate_type in etsi_constants.QEVCP_W_PSD2_CERTIFICATE_TYPES:
         validators.append( ts_119_495.PresenceofQCEUPDSStatementValidator())
+
+        qc_statements_validator_container = validation.ValidatorContainer(
+        validators, pdu_class=rfc3739.QCStatements)
 
     qc_statements_validator_container = validation.ValidatorContainer(
         validators=validators,
