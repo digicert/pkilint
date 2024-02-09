@@ -2,6 +2,7 @@ from pkilint import validation
 from pkilint.etsi.asn1 import ts_119_495 as ts_119_495_asn1
 from pyasn1_alt_modules import rfc3739
 from iso3166 import countries_by_alpha2
+import pkilint.oid
 
 
 
@@ -52,7 +53,7 @@ class RolesOfPspValidator(validation.Validator):
             expected_role = self._expected_roles.get(psp_oid)
 
             if psp_oid not in self._expected_roles.keys():
-                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_OIDS_INVALID, f'expected oid values are {self._expected_roles.keys()} got {psp_oid}')
+                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_OIDS_INVALID, f'expected oid values are {pkilint.oid.format_oids(self._expected_roles.keys())} got {psp_oid}')
             if role_psp not in self._expected_roles.values():
                 raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_INVALID, f'expected role values are {self._expected_roles.values()} got {role_psp}')
             if role_psp != expected_role:
