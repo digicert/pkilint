@@ -55,9 +55,9 @@ class RolesOfPspValidator(validation.Validator):
             if psp_oid not in self._expected_roles.keys():
                 raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_OIDS_INVALID, f'expected oid values are {pkilint.oid.format_oids(self._expected_roles.keys())} got {psp_oid}')
             if role_psp not in self._expected_roles.values():
-                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_INVALID, f'expected role values are {self._expected_roles.values()} got {role_psp}')
+                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_INVALID, f"expected role values are [ {', '.join(map(str, self._expected_roles.values()))}]. Got {role_psp}")
             if role_psp != expected_role:
-                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_MISMATCH, f'expected role is {expected_role} role in cert is {role_psp} oid in cert is {psp_oid}')
+                raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_MISMATCH, f'Expected role is: {expected_role}. Role in cert is: {role_psp}. Oid in cert is: {psp_oid}')
 
 class PresenceofQCEUPDSStatementValidator(validation.Validator):
     """GEN-5.1.1 The Open Banking Attributes shall be included in a QCSTatement within the qcStatements extension

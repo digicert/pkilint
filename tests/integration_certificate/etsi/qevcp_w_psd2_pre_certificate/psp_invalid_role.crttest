@@ -47,7 +47,7 @@ node_path,validator,severity,code,message
 certificate.tbsCertificate.subject.rdnSequence,EvSubscriberAttributeAllowanceValidator,WARNING,cabf.ev_guidelines.common_name_attribute_present,
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies,SubscriberPoliciesValidator,WARNING,cabf.serverauth.subscriber_first_policy_oid_not_reserved,
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies.3.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
-certificate.tbsCertificate.extensions.5.extnValue.qCStatements.4.statementInfo.pSD2QcType.rolesOfPSP,RolesOfPspValidator,ERROR,etsi.ts_119_495.gen-5.2-2.invalid_psp_role,"expected role values are dict_values(['PSP_AI', 'PSP_AS', 'PSP_IC', 'PSP_PI', 'Unspecified']) got PSP_AI_invalid"
+certificate.tbsCertificate.extensions.5.extnValue.qCStatements.4.statementInfo.pSD2QcType.rolesOfPSP,RolesOfPspValidator,ERROR,etsi.ts_119_495.gen-5.2-2.invalid_psp_role,"expected role values are [ PSP_AI, PSP_AS, PSP_IC, PSP_PI, Unspecified] got PSP_AI_invalid"
 certificate.tbsCertificate.extensions.8.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 certificate.tbsCertificate.extensions.9.extnValue.keyUsage,SubscriberKeyUsageValidator,WARNING,cabf.serverauth.subscriber_rsa_digitalsignature_and_keyencipherment_present,
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.subject_key_identifier_extension_present,
