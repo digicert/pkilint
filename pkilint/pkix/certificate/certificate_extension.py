@@ -2,7 +2,7 @@ from typing import NamedTuple, Set
 
 import unicodedata
 from pyasn1.type.univ import ObjectIdentifier
-from pyasn1_alt_modules import rfc5280, rfc4262, rfc6962
+from pyasn1_alt_modules import rfc5280, rfc4262, rfc6962, rfc3739
 
 from pkilint import validation, oid
 from pkilint.itu.bitstring import has_named_bit
@@ -828,3 +828,28 @@ class PolicyMappingsPresenceValidator(extension.ExtensionTypeMatchingValidator):
     def validate(self, node):
         if not node.document.is_ca:
             raise validation.ValidationFindingEncountered(self.VALIDATION_EE_POLICY_MAPPINGS_PRESENT)
+
+
+class ProhibitedQualifiedStatementValidator(validation.Validator):
+    """RFC 3739, section 3.2.6.1 says:
+    The certificate statement (id-qcs-pkixQCSyntax-v1), identifies
+    conformance with requirements defined in the obsoleted RFC 3039
+    (Version 1).  This statement is thus provided for identification of
+    old certificates issued in conformance with RFC 3039.  This statement
+    MUST NOT be included in certificates issued in accordance with this
+    profile.
+    """
+    VALIDATION_PROHIBITED_QUALIFIED_STATEMENT_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.prohibited_qualified_statement_present'
+    )
+
+    def __init__(self):
+        super().__init__(
+            validations=[self.VALIDATION_PROHIBITED_QUALIFIED_STATEMENT_PRESENT],
+            pdu_class=rfc3739.QCStatements
+        )
+
+    def validate(self, node):
+        if rfc3739.id_qcs_pkixQCSyntax_v1 in node.document.qualified_statement_ids:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_PROHIBITED_QUALIFIED_STATEMENT_PRESENT)
