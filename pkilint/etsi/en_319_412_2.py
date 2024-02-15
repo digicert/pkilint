@@ -19,4 +19,8 @@ class SubjectCNCountryNameSingularValidator(validation.Validator):
                          pdu_class=rfc5280.RDNSequence)
 
     def validate(self, node):
-       print(node.document.get_subject_attributes_by_type(oid=rfc5280.id_at_commonName))
+        if len(node.document.get_subject_attributes_by_type(oid=rfc5280.id_at_countryName)) > 1:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_COUNTRY_NAME_MULTIPLE)
+        if len(node.document.get_subject_attributes_by_type(oid=rfc5280.id_at_commonName)) > 1:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_COMMON_NAME_MULTIPLE)
+          
