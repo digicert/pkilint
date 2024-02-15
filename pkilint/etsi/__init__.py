@@ -6,7 +6,7 @@ from pkilint import validation, finding_filter
 from pkilint.cabf import serverauth
 from pkilint.cabf.serverauth import serverauth_constants
 from pkilint.common import organization_id
-from pkilint.etsi import etsi_constants, ts_119_495, en_319_412_5, en_319_412_1
+from pkilint.etsi import etsi_constants, ts_119_495, en_319_412_5, en_319_412_1, en_319_412_2
 from pkilint.etsi.asn1 import (
     en_319_412_1 as en_319_412_asn1, en_319_412_5 as en_319_412_5_asn1, ts_119_495 as ts_119_495_asn1
 )
@@ -142,6 +142,9 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
 
     if certificate_type in etsi_constants.QEVCP_W_PSD2_CERTIFICATE_TYPES:
         validators.append( ts_119_495.PresenceofQCEUPDSStatementValidator())
+    
+    if certificate_type in etsi_constants.NATURAL_PERSON_CERTIFICATE_TYPES:
+        subject_validators.append(en_319_412_2.SubjectCNCountryNameSingularValidator())
 
         qc_statements_validator_container = validation.ValidatorContainer(
         validators=validators, pdu_class=rfc3739.QCStatements)
