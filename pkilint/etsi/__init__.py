@@ -129,13 +129,6 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         organization_id.OrganizationIdentifierLeiValidator(),
     ]
 
-
-    if certificate_type in etsi_constants.QEVCP_W_PSD2_CERTIFICATE_TYPES:
-        qc_statement_validators.append( ts_119_495.PresenceofQCEUPDSStatementValidator())
-    
-    if certificate_type in etsi_constants.NATURAL_PERSON_CERTIFICATE_TYPES:
-        subject_validators.append(en_319_412_2.SubjectCNCountryNameSingularValidator())
-
     qc_statement_validators = [
         ts_119_495.RolesOfPspValidator(),
         ts_119_495.NCANameLatinCharactersValidator(),
@@ -147,6 +140,14 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         en_319_412_5.QcEuLimitValueValidator(),
         en_319_412_5.QcEuPDSLanguageValidator()
     ]
+
+
+    if certificate_type in etsi_constants.QEVCP_W_PSD2_CERTIFICATE_TYPES:
+        qc_statement_validators.append( ts_119_495.PresenceofQCEUPDSStatementValidator())
+    
+    if certificate_type in etsi_constants.NATURAL_PERSON_CERTIFICATE_TYPES:
+        subject_validators.append(en_319_412_2.SubjectCNCountryNameSingularValidator())
+
 
     if certificate_type in etsi_constants.QEVCP_W_PSD2_CERTIFICATE_TYPES:
         qc_statement_validators.append(ts_119_495.PresenceofQCEUPDSStatementValidator())
