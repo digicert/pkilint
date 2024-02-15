@@ -123,34 +123,36 @@ def create_decoding_validators() -> List[validation.Validator]:
 
 
 def create_validators(certificate_type: CertificateType) -> List[validation.Validator]:
-
     subject_validators = [
         en_319_412_1.LegalPersonOrganizationIdentifierValidator(),
-        organization_id.OrganizationIdentifierLeiValidator()
+        en_319_412_1.NaturalPersonIdentifierValidator(),
+        organization_id.OrganizationIdentifierLeiValidator(),
     ]
-    validators = validators=[
-            ts_119_495.RolesOfPspValidator(),
-            ts_119_495.NCANameLatinCharactersValidator(),
-            ts_119_495.NCAIdValidator(),
-            en_319_412_5.QcCClegislationCountryCodeValidator(),
-            en_319_412_5.QcEuRetentionPeriodValidator(),
-            en_319_412_5.QcTypeValidator(),
-            en_319_412_5.QcEuPDSHttpsURLValidator(),
-            en_319_412_5.QcEuLimitValueValidator(),
-            en_319_412_5.QcEuPDSLanguageValidator()
-            ]
+
 
     if certificate_type in etsi_constants.QEVCP_W_PSD2_CERTIFICATE_TYPES:
-        validators.append( ts_119_495.PresenceofQCEUPDSStatementValidator())
+        qc_statement_validators.append( ts_119_495.PresenceofQCEUPDSStatementValidator())
     
     if certificate_type in etsi_constants.NATURAL_PERSON_CERTIFICATE_TYPES:
         subject_validators.append(en_319_412_2.SubjectCNCountryNameSingularValidator())
 
-        qc_statements_validator_container = validation.ValidatorContainer(
-        validators=validators, pdu_class=rfc3739.QCStatements)
+    qc_statement_validators = [
+        ts_119_495.RolesOfPspValidator(),
+        ts_119_495.NCANameLatinCharactersValidator(),
+        ts_119_495.NCAIdValidator(),
+        en_319_412_5.QcCClegislationCountryCodeValidator(),
+        en_319_412_5.QcEuRetentionPeriodValidator(),
+        en_319_412_5.QcTypeValidator(),
+        en_319_412_5.QcEuPDSHttpsURLValidator(),
+        en_319_412_5.QcEuLimitValueValidator(),
+        en_319_412_5.QcEuPDSLanguageValidator()
+    ]
+
+    if certificate_type in etsi_constants.QEVCP_W_PSD2_CERTIFICATE_TYPES:
+        qc_statement_validators.append(ts_119_495.PresenceofQCEUPDSStatementValidator())
 
     qc_statements_validator_container = validation.ValidatorContainer(
-        validators=validators,
+        validators=qc_statement_validators,
         pdu_class=rfc3739.QCStatements
     )
 
@@ -158,7 +160,8 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         serverauth_cert_type = etsi_constants.ETSI_TYPE_TO_CABF_SERVERAUTH_TYPE_MAPPINGS[certificate_type]
 
         return serverauth.create_validators(
-            serverauth_cert_type, additional_name_validators=subject_validators,
+            serverauth_cert_type,
+            additional_name_validators=subject_validators,
             additional_extension_validators=[qc_statements_validator_container],
         )
     else:

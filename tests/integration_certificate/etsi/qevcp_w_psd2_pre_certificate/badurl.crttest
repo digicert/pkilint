@@ -39,7 +39,7 @@ JsFZNl5LnR1l3baH6gpcvZvJ43HWdLhngSzgQuNEyzGcPiX4yuauEdYCgQxYF88=
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.extensions.6.extnValue.qCStatements.1.statementInfo.qcEuPDS.0,QcEuPDSHttpsURLValidator,ERROR,etsi.en_319_412_5.gen.url_scheme_not_https,"URL scheme is not https, found http"
+certificate.tbsCertificate.extensions.6.extnValue.qCStatements.1.statementInfo.qcEuPDS.0,QcEuPDSHttpsURLValidator,ERROR,etsi.en_319_412_5.gen-4.3.4.url_scheme_not_https,"URL scheme is not https, found http"
 certificate.tbsCertificate.extensions.8.extnValue.keyUsage,SubscriberKeyUsageValidator,WARNING,cabf.serverauth.subscriber_rsa_digitalsignature_and_keyencipherment_present,
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.subject_key_identifier_extension_present,
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.unknown_extension_present,Unknown extension present: 2.23.140.3.1

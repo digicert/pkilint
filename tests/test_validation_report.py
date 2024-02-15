@@ -11,7 +11,10 @@ def _test(validator, context: str):
 
     missing_validations = declared_validations - reported_validations
 
-    assert not any(missing_validations), f'{context}: {validator.__class__.__name__} {missing_validations}'
+    assert not any(missing_validations), (
+        f'{context}: {validator.__class__.__name__} does not declare that it reports the following finding(s): '
+        f'{missing_validations}'
+    )
 
     if isinstance(validator, validation.ValidatorContainer):
         for v in validator.validators:
