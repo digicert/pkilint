@@ -58,7 +58,7 @@ class QcEuPDSLanguageValidator(validation.Validator):
     Valid ISO 639-1 language code"""
     VALIDATION_ISO_LANGUAGE_BAD = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.en_319_412_5.gen-2.2.2.iso_language_bad'
+        'etsi.en_319_412_5.gen-4.3.4.iso_language_bad'
     )
 
     def __init__(self):
@@ -79,7 +79,7 @@ class QcEuPDSHttpsURLValidator(validation.Validator):
     Validator to check if the URL has the 'https' scheme."""
     VALIDATION_URL_SCHEME_NOT_HTTPS = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.en_319_412_5.gen.url_scheme_not_https'
+        'etsi.en_319_412_5.gen-4.3.4.url_scheme_not_https'
     )
 
     def __init__(self):
@@ -119,8 +119,8 @@ class QcTypeValidator(validation.Validator):
             raise validation.ValidationFindingEncountered(self.VALIDATION_QCType_not_one)
         _, qctype_value = node.child
         if qctype_value.pdu != en_319_412_5.id_etsi_qct_web:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_QCType_Web)
 
-                raise validation.ValidationFindingEncountered(self.VALIDATION_QCType_Web)
 
 class QcEuLimitValueValidator(validation.Validator):
     """
@@ -146,16 +146,18 @@ class QcEuLimitValueValidator(validation.Validator):
                        - Positive amount and exponent value
     """
     VALIDATION_INVALID_CURRENCY = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
-    'etsi.en_319_412_5.gen-4.3.2.invalid_currency')
+                                                               'etsi.en_319_412_5.gen-4.3.2.invalid_currency')
 
-    VALIDATION_ALPHABETIC_CODE_NOT_FOUND = validation.ValidationFinding(validation.ValidationFindingSeverity.WARNING,
-    'etsi.en_319_412_5.gen-4.3.2.alphabetic_code_not_found')
+    VALIDATION_ALPHABETIC_CODE_NOT_FOUND = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.WARNING,
+        'etsi.en_319_412_5.gen-4.3.2.alphabetic_code_not_found'
+    )
 
     VALIDATION_AMOUNT_NEGATIVE = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
-    'etsi.en_319_412_5.gen-4.3.2.amount_negative')
+                                                              'etsi.en_319_412_5.gen-4.3.2.amount_negative')
 
     VALIDATION_EXPONENT_NEGATIVE = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
-    'etsi.en_319_412_5.gen-4.3.2.exponent_negative')
+                                                                'etsi.en_319_412_5.gen-4.3.2.exponent_negative')
 
     def __init__(self):
         self._alpha_codes = set()
@@ -169,16 +171,16 @@ class QcEuLimitValueValidator(validation.Validator):
         self._alpha_codes -= alpha_bad_codes
         self._numeric_codes -= numeric_bad_codes
         super().__init__(validations=[self.VALIDATION_INVALID_CURRENCY, self.VALIDATION_ALPHABETIC_CODE_NOT_FOUND,
-        self.VALIDATION_AMOUNT_NEGATIVE, self.VALIDATION_EXPONENT_NEGATIVE], 
-        pdu_class=en_319_412_5.MonetaryValue)
-    
+                                      self.VALIDATION_AMOUNT_NEGATIVE, self.VALIDATION_EXPONENT_NEGATIVE],
+                         pdu_class=en_319_412_5.MonetaryValue)
+
     def validate(self, node):
         findings = []
         currency_code_type, iso_code = node.children["currency"].child
         if currency_code_type != "alphabetic":
             findings.append(validation.ValidationFindingDescription(self.VALIDATION_ALPHABETIC_CODE_NOT_FOUND, None))
             iso_code = int(iso_code.pdu)
-        else: 
+        else:
             iso_code = str(iso_code.pdu)
         # One of these codes I used for my example (triple X) but apparently they are in the iso library as 
         # no currency and code reserved for testing so I'll include this on the conditional
@@ -189,4 +191,4 @@ class QcEuLimitValueValidator(validation.Validator):
         if node.children["exponent"].pdu < 0:
             findings.append(validation.ValidationFindingEncountered(self.VALIDATION_EXPONENT_NEGATIVE, None))
 
-        return validation.ValidationResult(self,node,findings)
+        return validation.ValidationResult(self, node, findings)
