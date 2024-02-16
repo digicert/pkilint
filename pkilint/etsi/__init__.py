@@ -141,7 +141,9 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         en_319_412_5.QcTypeValidator(),
         en_319_412_5.QcEuPDSHttpsURLValidator(),
         en_319_412_5.QcEuLimitValueValidator(),
-        en_319_412_5.QcEuPDSLanguageValidator()
+        en_319_412_5.QcEuPDSLanguageValidator(),
+        en_319_412_1.LegalPersonIdentifierNameRegistrationAuthoritiesValidator(),
+        en_319_412_1.NaturalPersonIdentifierNameRegistrationAuthoritiesValidator(),
     ]
 
     if certificate_type in etsi_constants.QEVCP_W_PSD2_CERTIFICATE_TYPES:

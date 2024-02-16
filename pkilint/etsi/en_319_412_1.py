@@ -279,3 +279,138 @@ class NaturalPersonIdentifierValidator(validation.Validator):
             ))
 
         return validation.ValidationResult(self, node, findings)
+
+
+class NameRegistrationAuthoritiesValidatorBase(validation.Validator):
+    def __init__(
+            self,
+            name_registration_authorities_missing_validation: validation.ValidationFinding,
+            name_registration_authorities_uri_missing_validation: validation.ValidationFinding,
+            attribute_type_id: univ.ObjectIdentifier,
+            semantics_id: univ.ObjectIdentifier
+    ):
+        self._name_registration_authorities_missing_validation = name_registration_authorities_missing_validation
+        self._name_registration_authorities_uri_missing_validation = (
+            name_registration_authorities_uri_missing_validation
+        )
+
+        self._attribute_type_id = attribute_type_id
+        self._semantics_id = semantics_id
+
+        validations = [
+            name_registration_authorities_missing_validation,
+            name_registration_authorities_uri_missing_validation,
+        ]
+
+        super().__init__(validations=validations, pdu_class=rfc3739.SemanticsInformation)
+
+    @classmethod
+    def is_attribute_value_national_id_scheme(cls, atv_node: document.PDUNode) -> bool:
+        pass
+
+    def match(self, node):
+        if not super().match(node):
+            return False
+
+        semantics_id_node = node.children.get('semanticsIdentifier')
+
+        if semantics_id_node is None or semantics_id_node.pdu != self._semantics_id:
+            return False
+
+        atvs_and_idxs = node.document.get_subject_attributes_by_type(self._attribute_type_id)
+
+        return any(self.is_attribute_value_national_id_scheme(a) for a, _ in atvs_and_idxs)
+
+    def validate(self, node):
+        nra_node = node.children.get('nameRegistrationAuthorities')
+
+        if nra_node is None:
+            raise validation.ValidationFindingEncountered(self._name_registration_authorities_missing_validation)
+
+        if not any(g.child[0] == 'uniformResourceIdentifier' for g in nra_node.children.values()):
+            raise validation.ValidationFindingEncountered(self._name_registration_authorities_uri_missing_validation)
+
+
+class NaturalPersonIdentifierNameRegistrationAuthoritiesValidator(NameRegistrationAuthoritiesValidatorBase):
+    """
+    NAT-5.1.3-05: When a locally defined identity type reference is provided (two characters followed by ":"), the
+    nameRegistrationAuthorities element of SemanticsInformation (IETF RFC 3739 [1]) shall be present.
+    """
+    VALIDATION_NAME_REGISTRATION_AUTHORITIES_MISSING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_1.nat-5.1.3-05.national_id_scheme_name_registration_authorities_missing'
+    )
+
+    """
+    NAT-5.1.3-06: The nameRegistrationAuthorities element of SemanticsInformation (IETF RFC 3739 [1]) shall
+    contain at least a uniformResourceIdentifier generalName.
+    """
+    VALIDATION_NAME_REGISTRATION_AUTHORITIES_URI_MISSING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_1.nat-5.1.3-05.national_id_scheme_name_registration_authorities_uri_missing'
+    )
+
+    def __init__(self):
+        super().__init__(
+            self.VALIDATION_NAME_REGISTRATION_AUTHORITIES_MISSING,
+            self.VALIDATION_NAME_REGISTRATION_AUTHORITIES_URI_MISSING,
+            rfc5280.id_at_serialNumber,
+            en_319_412_1.id_etsi_qcs_semanticsId_Natural
+        )
+
+    @classmethod
+    def is_attribute_value_national_id_scheme(cls, atv_node: document.PDUNode) -> bool:
+        value_node = atv_node.children['value']
+
+        try:
+            _, decoded_value_node = value_node.child
+
+            value_str = str(decoded_value_node.pdu)
+
+            parsed = parse_natural_person_identifier(value_str)
+        except ValueError:
+            return False
+
+        return parsed.is_national_scheme
+
+
+class LegalPersonIdentifierNameRegistrationAuthoritiesValidator(NameRegistrationAuthoritiesValidatorBase):
+    """
+    LEG-5.1.4-05: When a locally defined identity type reference is provided (two characters followed by ":"), the
+    nameRegistrationAuthorities element of SemanticsInformation (IETF RFC 3739 [1]) shall be present and
+    shall contain at least a uniformResourceIdentifier generalName.
+    """
+    VALIDATION_NAME_REGISTRATION_AUTHORITIES_MISSING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_1.leg-5.1.4-05.national_id_scheme_name_registration_authorities_missing'
+    )
+
+    VALIDATION_NAME_REGISTRATION_AUTHORITIES_URI_MISSING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_1.leg-5.1.4-05.national_id_scheme_name_registration_authorities_uri_missing'
+    )
+
+    def __init__(self):
+        super().__init__(
+            self.VALIDATION_NAME_REGISTRATION_AUTHORITIES_MISSING,
+            self.VALIDATION_NAME_REGISTRATION_AUTHORITIES_URI_MISSING,
+            x520_name.id_at_organizationIdentifier,
+            en_319_412_1.id_etsi_qcs_SemanticsId_Legal
+        )
+
+    @classmethod
+    def is_attribute_value_national_id_scheme(cls, atv_node: document.PDUNode) -> bool:
+        value_node = atv_node.children['value']
+
+        try:
+            _, decoded_dirstring_node = value_node.child
+
+            _, decoded_value_node = decoded_dirstring_node.child
+
+            value_str = str(decoded_value_node.pdu)
+
+            parsed = organization_id.parse_organization_identifier(value_str)
+        except ValueError:
+            return False
+
+        return parsed.is_national_scheme
