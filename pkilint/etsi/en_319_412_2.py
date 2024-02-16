@@ -2,6 +2,20 @@ from pkilint import validation, document
 from pyasn1_alt_modules import rfc5280
 from pkilint.pkix.certificate import RFC5280Certificate
 from pkilint.pkix.crl import RFC5280CertificateList
+from pkilint.pkix import extension
+
+
+class CertificatePoliciesCriticalityValidator(extension.ExtensionCriticalityValidator):
+    VALIDATION_CERTIFICATE_POLICIES_CRITICAL = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.WARNING,
+        'etsi.en_319_412_2.gen-4.3.3-1.critical_certificate_policies_extension'
+    )
+
+    def __init__(self):
+        super().__init__(validation=self.VALIDATION_CERTIFICATE_POLICIES_CRITICAL,
+                         type_oid=rfc5280.id_ce_certificatePolicies,
+                         is_critical=False)
+
 
 class SubjectCNCountryNameSingularValidator(validation.Validator):
     """NAT 4.2.4-3 The subject field shall not contain more than one instance of commonName and countryName"""
@@ -23,4 +37,3 @@ class SubjectCNCountryNameSingularValidator(validation.Validator):
             raise validation.ValidationFindingEncountered(self.VALIDATION_COUNTRY_NAME_MULTIPLE)
         if len(node.document.get_subject_attributes_by_type(oid=rfc5280.id_at_commonName)) > 1:
             raise validation.ValidationFindingEncountered(self.VALIDATION_COMMON_NAME_MULTIPLE)
-          

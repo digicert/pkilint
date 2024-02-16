@@ -162,13 +162,16 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         pdu_class=rfc3739.QCStatements
     )
 
+    extension_validators = [en_319_412_2.CertificatePoliciesCriticalityValidator(),
+        qc_statements_validator_container]
+
     if certificate_type in etsi_constants.CABF_CERTIFICATE_TYPES:
         serverauth_cert_type = etsi_constants.ETSI_TYPE_TO_CABF_SERVERAUTH_TYPE_MAPPINGS[certificate_type]
 
         return serverauth.create_validators(
             serverauth_cert_type,
             additional_name_validators=subject_validators,
-            additional_extension_validators=[qc_statements_validator_container],
+            additional_extension_validators=extension_validators,
         )
     else:
         return [
@@ -180,7 +183,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
                 subject_validators
             ),
             certificate.create_extensions_validator_container(
-                [qc_statements_validator_container]
+                extension_validators
             ),
         ]
 
