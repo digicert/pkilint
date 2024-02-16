@@ -1,15 +1,11 @@
+import re
+
 from pkilint import validation
 from pkilint.etsi.asn1 import ts_119_495 as ts_119_495_asn1
 from pyasn1_alt_modules import rfc3739
 from iso3166 import countries_by_alpha2
 import pkilint.oid
-
-_ROLE_OID_TO_NAME_MAPPINGS = {
-    ts_119_495_asn1.id_psd2_role_psp_as: 'PSP_AS',
-    ts_119_495_asn1.id_psd2_role_psp_pi: 'PSP_PI',
-    ts_119_495_asn1.id_psd2_role_psp_ai: 'PSP_AI',
-    ts_119_495_asn1.id_psd2_role_psp_ic: 'PSP_IC',
-}
+from pkilint.itu import x520_name
 
 
 class RolesOfPspValidator(validation.Validator):
@@ -148,3 +144,51 @@ class NCAIdValidator(validation.Validator):
         if not (2 <= len(ca_identifier) <= 8 and ca_identifier.isalpha() and ca_identifier.isupper()):
             raise validation.ValidationFindingEncountered(self.VALIDATION_INVALID_CA_IDENTIFIER,
                                                           f'Invalid Competent Authority identifier: {ca_identifier}')
+
+
+class PsdOrganizationIdentifierFormatValidator(validation.Validator):
+    """
+    GEN-5.2.1-3: If an Authorization Number was issued by a Competent Authority the subject organizationIdentifier
+    attribute should contain the Authorization Number encoded using the following structure in the presented order:
+
+    • "PSD" as 3 character legal person identity type reference;
+    • 2 character ISO 3166-1 [8] country code representing the Competent Authority country;
+    • hyphen-minus "-" (0x2D (ASCII), U+002D (UTF-8));
+    • 2-8 character Competent Authority identifier without country code (A-Z uppercase only, no separator);
+    • hyphen-minus "-" (0x2D (ASCII), U+002D (UTF-8)); and
+    • identifier (authorization number as specified by the Competent Authority. There are no restrictions on the
+    characters used).
+
+    ...
+
+    GEN-5.3-3: The organizationIdentifier shall be present in the Subject's Distinguished Name and encoded with legal
+    person syntax as specified in clause 5.2.1.
+    """
+    VALIDATION_INVALID_PSD_ORGANIZATION_ID_FORMAT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.ts_119_495.gen-5.2.1-3.invalid_psd_organization_id_format'
+    )
+
+    _PSD_ORGID_FORMAT_REGEX = re.compile('^PSD[A-Z]{2}-[A-Z]{2,8}-.+$')
+
+    def __init__(self):
+        super().__init__(
+            validations=[self.VALIDATION_INVALID_PSD_ORGANIZATION_ID_FORMAT],
+            pdu_class=x520_name.X520OrganizationIdentifier
+        )
+
+    def validate(self, node):
+        try:
+            _, decoded_value_node = node.child
+        except ValueError:
+            return
+
+        value_str = str(decoded_value_node.pdu)
+
+        m = self._PSD_ORGID_FORMAT_REGEX.match(value_str)
+
+        if m is None:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_INVALID_PSD_ORGANIZATION_ID_FORMAT,
+                f'Invalid PSD organization identifier format: "{value_str}"'
+            )

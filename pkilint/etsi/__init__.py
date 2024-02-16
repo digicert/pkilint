@@ -129,6 +129,9 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         organization_id.OrganizationIdentifierLeiValidator(),
     ]
 
+    if certificate_type in etsi_constants.QEVCP_W_PSD2_CERTIFICATE_TYPES:
+        subject_validators.append(ts_119_495.PsdOrganizationIdentifierFormatValidator())
+
     qc_statement_validators = [
         ts_119_495.RolesOfPspValidator(),
         ts_119_495.NCANameLatinCharactersValidator(),
