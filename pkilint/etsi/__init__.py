@@ -162,8 +162,11 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         pdu_class=rfc3739.QCStatements
     )
 
-    extension_validators = [en_319_412_2.CertificatePoliciesCriticalityValidator(),
-        qc_statements_validator_container]
+    extension_validators = [
+        en_319_412_2.CertificatePoliciesCriticalityValidator(),
+        en_319_412_2.CRLDistributionPointsCriticalityValidator(),
+        qc_statements_validator_container
+    ]
 
     if certificate_type in etsi_constants.CABF_CERTIFICATE_TYPES:
         serverauth_cert_type = etsi_constants.ETSI_TYPE_TO_CABF_SERVERAUTH_TYPE_MAPPINGS[certificate_type]

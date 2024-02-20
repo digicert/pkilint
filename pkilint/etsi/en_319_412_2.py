@@ -37,3 +37,15 @@ class SubjectCNCountryNameSingularValidator(validation.Validator):
             raise validation.ValidationFindingEncountered(self.VALIDATION_COUNTRY_NAME_MULTIPLE)
         if len(node.document.get_subject_attributes_by_type(oid=rfc5280.id_at_commonName)) > 1:
             raise validation.ValidationFindingEncountered(self.VALIDATION_COMMON_NAME_MULTIPLE)
+
+
+class CRLDistributionPointsCriticalityValidator(extension.ExtensionCriticalityValidator):
+    CRL_DISTRIBUTION_POINTS_CRITICAL = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_2.gen-4.3.11-5.crl_extension_is_critical'
+    )
+
+    def __init__(self):
+        super().__init__(validation=self.CRL_DISTRIBUTION_POINTS_CRITICAL,
+                         type_oid=rfc5280.id_ce_cRLDistributionPoints,
+                         is_critical=False)
