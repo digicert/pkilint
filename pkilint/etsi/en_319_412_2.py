@@ -17,6 +17,18 @@ class CertificatePoliciesCriticalityValidator(extension.ExtensionCriticalityVali
                          is_critical=False)
 
 
+class IssuerAlternativeNameCriticalityValidator(extension.ExtensionCriticalityValidator):
+    VALIDATION_ISSUER_ALTERNATIVE_NAME_CRITICAL = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_2.gen-4.3.6-1.ian_extension_is_critical'
+    )
+
+    def __init__(self):
+        super().__init__(validation=self.VALIDATION_ISSUER_ALTERNATIVE_NAME_CRITICAL,
+                         type_oid=rfc5280.id_ce_issuerAltName,
+                         is_critical=False)
+
+
 class ExtendedKeyUsageCriticalityValidator(extension.ExtensionCriticalityValidator):
     VALIDATION_EXTENDED_KEY_USAGE_CRITICAL = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
