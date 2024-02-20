@@ -17,6 +17,18 @@ class CertificatePoliciesCriticalityValidator(extension.ExtensionCriticalityVali
                          is_critical=False)
 
 
+class ExtendedKeyUsageCriticalityValidator(extension.ExtensionCriticalityValidator):
+    VALIDATION_EXTENDED_KEY_USAGE_CRITICAL = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_2.gen-4.3.10-1.eku_extension_is_critical'
+    )
+
+    def __init__(self):
+        super().__init__(validation=self.VALIDATION_EXTENDED_KEY_USAGE_CRITICAL,
+                         type_oid=rfc5280.id_ce_extKeyUsage,
+                         is_critical=False)
+
+
 class SubjectCNCountryNameSingularValidator(validation.Validator):
     """NAT 4.2.4-3 The subject field shall not contain more than one instance of commonName and countryName"""
     VALIDATION_COMMON_NAME_MULTIPLE = validation.ValidationFinding(

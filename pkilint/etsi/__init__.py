@@ -164,6 +164,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
 
     extension_validators = [
         en_319_412_2.CertificatePoliciesCriticalityValidator(),
+        en_319_412_2.ExtendedKeyUsageCriticalityValidator(),
         en_319_412_2.CRLDistributionPointsCriticalityValidator(),
         qc_statements_validator_container
     ]
