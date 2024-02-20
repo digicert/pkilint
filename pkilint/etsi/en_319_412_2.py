@@ -17,6 +17,18 @@ class CertificatePoliciesCriticalityValidator(extension.ExtensionCriticalityVali
                          is_critical=False)
 
 
+class SubjectAlternativeNameCriticalityValidator(extension.ExtensionCriticalityValidator):
+    VALIDATION_SAN_CRITICAL = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_2.gen-4.3.5-1.san_extension_is_critical'
+    )
+
+    def __init__(self):
+        super().__init__(validation=self.VALIDATION_SAN_CRITICAL,
+                         type_oid=rfc5280.id_ce_subjectAltName,
+                         is_critical=False)
+
+
 class IssuerAlternativeNameCriticalityValidator(extension.ExtensionCriticalityValidator):
     VALIDATION_ISSUER_ALTERNATIVE_NAME_CRITICAL = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,

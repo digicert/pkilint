@@ -153,9 +153,9 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
     if certificate_type in etsi_constants.NATURAL_PERSON_CERTIFICATE_TYPES:
         subject_validators.append(en_319_412_2.SubjectCNCountryNameSingularValidator())
 
-
     if certificate_type in etsi_constants.QEVCP_W_PSD2_CERTIFICATE_TYPES:
         qc_statement_validators.append(ts_119_495.PresenceofQCEUPDSStatementValidator())
+
 
     qc_statements_validator_container = validation.ValidatorContainer(
         validators=qc_statement_validators,
@@ -164,6 +164,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
 
     extension_validators = [
         en_319_412_2.CertificatePoliciesCriticalityValidator(),
+        en_319_412_2.SubjectAlternativeNameCriticalityValidator(),
         en_319_412_2.IssuerAlternativeNameCriticalityValidator(),
         en_319_412_2.ExtendedKeyUsageCriticalityValidator(),
         en_319_412_2.CRLDistributionPointsCriticalityValidator(),
