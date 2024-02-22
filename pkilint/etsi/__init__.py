@@ -151,7 +151,8 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         qc_statement_validators.append( ts_119_495.PresenceofQCEUPDSStatementValidator())
     
     if certificate_type in etsi_constants.NATURAL_PERSON_CERTIFICATE_TYPES:
-        subject_validators.append(en_319_412_2.SubjectCNCountryNameSingularValidator())
+        subject_validators.extend([en_319_412_2.SubjectCNCountryNameSingularValidator(),
+        en_319_412_2.PseudonymPresentValidator()])
 
     if certificate_type in etsi_constants.QEVCP_W_PSD2_CERTIFICATE_TYPES:
         qc_statement_validators.append(ts_119_495.PresenceofQCEUPDSStatementValidator())

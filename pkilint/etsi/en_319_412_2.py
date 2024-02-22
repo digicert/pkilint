@@ -85,3 +85,21 @@ class CRLDistributionPointsCriticalityValidator(extension.ExtensionCriticalityVa
         super().__init__(validation=self.CRL_DISTRIBUTION_POINTS_CRITICAL,
                          type_oid=rfc5280.id_ce_cRLDistributionPoints,
                          is_critical=False)
+
+class PseudonymPresentValidator(validation.Validator):
+    """NAT-4.2.4-4 The pseudonym attribute shall not be present if the givenName
+    and surname attribute are present."""
+    VALIDATION_PSEUDONYM_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_2.nat-4.2.4-4.pseudonym_is_present'
+    )
+
+    def __init__(self):
+        super().__init__(validations=self.VALIDATION_PSEUDONYM_PRESENT,
+        pdu_class=rfc5280.RDNSequence)
+
+    def validate(self, node):
+        if (node.document.get_subject_attributes_by_type(oid=rfc5280.id_at_givenName)
+           and node.document.get_subject_attributes_by_type(oid=rfc5280.id_at_surname)
+           and node.document.get_subject_attributes_by_type(oid=rfc5280.id_at_pseudonym)):
+           raise validation.ValidationFindingEncountered(self.VALIDATION_PSEUDONYM_PRESENT)
