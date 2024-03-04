@@ -33,6 +33,8 @@ class CABFOrganizationIdentifierExtensionValidator(validation.Validator):
         'cabf.serverauth.organization_identifier_ext_invalid_state_province_for_scheme'
     )
 
+    _ISO3166_AND_ARTICLE_215_COUNTRY_CODES = set(countries_by_alpha2.keys()) | {'EL', 'XI'}
+
     def __init__(self):
         super().__init__(
             pdu_class=ev_guidelines.CABFOrganizationIdentifier,
@@ -63,7 +65,10 @@ class CABFOrganizationIdentifierExtensionValidator(validation.Validator):
         elif scheme_info.country_identifier_type == cabf_constants.RegistrationSchemeCountryIdentifierType.XG:
             valid_country_code = (country == 'XG')
         elif scheme_info.country_identifier_type == cabf_constants.RegistrationSchemeCountryIdentifierType.ISO3166:
-            valid_country_code = country in countries_by_alpha2
+            if scheme == 'VAT':
+                valid_country_code = (country in self._ISO3166_AND_ARTICLE_215_COUNTRY_CODES)
+            else:
+                valid_country_code = country in countries_by_alpha2
         else:
             raise ValueError(f'Unknown country identifier type for scheme "{scheme}": '
                              f'{scheme_info.country_identifier_type}')
