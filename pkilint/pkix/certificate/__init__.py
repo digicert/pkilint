@@ -310,6 +310,7 @@ def create_extensions_validator_container(additional_validators=None):
             certificate_extension.PolicyMappingsPresenceValidator(),
             certificate_extension.InhibitAnyPolicyPresenceValidator(),
             certificate_extension.ProhibitedQualifiedStatementValidator(),
+            certificate_extension.IssuerAlternativeNameCriticalityValidator(),
         ] + additional_validators,
         path='certificate.tbsCertificate.extensions'
     )

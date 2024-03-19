@@ -107,3 +107,30 @@ def test_ee_inhibit_anypolicy_presence():
         certificate_extension.InhibitAnyPolicyPresenceValidator(),
         certificate_extension.InhibitAnyPolicyPresenceValidator.VALIDATION_EE_INHIBIT_ANYPOLICY_PRESENT
     )
+
+
+def test_issuer_alt_name_critical():
+    gns = rfc5280.GeneralNames()
+
+    gn = rfc5280.GeneralName()
+    gn['dNSName'] = 'foo.com'
+    gns.append(gn)
+
+    ext = rfc5280.Extension()
+    ext['extnID'] = rfc5280.id_ce_issuerAltName
+    ext['critical'] = True
+    ext['extnValue'] = encode(gns)
+
+    ext_node = document.PDUNode(None, 'ext', ext, None)
+
+    validator = certificate_extension.IssuerAlternativeNameCriticalityValidator()
+
+    assert validator.match(ext_node)
+
+    with pytest.raises(validation.ValidationFindingEncountered) as e:
+        validator.validate(ext_node)
+
+    assert (
+            e.value.finding ==
+            certificate_extension.IssuerAlternativeNameCriticalityValidator.VALIDATION_ISSUER_ALT_NAME_CRITICAL
+    )

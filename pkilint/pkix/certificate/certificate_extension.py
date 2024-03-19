@@ -853,3 +853,21 @@ class ProhibitedQualifiedStatementValidator(validation.Validator):
     def validate(self, node):
         if rfc3739.id_qcs_pkixQCSyntax_v1 in node.document.qualified_statement_ids:
             raise validation.ValidationFindingEncountered(self.VALIDATION_PROHIBITED_QUALIFIED_STATEMENT_PRESENT)
+
+
+class IssuerAlternativeNameCriticalityValidator(ExtensionCriticalityValidator):
+    """RFC 5280, section 4.2.1.7 says:
+
+    Where present, conforming CAs SHOULD mark this extension as non-critical.
+    """
+    VALIDATION_ISSUER_ALT_NAME_CRITICAL = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.WARNING,
+        'pkix.issuer_alt_name_extension_critical'
+    )
+
+    def __init__(self):
+        super().__init__(
+            type_oid=rfc5280.id_ce_issuerAltName,
+            is_critical=False,
+            validation=self.VALIDATION_ISSUER_ALT_NAME_CRITICAL
+        )
