@@ -129,6 +129,29 @@ class CertificateModel(DocumentModel):
     def parsed_document(self):
         return self._parsed_document
 
+class OcspResponseModel(DocumentModel):
+    _parsed_document = None
+
+    @model_validator(mode='after')
+    def validate(self) -> 'OcspResponseModel':
+        super()._validate()
+
+        if self.pem is not None:
+            try:
+                self._parsed_document = loader.load_ocsp_response(self.pem, 'request', 'request')
+            except PyAsn1Error as e:
+                raise ValueError('Invalid PEM text specified') from e
+        else:
+            ocsp_der_response = base64.b64decode(self.b64)
+            try:
+                self._parsed_document = loader.load_ocsp_response(ocsp_der_response, 'request', 'request')
+            except PyAsn1Error as e:
+                raise ValueError('Invalid Base-64 encoding specified') from e
+        return self
+
+    @property
+    def parsed_document(self):
+        return self._parsed_document
 
 def create_unprocessable_entity_error_detail(message: str, error_type: str = 'value_error'):
     return [
