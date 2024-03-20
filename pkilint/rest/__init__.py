@@ -3,7 +3,7 @@ from typing import List
 
 from fastapi import FastAPI, HTTPException
 
-from pkilint.rest import cabf_serverauth, cabf_smime
+from pkilint.rest import cabf_serverauth, cabf_smime, ocsp
 from pkilint.rest import model
 
 _PKILINT_VERSION = version('pkilint')
@@ -94,3 +94,21 @@ def certificate_lint(linter_group_name: str, linter_name: str, doc: model.Certif
     parsed_doc = doc.parsed_document
 
     return linter_instance.lint(parsed_doc)
+
+@app.get('/ocsp/linter')
+def ocsp_linter_validations() -> List[model.Validation]:
+    """Returns the set of validations performed by the OCSP response linter"""
+
+    linter = ocsp.create_ocsp_response_linter()
+
+    return linter.validations
+
+@app.post('/ocsp')
+def ocsp_response_lint(doc: model.OcspResponseModel) -> model.LintResultList:
+    """Lints the specified OCSP response"""
+
+    linter = ocsp.create_ocsp_response_linter()
+
+    parsed_doc = doc.parsed_document
+
+    return linter.lint(parsed_doc)
