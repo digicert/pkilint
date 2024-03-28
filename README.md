@@ -352,5 +352,6 @@ pkilint is built on several open source packages. In particular, these packages 
 | python-dateutil    | Apache Software License; BSD License | Gustavo Niemeyer                                               | https://github.com/dateutil/dateutil              |
 | python-iso639      | Apache Software License              | Jackson L. Lee                                                 | https://github.com/jacksonllee/iso639             |
 | validators         | MIT License                          | Konsta Vesterinen                                              | https://github.com/kvesteri/validators            |
-| iso4217            | Public Domain              | Hong Minhee   |   https://github.com/dahlia/iso4217                                                |
+| iso4217            | Public Domain                        | Hong Minhee                                                    | https://github.com/dahlia/iso4217                 |
+
 The pkilint maintainers are grateful to the authors of these open source contributions.
