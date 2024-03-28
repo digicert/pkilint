@@ -2,6 +2,12 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.9.11 - 2024-03-XX
+
+### Fixes
+
+TBD
+
 ## 0.9.10 - 2024-03-04
 
 ### New features/enhancements
