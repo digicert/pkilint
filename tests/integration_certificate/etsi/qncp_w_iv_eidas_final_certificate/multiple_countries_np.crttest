@@ -48,7 +48,7 @@ node_path,validator,severity,code,message
 certificate.tbsCertificate.subject.rdnSequence,ServerauthDuplicateAttributeTypeValidator,ERROR,cabf.serverauth.prohibited_duplicate_attribute_type,Prohibited multiple instances of attribute types: 2.5.4.6
 certificate.tbsCertificate.subject.rdnSequence,IvSubscriberAttributeAllowanceValidator,WARNING,cabf.serverauth.iv.common_name_attribute_present,
 certificate.tbsCertificate.subject.rdnSequence,IvSubscriberAttributeAllowanceValidator,WARNING,cabf.serverauth.iv.unknown_attribute_present,Unknown attribute present: 2.5.4.5
-certificate.tbsCertificate.subject.rdnSequence,SubjectCNCountryNameSingularValidator,ERROR,etsi.en_319_412_5.nat-4.2.4-3.multiple_country_name,
+certificate.tbsCertificate.subject,NaturalPersonSubjectAttributeAllowanceValidator,ERROR,etsi.en_319_412_2.nat-4.2.4-3.prohibited_duplicate_attribute_present,Prohibited duplicate attribute present: 2.5.4.6
 certificate.tbsCertificate.extensions.1.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 certificate.tbsCertificate.extensions.2.extnValue.keyUsage,SubscriberKeyUsageValidator,WARNING,cabf.serverauth.subscriber_rsa_digitalsignature_and_keyencipherment_present,
 certificate.tbsCertificate.extensions.5.extnValue.certificatePolicies,SubscriberPoliciesValidator,WARNING,cabf.serverauth.subscriber_first_policy_oid_not_reserved,
