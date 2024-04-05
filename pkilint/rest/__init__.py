@@ -95,7 +95,7 @@ def certificate_lint(linter_group_name: str, linter_name: str, doc: model.Certif
 
     return linter_instance.lint(parsed_doc)
 
-@app.get('/ocsp/linter')
+@app.get('/ocsp/pkix')
 def ocsp_linter_validations() -> List[model.Validation]:
     """Returns the set of validations performed by the OCSP response linter"""
 
@@ -103,7 +103,7 @@ def ocsp_linter_validations() -> List[model.Validation]:
 
     return linter.validations
 
-@app.post('/ocsp')
+@app.post('/ocsp/pkix')
 def ocsp_response_lint(doc: model.OcspResponseModel) -> model.LintResultList:
     """Lints the specified OCSP response"""
 
