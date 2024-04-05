@@ -20,6 +20,7 @@ _CERTIFICATE_LINTER_GROUPS = [
     cabf_smime.create_linter_group_instance(),
     cabf_serverauth.create_linter_group_instance(),
 ]
+_OCSP_PKIX_LINTER = ocsp.create_ocsp_response_linter()
 
 
 @app.get('/version')
@@ -99,16 +100,12 @@ def certificate_lint(linter_group_name: str, linter_name: str, doc: model.Certif
 def ocsp_linter_validations() -> List[model.Validation]:
     """Returns the set of validations performed by the OCSP response linter"""
 
-    linter = ocsp.create_ocsp_response_linter()
-
-    return linter.validations
+    return _OCSP_PKIX_LINTER.validations
 
 @app.post('/ocsp/pkix')
 def ocsp_response_lint(doc: model.OcspResponseModel) -> model.LintResultList:
     """Lints the specified OCSP response"""
 
-    linter = ocsp.create_ocsp_response_linter()
-
     parsed_doc = doc.parsed_document
 
-    return linter.lint(parsed_doc)
+    return _OCSP_PKIX_LINTER.lint(parsed_doc)
