@@ -321,8 +321,8 @@ Assuming that Uvicorn has been installed via pipx, the REST API server can be st
 uvicorn pkilint.rest:app
 ```
 
-This command will start the REST API server and listen for incoming requests on TCP/IP port 8000 of the loopback interface. Documentation
-is available on the following endpoints:
+This command will start the REST API server and listen for incoming requests on TCP/IP port 8000 of the loopback interface.
+Once the REST API server has been started, documentation will be available on the following endpoints:
 
 * [Swagger UI](http://127.0.0.1:8000/docs)
 * [ReDoc](http://127.0.0.1:8000/redoc)
