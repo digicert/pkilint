@@ -116,7 +116,11 @@ def main(cli_args=None) -> int:
 
         return 0
     else:
-        cert = loader.load_certificate(args.file, args.file.name)
+        try:
+            cert = loader.load_certificate(args.file, args.file.name)
+        except ValueError as e:
+            print(f'Failed to load certificate: {e}', file=sys.stderr)
+            return 1
 
         if args.detect:
             v_g = smime.determine_validation_level_and_generation(cert, args.mapping)
