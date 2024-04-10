@@ -166,6 +166,8 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         en_319_412_2.IssuerAlternativeNameCriticalityValidator(),
         en_319_412_2.ExtendedKeyUsageCriticalityValidator(),
         en_319_412_2.CRLDistributionPointsCriticalityValidator(),
+        en_319_412_2.NaturalPersonExtensionIdentifierAllowanceValidator(certificate_type),
+        en_319_412_2.KeyUsageValueValidator(is_content_commitment_type=False),
         qc_statements_validator_container
     ]
 

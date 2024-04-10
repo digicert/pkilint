@@ -53,3 +53,4 @@ certificate.tbsCertificate.subject.rdnSequence,IvSubscriberAttributeAllowanceVal
 certificate.tbsCertificate.extensions.5.extnValue.certificatePolicies.0.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
 certificate.tbsCertificate.subject.rdnSequence,IvSubscriberAttributeAllowanceValidator,WARNING,cabf.serverauth.iv.unknown_attribute_present,Unknown attribute present: 2.5.4.5
 certificate.tbsCertificate.extensions.1.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
+certificate.tbsCertificate.extensions.2.extnValue.keyUsage,KeyUsageValueValidator,WARNING,etsi.en_319_412_2.nat-4.3.2-1.mixed_key_usage_setting,

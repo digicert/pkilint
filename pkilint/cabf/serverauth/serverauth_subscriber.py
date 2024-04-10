@@ -13,6 +13,7 @@ from pkilint.common import organization_id
 from pkilint.common.organization_id import ParsedOrganizationIdentifier
 from pkilint.itu import x520_name, bitstring
 from pkilint.pkix import Rfc2119Word, general_name, time
+from pkilint.pkix.certificate.certificate_extension import KeyUsageBitName
 
 
 def _parse_organization_identifier_extension(
@@ -265,13 +266,13 @@ class SubscriberKeyUsageValidator(validation.Validator):
 
     _SPKI_OID_TO_KU_ALLOWANCES_MAPPING = {
         rfc5480.rsaEncryption: {
-            'digitalSignature': Rfc2119Word.SHOULD,
-            'keyEncipherment': Rfc2119Word.MAY,
-            'dataEncipherment': Rfc2119Word.SHOULD_NOT,
+            KeyUsageBitName.DIGITAL_SIGNATURE: Rfc2119Word.SHOULD,
+            KeyUsageBitName.KEY_ENCIPHERMENT: Rfc2119Word.MAY,
+            KeyUsageBitName.DATA_ENCIPHERMENT: Rfc2119Word.SHOULD_NOT,
         },
         rfc5480.id_ecPublicKey: {
-            'digitalSignature': Rfc2119Word.MUST,
-            'keyAgreement': Rfc2119Word.SHOULD_NOT,
+            KeyUsageBitName.DIGITAL_SIGNATURE: Rfc2119Word.MUST,
+            KeyUsageBitName.KEY_AGREEMENT: Rfc2119Word.SHOULD_NOT,
         },
     }
 
@@ -321,8 +322,8 @@ class SubscriberKeyUsageValidator(validation.Validator):
                     ))
 
         if spki_alg_oid == rfc5480.rsaEncryption and (
-                bitstring.has_named_bit(node, 'digitalSignature') and
-                bitstring.has_named_bit(node, 'keyEncipherment')):
+                bitstring.has_named_bit(node, KeyUsageBitName.DIGITAL_SIGNATURE) and
+                bitstring.has_named_bit(node, KeyUsageBitName.KEY_ENCIPHERMENT)):
             warning_findings.append(
                 validation.ValidationFindingDescription(self.VALIDATION_RSA_DIGSIG_AND_KEYENCIPHERMENT_PRESENT, None)
             )

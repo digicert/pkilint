@@ -54,3 +54,4 @@ certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARN
 certificate.tbsCertificate.extensions.2.extnValue.keyUsage,SubscriberKeyUsageValidator,WARNING,cabf.serverauth.subscriber_rsa_digitalsignature_and_keyencipherment_present,
 certificate.tbsCertificate.extensions.5.extnValue.certificatePolicies.0.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
 certificate.tbsCertificate.subject.rdnSequence,IvSubscriberAttributeAllowanceValidator,ERROR,cabf.serverauth.iv.country_attribute_absent,
+certificate.tbsCertificate.extensions.2.extnValue.keyUsage,KeyUsageValueValidator,WARNING,etsi.en_319_412_2.nat-4.3.2-1.mixed_key_usage_setting,

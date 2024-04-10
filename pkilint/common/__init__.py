@@ -1,15 +1,15 @@
-from typing import Callable, Mapping, Optional, NamedTuple
+from typing import Callable, Mapping, Optional
 
 from pyasn1.type import univ
-from pyasn1_alt_modules import rfc5280, rfc6962, rfc6960
+from pyasn1_alt_modules import rfc5280, rfc6962, rfc6960, rfc3739
 
-from pkilint import validation, document, pkix, oid
+from pkilint import validation, document, pkix
 from pkilint.cabf.asn1 import ev_guidelines
 from pkilint.itu import x520_name
 from pkilint.pkix import Rfc2119Word
 
 OID_TO_CODE_NAME = {
-    # EKU
+    # EKUs
     rfc5280.id_kp_codeSigning: 'codesigning',
     rfc5280.id_kp_emailProtection: 'emailprotection',
     rfc5280.id_kp_timeStamping: 'timestamping',
@@ -19,7 +19,7 @@ OID_TO_CODE_NAME = {
     rfc5280.id_kp_serverAuth: 'serverauth',
     rfc5280.id_kp_clientAuth: 'clientauth',
 
-    # extension
+    # extensions
     rfc5280.id_ce_authorityKeyIdentifier: 'authority_key_identifier',
     rfc5280.id_ce_basicConstraints: 'basic_constraints',
     rfc5280.id_ce_certificatePolicies: 'certificate_policies',
@@ -33,6 +33,11 @@ OID_TO_CODE_NAME = {
     rfc5280.id_ce_subjectAltName: 'subject_altname',
     rfc6962.id_ce_criticalPoison: 'precert_poison',
     rfc6960.id_pkix_ocsp_nocheck: 'ocsp_nocheck',
+    rfc3739.id_pe_qcStatements: 'qc_statements',
+    rfc5280.id_ce_policyMappings: 'policy_mappings',
+    rfc5280.id_ce_policyConstraints: 'policy_constraints',
+    rfc5280.id_ce_inhibitAnyPolicy: 'inhibit_any_policy',
+
 
     # AIA access methods
     rfc5280.id_ad_ocsp: 'ocsp',

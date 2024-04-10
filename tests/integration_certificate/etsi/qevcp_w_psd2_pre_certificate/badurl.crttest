@@ -47,3 +47,4 @@ certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARN
 certificate.tbsCertificate.extensions.1.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 certificate.tbsCertificate.extensions.10.extnValue.certificatePolicies,EvCpsUriPresenceValidator,ERROR,cabf.ev_guidelines.cps_uri_policy_qualifier_missing,
 certificate.tbsCertificate.subject.rdnSequence,EvSubscriberAttributeAllowanceValidator,WARNING,cabf.ev_guidelines.common_name_attribute_present,
+certificate.tbsCertificate.extensions.8.extnValue.keyUsage,KeyUsageValueValidator,WARNING,etsi.en_319_412_2.nat-4.3.2-1.mixed_key_usage_setting,

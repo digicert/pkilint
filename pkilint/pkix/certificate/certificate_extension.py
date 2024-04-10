@@ -568,6 +568,19 @@ class KeyUsageCriticalityValidator(validation.Validator):
             )
 
 
+# TODO: consider subclassing from StrEnum when minimum supported Python version is 3.11
+class KeyUsageBitName:
+    DIGITAL_SIGNATURE = 'digitalSignature'
+    NON_REPUDIATION = 'nonRepudiation'
+    KEY_ENCIPHERMENT = 'keyEncipherment'
+    DATA_ENCIPHERMENT = 'dataEncipherment'
+    KEY_AGREEMENT = 'keyAgreement'
+    KEY_CERT_SIGN = 'keyCertSign'
+    CRL_SIGN = 'cRLSign'
+    ENCIPHER_ONLY = 'encipherOnly'
+    DECIPHER_ONLY = 'decipherOnly'
+
+
 class KeyUsageValidator(validation.Validator):
     VALIDATION_NO_BITS_SET = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
@@ -613,7 +626,7 @@ class KeyUsageValidator(validation.Validator):
 
         is_ca = node.document.is_ca
 
-        has_keycertsign = has_named_bit(node, 'keyCertSign')
+        has_keycertsign = has_named_bit(node, KeyUsageBitName.KEY_CERT_SIGN)
 
         if is_ca and not has_keycertsign:
             raise validation.ValidationFindingEncountered(
@@ -624,8 +637,8 @@ class KeyUsageValidator(validation.Validator):
                 self.VALIDATION_EE_KEYCERTSIGN_SET
             )
 
-        has_eo = has_named_bit(node, 'encipherOnly')
-        has_do = has_named_bit(node, 'decipherOnly')
+        has_eo = has_named_bit(node, KeyUsageBitName.ENCIPHER_ONLY)
+        has_do = has_named_bit(node, KeyUsageBitName.DECIPHER_ONLY)
 
         if has_eo and has_do:
             raise validation.ValidationFindingEncountered(
