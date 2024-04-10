@@ -79,7 +79,11 @@ def main(cli_args=None) -> int:
 
         return 0
     else:
-        crl_doc = loader.load_crl(args.file, args.file.name)
+        try:
+            crl_doc = loader.load_crl(args.file, args.file.name)
+        except ValueError as e:
+            print(f'Failed to load CRL: {e}', file=sys.stderr)
+            return 1
 
         results = doc_validator.validate(crl_doc.root)
 
