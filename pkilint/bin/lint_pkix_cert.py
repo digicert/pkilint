@@ -47,7 +47,7 @@ def main(cli_args=None) -> int:
         try:
             cert = loader.load_certificate(args.file, args.file.name)
         except ValueError as e:
-            print(f'Failed to load certificate: {e}')
+            print(f'Failed to load certificate: {e}', file=sys.stderr)
             return 1
 
         results = doc_validator.validate(cert.root)
