@@ -1,4 +1,6 @@
-from pkilint import validation
+import datetime
+
+from pkilint import validation, document
 from pkilint.pkix import time
 
 
@@ -14,3 +16,8 @@ class CertificateSaneValidityPeriodValidator(time.SaneValidityPeriodValidator):
             path='certificate.tbsCertificate.validity.notBefore',
             validation=self.VALIDATION_NEGATIVE_VALIDITY_PERIOD
         )
+
+
+class CertificateValidityPeriodStartRetriever(document.ValidityPeriodStartRetriever):
+    def __call__(self, certificate, *args, **kwargs) -> datetime.datetime:
+        return certificate.not_before

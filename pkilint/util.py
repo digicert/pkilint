@@ -1,9 +1,13 @@
 import argparse
+import datetime
 import functools
+from typing import Type
 
+import dateutil.parser
 from cryptography.hazmat.primitives import hashes
 
-from pkilint import validation, report
+from pkilint import validation, report, document
+from pkilint.pkix.certificate import certificate_validity
 from pkilint.report import report_wrapper, REPORT_FORMATS
 
 
@@ -73,6 +77,55 @@ def add_report_format_arg(parser):
                         choices=list(REPORT_FORMATS.keys()),
                         action=ReportFormatAction
                         )
+
+
+class ValidityPeriodStartAction(argparse.Action):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @classmethod
+    def get_retriever_class(cls) -> Type[document.ValidityPeriodStartRetriever]:
+        pass
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        value_casefolded = values.casefold()
+
+        if value_casefolded == 'document'.casefold():
+            retriever_instance = self.get_retriever_class()()
+        elif value_casefolded == 'now'.casefold():
+            retriever_instance = document.StaticValidityPeriodRetriever(datetime.datetime.now(tz=datetime.timezone.utc))
+        else:
+            try:
+                dt = dateutil.parser.isoparse(values)
+
+                retriever_instance = document.StaticValidityPeriodRetriever(dt)
+            except ValueError as e:
+                raise argparse.ArgumentError(self, f'Invalid value for validity period start: "{values}"')
+
+        setattr(namespace, self.dest, retriever_instance)
+
+
+class CertificateValidityPeriodStartAction(ValidityPeriodStartAction):
+    @classmethod
+    def get_retriever_class(cls):
+        return certificate_validity.CertificateValidityPeriodStartRetriever
+
+
+def add_validity_period_start_arg(action_cls: Type[ValidityPeriodStartAction], parser):
+    parser.add_argument(
+        '--validity-period-start',
+        action=action_cls,
+        default=action_cls.get_retriever_class()(),
+        help='The start of the validity period that is compared to effective dates to determine applicability of '
+        'validations. Acceptable values are "DOCUMENT" (use the validity period indicated in the document being '
+        'validated, "NOW" (use the current time), or an ISO 8601-formatted date/time value.'
+    )
+
+
+add_certificate_validity_period_start_arg = functools.partial(
+    add_validity_period_start_arg,
+    CertificateValidityPeriodStartAction
+)
 
 
 def add_standard_args(parser):

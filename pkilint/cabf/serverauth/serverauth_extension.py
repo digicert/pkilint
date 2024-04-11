@@ -1,8 +1,9 @@
+import datetime
 from urllib.parse import urlparse
 
 from pyasn1_alt_modules import rfc5280
 
-from pkilint import validation
+from pkilint import validation, document
 
 
 class CrlDpDistributionPointValidator(validation.Validator):
@@ -195,8 +196,21 @@ class EvCpsUriPresenceValidator(validation.Validator):
         'cabf.ev_guidelines.cps_uri_policy_qualifier_missing'
     )
 
-    def __init__(self):
+    # TODO: align with actual publication date of TLS BR for SC-72
+    _VALIDATION_EV_CPS_URI_MISSING_INEFFECTIVE_DATE = datetime.datetime(
+        2024, 5, 1, 0, 0, 0, tzinfo=datetime.timezone.utc
+    )
+
+    def __init__(self, validity_period_start_retriever: document.ValidityPeriodStartRetriever):
         super().__init__(validations=self.VALIDATION_EV_CPS_URI_MISSING, pdu_class=rfc5280.CertificatePolicies)
+
+        self._validity_period_start_retriever = validity_period_start_retriever
+
+    def match(self, node):
+        return (
+            super().match(node) and
+            self._validity_period_start_retriever(node.document) < self._VALIDATION_EV_CPS_URI_MISSING_INEFFECTIVE_DATE
+        )
 
     def validate(self, node):
         qualifier_oids = set()
