@@ -93,14 +93,24 @@ def main(cli_args=None) -> int:
     else:
         doc_collection = {}
 
-        issuer = loader.load_certificate(args.issuer, args.issuer.name, 'issuer',
-                                         doc_collection
-                                         )
+        try:
+            issuer = loader.load_certificate(args.issuer, args.issuer.name, 'issuer',
+                                             doc_collection
+                                             )
+        except ValueError as e:
+            print(f'Failed to load issuer certificate: {e}', file=sys.stderr)
+            return 1
+
         doc_collection['issuer'] = issuer
 
-        subject = loader.load_certificate(args.subject, args.subject.name, 'subject',
-                                          doc_collection
-                                          )
+        try:
+            subject = loader.load_certificate(args.subject, args.subject.name, 'subject',
+                                              doc_collection
+                                              )
+        except ValueError as e:
+            print(f'Failed to load subject certificate: {e}', file=sys.stderr)
+            return 1
+
         doc_collection['subject'] = subject
 
         results = decoding_validation_container.validate(issuer.root)

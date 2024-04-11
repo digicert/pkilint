@@ -37,7 +37,11 @@ def main(cli_args=None) -> int:
 
         return 0
     else:
-        ocsp_response = loader.load_ocsp_response(args.file, args.file.name)
+        try:
+            ocsp_response = loader.load_ocsp_response(args.file, args.file.name)
+        except ValueError as e:
+            print(f'Failed to load OCSP response: {e}', file=sys.stderr)
+            return 1
 
         results = doc_validator.validate(ocsp_response.root)
 
