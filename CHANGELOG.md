@@ -2,6 +2,13 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.10.1 - 2024-05-XX
+
+### New features/enhancements
+
+- Add support for TLS BR ballot SC-72 (#73)
+
+
 ## 0.10.0 - 2024-04-11
 
 ### New features/enhancements
