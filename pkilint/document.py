@@ -1,4 +1,5 @@
 import binascii
+import datetime
 import logging
 import re
 from typing import Callable, Mapping, Tuple, Type, Union, Optional, Dict, List
@@ -250,6 +251,7 @@ class NodeVisitor(object):
         if self._predicate is not None and not self._predicate(node):
             return False
 
+
         return True
 
 
@@ -373,3 +375,20 @@ def get_re_for_path_glob(path_glob: str) -> re.Pattern:
     return re.compile(
         path_glob.replace('.', r'\.').replace('?', r'\w').replace('*', r'\w*')
     )
+
+
+class ValidityPeriodStartRetriever:
+    def __call__(self, *args, **kwargs) -> datetime.datetime:
+        pass
+
+
+class StaticValidityPeriodRetriever(ValidityPeriodStartRetriever):
+    def __init__(self, validity_period_start: datetime.datetime):
+        # require aware datetime values
+        if validity_period_start.tzinfo is None or validity_period_start.tzinfo.utcoffset(None) is None:
+            raise ValueError('Validity period start value must be timezone-aware')
+
+        self._validity_period_start = validity_period_start
+
+    def __call__(self, *args, **kwargs) -> datetime.datetime:
+        return self._validity_period_start
