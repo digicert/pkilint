@@ -129,6 +129,7 @@ class CertificateModel(DocumentModel):
     def parsed_document(self):
         return self._parsed_document
 
+
 class OcspResponseModel(DocumentModel):
     _parsed_document = None
 
@@ -152,6 +153,7 @@ class OcspResponseModel(DocumentModel):
     @property
     def parsed_document(self):
         return self._parsed_document
+
 
 def create_unprocessable_entity_error_detail(message: str, error_type: str = 'value_error'):
     return [

@@ -2,11 +2,16 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
-## 0.9.11 - 2024-03-XX
+## 0.10.0 - 2024-04-11
+
+### New features/enhancements
+
+- Add REST API endpoints for linting OCSP responses (#62 - implemented by @mans-andersson)
 
 ### Fixes
 
-TBD
+- Handle malformed inputs given via the CLI more gracefully (#63 - fixed by @ralienpp)
+- Pin validators package version to work around issue in latest version (#65)
 
 ## 0.9.10 - 2024-03-04
 

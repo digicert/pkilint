@@ -7,14 +7,13 @@ from pkilint.rest import cabf_serverauth, cabf_smime, ocsp
 from pkilint.rest import model
 
 _PKILINT_VERSION = version('pkilint')
-_API_VERSION = 'v1.1'
+_API_VERSION = 'v1.2'
 
 app = FastAPI(
     title='pkilint API',
     version=_API_VERSION,
     description='HTTP interface for pkilint'
 )
-
 
 _CERTIFICATE_LINTER_GROUPS = [
     cabf_smime.create_linter_group_instance(),
@@ -96,11 +95,13 @@ def certificate_lint(linter_group_name: str, linter_name: str, doc: model.Certif
 
     return linter_instance.lint(parsed_doc)
 
+
 @app.get('/ocsp/pkix')
 def ocsp_linter_validations() -> List[model.Validation]:
     """Returns the set of validations performed by the OCSP response linter"""
 
     return _OCSP_PKIX_LINTER.validations
+
 
 @app.post('/ocsp/pkix')
 def ocsp_response_lint(doc: model.OcspResponseModel) -> model.LintResultList:

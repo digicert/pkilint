@@ -4,11 +4,11 @@ from importlib.metadata import version
 
 from fastapi.testclient import TestClient
 
-from pkilint import report
+from pkilint import report, pkix
 from pkilint.cabf import serverauth
 from pkilint.cabf.serverauth import serverauth_constants
 from pkilint.cabf.smime import smime_constants
-from pkilint.pkix import certificate
+from pkilint.pkix import certificate, ocsp, name, extension
 from pkilint.rest import app as web_app
 
 
@@ -140,6 +140,28 @@ B0iBclRQb246wAEPjF/sWAUS+LgmJL2u1CclSWu3h/Ae+yIMKAbdL6Vn5GeLHfCD
 kJePcGspl/I0jGLIvpG34YRy9mLrgiWskyETVNFDPIzddBDAqWu2JkDK
 -----END CERTIFICATE-----
 '''
+
+
+_OCSP_RESPONSE = '''MIIDnwoBAKCCA5gwggOUBgkrBgEFBQcwAQEEggOFMIIDgTCBsKIWBBQK46D+ndQl
+dpi163Lrygznvz318RgPMjAyNDA0MDIxMjM3NDdaMIGEMIGBMFkwDQYJYIZIAWUD
+BAIBBQAEIDqZRndWgHOnB7/eUBhjReTNYTTbCF66odEEJfA7bwjqBCBHSmyjAfI9
+yff3B4cE4cf1/JbnFnX27YguerZcP1hFQwIEAarwDYAAGA8yMDI0MDQwMzEyMzc0
+N1qgERgPMjAyNDA0MTAxMjM3NDdaMAoGCCqGSM49BAMDA2kAMGYCMQDRmVmiIb4D
+m9yEXiv2XtoeQi6ftpjLmlBqqRIi+3htfF/OyjdHnFuh38cQKYqqrWYCMQDKiPct
+Vu7SQs587d2ZBEHQH20j5AFiGGsbI1b3+C9ZK6NIzgD6DnWlDwpSfilEarOgggJT
+MIICTzCCAkswggGuoAMCAQICAQEwCgYIKoZIzj0EAwQwODELMAkGA1UEBhMCWFgx
+FDASBgNVBAoMC0NlcnRzICdyIFVzMRMwEQYDVQQDDApJc3N1aW5nIENBMB4XDTI0
+MDQwMjEyMzc0N1oXDTI1MDQwMjEyMzc0N1owPDELMAkGA1UEBhMCWFgxFDASBgNV
+BAoMC0NlcnRzICdyIFVzMRcwFQYDVQQDDA5PQ1NQIFJlc3BvbmRlcjB2MBAGByqG
+SM49AgEGBSuBBAAiA2IABFsJAbiFIyluuRnVD/oanLN0vE1AlYYoK/7KEbHZWtu1
+RzSvVwv4K3IozyJrz0wl3bz+Oxo605Qw7/dj4daNLhUdkXILd5W1jaazRjlhOo+5
+tajaSMZ0cRf5kZ6EJPN+yKOBhzCBhDAdBgNVHQ4EFgQUCuOg/p3UJXaYtety68oM
+57899fEwHwYDVR0jBBgwFoAUjsIUCWB26pA46TmuG21SxBd9n74wDAYDVR0TAQH/
+BAIwADAOBgNVHQ8BAf8EBAMCB4AwEwYDVR0lBAwwCgYIKwYBBQUHAwkwDwYJKwYB
+BQUHMAEFBAIFADAKBggqhkjOPQQDBAOBigAwgYYCQRQqjNYKbGXHdGXfEVvB//i+
+DiG02hraU9kGNKXeiQcPdZRajQsY/hdZPVyaykkAFVQGv29yWmTrEax+r4oZTtzG
+AkFJCwtJpi7m00Qx9r/ugNWsnCFSiKUdxuvj7mg9lJtz0hexRJZKFODWJG5dUh//
+Bc2w8vywgYYoduXu4QLcoP17CA=='''
 
 
 def _assert_validationerror_list_present(resp):
@@ -357,3 +379,32 @@ def test_validations_list(client):
     for actual, expected in zip(j, report.get_included_validations(v)):
         assert actual['code'] == expected.code
         assert actual['severity'] == str(expected.severity)
+
+
+def test_ocsp_pkix_validations_list(client):
+    resp = client.get('/ocsp/pkix')
+    assert resp.status_code == HTTPStatus.OK
+
+    j = resp.json()
+
+    v = ocsp.create_pkix_ocsp_response_validator_container(
+        [
+            ocsp.create_response_decoder(),
+            pkix.create_attribute_decoder(name.ATTRIBUTE_TYPE_MAPPINGS),
+            pkix.create_extension_decoder(extension.EXTENSION_MAPPINGS),
+        ],
+        []
+    )
+
+    for actual, expected in zip(j, report.get_included_validations(v)):
+        assert actual['code'] == expected.code
+        assert actual['severity'] == str(expected.severity)
+
+
+def test_ocsp_pkix_lint(client):
+    resp = client.post('/ocsp/pkix', json={'b64': _OCSP_RESPONSE})
+    assert resp.status_code == HTTPStatus.OK
+
+    j = resp.json()
+
+    assert len(j['results']) == 0
