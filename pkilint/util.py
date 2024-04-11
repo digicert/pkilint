@@ -93,12 +93,12 @@ class ValidityPeriodStartAction(argparse.Action):
         if value_casefolded == 'document'.casefold():
             retriever_instance = self.get_retriever_class()()
         elif value_casefolded == 'now'.casefold():
-            retriever_instance = document.StaticValidityPeriodRetriever(datetime.datetime.now(tz=datetime.timezone.utc))
+            retriever_instance = document.StaticValidityPeriodStartRetriever(datetime.datetime.now(tz=datetime.timezone.utc))
         else:
             try:
                 dt = dateutil.parser.isoparse(values)
 
-                retriever_instance = document.StaticValidityPeriodRetriever(dt)
+                retriever_instance = document.StaticValidityPeriodStartRetriever(dt)
             except ValueError as e:
                 raise argparse.ArgumentError(self, f'Invalid value for validity period start: "{values}"')
 

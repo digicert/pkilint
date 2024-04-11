@@ -382,9 +382,9 @@ class ValidityPeriodStartRetriever:
         pass
 
 
-class StaticValidityPeriodRetriever(ValidityPeriodStartRetriever):
+class StaticValidityPeriodStartRetriever(ValidityPeriodStartRetriever):
     def __init__(self, validity_period_start: datetime.datetime):
-        # require aware datetime values
+        # require timezone-aware datetime values
         if validity_period_start.tzinfo is None or validity_period_start.tzinfo.utcoffset(None) is None:
             raise ValueError('Validity period start value must be timezone-aware')
 
