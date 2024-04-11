@@ -198,11 +198,53 @@ class SubscriberSubjectValidator(validation.Validator):
         return validation.ValidationResult(self, node, findings)
 
 
+class SubscriberAttributeDependencyValidator(validation.Validator):
+    VALIDATION_MISSING_REQUIRED_ATTRIBUTE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'cabf.smime.required_attribute_missing_for_dependent_attribute'
+    )
+
+    _ATTRIBUTE_DEPENDENCIES = {
+        x520_name.id_at_streetAddress: {rfc5280.id_at_localityName, rfc5280.id_at_stateOrProvinceName},
+        rfc5280.id_at_stateOrProvinceName: {rfc5280.id_at_countryName},
+        rfc5280.id_at_localityName: {rfc5280.id_at_countryName},
+        x520_name.id_at_postalCode: {rfc5280.id_at_countryName},
+    }
+
+    def __init__(self):
+        super().__init__(
+            validations=[self.VALIDATION_MISSING_REQUIRED_ATTRIBUTE],
+            pdu_class=rfc5280.RDNSequence,
+            predicate=lambda n: n.path != 'certificate.tbsCertificate.issuer.rdnSequence'
+        )
+
+    def validate(self, node):
+        attributes = set()
+        for rdn in node.children.values():
+            attributes.update((atv.children['type'].pdu for atv in rdn.children.values()))
+
+        for dependent_attribute, required_attributes in self._ATTRIBUTE_DEPENDENCIES.items():
+            if dependent_attribute in attributes:
+                if not attributes & required_attributes:
+                    oids = oid.format_oids(required_attributes)
+
+                    if len(required_attributes) > 1:
+                        message = f'one of {oids} is not present'
+                    else:
+                        message = f'{oids} is not present'
+
+                    raise validation.ValidationFindingEncountered(
+                        self.VALIDATION_MISSING_REQUIRED_ATTRIBUTE,
+                        f'{dependent_attribute} is present but {message}'
+                    )
+
+
 def create_subscriber_certificate_subject_validator_container(
         validation_level, generation
 ):
     dn_validators = [
         SubscriberSubjectValidator(validation_level, generation),
+        SubscriberAttributeDependencyValidator(),
         SubjectAlternativeNameContainsSubjectEmailAddressesValidator(),
         cabf_name.ValidCountryValidator(),
         CommonNameValidator(validation_level, generation),
