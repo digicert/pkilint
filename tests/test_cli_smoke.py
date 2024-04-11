@@ -291,6 +291,6 @@ Iw==
     os.unlink(issuer_f.name)
 
 
-def test_lint_etsi_cert():
+def test_lint_etsi_cert_validations():
     for cert_type in etsi_constants.CertificateType:
-        _test_program('lint_etsi_cert', ['-t', cert_type.to_option_str])
+        _test_program_validations('lint_etsi_cert', ['-t', cert_type.to_option_str])
