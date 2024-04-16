@@ -13,6 +13,19 @@ _GENERALNAME_TYPES = [str(n) for n in _GENERALNAME_INSTANCE.componentType]
 OTHER_NAME_MAPPINGS = rfc5280.anotherNameMap.copy()
 
 
+# TODO: consider subclassing from StrEnum when minimum supported Python version is 3.11
+class GeneralNameTypeName:
+    OTHER_NAME = 'otherName'
+    RFC822_NAME = 'rfc822Name'
+    DNS_NAME = 'dNSName'
+    X400_ADDRESS = 'x400Address'
+    DIRECTORY_NAME = 'directoryName'
+    EDI_PARTY_NAME = 'ediPartyName'
+    UNIFORM_RESOURCE_IDENTIFIER = 'uniformResourceIdentifier'
+    IP_ADDRESS = 'iPAddress'
+    REGISTERED_ID = 'registeredID'
+
+
 def validators_predicate(func, value):
     ret = func(value)
 

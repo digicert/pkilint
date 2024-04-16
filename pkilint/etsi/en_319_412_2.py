@@ -8,6 +8,7 @@ from pkilint.etsi import etsi_constants
 from pkilint.itu import bitstring
 from pkilint.pkix import extension, name, Rfc2119Word
 from pkilint.pkix.certificate.certificate_extension import KeyUsageBitName
+from pkilint.pkix.general_name import GeneralNameTypeName
 
 
 class CertificatePoliciesCriticalityValidator(extension.ExtensionCriticalityValidator):
@@ -297,3 +298,178 @@ class KeyUsageValueValidator(validation.Validator):
 
         if setting in self._MIXED_USE_SETTINGS:
             raise validation.ValidationFindingEncountered(self.VALIDATION_MIXED_KEY_USAGE_SETTING)
+
+
+def _general_name_has_uri_prefixes(uri_prefixes_lower, general_name_node):
+    gn_type, gn_value = general_name_node.child
+
+    if gn_type == GeneralNameTypeName.UNIFORM_RESOURCE_IDENTIFIER:
+        uri_lower = str(gn_value.pdu).lower()
+
+        return any(uri_lower.startswith(p) for p in uri_prefixes_lower)
+
+    return False
+
+
+_HTTP_OR_HTTPS_PREFIXES = {'http://', 'https://'}
+_HTTP_OR_LDAP_PREFIXES = {'http://', 'ldap://'}
+
+
+def _aia_extension_has_aia_ocsp_http_uri(aia_syntax_node):
+    for ad in aia_syntax_node.children.values():
+        if ad.children['accessMethod'].pdu == rfc5280.id_ad_ocsp:
+
+            location_node = ad.children['accessLocation']
+
+            if _general_name_has_uri_prefixes(_HTTP_OR_HTTPS_PREFIXES, location_node):
+                return True
+
+    return False
+
+
+class CrlDistributionPointsExtensionPresenceValidator(validation.Validator):
+    """
+    GEN-4.3.11-2: If the certificate does not include any access location of an OCSP responder as specified in clause
+    4.4.1, then the certificate shall include a CRL distribution point extension.
+    """
+    VALIDATION_CRLDP_EXTENSION_MISSING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_2.gen-4.3.11-2.crldp_extension_missing'
+    )
+
+    def __init__(self):
+        super().__init__(
+            validations=[self.VALIDATION_CRLDP_EXTENSION_MISSING],
+            pdu_class=rfc5280.Extensions
+        )
+
+    def validate(self, node):
+        crldp_ext_and_idx = node.document.get_extension_by_oid(rfc5280.id_ce_cRLDistributionPoints)
+
+        if crldp_ext_and_idx:
+            return
+
+        aia_ext_and_idx = node.document.get_extension_by_oid(rfc5280.id_pe_authorityInfoAccess)
+
+        if aia_ext_and_idx is None:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_CRLDP_EXTENSION_MISSING)
+
+        ext, idx = aia_ext_and_idx
+
+        try:
+            _, aia_syntax_node = ext.children['extnValue'].child
+        except ValueError:
+            # no decoded AIA extension. Let other validator flag that finding
+            return
+
+        if not _aia_extension_has_aia_ocsp_http_uri(aia_syntax_node):
+            raise validation.ValidationFindingEncountered(self.VALIDATION_CRLDP_EXTENSION_MISSING)
+
+
+class CrlDistributionPointsValidator(validation.Validator):
+    """
+    GEN-4.3.11-4: At least one of the present references shall use either http (http://) IETF RFC 7230-7235 [3] or ldap
+    (ldap://) IETF RFC 4516 [4] scheme.
+    """
+    VALIDATION_CRLDP_DP_NO_REQUIRED_URI = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_2.gen-4.3.11-4.http_or_ldap_crldp_distribution_point_uri_missing'
+    )
+
+    def __init__(self):
+        super().__init__(
+            validations=[self.VALIDATION_CRLDP_DP_NO_REQUIRED_URI],
+            pdu_class=rfc5280.CRLDistributionPoints
+        )
+
+    def validate(self, node):
+        for distribution_point in node.children.values():
+            try:
+                full_name_node = distribution_point.navigate('distributionPoint.fullName')
+            except document.PDUNavigationFailedError:
+                continue
+
+            if any(
+                    _general_name_has_uri_prefixes(
+                        _HTTP_OR_LDAP_PREFIXES, gn
+                    ) for gn in full_name_node.children.values()
+            ):
+                return
+
+        raise validation.ValidationFindingEncountered(self.VALIDATION_CRLDP_DP_NO_REQUIRED_URI)
+
+
+class AuthorityInformationAccessValidator(validation.Validator):
+    """
+    GEN-4.4.1-3: The Authority Information Access extension shall include an accessMethod OID,
+    id-ad-caIssuers, with an accessLocation value specifying at least one access location of a valid CA
+    certificate of the issuing CA.
+    """
+    VALIDATION_AIA_CA_ISSUERS_MISSING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_2.gen-4.4.1-3.ca_issuers_aia_access_method_absent'
+    )
+
+    """
+    GEN-4.4.1-4: At least one accessLocation shall use the http (http://) IETF RFC 7230-7235 [3] scheme or https
+    (https://) IETF RFC 2818 [5] scheme.
+    """
+    VALIDATION_AIA_CA_ISSUERS_HTTP_URI_MISSING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_2.gen-4.4.1-4.ca_issuers_aia_access_method_http_uri_missing'
+    )
+
+    """
+    GEN-4.4.1-6: If OCSP is supported by the issuing CA, at least one access location shall specify either the http
+    (http://) IETF RFC 7230-7235 [3] or https (https://) IETF RFC 2818 [5] scheme.
+    """
+    VALIDATION_AIA_OCSP_HTTP_URI_MISSING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_2.gen-4.4.1-6.ocsp_aia_access_method_http_uri_missing'
+    )
+
+    """
+    GEN-4.4.1-8: If the certificate does not include any CRL distribution point extension in accordance with clause
+    4.3.11, a reference to at least one OCSP responder shall be present.
+    """
+    VALIDATION_AIA_OCSP_MISSING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_2.gen-4.4.1-8.ocsp_aia_access_method_absent'
+    )
+
+    def __init__(self):
+        super().__init__(
+            validations=[
+                self.VALIDATION_AIA_CA_ISSUERS_MISSING,
+                self.VALIDATION_AIA_CA_ISSUERS_HTTP_URI_MISSING,
+                self.VALIDATION_AIA_OCSP_MISSING,
+                self.VALIDATION_AIA_OCSP_HTTP_URI_MISSING,
+            ],
+            pdu_class=rfc5280.AuthorityInfoAccessSyntax
+        )
+
+    @classmethod
+    def _get_locations_for_method(cls, method_oid, aia_syntax_node):
+        return [
+            ad.children['accessLocation'] for ad in aia_syntax_node.children.values()
+            if ad.children['accessMethod'].pdu == method_oid
+        ]
+
+    def validate(self, node):
+        ca_issuers_gns = self._get_locations_for_method(rfc5280.id_ad_caIssuers, node)
+
+        if not ca_issuers_gns:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_AIA_CA_ISSUERS_MISSING)
+
+        if not any(_general_name_has_uri_prefixes(_HTTP_OR_HTTPS_PREFIXES, gn) for gn in ca_issuers_gns):
+            raise validation.ValidationFindingEncountered(self.VALIDATION_AIA_CA_ISSUERS_HTTP_URI_MISSING)
+
+        # only check for OCSP if no CRL DP extension is absent
+        if node.document.get_extension_by_oid(rfc5280.id_ce_cRLDistributionPoints) is None:
+            ocsp_gns = self._get_locations_for_method(rfc5280.id_ad_ocsp, node)
+
+            if not ocsp_gns:
+                raise validation.ValidationFindingEncountered(self.VALIDATION_AIA_OCSP_MISSING)
+
+            if not any(_general_name_has_uri_prefixes(_HTTP_OR_HTTPS_PREFIXES, gn) for gn in ocsp_gns):
+                raise validation.ValidationFindingEncountered(self.VALIDATION_AIA_OCSP_HTTP_URI_MISSING)
