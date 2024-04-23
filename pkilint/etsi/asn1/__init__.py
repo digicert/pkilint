@@ -1,7 +1,7 @@
 from pyasn1_alt_modules import rfc3739
 
 from pkilint import document
-from pkilint.etsi.asn1 import en_319_412_5, ts_119_495
+from pkilint.etsi.asn1 import en_319_412_5, ts_119_495, en_319_411_2
 
 ETSI_QC_STATEMENTS_MAPPINGS = {
     en_319_412_5.id_etsi_qcs_QcCompliance: document.ValueDecoder.VALUE_NODE_ABSENT,
@@ -14,4 +14,14 @@ ETSI_QC_STATEMENTS_MAPPINGS = {
     ts_119_495.id_etsi_psd2_qcStatement: ts_119_495.PSD2QcType(),
     rfc3739.id_qcs_pkixQCSyntax_v1: document.OptionalAsn1TypeWrapper(rfc3739.SemanticsInformation()),
     rfc3739.id_qcs_pkixQCSyntax_v2: document.OptionalAsn1TypeWrapper(rfc3739.SemanticsInformation()),
+}
+
+ETSI_CERTIFICATE_TYPE_POLICY_OIDS = {
+    en_319_411_2.id_qcp_natural,
+    en_319_411_2.id_qcp_legal,
+    en_319_411_2.id_qcp_natural_qscd,
+    en_319_411_2.id_qcp_legal_qscd,
+    en_319_411_2.id_qcp_web,
+    en_319_411_2.id_qncp_web,
+    en_319_411_2.id_qncp_web_gen,
 }

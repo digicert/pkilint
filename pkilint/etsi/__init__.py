@@ -27,8 +27,8 @@ def determine_certificate_type(cert: certificate.RFC5280Certificate) -> Certific
 
         if is_psd2:
             return (
-                CertificateType.QEVCP_W_PSD2_PRE_CERTIFICATE if is_precert
-                else CertificateType.QEVCP_W_PSD2_FINAL_CERTIFICATE
+                CertificateType.QEVCP_W_PSD2_EIDAS_PRE_CERTIFICATE if is_precert
+                else CertificateType.QEVCP_W_PSD2_EIDAS_FINAL_CERTIFICATE
             )
         elif is_eidas_qualified:
             return (
@@ -129,7 +129,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         organization_id.OrganizationIdentifierLeiValidator(),
     ]
 
-    if certificate_type in etsi_constants.QEVCP_W_PSD2_CERTIFICATE_TYPES:
+    if certificate_type in etsi_constants.QEVCP_W_PSD2_EIDAS_CERTIFICATE_TYPES:
         subject_validators.append(ts_119_495.PsdOrganizationIdentifierFormatValidator())
 
     qc_statement_validators = [
@@ -146,14 +146,11 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         en_319_412_1.NaturalPersonIdentifierNameRegistrationAuthoritiesValidator(),
     ]
 
-    if certificate_type in etsi_constants.QEVCP_W_PSD2_CERTIFICATE_TYPES:
+    if certificate_type in etsi_constants.QEVCP_W_PSD2_EIDAS_CERTIFICATE_TYPES:
         qc_statement_validators.append(ts_119_495.PresenceofQCEUPDSStatementValidator())
 
     if certificate_type in etsi_constants.NATURAL_PERSON_CERTIFICATE_TYPES:
         subject_validators.extend([en_319_412_2.NaturalPersonSubjectAttributeAllowanceValidator()])
-
-    if certificate_type in etsi_constants.QEVCP_W_PSD2_CERTIFICATE_TYPES:
-        qc_statement_validators.append(ts_119_495.PresenceofQCEUPDSStatementValidator())
 
     qc_statements_validator_container = validation.ValidatorContainer(
         validators=qc_statement_validators,
@@ -171,6 +168,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         en_319_412_2.CrlDistributionPointsExtensionPresenceValidator(),
         en_319_412_2.CrlDistributionPointsValidator(),
         en_319_412_2.AuthorityInformationAccessValidator(),
+        en_319_412_2.CertificatePoliciesValidator(certificate_type),
         qc_statements_validator_container
     ]
 

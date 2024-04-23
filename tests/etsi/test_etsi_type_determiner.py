@@ -1,6 +1,5 @@
-from pkilint import loader
 from pkilint import etsi
-from pkilint.etsi import etsi_constants
+from pkilint import loader
 from pkilint.etsi.etsi_constants import CertificateType
 
 
@@ -58,7 +57,7 @@ oQ==
 
 
 def test_qevcp_w_psd2():
-    _assert_pem_is_certificate_type(CertificateType.QEVCP_W_PSD2_PRE_CERTIFICATE, '''-----BEGIN CERTIFICATE-----
+    _assert_pem_is_certificate_type(CertificateType.QEVCP_W_PSD2_EIDAS_PRE_CERTIFICATE, '''-----BEGIN CERTIFICATE-----
 MIIH4DCCBcigAwIBAgIUZ2W0z0CUqkRQtqh+2ZeuUOubCNswDQYJKoZIhvcNAQEL
 BQAwVzELMAkGA1UEBhMCTkwxIDAeBgNVBAoMF1F1b1ZhZGlzIFRydXN0bGluayBC
 LlYuMSYwJAYDVQQDDB1RdW9WYWRpcyBRdWFsaWZpZWQgV2ViIElDQSBHMjAeFw0y

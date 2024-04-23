@@ -1,10 +1,14 @@
 import enum
+import typing
 from typing import Optional
 
+from pyasn1.type import univ
 from pyasn1_alt_modules import rfc5280, rfc3739
 
 from pkilint import validation, oid, document, common
+from pkilint.etsi import asn1 as etsi_asn1
 from pkilint.etsi import etsi_constants
+from pkilint.etsi.asn1 import en_319_411_2
 from pkilint.itu import bitstring
 from pkilint.pkix import extension, name, Rfc2119Word
 from pkilint.pkix.certificate.certificate_extension import KeyUsageBitName
@@ -271,9 +275,9 @@ class KeyUsageValueValidator(validation.Validator):
             allowed_bits = n_of_n_required_bits | one_of_n_required_bits
 
             if (
-                asserted_bits >= n_of_n_required_bits and
-                (len(one_of_n_required_bits & asserted_bits) == 1 or not one_of_n_required_bits) and
-                not any(asserted_bits - allowed_bits)
+                    asserted_bits >= n_of_n_required_bits and
+                    (len(one_of_n_required_bits & asserted_bits) == 1 or not one_of_n_required_bits) and
+                    not any(asserted_bits - allowed_bits)
             ):
                 return setting
 
@@ -473,3 +477,91 @@ class AuthorityInformationAccessValidator(validation.Validator):
 
             if not any(_general_name_has_uri_prefixes(_HTTP_OR_HTTPS_PREFIXES, gn) for gn in ocsp_gns):
                 raise validation.ValidationFindingEncountered(self.VALIDATION_AIA_OCSP_HTTP_URI_MISSING)
+
+
+class CertificatePoliciesValidator(validation.Validator):
+    """
+    QCS-5.2-1: When certificates are issued as EU Qualified Certificates, they should include, in the certificate
+    policies extension, one of the certificate policy identifiers defined in clause 5.3 of ETSI EN 319 411-2
+    """
+    VALIDATION_RECOMMENDED_POLICY_IDENTIFIER_MISSING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.WARNING,
+        'etsi.en_319_412_2.qcs-5.2-1.recommended_certificate_type_policy_identifier_missing'
+    )
+
+    VALIDATION_MULTIPLE_POLICY_IDENTIFIERS_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_2.qcs-5.2-1.multiple_certificate_type_policy_identifiers_present'
+    )
+
+    """
+    QCS-5.2-2: Policy identifiers included in the certificate policies extension of EU Qualified Certificates shall be
+    consistent with the QCStatements according to clause 5.1.
+    """
+    VALIDATION_MISMATCHED_POLICY_IDENTIFIER_FOR_TYPE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_2.qcs-5.2-2.mismatched_policy_identifier_for_certificate_type'
+    )
+
+    # TODO: add EU qualified non-website types
+    _CERTIFICATE_TYPE_SET_TO_POLICY_IDENTIFIER_MAPPINGS = [
+        (etsi_constants.QEVCP_W_EIDAS_CERTIFICATE_TYPES, en_319_411_2.id_qcp_web),
+        (etsi_constants.QNCP_W_OV_EIDAS_CERTIFICATE_TYPES, en_319_411_2.id_qncp_web),
+        (etsi_constants.QNCP_W_IV_EIDAS_CERTIFICATE_TYPES, en_319_411_2.id_qncp_web),
+        (etsi_constants.QNCP_W_GEN_LP_EIDAS_CERTIFICATE_TYPES, en_319_411_2.id_qncp_web_gen),
+        (etsi_constants.QNCP_W_GEN_NP_EIDAS_CERTIFICATE_TYPES, en_319_411_2.id_qncp_web_gen),
+    ]
+
+    def __init__(self, certificate_type: etsi_constants.CertificateType):
+        super().__init__(
+            validations=[
+                self.VALIDATION_RECOMMENDED_POLICY_IDENTIFIER_MISSING,
+                self.VALIDATION_MULTIPLE_POLICY_IDENTIFIERS_PRESENT,
+                self.VALIDATION_MISMATCHED_POLICY_IDENTIFIER_FOR_TYPE,
+            ],
+            pdu_class=rfc5280.CertificatePolicies
+        )
+
+        self._certificate_type = certificate_type
+
+        self._recommended_policy_oid = self._get_recommended_policy_oid_for_certificate_type()
+
+    def match(self, node):
+        # TODO: add support for non-QWAC types
+        return super().match(node) and self._recommended_policy_oid is not None
+
+    def _get_recommended_policy_oid_for_certificate_type(self) -> typing.Optional[univ.ObjectIdentifier]:
+        return next(
+            (
+                p for t, p in self._CERTIFICATE_TYPE_SET_TO_POLICY_IDENTIFIER_MAPPINGS
+                if self._certificate_type in t
+            ),
+            None
+        )
+
+    def validate(self, node):
+        policy_oids = node.document.policy_oids
+
+        certificate_type_policy_oids = policy_oids & etsi_asn1.ETSI_CERTIFICATE_TYPE_POLICY_OIDS
+
+        if len(certificate_type_policy_oids) > 1:
+            oids = oid.format_oids(certificate_type_policy_oids)
+
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_MULTIPLE_POLICY_IDENTIFIERS_PRESENT,
+                f'Multiple certificate type policy identifiers present: {oids}'
+            )
+        elif not certificate_type_policy_oids:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_RECOMMENDED_POLICY_IDENTIFIER_MISSING,
+                f'Missing recommended certificate type policy identifier "{self._recommended_policy_oid}"'
+            )
+        elif self._recommended_policy_oid not in certificate_type_policy_oids:
+            # if we're here, then there's one element in the set, so it's safe to do this
+            policy_oid = next(iter(certificate_type_policy_oids))
+
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_MISMATCHED_POLICY_IDENTIFIER_FOR_TYPE,
+                f'Certificate type is {self._certificate_type} ({self._recommended_policy_oid}) but certificate '
+                f'contains certificate type policy identifier "{policy_oid}"'
+            )
