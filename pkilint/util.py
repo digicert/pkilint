@@ -78,3 +78,9 @@ def add_report_format_arg(parser):
 def add_standard_args(parser):
     add_severity_arg(parser)
     add_report_format_arg(parser)
+
+
+# This ensures that if a large (>255) number of findings are reported, we don't accidentally exit with an
+# exit code of 0. This could happen if the number of findings is a multiple of 256.
+def clamp_exit_code(exit_code):
+    return min(exit_code, 255)
