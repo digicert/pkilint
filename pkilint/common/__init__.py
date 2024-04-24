@@ -59,6 +59,7 @@ OID_TO_CODE_NAME = {
     ev_guidelines.id_evat_jurisdiction_localityName: 'jurisdiction_locality',
     rfc5280.id_at_surname: 'surname',
     rfc5280.id_at_givenName: 'given_name',
+    x520_name.id_at_organizationIdentifier: 'organization_identifier',
 }
 
 

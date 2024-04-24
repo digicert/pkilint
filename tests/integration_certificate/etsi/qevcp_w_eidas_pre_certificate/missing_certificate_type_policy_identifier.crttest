@@ -35,3 +35,5 @@ node_path,validator,severity,code,message
 certificate.tbsCertificate.extensions.4.extnValue.certificatePolicies,CertificatePoliciesValidator,WARNING,etsi.en_319_412_2.qcs-5.2-1.recommended_certificate_type_policy_identifier_missing,"Missing recommended certificate type policy identifier ""0.4.0.194112.1.4"""
 certificate.tbsCertificate.extensions.4.extnValue.certificatePolicies.0.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.unknown_extension_present,Unknown extension present: 1.3.6.1.5.5.7.1.3
+certificate.tbsCertificate.subject.rdnSequence,LegalPersonSubjectAttributeAllowanceValidator,ERROR,etsi.en_319_412_3.leg-4.2.1-2.organization_identifier_attribute_absent,
+certificate.tbsCertificate.subject.rdnSequence,LegalPersonSubjectAttributeAllowanceValidator,ERROR,etsi.en_319_412_3.leg-4.2.1-2.common_name_attribute_absent,
