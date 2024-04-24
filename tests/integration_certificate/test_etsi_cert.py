@@ -20,10 +20,8 @@ for certificate_type in etsi_constants.CertificateType:
 
     for file in files:
         validator = certificate.create_pkix_certificate_validator_container(
-            etsi.create_decoding_validators(),
-            etsi.create_validators(
-                certificate_type
-            )
+            etsi.create_decoding_validators(certificate_type),
+            etsi.create_validators(certificate_type)
         )
         filters = etsi.create_etsi_finding_filters(certificate_type)
 

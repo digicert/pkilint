@@ -2,7 +2,7 @@ from typing import List
 
 from pyasn1_alt_modules import rfc5280, rfc6962, rfc3739
 
-from pkilint import validation, finding_filter
+from pkilint import validation, finding_filter, cabf
 from pkilint.cabf import serverauth
 from pkilint.cabf.serverauth import serverauth_constants
 from pkilint.common import organization_id
@@ -11,6 +11,7 @@ from pkilint.etsi.asn1 import (
     en_319_412_1 as en_319_412_asn1, en_319_412_5 as en_319_412_5_asn1, ts_119_495 as ts_119_495_asn1
 )
 from pkilint.etsi.etsi_constants import CertificateType
+from pkilint.itu import x520_name_unbounded
 from pkilint.pkix import certificate
 
 
@@ -69,18 +70,7 @@ def determine_certificate_type(cert: certificate.RFC5280Certificate) -> Certific
         else:
             return CertificateType.IVCP_PRE_CERTIFICATE if is_precert else CertificateType.IVCP_FINAL_CERTIFICATE
     elif serverauth_constants.ID_POLICY_DV in policy_oids:
-        if is_eidas_qualified:
-            return (
-                CertificateType.QNCP_W_DV_EIDAS_PRE_CERTIFICATE if is_precert
-                else CertificateType.QNCP_W_DV_EIDAS_FINAL_CERTIFICATE
-            )
-        elif is_qualified:
-            return (
-                CertificateType.QNCP_W_DV_NON_EIDAS_PRE_CERTIFICATE if is_precert
-                else CertificateType.QNCP_W_DV_NON_EIDAS_FINAL_CERTIFICATE
-            )
-        else:
-            return CertificateType.DVCP_PRE_CERTIFICATE if is_precert else CertificateType.DVCP_FINAL_CERTIFICATE
+        return CertificateType.DVCP_PRE_CERTIFICATE if is_precert else CertificateType.DVCP_FINAL_CERTIFICATE
     else:
         is_natural_person = any((
             cert.get_subject_attributes_by_type(rfc5280.id_at_givenName),
@@ -118,8 +108,32 @@ def determine_certificate_type(cert: certificate.RFC5280Certificate) -> Certific
                         else CertificateType.NCP_LEGAL_PERSON_FINAL_CERTIFICATE)
 
 
-def create_decoding_validators() -> List[validation.Validator]:
-    return serverauth.create_decoding_validators()
+def create_decoding_validators(certificate_type: CertificateType) -> List[validation.Validator]:
+    if certificate_type in etsi_constants.CABF_CERTIFICATE_TYPES:
+        return serverauth.create_decoding_validators()
+    else:
+        name_attribute_mappings = cabf.NAME_ATTRIBUTE_MAPPINGS.copy()
+
+        """
+        From EN 319 412-2:
+        NAT-4.2.4-18 If present, the size of givenName, surname, pseudonym, commonName, organizationName and
+        organizationalUnitName may be longer than the limit as stated in IETF RFC 5280 [1].
+        
+        From EN 319 412-3:
+        LEG-4.2.1-9: If present, the size of organizationName, organizationalUnitName and commonName may
+        be longer than the limit as stated in IETF RFC 5280 [3].
+        """
+        name_attribute_mappings.update(x520_name_unbounded.UNBOUNDED_ATTRIBUTE_TYPE_MAPPINGS)
+
+        additional_validators = [
+            certificate.create_qc_statements_decoder(asn1.ETSI_QC_STATEMENTS_MAPPINGS)
+        ]
+
+        return certificate.create_decoding_validators(
+            name_attribute_mappings,
+            cabf.EXTENSION_MAPPINGS,
+            additional_validators
+        )
 
 
 def create_validators(certificate_type: CertificateType) -> List[validation.Validator]:

@@ -1,6 +1,6 @@
 from typing import List
 
-from pyasn1_alt_modules import rfc5280, rfc4985, rfc6962
+from pyasn1_alt_modules import rfc5280, rfc6962
 
 import pkilint.cabf.cabf_name
 import pkilint.cabf.serverauth.serverauth_extension
@@ -15,8 +15,6 @@ from pkilint.cabf.serverauth import (
     serverauth_key, serverauth_root, serverauth_ca, serverauth_ocsp, serverauth_cross_ca, serverauth_finding_filter
 )
 from pkilint.pkix import name, certificate
-
-OTHER_NAME_MAPPINGS = rfc4985.otherNamesMap.copy()
 
 
 def _has_name_constraints(cert: certificate.RFC5280Certificate):
@@ -86,10 +84,9 @@ def create_decoding_validators(additional_validators=None):
     if additional_validators is None:
         additional_validators = []
 
-    additional_validators += [
-        certificate.create_other_name_decoder(OTHER_NAME_MAPPINGS),
+    additional_validators.append(
         certificate.create_qc_statements_decoder(pkilint.etsi.asn1.ETSI_QC_STATEMENTS_MAPPINGS)
-    ]
+    )
 
     return pkilint.pkix.certificate.create_decoding_validators(
         cabf.NAME_ATTRIBUTE_MAPPINGS,

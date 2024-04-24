@@ -62,7 +62,7 @@ def main(cli_args=None) -> int:
 
     if args.command == 'validations':
         doc_validator = certificate.create_pkix_certificate_validator_container(
-            etsi.create_decoding_validators(),
+            etsi.create_decoding_validators(args.type),
             etsi.create_validators(args.type)
         )
 
@@ -85,7 +85,7 @@ def main(cli_args=None) -> int:
             print(certificate_type.to_option_str, file=sys.stderr)
 
         doc_validator = certificate.create_pkix_certificate_validator_container(
-            etsi.create_decoding_validators(),
+            etsi.create_decoding_validators(certificate_type),
             etsi.create_validators(certificate_type)
         )
 
