@@ -3,6 +3,8 @@ from pkilint.etsi.asn1 import en_319_412_5
 from iso3166 import countries_by_alpha2
 from iso4217 import Currency
 from urllib.parse import urlparse
+from pyasn1_alt_modules import rfc3739
+from pkilint.pkix import extension
 import iso639
 
 
@@ -192,3 +194,16 @@ class QcEuLimitValueValidator(validation.Validator):
             findings.append(validation.ValidationFindingEncountered(self.VALIDATION_EXPONENT_NEGATIVE, None))
 
         return validation.ValidationResult(self, node, findings)
+
+
+class QcStatementsExtensionValidator(extension.ExtensionCriticalityValidator):
+    '''EN 319 412-5 QCS-4.1-02 The qcStatements extension shall not be marked as critical
+    '''
+    VALIDATION_QCSTATEMENTS_EXTENSION_CRITICAL = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_5.qcs-4.1-02.qcstatements_extension_is_critical'
+    )
+
+    def __init__(self):
+        super().__init__(type_oid=rfc3739.id_pe_qcStatements, is_critical=False,
+                         validation=self.VALIDATION_QCSTATEMENTS_EXTENSION_CRITICAL)

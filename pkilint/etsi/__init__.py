@@ -189,6 +189,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         en_319_412_2.CrlDistributionPointsValidator(),
         en_319_412_2.AuthorityInformationAccessValidator(),
         en_319_412_2.CertificatePoliciesValidator(certificate_type),
+        en_319_412_5.QcStatementsExtensionValidator(),
         qc_statements_validator_container
     ]
 
