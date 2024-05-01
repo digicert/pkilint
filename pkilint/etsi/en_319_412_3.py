@@ -2,6 +2,7 @@ from pyasn1_alt_modules import rfc5280
 
 from pkilint import common
 from pkilint import validation
+from pkilint.etsi import etsi_shared
 from pkilint.itu import x520_name
 from pkilint.pkix import Rfc2119Word, name
 
@@ -103,3 +104,29 @@ class LegalPersonOrganizationAttributesEqualityValidator(validation.Validator):
                     self.VALIDATION_ORGID_ORGNAME_ATTRIBUTE_VALUES_EQUAL,
                     f'Organization name and identifier attribute values are equal: "{orgname}"'
                 )
+
+
+class LegalPersonKeyUsageValidator(etsi_shared.KeyUsageValidator):
+    """
+    LEG-4.3.1-3: Certificates used to validate commitment to signed content (e.g. documents, agreements and/or
+    transactions) shall be limited to type A, B or F.
+    """
+    VALIDATION_INVALID_CONTENT_COMMITMENT_SETTING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_3.leg-4.3.1-3.invalid_content_commitment_setting'
+    )
+
+    """
+    LEG-4.3.1-4: Of these alternatives, type A should be used (see the security note 2 below).
+    """
+    VALIDATION_NON_PREFERRED_CONTENT_COMMITMENT_SETTING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.WARNING,
+        'etsi.en_319_412_3.leg-4.3.1-4.non_preferred_content_commitment_setting'
+    )
+
+    def __init__(self, is_content_commitment_type):
+        super().__init__(
+            is_content_commitment_type,
+            self.VALIDATION_INVALID_CONTENT_COMMITMENT_SETTING,
+            self.VALIDATION_NON_PREFERRED_CONTENT_COMMITMENT_SETTING
+        )

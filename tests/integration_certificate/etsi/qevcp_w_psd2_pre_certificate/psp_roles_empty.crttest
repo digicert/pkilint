@@ -54,4 +54,4 @@ certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARN
 certificate.tbsCertificate.extensions.8.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies.3.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.subject_key_identifier_extension_present,
-certificate.tbsCertificate.extensions.9.extnValue.keyUsage,KeyUsageValueValidator,WARNING,etsi.en_319_412_2.nat-4.3.2-1.mixed_key_usage_setting,
+certificate.tbsCertificate.extensions.9.extnValue.keyUsage,LegalPersonKeyUsageValidator,WARNING,etsi.en_319_412_2.nat-4.3.2-1.mixed_key_usage_setting,

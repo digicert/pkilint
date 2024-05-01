@@ -184,7 +184,6 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         en_319_412_2.ExtendedKeyUsageCriticalityValidator(),
         en_319_412_2.CRLDistributionPointsCriticalityValidator(),
         en_319_412_2.NaturalPersonExtensionIdentifierAllowanceValidator(certificate_type),
-        en_319_412_2.KeyUsageValueValidator(is_content_commitment_type=False),
         en_319_412_2.CrlDistributionPointsExtensionPresenceValidator(),
         en_319_412_2.CrlDistributionPointsValidator(),
         en_319_412_2.AuthorityInformationAccessValidator(),
@@ -192,6 +191,13 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         en_319_412_5.QcStatementsExtensionValidator(),
         qc_statements_validator_container
     ]
+
+    if certificate_type in etsi_constants.LEGAL_PERSON_CERTIFICATE_TYPES:
+        # TODO: modify when eSig and eSeal support is added
+        extension_validators.append(en_319_412_3.LegalPersonKeyUsageValidator(is_content_commitment_type=None))
+    else:
+        # TODO: modify when eSig and eSeal support is added
+        extension_validators.append(en_319_412_2.NaturalPersonKeyUsageValidator(is_content_commitment_type=None))
 
     if certificate_type in etsi_constants.CABF_CERTIFICATE_TYPES:
         serverauth_cert_type = etsi_constants.ETSI_TYPE_TO_CABF_SERVERAUTH_TYPE_MAPPINGS[certificate_type]
