@@ -6,7 +6,7 @@ from pkilint import validation, finding_filter, cabf
 from pkilint.cabf import serverauth
 from pkilint.cabf.serverauth import serverauth_constants
 from pkilint.common import organization_id
-from pkilint.etsi import etsi_constants, ts_119_495, en_319_412_5, en_319_412_1, en_319_412_2, en_319_412_3
+from pkilint.etsi import etsi_constants, ts_119_495, en_319_412_5, en_319_412_1, en_319_412_2, en_319_412_3, ts_119_312
 from pkilint.etsi.asn1 import (
     en_319_412_1 as en_319_412_asn1, en_319_412_5 as en_319_412_5_asn1, ts_119_495 as ts_119_495_asn1
 )
@@ -192,6 +192,11 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         qc_statements_validator_container
     ]
 
+    spki_validators = [
+        ts_119_312.RsaKeyValidator(),
+        ts_119_312.AllowedPublicKeyTypeValidator(),
+    ]
+
     if certificate_type in etsi_constants.LEGAL_PERSON_CERTIFICATE_TYPES:
         # TODO: modify when eSig and eSeal support is added
         extension_validators.append(en_319_412_3.LegalPersonKeyUsageValidator(is_content_commitment_type=None))
@@ -206,8 +211,14 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
             serverauth_cert_type,
             additional_name_validators=subject_validators,
             additional_extension_validators=extension_validators,
+            additional_spki_validators=spki_validators
         )
     else:
+        spki_validator_container = validation.ValidatorContainer(
+            validators=spki_validators,
+            path='certificate.tbsCertificate.subjectPublicKeyInfo'
+        )
+
         return [
             certificate.create_issuer_validator_container(
                 []
@@ -219,6 +230,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
             certificate.create_extensions_validator_container(
                 extension_validators
             ),
+            spki_validator_container,
         ]
 
 

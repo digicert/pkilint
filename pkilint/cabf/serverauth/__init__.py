@@ -62,7 +62,7 @@ def _determine_subscriber_certificate_type(cert: certificate.RFC5280Certificate)
         return (serverauth_constants.CertificateType.OV_PRE_CERTIFICATE if is_precert
                 else serverauth_constants.CertificateType.OV_FINAL_CERTIFICATE)
     else:
-        # "unknown" certificate types are consider to be DV Subscriber certs
+        # "unknown" certificate types are considered to be DV Subscriber certs
         return (serverauth_constants.CertificateType.DV_PRE_CERTIFICATE if is_precert
                 else serverauth_constants.CertificateType.DV_FINAL_CERTIFICATE)
 
@@ -130,14 +130,16 @@ def create_spki_validator_container(additional_validators=None):
     if additional_validators is None:
         additional_validators = []
 
-    return validation.ValidatorContainer(validators=[
-                                                        serverauth_key.ServerauthAllowedPublicKeyAlgorithmEncodingValidator(
-                                                            path='certificate.tbsCertificate.subjectPublicKeyInfo.algorithm'
-                                                        ),
-                                                        cabf_key.RsaKeyValidator(),
-                                                        cabf_key.EcdsaKeyValidator(),
-                                                    ] + additional_validators,
-                                         path='certificate.tbsCertificate.subjectPublicKeyInfo')
+    return validation.ValidatorContainer(
+        validators=[
+            serverauth_key.ServerauthAllowedPublicKeyAlgorithmEncodingValidator(
+                path='certificate.tbsCertificate.subjectPublicKeyInfo.algorithm'
+            ),
+            cabf_key.RsaKeyValidator(),
+            cabf_key.EcdsaKeyValidator(),
+        ] + additional_validators,
+        path='certificate.tbsCertificate.subjectPublicKeyInfo'
+    )
 
 
 def create_subject_name_validators() -> List[validation.Validator]:
