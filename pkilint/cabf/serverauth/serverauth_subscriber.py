@@ -9,7 +9,7 @@ from pkilint import validation, document, oid, common
 from pkilint.cabf import cabf_name
 from pkilint.cabf.asn1 import ev_guidelines
 from pkilint.cabf.serverauth import serverauth_constants
-from pkilint.common import organization_id
+from pkilint.common import organization_id, common_name
 from pkilint.common.organization_id import ParsedOrganizationIdentifier
 from pkilint.itu import x520_name, bitstring
 from pkilint.pkix import Rfc2119Word, general_name, time
@@ -405,7 +405,7 @@ class SubscriberValidityPeriodValidator(time.ValidityPeriodThresholdsValidator):
                          )
 
 
-class SubscriberCommonNameValidator(validation.Validator):
+class SubscriberCommonNameValidator(common_name.CommonNameValidator):
     """Validates that the content of the commonName attribute conforms to BR 7.1.4.3."""
 
     VALIDATION_COMMON_NAME_UNKNOWN_SOURCE = validation.ValidationFinding(
@@ -413,68 +413,10 @@ class SubscriberCommonNameValidator(validation.Validator):
         'cabf.serverauth.subscriber_common_name_unknown_source'
     )
 
-    VALIDATION_UNPARSED_CN_ENCOUNTERED = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.NOTICE,
-        'cabf.serverauth.unparsed_common_name_encountered'
-    )
-
-    VALIDATION_UNPARSED_SAN_EXTENSION_ENCOUNTERED = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.NOTICE,
-        'cabf.serverauth.unparsed_san_extension_encountered'
-    )
-
     def __init__(self):
         super().__init__(
-            validations=[self.VALIDATION_COMMON_NAME_UNKNOWN_SOURCE, self.VALIDATION_UNPARSED_CN_ENCOUNTERED,
-                         self.VALIDATION_UNPARSED_SAN_EXTENSION_ENCOUNTERED],
-            pdu_class=rfc5280.X520CommonName)
-
-    def validate(self, node):
-        # unparsed CN, return
-        if not any(node.children):
-            raise validation.ValidationFindingEncountered(self.VALIDATION_UNPARSED_CN_ENCOUNTERED)
-
-        _, value_node = node.child
-        value_str = str(value_node.pdu)
-
-        san_ext_and_idx = node.document.get_extension_by_oid(rfc5280.id_ce_subjectAltName)
-
-        if san_ext_and_idx is None:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_COMMON_NAME_UNKNOWN_SOURCE,
-                f'Unknown source for value of common name: "{value_str}"'
-            )
-
-        san_ext_node, _ = san_ext_and_idx
-
-        try:
-            san_value_node = san_ext_node.navigate('extnValue.subjectAltName')
-        except document.PDUNavigationFailedError:
-            # unparsed SAN extension, return
-            raise validation.ValidationFindingEncountered(self.VALIDATION_UNPARSED_SAN_EXTENSION_ENCOUNTERED)
-
-        for gn in san_value_node.children.values():
-            gn_type, gn_value = gn.child
-
-            if gn_type == 'dNSName' and str(gn_value.pdu) == value_str:
-                return
-            elif gn_type == 'iPAddress':
-                address_octets = gn_value.pdu.asOctets()
-
-                if len(address_octets) == 4:
-                    ip_addr = ipaddress.IPv4Address(address_octets)
-                elif len(address_octets) == 16:
-                    ip_addr = ipaddress.IPv6Address(address_octets)
-                else:
-                    # whoa Nellie! let the PKIX validator complain about this one
-                    continue
-
-                if str(ip_addr) == value_str:
-                    return
-
-        raise validation.ValidationFindingEncountered(
-            self.VALIDATION_COMMON_NAME_UNKNOWN_SOURCE,
-            f'Unknown source for value of common name: "{value_str}"'
+            {general_name.GeneralNameTypeName.DNS_NAME, general_name.GeneralNameTypeName.IP_ADDRESS},
+            self.VALIDATION_COMMON_NAME_UNKNOWN_SOURCE
         )
 
 

@@ -6,7 +6,8 @@ from pkilint import validation, finding_filter, cabf
 from pkilint.cabf import serverauth
 from pkilint.cabf.serverauth import serverauth_constants
 from pkilint.common import organization_id
-from pkilint.etsi import etsi_constants, ts_119_495, en_319_412_5, en_319_412_1, en_319_412_2, en_319_412_3, ts_119_312
+from pkilint.etsi import etsi_constants, ts_119_495, en_319_412_5, en_319_412_1, en_319_412_2, en_319_412_3, ts_119_312, \
+    en_319_412_4
 from pkilint.etsi.asn1 import (
     en_319_412_1 as en_319_412_asn1, en_319_412_5 as en_319_412_5_asn1, ts_119_495 as ts_119_495_asn1
 )
@@ -143,9 +144,6 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         organization_id.OrganizationIdentifierLeiValidator(),
     ]
 
-    if certificate_type in etsi_constants.QEVCP_W_PSD2_EIDAS_CERTIFICATE_TYPES:
-        subject_validators.append(ts_119_495.PsdOrganizationIdentifierFormatValidator())
-
     qc_statement_validators = [
         ts_119_495.RolesOfPspValidator(),
         ts_119_495.NCANameLatinCharactersValidator(),
@@ -159,18 +157,6 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         en_319_412_1.LegalPersonIdentifierNameRegistrationAuthoritiesValidator(),
         en_319_412_1.NaturalPersonIdentifierNameRegistrationAuthoritiesValidator(),
     ]
-
-    if certificate_type in etsi_constants.QEVCP_W_PSD2_EIDAS_CERTIFICATE_TYPES:
-        qc_statement_validators.append(ts_119_495.PresenceofQCEUPDSStatementValidator())
-
-    if certificate_type in etsi_constants.NATURAL_PERSON_CERTIFICATE_TYPES:
-        subject_validators.extend([en_319_412_2.NaturalPersonSubjectAttributeAllowanceValidator()])
-    elif certificate_type in etsi_constants.LEGAL_PERSON_CERTIFICATE_TYPES:
-        subject_validators.extend([
-            en_319_412_3.LegalPersonSubjectAttributeAllowanceValidator(),
-            en_319_412_3.LegalPersonDuplicateAttributeAllowanceValidator(),
-            en_319_412_3.LegalPersonOrganizationAttributesEqualityValidator(),
-        ])
 
     qc_statements_validator_container = validation.ValidatorContainer(
         validators=qc_statement_validators,
@@ -200,9 +186,26 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
     if certificate_type in etsi_constants.LEGAL_PERSON_CERTIFICATE_TYPES:
         # TODO: modify when eSig and eSeal support is added
         extension_validators.append(en_319_412_3.LegalPersonKeyUsageValidator(is_content_commitment_type=None))
+
+        subject_validators.extend([
+            en_319_412_3.LegalPersonSubjectAttributeAllowanceValidator(),
+            en_319_412_3.LegalPersonDuplicateAttributeAllowanceValidator(),
+            en_319_412_3.LegalPersonOrganizationAttributesEqualityValidator(),
+        ])
     else:
         # TODO: modify when eSig and eSeal support is added
         extension_validators.append(en_319_412_2.NaturalPersonKeyUsageValidator(is_content_commitment_type=None))
+
+        subject_validators.extend([en_319_412_2.NaturalPersonSubjectAttributeAllowanceValidator()])
+
+    if certificate_type in etsi_constants.QEVCP_W_PSD2_EIDAS_CERTIFICATE_TYPES:
+        qc_statement_validators.append(ts_119_495.PresenceofQCEUPDSStatementValidator())
+        subject_validators.append(ts_119_495.PsdOrganizationIdentifierFormatValidator())
+
+    if certificate_type in etsi_constants.QNCP_W_CERTIFICATE_TYPES:
+        subject_validators.append(en_319_412_4.QncpWCommonNameValidator())
+    elif certificate_type in etsi_constants.QNCP_W_GEN_CERTIFICATE_TYPES:
+        subject_validators.append(en_319_412_4.QncpWGenCommonNameValidator())
 
     if certificate_type in etsi_constants.CABF_CERTIFICATE_TYPES:
         serverauth_cert_type = etsi_constants.ETSI_TYPE_TO_CABF_SERVERAUTH_TYPE_MAPPINGS[certificate_type]
