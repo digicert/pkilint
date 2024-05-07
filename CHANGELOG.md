@@ -2,18 +2,17 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.10.2 - 2024-05-07
+
+### New features/enhancements
+
+- Add support for TLS BR ballot SC-72 (#73). The effective date of this change is 2024-05-06.
+
 ## 0.10.1 - 2024-04-22
 
 ### Fixes
 
 - Clamp CLI exit codes (#76)
-
-## 0.10.1 - 2024-05-XX
-
-### New features/enhancements
-
-- Add support for TLS BR ballot SC-72 (#73)
-
 
 ## 0.10.0 - 2024-04-11
 
