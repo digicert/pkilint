@@ -129,14 +129,14 @@ class ElementIdentifierAllowanceValidator(validation.Validator):
 
 
 class ExtensionsPresenceValidator(validation.Validator):
-    def __init__(self, validation):
-        self._validation = validation
+    def __init__(self, validation_extensions_field_absent):
+        self._validation_extensions_field_absent = validation_extensions_field_absent
 
-        super().__init__(validations=validation, pdu_class=rfc5280.TBSCertificate)
+        super().__init__(validations=validation_extensions_field_absent, pdu_class=rfc5280.TBSCertificate)
 
     def validate(self, node):
         if 'extensions' not in node.children:
-            raise validation.ValidationFindingEncountered(self._validation)
+            raise validation.ValidationFindingEncountered(self._validation_extensions_field_absent)
 
 
 class ExtensionIdentifierAllowanceValidator(ElementIdentifierAllowanceValidator):

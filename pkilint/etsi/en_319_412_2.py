@@ -482,3 +482,13 @@ class NaturalPersonKeyUsageValidator(etsi_shared.KeyUsageValidator):
             self.VALIDATION_INVALID_CONTENT_COMMITMENT_SETTING,
             self.VALIDATION_NON_PREFERRED_CONTENT_COMMITMENT_SETTING
         )
+
+
+class ExtensionsPresenceValidator(common.ExtensionsPresenceValidator):
+    VALIDATION_EXTENSIONS_FIELD_ABSENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.extensions_field_absent'
+    )
+
+    def __init__(self):
+        super().__init__(self.VALIDATION_EXTENSIONS_FIELD_ABSENT)

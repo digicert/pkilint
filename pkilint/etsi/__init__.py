@@ -183,6 +183,10 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         ts_119_312.AllowedPublicKeyTypeValidator(),
     ]
 
+    top_level_validators = [
+        en_319_412_2.ExtensionsPresenceValidator(),
+    ]
+
     if certificate_type in etsi_constants.LEGAL_PERSON_CERTIFICATE_TYPES:
         # TODO: modify when eSig and eSeal support is added
         extension_validators.append(en_319_412_3.LegalPersonKeyUsageValidator(is_content_commitment_type=None))
@@ -212,6 +216,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
 
         return serverauth.create_validators(
             serverauth_cert_type,
+            additional_top_level_validators=top_level_validators,
             additional_name_validators=subject_validators,
             additional_extension_validators=extension_validators,
             additional_spki_validators=spki_validators
@@ -220,6 +225,11 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         spki_validator_container = validation.ValidatorContainer(
             validators=spki_validators,
             path='certificate.tbsCertificate.subjectPublicKeyInfo'
+        )
+
+        top_level_container = validation.ValidatorContainer(
+            validators=top_level_validators,
+            pdu_class=rfc5280.Certificate
         )
 
         return [
@@ -234,6 +244,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
                 extension_validators
             ),
             spki_validator_container,
+            top_level_container,
         ]
 
 
