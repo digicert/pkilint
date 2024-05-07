@@ -251,7 +251,6 @@ class NodeVisitor(object):
         if self._predicate is not None and not self._predicate(node):
             return False
 
-
         return True
 
 
