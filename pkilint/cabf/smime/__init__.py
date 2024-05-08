@@ -18,6 +18,7 @@ from pkilint.cabf.smime import (
     smime_constants, smime_name, smime_key, smime_extension
 )
 from pkilint.cabf.smime.smime_constants import Generation
+from pkilint.common import alternative_name
 from pkilint.iso import lei
 from pkilint.msft import asn1 as microsoft_asn1
 from pkilint.msft import msft_name
@@ -174,10 +175,14 @@ def create_extensions_validator_container(validation_level, generation):
             cabf_extension.CabfAuthorityKeyIdentifierValidator(),
             smime_extension.SubjectDirectoryAttributesPresenceValidator(validation_level, generation),
             smime_extension.QCStatementsCriticalityValidator(),
-            cabf_name.GeneralNameUriInternalDomainNameValidator(),
-            cabf_name.GeneralNameRfc822NameInternalDomainNameValidator(),
-            cabf_name.SmtpUtf8MailboxInternalDomainNameValidator(),
-            cabf_name.UriInternalDomainNameValidator(pdu_class=rfc5280.CPSuri),
+            alternative_name.create_internal_name_validator_container(
+                cabf_name.VALIDATION_INTERNAL_DOMAIN_NAME,
+                cabf_name.VALIDATION_INTERNAL_IP_ADDRESS,
+                allow_onion_tld=False
+            ),
+            alternative_name.create_cpsuri_internal_domain_name_validator(
+                cabf_name.VALIDATION_INTERNAL_DOMAIN_NAME
+            ),
             adobe_validator.AdobeTimestampValidator(),
             smime_extension.AdobeTimestampCriticalityValidator(),
             smime_extension.AdobeTimestampPresenceValidator(generation),

@@ -14,6 +14,7 @@ from pkilint.cabf.serverauth import (
     serverauth_name, serverauth_extension, serverauth_constants,
     serverauth_key, serverauth_root, serverauth_ca, serverauth_ocsp, serverauth_cross_ca, serverauth_finding_filter
 )
+from pkilint.common import alternative_name
 from pkilint.pkix import name, certificate
 
 
@@ -213,11 +214,12 @@ def create_extension_validators() -> List[validation.Validator]:
         serverauth_extension.AuthorityInformationAccessHttpUriLocationValidator(),
         serverauth_extension.AuthorityInformationAccessUniqueLocationValidator(),
         cabf_extension.CabfAuthorityKeyIdentifierValidator(),
-        cabf_name.GeneralNameDnsNameInternalDomainNameValidator(allow_onion_tld=True),
-        cabf_name.GeneralNameRfc822NameInternalDomainNameValidator(),
-        cabf_name.GeneralNameUriInternalDomainNameValidator(),
-        cabf_name.UriInternalDomainNameValidator(pdu_class=rfc5280.CPSuri),
-        cabf_name.GeneralNameInternalIpAddressValidator(),
+        alternative_name.create_internal_name_validator_container(
+            cabf_name.VALIDATION_INTERNAL_DOMAIN_NAME,
+            cabf_name.VALIDATION_INTERNAL_IP_ADDRESS,
+            allow_onion_tld=True
+        ),
+        alternative_name.create_cpsuri_internal_domain_name_validator(cabf_name.VALIDATION_INTERNAL_DOMAIN_NAME),
         serverauth_extension.CertificatePolicyQualifierValidator(),
         cabf_extension.CpsUriHttpValidator(),
         serverauth_name.DnsNameLdhLabelSyntaxValidator(),

@@ -102,3 +102,15 @@ class KeyUsageValidator(validation.Validator):
 
         if setting in self._MIXED_USE_SETTINGS:
             raise validation.ValidationFindingEncountered(self.VALIDATION_MIXED_KEY_USAGE_SETTING)
+
+
+VALIDATION_INTERNAL_DOMAIN_NAME = validation.ValidationFinding(
+    validation.ValidationFindingSeverity.ERROR,
+    'etsi.internal_domain_name'
+)
+
+
+VALIDATION_INTERNAL_IP_ADDRESS = validation.ValidationFinding(
+    validation.ValidationFindingSeverity.ERROR,
+    'etsi.internal_ip_address'
+)

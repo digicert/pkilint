@@ -5,9 +5,11 @@ from pyasn1_alt_modules import rfc5280, rfc6962, rfc3739
 from pkilint import validation, finding_filter, cabf
 from pkilint.cabf import serverauth
 from pkilint.cabf.serverauth import serverauth_constants
-from pkilint.common import organization_id
-from pkilint.etsi import etsi_constants, ts_119_495, en_319_412_5, en_319_412_1, en_319_412_2, en_319_412_3, ts_119_312, \
-    en_319_412_4
+from pkilint.common import organization_id, alternative_name
+from pkilint.etsi import (
+    etsi_constants, ts_119_495, en_319_412_5, en_319_412_1, en_319_412_2, en_319_412_3,
+    ts_119_312, en_319_412_4, etsi_shared
+)
 from pkilint.etsi.asn1 import (
     en_319_412_1 as en_319_412_asn1, en_319_412_5 as en_319_412_5_asn1, ts_119_495 as ts_119_495_asn1
 )
@@ -231,6 +233,16 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
             validators=top_level_validators,
             pdu_class=rfc5280.Certificate
         )
+
+        extension_validators.extend([
+            alternative_name.create_internal_name_validator_container(
+                etsi_shared.VALIDATION_INTERNAL_DOMAIN_NAME,
+                etsi_shared.VALIDATION_INTERNAL_IP_ADDRESS,
+                allow_onion_tld=False
+            ),
+            alternative_name.create_cpsuri_internal_domain_name_validator(
+                etsi_shared.VALIDATION_INTERNAL_DOMAIN_NAME),
+        ])
 
         return [
             certificate.create_issuer_validator_container(
