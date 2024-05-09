@@ -4,7 +4,7 @@ from pyasn1_alt_modules import rfc5280, rfc6962, rfc3739
 
 from pkilint import validation, finding_filter, cabf
 from pkilint.cabf import serverauth
-from pkilint.cabf.serverauth import serverauth_constants
+from pkilint.cabf.serverauth import serverauth_constants, serverauth_name
 from pkilint.common import organization_id, alternative_name
 from pkilint.etsi import (
     etsi_constants, ts_119_495, en_319_412_5, en_319_412_1, en_319_412_2, en_319_412_3,
@@ -212,6 +212,12 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         subject_validators.append(en_319_412_4.QncpWCommonNameValidator())
     elif certificate_type in etsi_constants.QNCP_W_GEN_CERTIFICATE_TYPES:
         subject_validators.append(en_319_412_4.QncpWGenCommonNameValidator())
+        extension_validators.append(en_319_412_4.QncpWGenExtendedKeyUsagePresenceValidator())
+        extension_validators.append(serverauth.serverauth_subscriber.SubscriberEkuAllowanceValidator())
+        extension_validators.append(en_319_412_4.QncpwGenCriticalityExtendedKeyUsageValidator())
+        extension_validators.append(serverauth.serverauth_subscriber.SubscriberSanGeneralNameTypeValidator())
+        extension_validators.append(serverauth_name.DnsNameLdhLabelSyntaxValidator())
+        extension_validators.append(en_319_412_4.QncpWGenSubjectAltNamePresenceValidator())
 
     if certificate_type in etsi_constants.CABF_CERTIFICATE_TYPES:
         serverauth_cert_type = etsi_constants.ETSI_TYPE_TO_CABF_SERVERAUTH_TYPE_MAPPINGS[certificate_type]
