@@ -1,3 +1,4 @@
+import typing
 from typing import List
 
 from pyasn1_alt_modules import rfc5280, rfc6962
@@ -7,8 +8,7 @@ import pkilint.cabf.serverauth.serverauth_extension
 import pkilint.cabf.serverauth.serverauth_name
 import pkilint.cabf.serverauth.serverauth_subscriber
 import pkilint.common
-import pkilint.etsi.asn1
-from pkilint import validation, cabf
+from pkilint import validation, cabf, etsi, document
 from pkilint.cabf import cabf_key, cabf_name, cabf_extension, cabf_ca
 from pkilint.cabf.serverauth import (
     serverauth_name, serverauth_extension, serverauth_constants,
@@ -16,6 +16,7 @@ from pkilint.cabf.serverauth import (
 )
 from pkilint.common import alternative_name
 from pkilint.pkix import name, certificate
+from pkilint.pkix.certificate import certificate_validity
 
 
 def _has_name_constraints(cert: certificate.RFC5280Certificate):
@@ -227,8 +228,11 @@ def create_extension_validators() -> List[validation.Validator]:
     ]
 
 
-def create_ca_extension_validator_container(certificate_type: serverauth_constants.CertificateType,
-                                            additional_validators=None):
+def create_ca_extension_validator_container(
+        certificate_type: serverauth_constants.CertificateType,
+        validity_period_start_retriever: document.ValidityPeriodStartRetriever,
+        additional_validators=None
+):
     if additional_validators is None:
         additional_validators = []
 
@@ -259,7 +263,7 @@ def create_ca_extension_validator_container(certificate_type: serverauth_constan
 
     if certificate_type in {serverauth_constants.CertificateType.EXTERNAL_UNCONSTRAINED_EV_TLS_CA,
                             serverauth_constants.CertificateType.EXTERNAL_CONSTRAINED_EV_TLS_CA}:
-        validators.append(serverauth_extension.EvCpsUriPresenceValidator())
+        validators.append(serverauth_extension.EvCpsUriPresenceValidator(validity_period_start_retriever))
 
     if certificate_type in serverauth_constants.CONSTRAINED_TLS_CA_TYPES:
         validators.append(serverauth_ca.TlsCaTechnicallyConstrainedValidator())
@@ -267,8 +271,10 @@ def create_ca_extension_validator_container(certificate_type: serverauth_constan
     return certificate.create_extensions_validator_container(validators + additional_validators)
 
 
-def create_subscriber_extension_validator_container(certificate_type: serverauth_constants.CertificateType,
-                                                    additional_validators=None):
+def create_subscriber_extension_validator_container(
+        certificate_type: serverauth_constants.CertificateType,
+        validity_period_start_retriever: document.ValidityPeriodStartRetriever,
+        additional_validators=None):
     if additional_validators is None:
         additional_validators = []
 
@@ -287,7 +293,7 @@ def create_subscriber_extension_validator_container(certificate_type: serverauth
     if certificate_type in serverauth_constants.EV_CERTIFICATE_TYPES:
         validators.extend([
             serverauth_subscriber.EvSanGeneralNameTypeValidator(),
-            serverauth_extension.EvCpsUriPresenceValidator(),
+            serverauth_extension.EvCpsUriPresenceValidator(validity_period_start_retriever),
             serverauth_subscriber.EvWildcardAllowanceValidator(),
         ])
     else:
@@ -327,6 +333,7 @@ def create_validity_validator_container(certificate_type, additional_validators=
 
 
 def create_root_ca_validators(
+        validity_period_start_retriever: document.ValidityPeriodStartRetriever,
         additional_validity_validators=None, additional_spki_validators=None, additional_name_validators=None,
         additional_extension_validators=None, additional_top_level_validators=None
 ):
@@ -337,7 +344,9 @@ def create_root_ca_validators(
         create_spki_validator_container(additional_spki_validators),
         create_ca_name_validator_container(serverauth_constants.CertificateType.ROOT_CA, additional_name_validators),
         create_ca_extension_validator_container(
-            serverauth_constants.CertificateType.ROOT_CA, additional_extension_validators
+            serverauth_constants.CertificateType.ROOT_CA,
+            validity_period_start_retriever,
+            additional_extension_validators
         ),
     ] + create_top_level_certificate_validators(
         serverauth_constants.CertificateType.ROOT_CA, additional_top_level_validators
@@ -345,6 +354,7 @@ def create_root_ca_validators(
 
 
 def create_intermediate_ca_validators(certificate_type: serverauth_constants.CertificateType,
+                                      validity_period_start_retriever: document.ValidityPeriodStartRetriever,
                                       additional_validity_validators=None, additional_spki_validators=None,
                                       additional_name_validators=None,
                                       additional_extension_validators=None, additional_top_level_validators=None
@@ -353,11 +363,16 @@ def create_intermediate_ca_validators(certificate_type: serverauth_constants.Cer
         create_validity_validator_container(certificate_type, additional_validity_validators),
         create_spki_validator_container(additional_spki_validators),
         create_ca_name_validator_container(certificate_type, additional_name_validators),
-        create_ca_extension_validator_container(certificate_type, additional_extension_validators),
+        create_ca_extension_validator_container(
+            certificate_type,
+            validity_period_start_retriever,
+            additional_extension_validators
+        ),
     ] + create_top_level_certificate_validators(certificate_type, additional_top_level_validators)
 
 
 def create_subscriber_validators(certificate_type: serverauth_constants.CertificateType,
+                                 validity_period_start_retriever: document.ValidityPeriodStartRetriever,
                                  additional_validity_validators=None, additional_spki_validators=None,
                                  additional_name_validators=None,
                                  additional_extension_validators=None, additional_top_level_validators=None
@@ -366,7 +381,11 @@ def create_subscriber_validators(certificate_type: serverauth_constants.Certific
         create_validity_validator_container(certificate_type, additional_validity_validators),
         create_spki_validator_container(additional_spki_validators),
         create_subscriber_name_validator_container(certificate_type, additional_name_validators),
-        create_subscriber_extension_validator_container(certificate_type, additional_extension_validators),
+        create_subscriber_extension_validator_container(
+            certificate_type,
+            validity_period_start_retriever,
+            additional_extension_validators
+        ),
     ] + create_top_level_certificate_validators(certificate_type, additional_top_level_validators)
 
 
@@ -390,24 +409,39 @@ def create_ocsp_responder_validators(
 
 
 def create_validators(certificate_type: serverauth_constants.CertificateType,
+                      validity_period_start_retriever: typing.Optional[document.ValidityPeriodStartRetriever] = None,
                       additional_validity_validators=None, additional_spki_validators=None,
                       additional_name_validators=None,
                       additional_extension_validators=None, additional_top_level_validators=None
                       ):
+    if validity_period_start_retriever is None:
+        validity_period_start_retriever = certificate_validity.CertificateValidityPeriodStartRetriever()
+
     if certificate_type == serverauth_constants.CertificateType.ROOT_CA:
-        return create_root_ca_validators(additional_validity_validators, additional_spki_validators,
-                                         additional_name_validators, additional_extension_validators,
-                                         additional_top_level_validators)
+        return create_root_ca_validators(
+            validity_period_start_retriever,
+            additional_validity_validators, additional_spki_validators,
+            additional_name_validators, additional_extension_validators,
+            additional_top_level_validators
+        )
     elif certificate_type in serverauth_constants.INTERMEDIATE_CERTIFICATE_TYPES:
-        return create_intermediate_ca_validators(certificate_type, additional_validity_validators,
-                                                 additional_spki_validators,
-                                                 additional_name_validators, additional_extension_validators,
-                                                 additional_top_level_validators)
+        return create_intermediate_ca_validators(
+            certificate_type,
+            validity_period_start_retriever,
+            additional_validity_validators,
+            additional_spki_validators,
+            additional_name_validators, additional_extension_validators,
+            additional_top_level_validators
+        )
     elif certificate_type in serverauth_constants.SUBSCRIBER_CERTIFICATE_TYPES:
-        return create_subscriber_validators(certificate_type, additional_validity_validators,
-                                            additional_spki_validators,
-                                            additional_name_validators, additional_extension_validators,
-                                            additional_top_level_validators)
+        return create_subscriber_validators(
+            certificate_type,
+            validity_period_start_retriever,
+            additional_validity_validators,
+            additional_spki_validators,
+            additional_name_validators, additional_extension_validators,
+            additional_top_level_validators
+        )
     elif certificate_type == serverauth_constants.CertificateType.OCSP_RESPONDER:
         return create_ocsp_responder_validators(additional_validity_validators, additional_spki_validators,
                                                 additional_name_validators, additional_extension_validators,
