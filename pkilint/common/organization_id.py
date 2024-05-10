@@ -13,11 +13,27 @@ _ORG_ID_REGEX = re.compile(
     r'(-(?P<reference>.+))?$'
 )
 
-COUNTRY_CODE_GLOBAL_SCHEME = 'XG'
+# alternative country codes
 COUNTRY_CODE_GREECE_TRADITIONAL = 'EL'
 COUNTRY_CODE_NORTHERN_IRELAND = 'XI'
 
+# multi-national codes
+COUNTRY_CODE_GLOBAL_SCHEME = 'XG'
+COUNTRY_CODE_EUROPEAN_UNION = 'EU'
+COUNTRY_CODE_EUROZONE = 'EZ'
+COUNTRY_CODE_USSR = 'SU'
+COUNTRY_CODE_UNITED_NATIONS = 'UN'
+
+TRANSNATIONAL_COUNTRY_CODES = {
+    COUNTRY_CODE_EUROPEAN_UNION,
+    COUNTRY_CODE_EUROZONE,
+    COUNTRY_CODE_USSR,
+    COUNTRY_CODE_UNITED_NATIONS,
+}
+
 ISO3166_1_COUNTRY_CODES = set(countries_by_alpha2.keys())
+ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES = ISO3166_1_COUNTRY_CODES | TRANSNATIONAL_COUNTRY_CODES
+
 
 LEI_PREFIX = 'LEIXG-'
 
@@ -144,7 +160,7 @@ class OrganizationIdentifierValidatorBase(validation.Validator):
         allowed_country_codes, finding = scheme_allowance.country_codes
 
         findings = []
-        if parsed.country not in allowed_country_codes:
+        if parsed.country.upper() not in allowed_country_codes:
             findings.append(
                 validation.ValidationFindingDescription(
                     finding,

@@ -2,7 +2,6 @@ import re
 import typing
 from typing import List
 
-from iso3166 import countries_by_alpha2
 from pyasn1.type import univ
 from pyasn1_alt_modules import rfc5280, rfc3739
 
@@ -79,22 +78,24 @@ class LegalPersonOrganizationIdentifierValidator(organization_id.OrganizationIde
     _REFERENCE_REQUIRED = (Rfc2119Word.MUST, VALIDATION_INVALID_ORGANIZATION_ID_FORMAT.code)
 
     _NTR_SCHEME = organization_id.OrganizationIdentifierElementAllowance(
-        country_codes=(organization_id.ISO3166_1_COUNTRY_CODES,
+        country_codes=(organization_id.ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES,
                        VALIDATION_INVALID_ORGANIZATION_ID_COUNTRY),
         state_province=_STATE_PROVINCE_PROHIBITED,
         reference=_REFERENCE_REQUIRED
     )
 
     _VAT_SCHEME = organization_id.OrganizationIdentifierElementAllowance(
-        country_codes=(organization_id.ISO3166_1_COUNTRY_CODES | {organization_id.COUNTRY_CODE_GREECE_TRADITIONAL,
-                                                                  organization_id.COUNTRY_CODE_NORTHERN_IRELAND},
-                       VALIDATION_INVALID_ORGANIZATION_ID_COUNTRY),
+        country_codes=(organization_id.ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES | {
+                organization_id.COUNTRY_CODE_GREECE_TRADITIONAL,
+                organization_id.COUNTRY_CODE_NORTHERN_IRELAND
+            },
+            VALIDATION_INVALID_ORGANIZATION_ID_COUNTRY),
         state_province=_STATE_PROVINCE_PROHIBITED,
         reference=_REFERENCE_REQUIRED
     )
 
     _PSD_SCHEME = organization_id.OrganizationIdentifierElementAllowance(
-        country_codes=(organization_id.ISO3166_1_COUNTRY_CODES,
+        country_codes=(organization_id.ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES,
                        VALIDATION_INVALID_ORGANIZATION_ID_COUNTRY),
         state_province=_STATE_PROVINCE_PROHIBITED,
         reference=_REFERENCE_REQUIRED
@@ -138,7 +139,7 @@ class LegalPersonOrganizationIdentifierValidator(organization_id.OrganizationIde
     def handle_unknown_scheme(cls, node: document.PDUNode, parsed: organization_id.ParsedOrganizationIdentifier):
         is_valid_national_scheme = (
                 parsed.is_national_scheme and
-                parsed.country in countries_by_alpha2 and
+                parsed.country.upper() in organization_id.ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES and
                 parsed.state_province is None and
                 parsed.reference
         )
@@ -272,7 +273,7 @@ class NaturalPersonIdentifierValidator(validation.Validator):
                     f'Invalid natural person identifier scheme: "{parsed.scheme}"'
                 ))
 
-        if parsed.country not in countries_by_alpha2:
+        if parsed.country.upper() not in organization_id.ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES:
             findings.append(validation.ValidationFindingDescription(
                 self.VALIDATION_INVALID_NATURAL_PERSON_ID_COUNTRY,
                 f'Invalid natural person identifier country code: "{parsed.country}"'

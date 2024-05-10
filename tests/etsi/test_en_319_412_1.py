@@ -140,7 +140,7 @@ def test_valid_vat():
     values_under_test = [
         'VATFR-1',
         'VATXI-1',
-        'VATEL-1',
+        'VATel-1',
     ]
 
     for value in values_under_test:
@@ -248,7 +248,7 @@ def test_lei_no_reference():
 
 def test_orgid_national_scheme():
     values_under_test = [
-        'EI:SE-5567971433'
+        'EI:se-5567971433'
     ]
 
     for value in values_under_test:
@@ -332,7 +332,7 @@ def test_valid_natural_person_values():
         'PASFR-1',
         'IDCFR-1',
         'PNOFR-1',
-        'TINFR-1',
+        'TINfr-1',
     ]
 
     for value in values_under_test:
@@ -355,7 +355,7 @@ def test_invalid_natural_person_id_country():
 
 def test_natural_person_id_national_scheme():
     values_under_test = [
-        'EI:SE-5567971433'
+        'EI:se-5567971433'
     ]
 
     for value in values_under_test:
