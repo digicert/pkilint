@@ -197,6 +197,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
             en_319_412_3.LegalPersonSubjectAttributeAllowanceValidator(),
             en_319_412_3.LegalPersonDuplicateAttributeAllowanceValidator(),
             en_319_412_3.LegalPersonOrganizationAttributesEqualityValidator(),
+            en_319_412_3.LegalPersonCountryCodeValidator(),
         ])
     else:
         # TODO: modify when eSig and eSeal support is added

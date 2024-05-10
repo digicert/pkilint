@@ -2,6 +2,7 @@ from pyasn1_alt_modules import rfc5280
 
 from pkilint import common
 from pkilint import validation
+from pkilint.common import organization_id
 from pkilint.etsi import etsi_shared
 from pkilint.itu import x520_name
 from pkilint.pkix import Rfc2119Word, name
@@ -130,3 +131,25 @@ class LegalPersonKeyUsageValidator(etsi_shared.KeyUsageValidator):
             self.VALIDATION_INVALID_CONTENT_COMMITMENT_SETTING,
             self.VALIDATION_NON_PREFERRED_CONTENT_COMMITMENT_SETTING
         )
+
+
+class LegalPersonCountryCodeValidator(validation.Validator):
+    """
+    LEG-4.2.1-4: The countryName attribute shall specify the country in which the subject (legal person) is established.
+    """
+    VALIDATION_UNKNOWN_COUNTRY_CODE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.NOTICE,
+        'etsi.en_319_412_3.leg-4.2.1-4.unknown_country_code'
+    )
+
+    def __init__(self):
+        super().__init__(validations=[self.VALIDATION_UNKNOWN_COUNTRY_CODE], pdu_class=rfc5280.X520countryName)
+
+    def validate(self, node):
+        value_str = str(node.pdu)
+
+        if value_str.upper() not in organization_id.ISO3166_1_COUNTRY_CODES:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_UNKNOWN_COUNTRY_CODE,
+                f'Unknown country code: "{value_str}"'
+            )
