@@ -2,6 +2,16 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.10.3 - 2024-05-13
+
+### New features/enhancements
+
+- Add support for SMIME BR ballot SMC-06 (#74)
+
+### Fixes
+
+- Flag invalid domain name length in GeneralName types (#78)
+
 ## 0.10.2 - 2024-05-07
 
 ### New features/enhancements
