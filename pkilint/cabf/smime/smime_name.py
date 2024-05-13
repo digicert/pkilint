@@ -204,12 +204,12 @@ class SubscriberAttributeDependencyValidator(validation.Validator):
         'cabf.smime.required_attribute_missing_for_dependent_attribute'
     )
 
-    _ATTRIBUTE_DEPENDENCIES = {
-        x520_name.id_at_streetAddress: {rfc5280.id_at_localityName, rfc5280.id_at_stateOrProvinceName},
-        rfc5280.id_at_stateOrProvinceName: {rfc5280.id_at_countryName},
-        rfc5280.id_at_localityName: {rfc5280.id_at_countryName},
-        x520_name.id_at_postalCode: {rfc5280.id_at_countryName},
-    }
+    _ATTRIBUTE_DEPENDENCIES = [
+        (x520_name.id_at_streetAddress, {rfc5280.id_at_localityName, rfc5280.id_at_stateOrProvinceName}),
+        (rfc5280.id_at_stateOrProvinceName, {rfc5280.id_at_countryName}),
+        (rfc5280.id_at_localityName, {rfc5280.id_at_countryName}),
+        (x520_name.id_at_postalCode, {rfc5280.id_at_countryName}),
+    ]
 
     def __init__(self):
         super().__init__(
@@ -223,7 +223,7 @@ class SubscriberAttributeDependencyValidator(validation.Validator):
         for rdn in node.children.values():
             attributes.update((atv.children['type'].pdu for atv in rdn.children.values()))
 
-        for dependent_attribute, required_attributes in self._ATTRIBUTE_DEPENDENCIES.items():
+        for dependent_attribute, required_attributes in self._ATTRIBUTE_DEPENDENCIES:
             if dependent_attribute in attributes:
                 if not attributes & required_attributes:
                     oids = oid.format_oids(required_attributes)
