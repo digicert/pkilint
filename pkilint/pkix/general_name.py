@@ -1,6 +1,7 @@
 import codecs
 import ipaddress
 import math
+from urllib.parse import urlparse
 
 import validators
 from pyasn1_alt_modules import rfc5280, rfc8398
@@ -321,3 +322,101 @@ class SmtpUTF8MailboxValidator(validation.Validator):
 
         if domain_part != domain_part.lower():
             raise validation.ValidationFindingEncountered(self.VALIDATION_DOMAIN_PART_NOT_LOWERCASE)
+
+
+class DomainNameLengthValidator(validation.Validator):
+    # https://devblogs.microsoft.com/oldnewthing/20120412-00/?p=7873
+    _MAX_DOMAIN_NAME_ASCII_LENGTH = 253
+
+    def __init__(self, validation_domain_name_too_long, **kwargs):
+        super().__init__(validations=[validation_domain_name_too_long], **kwargs)
+
+        self._validation_domain_name_too_long = validation_domain_name_too_long
+
+    @classmethod
+    def extract_value(cls, node):
+        pass
+
+    def validate(self, node):
+        value = self.extract_value(node)
+
+        value_len = len(value)
+
+        if value_len > self._MAX_DOMAIN_NAME_ASCII_LENGTH:
+            raise validation.ValidationFindingEncountered(
+                self._validation_domain_name_too_long,
+                f'Domain name too long: "{value}" ({value_len} characters) exceeds maximum length of '
+                f'{self._MAX_DOMAIN_NAME_ASCII_LENGTH} characters'
+            )
+
+
+class GeneralNameDnsNameDomainNameLengthValidator(DomainNameLengthValidator):
+    VALIDATION_DOMAIN_NAME_TOO_LONG = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.dnsname_domain_name_too_long'
+    )
+
+    def __init__(self):
+        super().__init__(self.VALIDATION_DOMAIN_NAME_TOO_LONG, predicate=create_generalname_type_predicate('dNSName'))
+
+    @classmethod
+    def extract_value(cls, node):
+        return str(node.pdu)
+
+
+class GeneralNameUriDomainNameLengthValidator(DomainNameLengthValidator):
+    VALIDATION_DOMAIN_NAME_TOO_LONG = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.uri_domain_name_too_long'
+    )
+
+    def __init__(self):
+        super().__init__(
+            self.VALIDATION_DOMAIN_NAME_TOO_LONG,
+            predicate=create_generalname_type_predicate('uniformResourceIdentifier')
+        )
+
+    @classmethod
+    def extract_value(cls, node):
+        uri_str = str(node.pdu)
+
+        return urlparse(uri_str).hostname or ''
+
+
+class GeneralNameEmailAddressDomainNameLengthValidator(DomainNameLengthValidator):
+    def __init__(self, validation_domain_name_too_long, **kwargs):
+        super().__init__(validation_domain_name_too_long, **kwargs)
+
+    @classmethod
+    def extract_value(cls, node):
+        email_address = str(node.pdu)
+
+        parts = email_address.split('@', maxsplit=1)
+
+        return parts[1] if len(parts) == 2 else ''
+
+
+class GeneralNameRfc822NameDomainNameLengthValidator(GeneralNameEmailAddressDomainNameLengthValidator):
+    VALIDATION_DOMAIN_NAME_TOO_LONG = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.rfc822name_domain_part_too_long'
+    )
+
+    def __init__(self):
+        super().__init__(
+            self.VALIDATION_DOMAIN_NAME_TOO_LONG,
+            predicate=create_generalname_type_predicate('rfc822Name')
+        )
+
+
+class SmtpUTF8MailboxDomainNameLengthValidator(GeneralNameEmailAddressDomainNameLengthValidator):
+    VALIDATION_DOMAIN_NAME_TOO_LONG = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.smtputf8mailbox_domain_part_too_long'
+    )
+
+    def __init__(self):
+        super().__init__(
+            self.VALIDATION_DOMAIN_NAME_TOO_LONG,
+            pdu_class=rfc8398.SmtpUTF8Mailbox
+        )
