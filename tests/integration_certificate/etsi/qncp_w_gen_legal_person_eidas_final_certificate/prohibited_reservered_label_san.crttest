@@ -44,7 +44,7 @@ Xu4qGbQ3OwuuJXaEPiBANUEckaPKg5pdua4Lwt708kOG54E7pzz3xLEjtODU+9Ru
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.subject.rdnSequence.3.0.value.x520CommonNameUnbounded,QncpWGenCommonNameValidator,ERROR,etsi.en_319_412_4.web-4.1.3-4.common_name_unknown_source,"Unknown source for value of common name: ""webdss.athexgroup.gr"""
+certificate.tbsCertificate.subject.rdnSequence.3.0.value.x520CommonName,QncpWGenCommonNameValidator,ERROR,etsi.en_319_412_4.web-4.1.3-4.common_name_unknown_source,"Unknown source for value of common name: ""webdss.athexgroup.gr"""
 certificate.tbsCertificate.extensions.6.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 certificate.tbsCertificate.extensions.8.extnValue.subjectAltName.0.dNSName,DnsNameLdhLabelSyntaxValidator,ERROR,cabf.serverauth.dnsname_contains_prohibited_reserved_label,"Invalid reserved label ""8---ki4b1aww2f5g8b5e4jta"" with tag ""8-"" in domain name ""blog.8---ki4b1aww2f5g8b5e4jta.fatego.tokyo"""
 certificate.tbsCertificate.extensions.8.extnValue.subjectAltName.1.dNSName,DnsNameLdhLabelSyntaxValidator,ERROR,cabf.serverauth.dnsname_contains_prohibited_reserved_label,"Invalid reserved label ""8---ki4b1a2f5g8b5e4jta"" with tag ""8-"" in domain name ""www.blog.8---ki4b1a2f5g8b5e4jta.fatego.tokyo"""

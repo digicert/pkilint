@@ -125,8 +125,24 @@ def create_decoding_validators(certificate_type: CertificateType) -> List[valida
         From EN 319 412-3:
         LEG-4.2.1-9: If present, the size of organizationName, organizationalUnitName and commonName may
         be longer than the limit as stated in IETF RFC 5280 [3].
+        
+        From EN 319 412-4:
+        WEB-4.1.3-4: The following certificate profile requirements specified in the BRG [9] shall apply for subject
+        certificate fields addressed by the following sub-sections of BRG:
+        ...
+        (c) 7.1.4.2.2 Subject Distinguished Name - commonName.
         """
-        name_attribute_mappings.update(x520_name_unbounded.UNBOUNDED_ATTRIBUTE_TYPE_MAPPINGS)
+        name_attribute_mappings.update({
+            k: v for k, v in x520_name_unbounded.UNBOUNDED_ATTRIBUTE_TYPE_MAPPINGS.items()
+            if k in (
+                rfc5280.id_at_organizationName,
+                rfc5280.id_at_organizationalUnitName,
+                rfc5280.id_at_pseudonym,
+            )
+        })
+
+        if certificate_type not in etsi_constants.WEB_AUTHENTICATION_CERTIFICATE_TYPES:
+            name_attribute_mappings[rfc5280.id_at_commonName]: x520_name_unbounded.X520CommonNameUnbounded()
 
         additional_validators = [
             certificate.create_qc_statements_decoder(asn1.ETSI_QC_STATEMENTS_MAPPINGS)
