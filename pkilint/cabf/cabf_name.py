@@ -154,12 +154,7 @@ class OrganizationIdentifierAttributeValidator(validation.TypeMatchingValidator)
         elif scheme_info.country_identifier_type == cabf_constants.RegistrationSchemeCountryIdentifierType.XG:
             valid_country_code = (country_code == 'XG')
         elif scheme_info.country_identifier_type == cabf_constants.RegistrationSchemeCountryIdentifierType.ISO3166:
-            # HACK: this comparison with "_relax_stateprovince_syntax" is a hack to differentiate between SMBR and
-            # TLSBR validators. The EVGs don't allow the relaxed state/province syntax, so we can use that to
-            # determine whether to allow the "EL" and "XI" country codes permitted by the amended Article 215 of
-            # Council Directive 2006/112/EC. This is dirty, but this logic is getting replaced by the (much
-            # improved) OrgId validation logic when the QWAC linter is released in a few months
-            if m['scheme'] == 'VAT' and not self._relax_stateprovince_syntax:
+            if m['scheme'] == 'VAT':
                 valid_country_code = (country_code in self._ISO3166_AND_ARTICLE_215_COUNTRY_CODES)
             else:
                 valid_country_code = (country_code in countries_by_alpha2)
