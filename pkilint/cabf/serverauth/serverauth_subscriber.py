@@ -378,22 +378,26 @@ class EvSanGeneralNameTypeValidator(validation.Validator):
 class SubscriberValidityPeriodValidator(time.ValidityPeriodThresholdsValidator):
     """Validates that the validity period conforms to BR 7.1.2.7."""
 
+    VALIDATION_VALIDITY_PERIOD_EXCEEDS_398_DAYS = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'cabf.certificate_validity_period_exceeds_398_days'
+    )
+
+    VALIDATION_VALIDITY_PERIOD_EXCEEDS_397_DAYS = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.WARNING,
+        'cabf.certificate_validity_period_exceeds_397_days'
+    )
+
     _THRESHOLDS = [
         (
             operator.le,
             timedelta(days=398),
-            validation.ValidationFinding(
-                validation.ValidationFindingSeverity.ERROR,
-                'cabf.certificate_validity_period_exceeds_398_days'
-            )
+            VALIDATION_VALIDITY_PERIOD_EXCEEDS_398_DAYS
         ),
         (
             operator.le,
             timedelta(days=397),
-            validation.ValidationFinding(
-                validation.ValidationFindingSeverity.WARNING,
-                'cabf.certificate_validity_period_exceeds_397_days'
-            )
+            VALIDATION_VALIDITY_PERIOD_EXCEEDS_397_DAYS
         )
     ]
 

@@ -4,11 +4,11 @@ from pyasn1_alt_modules import rfc5280, rfc6962, rfc3739
 
 from pkilint import validation, finding_filter, cabf
 from pkilint.cabf import serverauth
-from pkilint.cabf.serverauth import serverauth_constants, serverauth_name
+from pkilint.cabf.serverauth import serverauth_constants, serverauth_name, serverauth_finding_filter
 from pkilint.common import organization_id, alternative_name
 from pkilint.etsi import (
     etsi_constants, ts_119_495, en_319_412_5, en_319_412_1, en_319_412_2, en_319_412_3,
-    ts_119_312, en_319_412_4, etsi_shared
+    ts_119_312, en_319_412_4, etsi_shared, etsi_finding_filter
 )
 from pkilint.etsi.asn1 import (
     en_319_412_1 as en_319_412_asn1, en_319_412_5 as en_319_412_5_asn1, ts_119_495 as ts_119_495_asn1
@@ -271,6 +271,13 @@ def create_etsi_finding_filters(certificate_type) -> List[finding_filter.Finding
     if certificate_type in etsi_constants.CABF_CERTIFICATE_TYPES:
         serverauth_cert_type = etsi_constants.ETSI_TYPE_TO_CABF_SERVERAUTH_TYPE_MAPPINGS[certificate_type]
 
-        return serverauth.create_serverauth_finding_filters(serverauth_cert_type)
+        filters = serverauth.create_serverauth_finding_filters(serverauth_cert_type)
     else:
-        return []
+        filters = [
+            serverauth_finding_filter.DnsNameGeneralNamePreferredNameSyntaxFilter(),
+        ]
+
+    if certificate_type in etsi_constants.QEVCP_W_PSD2_EIDAS_CERTIFICATE_TYPES:
+        filters.append(etsi_finding_filter.Psd2CabfServerauthValidityPeriodFilter())
+
+    return filters
