@@ -53,6 +53,8 @@ def main(cli_args=None) -> int:
     lint_parser.add_argument('-r', '--report-all', action='store_true', help='Report all findings without filtering '
                              'any PKIX findings that are superseded by CA/Browser Forum requirements')
 
+    util.add_certificate_validity_period_start_arg(lint_parser)
+
     util.add_standard_args(lint_parser)
     lint_parser.add_argument('file', type=argparse.FileType('rb'),
                              help='The certificate to lint'
@@ -86,7 +88,7 @@ def main(cli_args=None) -> int:
 
         doc_validator = certificate.create_pkix_certificate_validator_container(
             serverauth.create_decoding_validators(),
-            serverauth.create_validators(certificate_type)
+            serverauth.create_validators(certificate_type, args.validity_period_start)
         )
 
         results = doc_validator.validate(cert.root)
@@ -98,7 +100,7 @@ def main(cli_args=None) -> int:
 
         print(args.format(results, args.severity))
 
-        return report.get_findings_count(results, args.severity)
+        return util.clamp_exit_code(report.get_findings_count(results, args.severity))
 
 
 if __name__ == "__main__":

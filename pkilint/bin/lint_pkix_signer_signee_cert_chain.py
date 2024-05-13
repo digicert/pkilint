@@ -120,7 +120,7 @@ def main(cli_args=None) -> int:
 
         print(args.format(results, args.severity))
 
-        return report.get_findings_count(results, args.severity)
+        return util.clamp_exit_code(report.get_findings_count(results, args.severity))
 
 
 if __name__ == '__main__':
