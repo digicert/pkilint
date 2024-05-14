@@ -64,12 +64,15 @@ OID_TO_CODE_NAME = {
 
 
 class ElementIdentifierAllowanceValidator(validation.Validator):
-    @staticmethod
-    def _create_finding(fmt: str, rfc2119word: pkix.Rfc2119Word, o: univ.ObjectIdentifier):
+    # use global mappings by default
+    _OID_TO_CODE_NAME = OID_TO_CODE_NAME
+
+    @classmethod
+    def _create_finding(cls, fmt: str, rfc2119word: pkix.Rfc2119Word, o: univ.ObjectIdentifier):
         if rfc2119word == pkix.Rfc2119Word.MAY:
             return None
         else:
-            return validation.ValidationFinding(rfc2119word.to_severity, fmt.format(oid=OID_TO_CODE_NAME[o]))
+            return validation.ValidationFinding(rfc2119word.to_severity, fmt.format(oid=cls._OID_TO_CODE_NAME[o]))
 
     def __init__(self, element_name: str, element_oid_retriever: Callable[[document.PDUNode], document.PDUNode],
                  known_element_allowances: Mapping[univ.ObjectIdentifier, pkix.Rfc2119Word],
@@ -82,12 +85,12 @@ class ElementIdentifierAllowanceValidator(validation.Validator):
         self._element_oid_retriever = element_oid_retriever
 
         self._expected_element_presences = {
-            o: ElementIdentifierAllowanceValidator._create_finding(unexpected_absence_code_format, w, o)
+            o: self._create_finding(unexpected_absence_code_format, w, o)
             for o, w in known_element_allowances.items()
             if w in {Rfc2119Word.MAY, Rfc2119Word.SHOULD, Rfc2119Word.MUST}
         }
         self._expected_element_absences = {
-            o: ElementIdentifierAllowanceValidator._create_finding(unexpected_presence_code_format, w, o)
+            o: self._create_finding(unexpected_presence_code_format, w, o)
             for o, w in known_element_allowances.items()
             if w in {Rfc2119Word.MAY, Rfc2119Word.SHOULD_NOT, Rfc2119Word.MUST_NOT}
         }

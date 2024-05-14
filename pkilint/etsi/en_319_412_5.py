@@ -1,10 +1,11 @@
-from pkilint import validation
+from pkilint import validation, common
+from pkilint.etsi import etsi_constants
 from pkilint.etsi.asn1 import en_319_412_5
 from iso3166 import countries_by_alpha2
 from iso4217 import Currency
 from urllib.parse import urlparse
 from pyasn1_alt_modules import rfc3739
-from pkilint.pkix import extension
+from pkilint.pkix import extension, Rfc2119Word
 import iso639
 
 
@@ -244,3 +245,47 @@ class QcStatementsExtensionCriticalityValidator(extension.ExtensionCriticalityVa
     def __init__(self):
         super().__init__(type_oid=rfc3739.id_pe_qcStatements, is_critical=False,
                          validation=self.VALIDATION_QCSTATEMENTS_EXTENSION_CRITICAL)
+
+
+class QcStatementIdentifierAllowanceValidator(common.ElementIdentifierAllowanceValidator):
+    """
+    EN 319 412-5:
+    QCS-5-01: EU qualified certificates shall include QCStatements in accordance with table 2
+    """
+    _CODE_CLASSIFIER = 'etsi.en_319_412_5.qcs-5.01'
+
+    # qualified statements
+    _OID_TO_CODE_NAME = {
+        en_319_412_5.id_etsi_qcs_QcCompliance: 'qc_compliance',
+        en_319_412_5.id_etsi_qcs_QcType: 'qc_type',
+        en_319_412_5.id_etsi_qcs_QcCClegislation: 'qc_cc_legislation',
+        en_319_412_5.id_etsi_qcs_QcSSCD: 'qc_sscd',
+    }
+
+    @classmethod
+    def retrieve_qualified_statement_id(cls, node):
+        return node.children['statementId']
+
+    def __init__(self, certificate_type: etsi_constants.CertificateType):
+        allowances = {}
+
+        if certificate_type in etsi_constants.EU_QWAC_TYPES:
+            allowances[en_319_412_5.id_etsi_qcs_QcCompliance] = Rfc2119Word.MUST
+            allowances[en_319_412_5.id_etsi_qcs_QcCClegislation] = Rfc2119Word.MUST_NOT
+            allowances[en_319_412_5.id_etsi_qcs_QcType] = Rfc2119Word.MUST
+        elif certificate_type in etsi_constants.NON_EU_QWAC_TYPES:
+            allowances[en_319_412_5.id_etsi_qcs_QcCompliance] = Rfc2119Word.MUST_NOT
+            allowances[en_319_412_5.id_etsi_qcs_QcCClegislation] = Rfc2119Word.MUST
+
+        if certificate_type in etsi_constants.QWAC_TYPES:
+            allowances[en_319_412_5.id_etsi_qcs_QcSSCD] = Rfc2119Word.MUST_NOT
+
+        super().__init__(
+            'qualified statement',
+            self.retrieve_qualified_statement_id,
+            allowances,
+            f'{self._CODE_CLASSIFIER}.{{oid}}_qualified_statement_present',
+            f'{self._CODE_CLASSIFIER}.{{oid}}_qualified_statement_absent',
+            None,
+            pdu_class=rfc3739.QCStatements
+        )

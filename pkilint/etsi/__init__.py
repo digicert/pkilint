@@ -174,6 +174,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         en_319_412_5.QcEuPDSLanguageValidator(),
         en_319_412_1.LegalPersonIdentifierNameRegistrationAuthoritiesValidator(),
         en_319_412_1.NaturalPersonIdentifierNameRegistrationAuthoritiesValidator(),
+        en_319_412_5.QcStatementIdentifierAllowanceValidator(certificate_type),
     ]
 
     qc_statements_validator_container = validation.ValidatorContainer(
