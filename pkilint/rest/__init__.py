@@ -3,11 +3,11 @@ from typing import List
 
 from fastapi import FastAPI, HTTPException
 
-from pkilint.rest import cabf_serverauth, cabf_smime, ocsp
+from pkilint.rest import cabf_serverauth, cabf_smime, etsi, ocsp
 from pkilint.rest import model
 
 _PKILINT_VERSION = version('pkilint')
-_API_VERSION = 'v1.2'
+_API_VERSION = 'v1.3'
 
 app = FastAPI(
     title='pkilint API',
@@ -16,9 +16,13 @@ app = FastAPI(
 )
 
 _CERTIFICATE_LINTER_GROUPS = [
-    cabf_smime.create_linter_group_instance(),
-    cabf_serverauth.create_linter_group_instance(),
+    m.create_linter_group_instance() for m in (
+        cabf_smime,
+        cabf_serverauth,
+        etsi,
+    )
 ]
+
 _OCSP_PKIX_LINTER = ocsp.create_ocsp_response_linter()
 
 
