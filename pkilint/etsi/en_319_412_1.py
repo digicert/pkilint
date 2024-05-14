@@ -282,6 +282,62 @@ class NaturalPersonIdentifierValidator(validation.Validator):
         return validation.ValidationResult(self, node, findings)
 
 
+class EidasLegalPersonIdentifierValidator(validation.Validator):
+    """
+    LEG-5.1.6-03: Any organizationIdentifier attribute present in the subject field of the certificate shall
+    comply with the content requirement specified for the eIDAS LegalPersonIdentifier attribute.
+
+    From eIDAS SAML Attribute Profile v1.2 Final, section 2.5:
+    - The Unique Identifier MUST NOT contain any whitespace.
+    - The Unique Identifier MUST NOT exceed a total of 256 characters.
+    """
+    VALIDATION_EIDAS_LEGAL_PERSON_IDENTIFIER_WHITESPACE_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_1.leg-5.1.6-03.eidas_legal_person_identifier_whitespace_present'
+    )
+
+    VALIDATION_EIDAS_LEGAL_PERSON_IDENTIFIER_TOO_LONG = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_1.leg-5.1.6-03.eidas_legal_person_identifier_too_long'
+    )
+
+    _MAX_LENGTH = 256
+
+    def __init__(self):
+        super().__init__(
+            validations=[
+                self.VALIDATION_EIDAS_LEGAL_PERSON_IDENTIFIER_WHITESPACE_PRESENT,
+                self.VALIDATION_EIDAS_LEGAL_PERSON_IDENTIFIER_TOO_LONG,
+            ],
+            pdu_class=x520_name.X520OrganizationIdentifier
+        )
+
+    def match(self, node):
+        # noinspection PyTypeChecker
+        return super().match(node) and _cert_has_semantics_id(
+            en_319_412_1.id_etsi_qcs_SemanticsId_eIDASLegal,
+            node.document
+        )
+
+    def validate(self, node):
+        value = str(node.child[1].pdu)
+
+        if any(c.isspace() for c in value):
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_EIDAS_LEGAL_PERSON_IDENTIFIER_WHITESPACE_PRESENT,
+                f'Whitespace present in organization identifier: "{value}"'
+            )
+
+        value_len = len(value)
+
+        if value_len > self._MAX_LENGTH:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_EIDAS_LEGAL_PERSON_IDENTIFIER_TOO_LONG,
+                f'Organization identifier "{value}" ({value_len} characters) exceeds maximum length of '
+                f'{self._MAX_LENGTH} characters'
+            )
+
+
 class NameRegistrationAuthoritiesValidatorBase(validation.Validator):
     def __init__(
             self,

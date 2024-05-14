@@ -159,6 +159,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
     subject_validators = [
         en_319_412_1.LegalPersonOrganizationIdentifierValidator(),
         en_319_412_1.NaturalPersonIdentifierValidator(),
+        en_319_412_1.EidasLegalPersonIdentifierValidator(),
         organization_id.OrganizationIdentifierLeiValidator(),
     ]
 
