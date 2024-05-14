@@ -45,7 +45,7 @@ qyg2qSji3w==
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.extensions.7.extnValue.qCStatements.0.statementInfo.qcEuRetentionPeriod,QcEuRetentionPeriodValidator,ERROR,etsi.en_319_412_5.gen-4.3.3.years_not_positive,
+certificate.tbsCertificate.extensions.7.extnValue.qCStatements.0.statementInfo.qcEuRetentionPeriod,QcEuRetentionPeriodValidator,ERROR,etsi.en_319_412_5.gen-4.3.3.retention_period_years_not_positive,
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.subject_key_identifier_extension_present,
 certificate.tbsCertificate.subject.rdnSequence,OvSubscriberAttributeAllowanceValidator,WARNING,cabf.serverauth.ov.unknown_attribute_present,Unknown attribute present: 2.5.4.97
 certificate.tbsCertificate.subject.rdnSequence,OvSubscriberAttributeAllowanceValidator,WARNING,cabf.serverauth.ov.common_name_attribute_present,

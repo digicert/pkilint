@@ -8,33 +8,33 @@ from pkilint.pkix import extension
 import iso639
 
 
-class QcCClegislationCountryCodeValidator(validation.Validator):
+class QcCCLegislationCountryCodeValidator(validation.Validator):
     """EN 319 412-5 4.2.4.: QCStatement stating the country or set of countries under the legislation of which the
     certificate is issued as a qualified certificate. Constrained by ISO 3166-1 alpha-2 codes only. This Validator
     will check to see if there is a country code at all or if it is a valid code."""
-    VALIDATION_ISO_COUNTRY_BAD_EMPTY = validation.ValidationFinding(
+    VALIDATION_ISO_COUNTRY_CODE_LIST_EMPTY = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.en_319_412_5.gen-4.2.4.iso_country_bad_empty'
+        'etsi.en_319_412_5.gen-4.2.4.iso_country_code_list_empty'
     )
-    VALIDATION_ISO_COUNTRY_BAD = validation.ValidationFinding(
+    VALIDATION_ISO_COUNTRY_CODE_INVALID = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.en_319_412_5.gen-4.2.4.iso_country_bad'
+        'etsi.en_319_412_5.gen-4.2.4.iso_country_code_invalid'
     )
 
     def __init__(self):
-        super().__init__(validations=[self.VALIDATION_ISO_COUNTRY_BAD_EMPTY, self.VALIDATION_ISO_COUNTRY_BAD],
-                         pdu_class=en_319_412_5.QcCClegislation)
+        super().__init__(
+            validations=[self.VALIDATION_ISO_COUNTRY_CODE_LIST_EMPTY, self.VALIDATION_ISO_COUNTRY_CODE_INVALID],
+            pdu_class=en_319_412_5.QcCClegislation
+        )
 
     def validate(self, node):
         if not node.children:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_ISO_COUNTRY_BAD_EMPTY)
+            raise validation.ValidationFindingEncountered(self.VALIDATION_ISO_COUNTRY_CODE_LIST_EMPTY)
         for children in node.children.values():
             country = str(children.pdu)
             if country not in countries_by_alpha2:
-                raise validation.ValidationFindingEncountered(self.VALIDATION_ISO_COUNTRY_BAD,
-                                                              f'invalid country code, value found {country}')
-            else:
-                return
+                raise validation.ValidationFindingEncountered(self.VALIDATION_ISO_COUNTRY_CODE_INVALID,
+                                                              f'Invalid country code found: "{country}"')
 
 
 class QcEuRetentionPeriodValidator(validation.Validator):
@@ -43,28 +43,34 @@ class QcEuRetentionPeriodValidator(validation.Validator):
     relevant to the use of and reliance of on a certificate, expressed as a number of years after the expiry
     date of the certificate. So in short anything greater will be 0 will be valid.
     """
-    VALIDATION_QCRetention_POSITIVE = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
-                                                                   'etsi.en_319_412_5.gen-4.3.3.years_not_positive')
+    VALIDATION_RETENTION_PERIOD_NOT_POSITIVE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_5.gen-4.3.3.retention_period_years_not_positive'
+    )
 
     def __init__(self):
-        super().__init__(validations=[self.VALIDATION_QCRetention_POSITIVE], pdu_class=en_319_412_5.QcEuRetentionPeriod)
+        super().__init__(
+            validations=[self.VALIDATION_RETENTION_PERIOD_NOT_POSITIVE],
+            pdu_class=en_319_412_5.QcEuRetentionPeriod
+        )
 
     def validate(self, node):
-        valid_yrs = node.pdu
+        # noinspection PyTypeChecker
+        valid_yrs = int(node.pdu)
         if not valid_yrs > 0:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_QCRetention_POSITIVE)
+            raise validation.ValidationFindingEncountered(self.VALIDATION_RETENTION_PERIOD_NOT_POSITIVE)
 
 
 class QcEuPDSLanguageValidator(validation.Validator):
     """Content of the QcEuPDS statement, in accordance with Clause 4.3.4 of EN 319-412-5.
     Valid ISO 639-1 language code"""
-    VALIDATION_ISO_LANGUAGE_BAD = validation.ValidationFinding(
+    VALIDATION_ISO_LANGUAGE_CODE_INVALID = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.en_319_412_5.gen-4.3.4.iso_language_bad'
+        'etsi.en_319_412_5.gen-4.3.4.iso_language_code_invalid'
     )
 
     def __init__(self):
-        super().__init__(validations=[self.VALIDATION_ISO_LANGUAGE_BAD], pdu_class=en_319_412_5.PdsLocation)
+        super().__init__(validations=[self.VALIDATION_ISO_LANGUAGE_CODE_INVALID], pdu_class=en_319_412_5.PdsLocation)
 
     def validate(self, node):
         language_code = str(node.children['language'].pdu).lower()
@@ -72,8 +78,10 @@ class QcEuPDSLanguageValidator(validation.Validator):
         try:
             iso639.Language.from_part1(language_code)
         except iso639.LanguageNotFoundError:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_ISO_LANGUAGE_BAD,
-                                                          f'invalid language code, value found {language_code}')
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_ISO_LANGUAGE_CODE_INVALID,
+                f'Invalid language code found: "{language_code}"'
+            )
 
 
 class QcEuPDSHttpsURLValidator(validation.Validator):
@@ -93,35 +101,46 @@ class QcEuPDSHttpsURLValidator(validation.Validator):
 
         if parsed_url.scheme.lower() != 'https':
             raise validation.ValidationFindingEncountered(self.VALIDATION_URL_SCHEME_NOT_HTTPS,
-                                                          f'URL scheme is not https, found {parsed_url.scheme}')
+                                                          f'Non-HTTPS URL scheme found: "{parsed_url.scheme}"')
 
 
 class QcTypeValidator(validation.Validator):
     """EN 319 412-5 4.2.3 Declares that a certificate is issued as one and only one of the purposes
     of electronic signature, electronic seal or web site authentication. According to Stephen
     a qwac should never have seal or sign but may have psd2."""
-    VALIDATION_QCType_Web = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
-                                                         'etsi.en_319_412_5.gen-4.2.3.qctype_not_web')
+    VALIDATION_QCTYPE_NOT_WEB = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_5.gen-4.2.3.qctype_not_web'
+    )
 
-    VALIDATION_QCType_not_one = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
-                                                             'etsi.en_319_412_5.gen-4.2.3.not_one')
+    VALIDATION_MULTIPLE_QCTYPE_VALUES_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
 
-    VALIDATION_QCType_empty = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
-                                                           'etsi.en_319_412_5.gen-4.2.3qctype_empty')
+        'etsi.en_319_412_5.gen-4.2.3.multiple_qctype_values_present'
+    )
+
+    VALIDATION_QCTYPE_LIST_EMPTY = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_5.gen-4.2.3.qctype_list_empty'
+    )
 
     def __init__(self):
         super().__init__(
-            validations=[self.VALIDATION_QCType_Web, self.VALIDATION_QCType_empty, self.VALIDATION_QCType_not_one],
+            validations=[
+                self.VALIDATION_QCTYPE_NOT_WEB,
+                self.VALIDATION_QCTYPE_LIST_EMPTY,
+                self.VALIDATION_MULTIPLE_QCTYPE_VALUES_PRESENT
+            ],
             pdu_class=en_319_412_5.QcType)
 
     def validate(self, node):
         if not node.children.values():
-            raise validation.ValidationFindingEncountered(self.VALIDATION_QCType_empty)
+            raise validation.ValidationFindingEncountered(self.VALIDATION_QCTYPE_LIST_EMPTY)
         if len(node.children.values()) != 1:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_QCType_not_one)
+            raise validation.ValidationFindingEncountered(self.VALIDATION_MULTIPLE_QCTYPE_VALUES_PRESENT)
         _, qctype_value = node.child
         if qctype_value.pdu != en_319_412_5.id_etsi_qct_web:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_QCType_Web)
+            raise validation.ValidationFindingEncountered(self.VALIDATION_QCTYPE_NOT_WEB)
 
 
 class QcEuLimitValueValidator(validation.Validator):
@@ -147,47 +166,65 @@ class QcEuLimitValueValidator(validation.Validator):
                        - warning if the numeric code is used 
                        - Positive amount and exponent value
     """
-    VALIDATION_INVALID_CURRENCY = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
-                                                               'etsi.en_319_412_5.gen-4.3.2.invalid_currency')
-
-    VALIDATION_ALPHABETIC_CODE_NOT_FOUND = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.WARNING,
-        'etsi.en_319_412_5.gen-4.3.2.alphabetic_code_not_found'
+    VALIDATION_CURRENCY_CODE_INVALID = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_5.gen-4.3.2.currency_code_invalid'
     )
 
-    VALIDATION_AMOUNT_NEGATIVE = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
-                                                              'etsi.en_319_412_5.gen-4.3.2.amount_negative')
+    DISCOURAGED_VALIDATION_NUMERIC_CURRENCY_CODE_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.WARNING,
+        'etsi.en_319_412_5.gen-4.3.2.discouraged_numeric_currency_code_present'
+    )
 
-    VALIDATION_EXPONENT_NEGATIVE = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
-                                                                'etsi.en_319_412_5.gen-4.3.2.exponent_negative')
+    VALIDATION_AMOUNT_NEGATIVE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_5.gen-4.3.2.amount_negative'
+    )
+
+    VALIDATION_EXPONENT_NEGATIVE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.en_319_412_5.gen-4.3.2.exponent_negative'
+    )
 
     def __init__(self):
         self._alpha_codes = set()
         self._numeric_codes = set()
+
         for currency in Currency:
             self._alpha_codes.add(currency.code)
             self._numeric_codes.add(currency.number)
+
         # Let's remove the testing and unknown currency codes from the set. 
         alpha_bad_codes = {'XTS', 'XXX'}
         numeric_bad_codes = {'999', '963'}
+
         self._alpha_codes -= alpha_bad_codes
         self._numeric_codes -= numeric_bad_codes
-        super().__init__(validations=[self.VALIDATION_INVALID_CURRENCY, self.VALIDATION_ALPHABETIC_CODE_NOT_FOUND,
-                                      self.VALIDATION_AMOUNT_NEGATIVE, self.VALIDATION_EXPONENT_NEGATIVE],
-                         pdu_class=en_319_412_5.MonetaryValue)
+
+        super().__init__(
+            validations=[
+                self.VALIDATION_CURRENCY_CODE_INVALID,
+                self.DISCOURAGED_VALIDATION_NUMERIC_CURRENCY_CODE_PRESENT,
+                self.VALIDATION_AMOUNT_NEGATIVE,
+                self.VALIDATION_EXPONENT_NEGATIVE
+            ],
+            pdu_class=en_319_412_5.MonetaryValue)
 
     def validate(self, node):
         findings = []
         currency_code_type, iso_code = node.children["currency"].child
         if currency_code_type != "alphabetic":
-            findings.append(validation.ValidationFindingDescription(self.VALIDATION_ALPHABETIC_CODE_NOT_FOUND, None))
+            findings.append(
+                validation.ValidationFindingDescription(
+                    self.DISCOURAGED_VALIDATION_NUMERIC_CURRENCY_CODE_PRESENT,
+                    None)
+            )
             iso_code = int(iso_code.pdu)
         else:
             iso_code = str(iso_code.pdu)
-        # One of these codes I used for my example (triple X) but apparently they are in the iso library as 
-        # no currency and code reserved for testing so I'll include this on the conditional
+
         if iso_code not in self._alpha_codes and iso_code not in self._numeric_codes:
-            findings.append(validation.ValidationFindingDescription(self.VALIDATION_INVALID_CURRENCY, None))
+            findings.append(validation.ValidationFindingDescription(self.VALIDATION_CURRENCY_CODE_INVALID, None))
         if node.children["amount"].pdu < 0:
             findings.append(validation.ValidationFindingDescription(self.VALIDATION_AMOUNT_NEGATIVE, None))
         if node.children["exponent"].pdu < 0:
@@ -196,9 +233,9 @@ class QcEuLimitValueValidator(validation.Validator):
         return validation.ValidationResult(self, node, findings)
 
 
-class QcStatementsExtensionValidator(extension.ExtensionCriticalityValidator):
-    '''EN 319 412-5 QCS-4.1-02 The qcStatements extension shall not be marked as critical
-    '''
+class QcStatementsExtensionCriticalityValidator(extension.ExtensionCriticalityValidator):
+    """EN 319 412-5 QCS-4.1-02 The qcStatements extension shall not be marked as critical
+    """
     VALIDATION_QCSTATEMENTS_EXTENSION_CRITICAL = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
         'etsi.en_319_412_5.qcs-4.1-02.qcstatements_extension_is_critical'

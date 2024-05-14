@@ -166,7 +166,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         ts_119_495.RolesOfPspValidator(),
         ts_119_495.NCANameLatinCharactersValidator(),
         ts_119_495.NCAIdValidator(),
-        en_319_412_5.QcCClegislationCountryCodeValidator(),
+        en_319_412_5.QcCCLegislationCountryCodeValidator(),
         en_319_412_5.QcEuRetentionPeriodValidator(),
         en_319_412_5.QcTypeValidator(),
         en_319_412_5.QcEuPDSHttpsURLValidator(),
@@ -192,7 +192,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         en_319_412_2.CrlDistributionPointsValidator(),
         en_319_412_2.AuthorityInformationAccessValidator(),
         en_319_412_2.CertificatePoliciesValidator(certificate_type),
-        en_319_412_5.QcStatementsExtensionValidator(),
+        en_319_412_5.QcStatementsExtensionCriticalityValidator(),
         qc_statements_validator_container
     ]
 

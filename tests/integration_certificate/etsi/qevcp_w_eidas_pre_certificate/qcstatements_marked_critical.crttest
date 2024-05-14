@@ -37,7 +37,7 @@ quILcVEl0fWJ4Tyao+PKiNgrNtiWKmTa73e4YQg9Tj7CCg==
 node_path,validator,severity,code,message
 certificate.tbsCertificate.subject.rdnSequence,EvSubscriberAttributeAllowanceValidator,WARNING,cabf.ev_guidelines.common_name_attribute_present,
 certificate.tbsCertificate.extensions.4.extnValue.certificatePolicies.1.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
-certificate.tbsCertificate.extensions.6,QcStatementsExtensionValidator,ERROR,etsi.en_319_412_5.qcs-4.1-02.qcstatements_extension_is_critical,Extension 1.3.6.1.5.5.7.1.3 is critical
+certificate.tbsCertificate.extensions.6,QcStatementsExtensionCriticalityValidator,ERROR,etsi.en_319_412_5.qcs-4.1-02.qcstatements_extension_is_critical,Extension 1.3.6.1.5.5.7.1.3 is critical
 certificate.tbsCertificate.extensions.9.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 certificate.tbsCertificate.extensions.10.extnValue.keyUsage,SubscriberKeyUsageValidator,WARNING,cabf.serverauth.subscriber_rsa_digitalsignature_and_keyencipherment_present,
 certificate.tbsCertificate.extensions.10.extnValue.keyUsage,LegalPersonKeyUsageValidator,WARNING,etsi.en_319_412_2.nat-4.3.2-1.mixed_key_usage_setting,

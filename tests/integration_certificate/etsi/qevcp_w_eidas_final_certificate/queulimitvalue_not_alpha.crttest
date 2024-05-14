@@ -66,7 +66,7 @@ certificate.tbsCertificate.extensions.5.extnValue.certificatePolicies.1.policyQu
 certificate.tbsCertificate.extensions.5.extnValue.certificatePolicies.1.policyQualifiers.1,CertificatePolicyQualifierValidator,ERROR,cabf.serverauth.prohibited_certificate_policy_qualifier_type,Prohibited qualifier type: 1.3.6.1.5.5.7.2.2
 certificate.tbsCertificate.extensions.6.extnValue.cRLDistributionPoints,CrlDpDistributionPointCountValidator,WARNING,cabf.serverauth.crldp_multiple_distributionpoints_present,
 certificate.tbsCertificate.extensions.7.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
-certificate.tbsCertificate.extensions.8.extnValue.qCStatements.1.statementInfo.qcEuLimitValue,QcEuLimitValueValidator,WARNING,etsi.en_319_412_5.gen-4.3.2.alphabetic_code_not_found,
+certificate.tbsCertificate.extensions.8.extnValue.qCStatements.1.statementInfo.qcEuLimitValue,QcEuLimitValueValidator,WARNING,etsi.en_319_412_5.gen-4.3.2.discouraged_numeric_currency_code_present,
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.subject_key_identifier_extension_present,
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.unknown_extension_present,Unknown extension present: 1.3.6.1.5.5.7.1.3
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.unknown_extension_present,Unknown extension present: 2.23.140.3.1

@@ -42,7 +42,7 @@ DdrDbhISDnVJ/VRNDzTEBkmgrxDeRPPKbNRmCp661S1itOBePN3gy/7nZhCh
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.extensions.1.extnValue.qCStatements.2.statementInfo.qcCClegislation,QcCClegislationCountryCodeValidator,ERROR,etsi.en_319_412_5.gen-4.2.4.iso_country_bad_empty,
+certificate.tbsCertificate.extensions.1.extnValue.qCStatements.2.statementInfo.qcCClegislation,QcCCLegislationCountryCodeValidator,ERROR,etsi.en_319_412_5.gen-4.2.4.iso_country_code_list_empty,
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.subject_key_identifier_extension_present,
 certificate.tbsCertificate.extensions.9.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies,SubscriberPoliciesValidator,WARNING,cabf.serverauth.subscriber_first_policy_oid_not_reserved,
