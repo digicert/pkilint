@@ -295,7 +295,8 @@ def create_etsi_finding_filters(certificate_type) -> List[finding_filter.Finding
             serverauth_finding_filter.DnsNameGeneralNamePreferredNameSyntaxFilter(),
         ]
 
-    if certificate_type in etsi_constants.QEVCP_W_PSD2_EIDAS_CERTIFICATE_TYPES:
-        filters.append(etsi_finding_filter.Psd2CabfServerauthValidityPeriodFilter())
+    # TODO: figure out how to best handle this exception to BRG in TS 119 495
+    # if certificate_type in etsi_constants.QEVCP_W_PSD2_EIDAS_CERTIFICATE_TYPES:
+    #    filters.append(etsi_finding_filter.Psd2CabfServerauthValidityPeriodFilter())
 
     return filters
