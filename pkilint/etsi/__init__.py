@@ -205,6 +205,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
 
     top_level_validators = [
         en_319_412_2.ExtensionsPresenceValidator(),
+        ts_119_312.AllowedSignatureAlgorithmValidator(path='certificate.tbsCertificate.signature'),
     ]
 
     if certificate_type in etsi_constants.LEGAL_PERSON_CERTIFICATE_TYPES:

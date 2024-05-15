@@ -236,8 +236,5 @@ def create_subscriber_validators(validation_level, generation):
         smime_key.SmimeAllowedSignatureAlgorithmEncodingValidator(
             path='certificate.tbsCertificate.signature'
         ),
-        smime_key.SmimeAllowedSignatureAlgorithmEncodingValidator(
-            path='certificate.signatureValue'
-        ),
         cabf_extension.CabfExtensionsPresenceValidator(),
     ]

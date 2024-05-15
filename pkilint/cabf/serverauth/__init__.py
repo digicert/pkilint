@@ -106,9 +106,6 @@ def create_top_level_certificate_validators(certificate_type: serverauth_constan
         serverauth_key.ServerauthAllowedSignatureAlgorithmEncodingValidator(
             path='certificate.tbsCertificate.signature'
         ),
-        serverauth_key.ServerauthAllowedSignatureAlgorithmEncodingValidator(
-            path='certificate.signatureValue'
-        ),
         cabf_extension.CabfExtensionsPresenceValidator(),
     ]
 
