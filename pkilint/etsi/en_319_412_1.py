@@ -281,7 +281,6 @@ class NaturalPersonIdentifierValidator(validation.Validator):
 
         return validation.ValidationResult(self, node, findings)
 
-
 class EidasLegalPersonIdentifierValidator(validation.Validator):
     """
     LEG-5.1.6-03: Any organizationIdentifier attribute present in the subject field of the certificate shall
@@ -336,7 +335,6 @@ class EidasLegalPersonIdentifierValidator(validation.Validator):
                 f'Organization identifier "{value}" ({value_len} characters) exceeds maximum length of '
                 f'{self._MAX_LENGTH} characters'
             )
-
 
 class NameRegistrationAuthoritiesValidatorBase(validation.Validator):
     def __init__(
@@ -471,3 +469,70 @@ class LegalPersonIdentifierNameRegistrationAuthoritiesValidator(NameRegistration
             return False
 
         return parsed.is_national_scheme
+
+
+class NaturalPersonEidasIdentifierValidator(validation.Validator):
+    """
+    NAT-5.1.5-01: If using electronic identity attributes as specified in eIDAS SAML
+    attribute profile for a certificate issued to natural persons, the semantics of 
+    id-etsi-qcs-SemanticsId-eIDASNatural shall be as follows. 
+    NAT-5.1.5-02: If the eIDAS natural person identifier is included, the values 
+    of attributes in the subject field shall meet the content requirements of corresponding
+    attributes defined by the eIDAS SAML attribute profile according to the following requirements.
+
+    NAT-5.1.5-03: Any serialNumber attribute value in the subject field of the certificate
+    shall comply with the content requirement specified for the eIDAS PersonIdentifier attribute.
+
+    NAT-5.1.5-04: Attributes present in subject field of the certificate are equivalent to defined attributes 
+    in accordance to the below table. This means that the present attribute shall hold equivalent 
+    information, even if the format used to express that information differs.
+
+    serialNumber -> PersonIdentifier Example: ES/AT/02635542Y
+    """
+    VALIDATION_INVALID_ISO_3166 = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.nat_5.1.5-03.invalid-iso-3166'
+    )
+
+    VALIDATION_INVALID_SYNTAX_SERIAL = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.nat_5.1.5-03.invalid-syntax-serial'
+    )
+    VALIDATION_INVALID_CHARACTER_SERIAL = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.nat_5.1.5-03.invalid-character-serial'
+    )
+
+    def __init__(self):
+        super().__init__(
+            validations=[
+            self.VALIDATION_INVALID_ISO_3166,
+            self.VALIDATION_INVALID_SYNTAX_SERIAL,
+            self.VALIDATION_INVALID_CHARACTER_SERIAL
+        ],
+        pdu_class=rfc5280.X520SerialNumber
+    )
+    def match(self, node):
+        if not super().match(node):
+            return False
+
+        # noinspection PyTypeChecker
+        return _cert_has_semantics_id(en_319_412_1.id_etsi_qcs_semanticsId_eIDASNatural, node.document)
+    
+    def validate(self, node):
+        value = str(node.pdu)
+        findings = []
+        if len(value) < 7:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_INVALID_SYNTAX_SERIAL,
+            "Invalid serial number syntax (needs more characters).")
+        if value[2] != '/' or value[5] != '/':
+           findings.append(validation.ValidationFindingDescription(
+                    self.VALIDATION_INVALID_CHARACTER_SERIAL,
+                    "No backslash found after ISO-3166 country code."
+            ))
+        if value[0:2] not in organization_id.ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES or value[3:5] not in organization_id.ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES:
+            findings.append(validation.ValidationFindingDescription(
+                    self.VALIDATION_INVALID_ISO_3166,
+                    "Invalid 3166 ISO Code."
+            ))
+        return validation.ValidationResult(self, node, findings)
