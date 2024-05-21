@@ -1,6 +1,3 @@
-# Apple nonsense 
-.DS_Store 
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -133,3 +130,7 @@ dmypy.json
 
 .vscode/
 .idea/
+
+# Apple-specific
+.DS_Store
+
