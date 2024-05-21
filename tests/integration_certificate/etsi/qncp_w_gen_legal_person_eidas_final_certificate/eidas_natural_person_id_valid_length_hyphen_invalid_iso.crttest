@@ -47,7 +47,7 @@ sSO04NT71G7va3DyV/VGVbCnlkj7sIHIPRY=
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.subject.rdnSequence.6.0.value.x520SerialNumber,NaturalPersonEidasIdentifierValidator,ERROR,etsi.nat_5.1.5-03.invalid-character-serial,No backslash found after ISO-3166 country code.
-certificate.tbsCertificate.subject.rdnSequence.6.0.value.x520SerialNumber,NaturalPersonEidasIdentifierValidator,ERROR,etsi.nat_5.1.5-03.invalid-iso-3166,Invalid 3166 ISO Code.
+certificate.tbsCertificate.subject.rdnSequence.6.0.value.x520SerialNumber,NaturalPersonEidasIdentifierValidator,ERROR,etsi.nat_5.1.5-03.invalid_character_serial,No backslash found after ISO-3166 country code.
+certificate.tbsCertificate.subject.rdnSequence.6.0.value.x520SerialNumber,NaturalPersonEidasIdentifierValidator,ERROR,etsi.nat_5.1.5-03.invalid_iso_3166,Invalid 3166 ISO Code.
 certificate.tbsCertificate.extensions.6.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 

@@ -47,5 +47,5 @@ Mn0siV7uKhm0NzsLriV2hD4gQDVBHJGjyoOaXbmuC8Le9PJDhueBO6c898SxI7Tg
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.subject.rdnSequence.6.0.value.x520SerialNumber,NaturalPersonEidasIdentifierValidator,ERROR,etsi.nat_5.1.5-03.invalid-syntax-serial,Invalid serial number syntax (needs more characters).
+certificate.tbsCertificate.subject.rdnSequence.6.0.value.x520SerialNumber,NaturalPersonEidasIdentifierValidator,ERROR,etsi.nat_5.1.5-03.invalid_syntax_serial,Invalid serial number syntax (needs more characters).
 certificate.tbsCertificate.extensions.6.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,

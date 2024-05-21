@@ -448,7 +448,7 @@ class CertificatePolicyQualifierValidator(validation.Validator):
 class CertificatePoliciesUserNoticeValidator(validation.Validator):
     VALIDATION_NOTICEREF_PRESENT = validation.ValidationFinding(
         validation.ValidationFindingSeverity.WARNING,
-        'pkix.certificate_policies_usernotice_has_noticeRef'
+        'pkix.certificate_policies_usernotice_has_noticeref'
     )
 
     VALIDATION_EXPLICITTEXT_INVALID_ENCODING_5280 = validation.ValidationFinding(

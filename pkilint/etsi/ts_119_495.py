@@ -47,9 +47,9 @@ class RolesOfPspValidator(validation.Validator):
         if not any(node.children):
             raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_EMPTY)
 
-        for children in node.children.values():
-            psp_oid = children.pdu['roleOfPspOid']
-            role_psp = str(children.pdu['roleOfPspName'])
+        for child in node.children.values():
+            psp_oid = child.children['roleOfPspOid'].pdu
+            role_psp = str(child.children['roleOfPspName'].pdu)
             expected_role = self._expected_roles.get(psp_oid)
 
             if psp_oid not in self._expected_roles.keys():

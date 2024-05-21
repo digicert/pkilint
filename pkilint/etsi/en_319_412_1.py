@@ -86,10 +86,10 @@ class LegalPersonOrganizationIdentifierValidator(organization_id.OrganizationIde
 
     _VAT_SCHEME = organization_id.OrganizationIdentifierElementAllowance(
         country_codes=(organization_id.ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES | {
-                organization_id.COUNTRY_CODE_GREECE_TRADITIONAL,
-                organization_id.COUNTRY_CODE_NORTHERN_IRELAND
-            },
-            VALIDATION_INVALID_ORGANIZATION_ID_COUNTRY),
+            organization_id.COUNTRY_CODE_GREECE_TRADITIONAL,
+            organization_id.COUNTRY_CODE_NORTHERN_IRELAND
+        },
+                       VALIDATION_INVALID_ORGANIZATION_ID_COUNTRY),
         state_province=_STATE_PROVINCE_PROHIBITED,
         reference=_REFERENCE_REQUIRED
     )
@@ -281,6 +281,7 @@ class NaturalPersonIdentifierValidator(validation.Validator):
 
         return validation.ValidationResult(self, node, findings)
 
+
 class EidasLegalPersonIdentifierValidator(validation.Validator):
     """
     LEG-5.1.6-03: Any organizationIdentifier attribute present in the subject field of the certificate shall
@@ -335,6 +336,7 @@ class EidasLegalPersonIdentifierValidator(validation.Validator):
                 f'Organization identifier "{value}" ({value_len} characters) exceeds maximum length of '
                 f'{self._MAX_LENGTH} characters'
             )
+
 
 class NameRegistrationAuthoritiesValidatorBase(validation.Validator):
     def __init__(
@@ -491,48 +493,53 @@ class NaturalPersonEidasIdentifierValidator(validation.Validator):
     """
     VALIDATION_INVALID_ISO_3166 = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.nat_5.1.5-03.invalid-iso-3166'
+        'etsi.nat_5.1.5-03.invalid_iso_3166'
     )
 
     VALIDATION_INVALID_SYNTAX_SERIAL = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.nat_5.1.5-03.invalid-syntax-serial'
+        'etsi.nat_5.1.5-03.invalid_syntax_serial'
     )
     VALIDATION_INVALID_CHARACTER_SERIAL = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.nat_5.1.5-03.invalid-character-serial'
+        'etsi.nat_5.1.5-03.invalid_character_serial'
     )
 
     def __init__(self):
         super().__init__(
             validations=[
-            self.VALIDATION_INVALID_ISO_3166,
-            self.VALIDATION_INVALID_SYNTAX_SERIAL,
-            self.VALIDATION_INVALID_CHARACTER_SERIAL
-        ],
-        pdu_class=rfc5280.X520SerialNumber
-    )
+                self.VALIDATION_INVALID_ISO_3166,
+                self.VALIDATION_INVALID_SYNTAX_SERIAL,
+                self.VALIDATION_INVALID_CHARACTER_SERIAL
+            ],
+            pdu_class=rfc5280.X520SerialNumber
+        )
+
     def match(self, node):
         if not super().match(node):
             return False
 
         # noinspection PyTypeChecker
         return _cert_has_semantics_id(en_319_412_1.id_etsi_qcs_semanticsId_eIDASNatural, node.document)
-    
+
     def validate(self, node):
         value = str(node.pdu)
         findings = []
         if len(value) < 7:
             raise validation.ValidationFindingEncountered(self.VALIDATION_INVALID_SYNTAX_SERIAL,
-            "Invalid serial number syntax (needs more characters).")
+                                                          "Invalid serial number syntax (needs more characters).")
         if value[2] != '/' or value[5] != '/':
-           findings.append(validation.ValidationFindingDescription(
-                    self.VALIDATION_INVALID_CHARACTER_SERIAL,
-                    "No backslash found after ISO-3166 country code."
-            ))
-        if value[0:2] not in organization_id.ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES or value[3:5] not in organization_id.ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES:
             findings.append(validation.ValidationFindingDescription(
-                    self.VALIDATION_INVALID_ISO_3166,
-                    "Invalid 3166 ISO Code."
+                self.VALIDATION_INVALID_CHARACTER_SERIAL,
+                "No backslash found after ISO-3166 country code."
             ))
+        if (
+                value[0:2] not in organization_id.ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES or
+                value[3:5] not in organization_id.ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES
+        ):
+            findings.append(validation.ValidationFindingDescription(
+                self.VALIDATION_INVALID_ISO_3166,
+                "Invalid 3166 ISO Code."
+            ))
+
         return validation.ValidationResult(self, node, findings)
