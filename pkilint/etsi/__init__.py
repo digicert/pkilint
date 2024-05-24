@@ -8,7 +8,7 @@ from pkilint.cabf.serverauth import serverauth_constants, serverauth_name, serve
 from pkilint.common import organization_id, alternative_name
 from pkilint.etsi import (
     etsi_constants, ts_119_495, en_319_412_5, en_319_412_1, en_319_412_2, en_319_412_3,
-    ts_119_312, en_319_412_4, etsi_shared, etsi_finding_filter
+    ts_119_312, en_319_412_4, etsi_shared, etsi_finding_filter, en_319_411_1
 )
 from pkilint.etsi.asn1 import (
     en_319_412_1 as en_319_412_asn1, en_319_412_5 as en_319_412_5_asn1, ts_119_495 as ts_119_495_asn1
@@ -25,6 +25,7 @@ def determine_certificate_type(cert: certificate.RFC5280Certificate) -> Certific
     is_qualified = en_319_412_5_asn1.id_etsi_qcs_QcCompliance in qualified_statement_ids
     is_eidas_qualified = is_qualified and en_319_412_5_asn1.id_etsi_qcs_QcCClegislation not in qualified_statement_ids
     is_precert = cert.get_extension_by_oid(rfc6962.id_ce_criticalPoison) is not None
+    is_webauth = rfc5280.id_kp_serverAuth in cert.extended_key_usages
 
     if serverauth_constants.ID_POLICY_EV in policy_oids:
         is_psd2 = ts_119_495_asn1.id_etsi_psd2_qcStatement in qualified_statement_ids
@@ -82,33 +83,43 @@ def determine_certificate_type(cert: certificate.RFC5280Certificate) -> Certific
         ))
 
         if is_natural_person:
-            if is_eidas_qualified:
-                return (
-                    CertificateType.QNCP_W_GEN_NATURAL_PERSON_EIDAS_PRE_CERTIFICATE if is_precert
-                    else CertificateType.QNCP_W_GEN_NATURAL_PERSON_EIDAS_FINAL_CERTIFICATE
-                )
-            elif is_qualified:
-                return (
-                    CertificateType.QNCP_W_GEN_NATURAL_PERSON_NON_EIDAS_PRE_CERTIFICATE if is_precert
-                    else CertificateType.QNCP_W_GEN_NATURAL_PERSON_NON_EIDAS_FINAL_CERTIFICATE
-                )
-            else:
-                return (CertificateType.NCP_NATURAL_PERSON_PRE_CERTIFICATE if is_precert
-                        else CertificateType.NCP_NATURAL_PERSON_FINAL_CERTIFICATE)
+            if is_webauth:
+                if is_eidas_qualified:
+                    return (
+                        CertificateType.QNCP_W_GEN_NATURAL_PERSON_EIDAS_PRE_CERTIFICATE if is_precert
+                        else CertificateType.QNCP_W_GEN_NATURAL_PERSON_EIDAS_FINAL_CERTIFICATE
+                    )
+                elif is_qualified:
+                    return (
+                        CertificateType.QNCP_W_GEN_NATURAL_PERSON_NON_EIDAS_PRE_CERTIFICATE if is_precert
+                        else CertificateType.QNCP_W_GEN_NATURAL_PERSON_NON_EIDAS_FINAL_CERTIFICATE
+                    )
+                else:
+                    return (
+                        CertificateType.NCP_W_NATURAL_PERSON_PRE_CERTIFICATE if is_webauth
+                        else CertificateType.NCP_W_NATURAL_PERSON_FINAL_CERTIFICATE
+                    )
+
+            return CertificateType.NCP_NATURAL_PERSON_CERTIFICATE
         else:
-            if is_eidas_qualified:
-                return (
-                    CertificateType.QNCP_W_GEN_LEGAL_PERSON_EIDAS_PRE_CERTIFICATE if is_precert
-                    else CertificateType.QNCP_W_GEN_LEGAL_PERSON_EIDAS_FINAL_CERTIFICATE
-                )
-            elif is_qualified:
-                return (
-                    CertificateType.QNCP_W_GEN_LEGAL_PERSON_NON_EIDAS_PRE_CERTIFICATE if is_precert
-                    else CertificateType.QNCP_W_GEN_LEGAL_PERSON_NON_EIDAS_FINAL_CERTIFICATE
-                )
-            else:
-                return (CertificateType.NCP_LEGAL_PERSON_PRE_CERTIFICATE if is_precert
-                        else CertificateType.NCP_LEGAL_PERSON_FINAL_CERTIFICATE)
+            if is_webauth:
+                if is_eidas_qualified:
+                    return (
+                        CertificateType.QNCP_W_GEN_LEGAL_PERSON_EIDAS_PRE_CERTIFICATE if is_precert
+                        else CertificateType.QNCP_W_GEN_LEGAL_PERSON_EIDAS_FINAL_CERTIFICATE
+                    )
+                elif is_qualified:
+                    return (
+                        CertificateType.QNCP_W_GEN_LEGAL_PERSON_NON_EIDAS_PRE_CERTIFICATE if is_precert
+                        else CertificateType.QNCP_W_GEN_LEGAL_PERSON_NON_EIDAS_FINAL_CERTIFICATE
+                    )
+                else:
+                    return (
+                        CertificateType.NCP_W_LEGAL_PERSON_PRE_CERTIFICATE if is_webauth
+                        else CertificateType.NCP_W_LEGAL_PERSON_FINAL_CERTIFICATE
+                    )
+
+            return CertificateType.NCP_LEGAL_PERSON_CERTIFICATE
 
 
 def create_decoding_validators(certificate_type: CertificateType) -> List[validation.Validator]:
@@ -162,6 +173,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         en_319_412_1.EidasLegalPersonIdentifierValidator(),
         en_319_412_1.NaturalPersonEidasIdentifierValidator(),
         organization_id.OrganizationIdentifierLeiValidator(),
+        en_319_412_3.LegalPersonOrganizationAttributesEqualityValidator(),
     ]
 
     qc_statement_validators = [
@@ -170,7 +182,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         ts_119_495.NCAIdValidator(),
         en_319_412_5.QcCCLegislationCountryCodeValidator(),
         en_319_412_5.QcEuRetentionPeriodValidator(),
-        en_319_412_5.QcTypeValidator(),
+        en_319_412_5.QcTypeValidator(certificate_type),
         en_319_412_5.QcEuPDSHttpsURLValidator(),
         en_319_412_5.QcEuLimitValueValidator(),
         en_319_412_5.QcEuPDSLanguageValidator(),
@@ -185,18 +197,9 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
     )
 
     extension_validators = [
-        en_319_412_2.CertificatePoliciesCriticalityValidator(),
-        en_319_412_2.SubjectAlternativeNameCriticalityValidator(),
-        en_319_412_2.IssuerAlternativeNameCriticalityValidator(),
-        en_319_412_2.ExtendedKeyUsageCriticalityValidator(),
-        en_319_412_2.CRLDistributionPointsCriticalityValidator(),
-        en_319_412_2.NaturalPersonExtensionIdentifierAllowanceValidator(certificate_type),
-        en_319_412_2.CrlDistributionPointsExtensionPresenceValidator(),
-        en_319_412_2.CrlDistributionPointsValidator(),
-        en_319_412_2.AuthorityInformationAccessValidator(),
-        en_319_412_2.CertificatePoliciesValidator(certificate_type),
+        en_319_412_2.QualifiedCertificatePoliciesValidator(certificate_type),
         en_319_412_5.QcStatementsExtensionCriticalityValidator(),
-        qc_statements_validator_container
+        qc_statements_validator_container,
     ]
 
     spki_validators = [
@@ -209,38 +212,64 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         ts_119_312.AllowedSignatureAlgorithmValidator(path='certificate.tbsCertificate.signature'),
     ]
 
-    if certificate_type in etsi_constants.LEGAL_PERSON_CERTIFICATE_TYPES:
-        # TODO: modify when eSig and eSeal support is added
-        extension_validators.append(en_319_412_3.LegalPersonKeyUsageValidator(is_content_commitment_type=None))
-
+    if (
+            certificate_type in etsi_constants.LEGAL_PERSON_CERTIFICATE_TYPES and
+            certificate_type not in etsi_constants.CABF_CERTIFICATE_TYPES
+    ):
         subject_validators.extend([
             en_319_412_3.LegalPersonSubjectAttributeAllowanceValidator(),
             en_319_412_3.LegalPersonDuplicateAttributeAllowanceValidator(),
-            en_319_412_3.LegalPersonOrganizationAttributesEqualityValidator(),
             en_319_412_3.LegalPersonCountryCodeValidator(),
         ])
-    else:
-        # TODO: modify when eSig and eSeal support is added
-        extension_validators.append(en_319_412_2.NaturalPersonKeyUsageValidator(is_content_commitment_type=None))
 
-        subject_validators.extend([en_319_412_2.NaturalPersonSubjectAttributeAllowanceValidator()])
+    elif (
+            certificate_type in etsi_constants.NATURAL_PERSON_CERTIFICATE_TYPES and
+            certificate_type not in etsi_constants.CABF_CERTIFICATE_TYPES
+    ):
+        subject_validators.append(en_319_412_2.NaturalPersonSubjectAttributeAllowanceValidator())
+
+    if certificate_type not in etsi_constants.CABF_CERTIFICATE_TYPES:
+        extension_validators.extend([
+            en_319_412_2.CertificatePoliciesCriticalityValidator(),
+            en_319_412_2.SubjectAlternativeNameCriticalityValidator(),
+            en_319_412_2.IssuerAlternativeNameCriticalityValidator(),
+            en_319_412_2.ExtendedKeyUsageCriticalityValidator(),
+            en_319_412_2.CRLDistributionPointsCriticalityValidator(),
+            en_319_412_2.NaturalPersonExtensionIdentifierAllowanceValidator(certificate_type),
+            en_319_412_2.CrlDistributionPointsExtensionPresenceValidator(),
+            en_319_412_2.CrlDistributionPointsValidator(),
+            en_319_412_2.AuthorityInformationAccessValidator(),
+        ])
+
+        if certificate_type in etsi_constants.WEB_AUTHENTICATION_CERTIFICATE_TYPES:
+            extension_validators.extend([
+                en_319_412_4.NcpWExtendedKeyUsagePresenceValidator(),
+                serverauth.serverauth_subscriber.SubscriberEkuAllowanceValidator(),
+                en_319_412_4.NcpWCriticalityExtendedKeyUsageValidator(),
+                serverauth.serverauth_subscriber.SubscriberSanGeneralNameTypeValidator(),
+                serverauth_name.DnsNameLdhLabelSyntaxValidator(),
+                en_319_412_4.NcpWSubjectAltNamePresenceValidator(),
+            ])
+
+        # TODO: fix commitment types when adding support for eSeal and eSignature
+        if certificate_type in etsi_constants.LEGAL_PERSON_CERTIFICATE_TYPES:
+            extension_validators.append(en_319_412_3.LegalPersonKeyUsageValidator(is_content_commitment_type=None))
+        elif certificate_type in etsi_constants.NATURAL_PERSON_CERTIFICATE_TYPES:
+            extension_validators.append(en_319_412_2.NaturalPersonKeyUsageValidator(is_content_commitment_type=None))
 
     if certificate_type in etsi_constants.QEVCP_W_PSD2_EIDAS_CERTIFICATE_TYPES:
         qc_statement_validators.append(ts_119_495.PresenceofQCEUPDSStatementValidator())
+
         subject_validators.append(ts_119_495.PsdOrganizationIdentifierFormatValidator())
 
     if certificate_type in etsi_constants.QNCP_W_CERTIFICATE_TYPES:
         subject_validators.append(en_319_412_4.QncpWCommonNameValidator())
-    elif certificate_type in etsi_constants.QNCP_W_GEN_CERTIFICATE_TYPES:
-        subject_validators.append(en_319_412_4.QncpWGenCommonNameValidator())
-        extension_validators.append(en_319_412_4.QncpWGenExtendedKeyUsagePresenceValidator())
-        extension_validators.append(serverauth.serverauth_subscriber.SubscriberEkuAllowanceValidator())
-        extension_validators.append(en_319_412_4.QncpwGenCriticalityExtendedKeyUsageValidator())
-        extension_validators.append(serverauth.serverauth_subscriber.SubscriberSanGeneralNameTypeValidator())
-        extension_validators.append(serverauth_name.DnsNameLdhLabelSyntaxValidator())
-        extension_validators.append(en_319_412_4.QncpWGenSubjectAltNamePresenceValidator())
+    elif certificate_type in etsi_constants.NCP_W_CERTIFICATE_TYPES:
+        subject_validators.append(en_319_412_4.NcpWCommonNameValidator())
 
     if certificate_type in etsi_constants.CABF_CERTIFICATE_TYPES:
+        extension_validators.append(en_319_411_1.CertificatePoliciesValidator(certificate_type))
+
         serverauth_cert_type = etsi_constants.ETSI_TYPE_TO_CABF_SERVERAUTH_TYPE_MAPPINGS[certificate_type]
 
         return serverauth.create_validators(

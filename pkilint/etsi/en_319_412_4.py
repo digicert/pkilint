@@ -7,7 +7,7 @@ from pkilint.pkix import general_name, extension
 _ALLOWED_GENERAL_NAME_TYPES = {general_name.GeneralNameTypeName.DNS_NAME}
 
 
-class QncpWGenCommonNameValidator(common_name.CommonNameValidator):
+class NcpWCommonNameValidator(common_name.CommonNameValidator):
     """
     WEB-4.1.3-4 (d):
 
@@ -47,7 +47,7 @@ class QncpWCommonNameValidator(common_name.CommonNameValidator):
         )
 
 
-class QncpWGenExtendedKeyUsagePresenceValidator(extension.ExtensionPresenceValidator):
+class NcpWExtendedKeyUsagePresenceValidator(extension.ExtensionPresenceValidator):
     """
     WEB-4.1.3-4: The following certificate profile requirements specified in the BRG [9] shall apply for subject
     certificate fields addressed by the following sub-sections of BRG [9] (the version of BRG [9] shall be as referenced
@@ -66,7 +66,7 @@ class QncpWGenExtendedKeyUsagePresenceValidator(extension.ExtensionPresenceValid
         )
 
 
-class QncpWGenSubjectAltNamePresenceValidator(extension.ExtensionPresenceValidator):
+class NcpWSubjectAltNamePresenceValidator(extension.ExtensionPresenceValidator):
     """
     WEB-4.1.3-4: The following certificate profile requirements specified in the BRG [9] shall apply for subject
     certificate fields addressed by the following sub-sections of BRG [9] (the version of BRG [9] shall be as referenced
@@ -85,7 +85,7 @@ class QncpWGenSubjectAltNamePresenceValidator(extension.ExtensionPresenceValidat
         )
 
 
-class QncpwGenCriticalityExtendedKeyUsageValidator(extension.ExtensionCriticalityValidator):
+class NcpWCriticalityExtendedKeyUsageValidator(extension.ExtensionCriticalityValidator):
     """Validates that the criticality of the EKU extension conforms to BRG."""
     EXTENDED_KEY_USAGE_CRITICAL = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,

@@ -42,5 +42,5 @@ tODU+9Ru72tw8lf1RlWwp5ZI+7CByD0W
 
 node_path,validator,severity,code,message
 certificate.tbsCertificate.extensions.0,ExtendedKeyUsageCriticalityValidator,ERROR,etsi.en_319_412_2.gen-4.3.10-1.eku_extension_is_critical,Extension 2.5.29.37 is critical
-certificate.tbsCertificate.extensions.0,QncpwGenCriticalityExtendedKeyUsageValidator,ERROR,etsi.en_319_412_4.web-4.1.3-4.eku_extension_is_critical,Extension 2.5.29.37 is critical
 certificate.tbsCertificate.extensions.6.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
+certificate.tbsCertificate.extensions.0,NcpWCriticalityExtendedKeyUsageValidator,ERROR,etsi.en_319_412_4.web-4.1.3-4.eku_extension_is_critical,Extension 2.5.29.37 is critical

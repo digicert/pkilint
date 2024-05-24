@@ -41,5 +41,5 @@ lkj7sIHIPRY=
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.subject.rdnSequence.3.0.value.x520CommonName,QncpWGenCommonNameValidator,ERROR,etsi.en_319_412_4.web-4.1.3-4.common_name_unknown_source,"Unknown source for value of common name: ""foo.com"""
+certificate.tbsCertificate.subject.rdnSequence.3.0.value.x520CommonName,NcpWCommonNameValidator,ERROR,etsi.en_319_412_4.web-4.1.3-4.common_name_unknown_source,"Unknown source for value of common name: ""foo.com"""
 certificate.tbsCertificate.extensions.6.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,

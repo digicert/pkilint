@@ -32,5 +32,5 @@ certificate.tbsCertificate.extensions,CrlDistributionPointsExtensionPresenceVali
 certificate.tbsCertificate.extensions.1.extnValue.keyUsage,LegalPersonKeyUsageValidator,WARNING,etsi.en_319_412_2.nat-4.3.2-1.mixed_key_usage_setting,
 certificate.tbsCertificate.extensions.4.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 certificate.tbsCertificate.extensions,NaturalPersonExtensionIdentifierAllowanceValidator,ERROR,etsi.en_319_412_2.qc_statements_extension_absent,
-certificate.tbsCertificate.subject.rdnSequence.3.0.value.x520CommonName,QncpWGenCommonNameValidator,ERROR,etsi.en_319_412_4.web-4.1.3-4.common_name_unknown_source,"Unknown source for value of common name: ""sct"""
-certificate.tbsCertificate.extensions,QncpWGenSubjectAltNamePresenceValidator,ERROR,etsi.en_319_412_4.web-4.1.3-4.san_missing,
+certificate.tbsCertificate.subject.rdnSequence.3.0.value.x520CommonName,NcpWCommonNameValidator,ERROR,etsi.en_319_412_4.web-4.1.3-4.common_name_unknown_source,"Unknown source for value of common name: ""sct"""
+certificate.tbsCertificate.extensions,NcpWSubjectAltNamePresenceValidator,ERROR,etsi.en_319_412_4.web-4.1.3-4.san_missing,

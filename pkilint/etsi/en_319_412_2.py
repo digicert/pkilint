@@ -370,7 +370,7 @@ class AuthorityInformationAccessValidator(validation.Validator):
                 raise validation.ValidationFindingEncountered(self.VALIDATION_AIA_OCSP_HTTP_URI_MISSING)
 
 
-class CertificatePoliciesValidator(validation.Validator):
+class QualifiedCertificatePoliciesValidator(validation.Validator):
     """
     QCS-5.2-1: When certificates are issued as EU Qualified Certificates, they should include, in the certificate
     policies extension, one of the certificate policy identifiers defined in clause 5.3 of ETSI EN 319 411-2

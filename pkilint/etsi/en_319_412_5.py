@@ -109,39 +109,55 @@ class QcTypeValidator(validation.Validator):
     """EN 319 412-5 4.2.3 Declares that a certificate is issued as one and only one of the purposes
     of electronic signature, electronic seal or web site authentication. According to Stephen
     a qwac should never have seal or sign but may have psd2."""
-    VALIDATION_QCTYPE_NOT_WEB = validation.ValidationFinding(
+    VALIDATION_QC_TYPE_MISMATCH = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.en_319_412_5.gen-4.2.3.qctype_not_web'
+        'etsi.en_319_412_5.gen-4.2.3.qc_type_mismatch'
     )
 
-    VALIDATION_MULTIPLE_QCTYPE_VALUES_PRESENT = validation.ValidationFinding(
+    VALIDATION_MULTIPLE_QC_TYPE_VALUES_PRESENT = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
 
-        'etsi.en_319_412_5.gen-4.2.3.multiple_qctype_values_present'
+        'etsi.en_319_412_5.gen-4.2.3.multiple_qc_type_values_present'
     )
 
-    VALIDATION_QCTYPE_LIST_EMPTY = validation.ValidationFinding(
+    VALIDATION_QC_TYPE_LIST_EMPTY = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.en_319_412_5.gen-4.2.3.qctype_list_empty'
+        'etsi.en_319_412_5.gen-4.2.3.qc_type_list_empty'
     )
 
-    def __init__(self):
+    def __init__(self, certificate_type):
         super().__init__(
             validations=[
-                self.VALIDATION_QCTYPE_NOT_WEB,
-                self.VALIDATION_QCTYPE_LIST_EMPTY,
-                self.VALIDATION_MULTIPLE_QCTYPE_VALUES_PRESENT
+                self.VALIDATION_QC_TYPE_MISMATCH,
+                self.VALIDATION_QC_TYPE_LIST_EMPTY,
+                self.VALIDATION_MULTIPLE_QC_TYPE_VALUES_PRESENT
             ],
-            pdu_class=en_319_412_5.QcType)
+            pdu_class=en_319_412_5.QcType
+        )
+
+        self._certificate_type = certificate_type
+
+        if certificate_type in etsi_constants.WEB_AUTHENTICATION_CERTIFICATE_TYPES:
+            self._expected_qc_type = en_319_412_5.id_etsi_qct_web
+        else:
+            self._expected_qc_type = None
 
     def validate(self, node):
         if not node.children.values():
-            raise validation.ValidationFindingEncountered(self.VALIDATION_QCTYPE_LIST_EMPTY)
+            raise validation.ValidationFindingEncountered(self.VALIDATION_QC_TYPE_LIST_EMPTY)
+
         if len(node.children.values()) != 1:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_MULTIPLE_QCTYPE_VALUES_PRESENT)
-        _, qctype_value = node.child
-        if qctype_value.pdu != en_319_412_5.id_etsi_qct_web:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_QCTYPE_NOT_WEB)
+            raise validation.ValidationFindingEncountered(self.VALIDATION_MULTIPLE_QC_TYPE_VALUES_PRESENT)
+
+        if self._expected_qc_type:
+            _, qctype_value = node.child
+
+            if qctype_value.pdu != self._expected_qc_type:
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_QC_TYPE_MISMATCH,
+                    f'Certificate type is "{self._certificate_type.to_option_str}" but QcType qualified '
+                    f'statement contains "{qctype_value.pdu}"'
+                )
 
 
 class QcEuLimitValueValidator(validation.Validator):
