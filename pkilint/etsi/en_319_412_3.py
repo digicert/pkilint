@@ -148,7 +148,7 @@ class LegalPersonCountryCodeValidator(validation.Validator):
     def validate(self, node):
         value_str = str(node.pdu)
 
-        if value_str.upper() not in organization_id.ISO3166_1_COUNTRY_CODES:
+        if value_str not in organization_id.ISO3166_1_COUNTRY_CODES:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_UNKNOWN_COUNTRY_CODE,
                 f'Unknown country code: "{value_str}"'

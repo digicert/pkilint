@@ -44,7 +44,6 @@ Kl82McPD0QDASquH/mWAB4/yOeEE/0b49lsoZ2vUDQb41oCJhzxA6yGeDBpU3ibi
 
 node_path,validator,severity,code,message
 certificate.tbsCertificate.subject.rdnSequence,EvSubscriberAttributeAllowanceValidator,WARNING,cabf.ev_guidelines.common_name_attribute_present,
-certificate.tbsCertificate.extensions.1.extnValue.qCStatements,QcStatementIdentifierAllowanceValidator,ERROR,etsi.en_319_412_5.qcs-5.01.qc_compliance_qualified_statement_present,
 certificate.tbsCertificate.extensions.1.extnValue.qCStatements.2.statementInfo.qcCClegislation,QcCCLegislationCountryCodeValidator,ERROR,etsi.en_319_412_5.gen-4.2.4.iso_country_code_invalid,"Invalid country code found: ""ZZ"""
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies,SubscriberPoliciesValidator,WARNING,cabf.serverauth.subscriber_first_policy_oid_not_reserved,
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies.0.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,

@@ -140,7 +140,7 @@ def test_valid_vat():
     values_under_test = [
         'VATFR-1',
         'VATXI-1',
-        'VATel-1',
+        'VATEL-1',
     ]
 
     for value in values_under_test:
@@ -148,9 +148,17 @@ def test_valid_vat():
 
 
 def test_vat_invalid_country():
-    _expect_finding_for_orgid_value('VATXG-1',
-                                    LegalPersonOrganizationIdentifierValidator.VALIDATION_INVALID_ORGANIZATION_ID_COUNTRY
-                                    )
+    _expect_finding_for_orgid_value(
+        'VATXG-1',
+        LegalPersonOrganizationIdentifierValidator.VALIDATION_INVALID_ORGANIZATION_ID_COUNTRY
+    )
+
+
+def test_vat_invalid_country_lowercase():
+    _expect_finding_for_orgid_value(
+        'VATfr-1',
+        LegalPersonOrganizationIdentifierValidator.VALIDATION_INVALID_ORGANIZATION_ID_COUNTRY
+    )
 
 
 def test_vat_sp_present():
@@ -248,7 +256,7 @@ def test_lei_no_reference():
 
 def test_orgid_national_scheme():
     values_under_test = [
-        'EI:se-5567971433'
+        'EI:SE-5567971433'
     ]
 
     for value in values_under_test:
@@ -257,6 +265,17 @@ def test_orgid_national_scheme():
             LegalPersonOrganizationIdentifierValidator.VALIDATION_ORGANIZATION_NATIONAL_SCHEME_DETECTED
         )
 
+
+def test_orgid_national_scheme_lowercase_country_code():
+    values_under_test = [
+        'EI:se-5567971433'
+    ]
+
+    for value in values_under_test:
+        _expect_finding_for_orgid_value(
+            value,
+            LegalPersonOrganizationIdentifierValidator.VALIDATION_INVALID_ORGANIZATION_ID_SCHEME
+        )
 
 def _expect_finding_for_natural_person_id_value(value, finding):
     validator = NaturalPersonIdentifierValidator()
@@ -332,7 +351,7 @@ def test_valid_natural_person_values():
         'PASFR-1',
         'IDCFR-1',
         'PNOFR-1',
-        'TINfr-1',
+        'TINFR-1',
     ]
 
     for value in values_under_test:
@@ -355,7 +374,7 @@ def test_invalid_natural_person_id_country():
 
 def test_natural_person_id_national_scheme():
     values_under_test = [
-        'EI:se-5567971433'
+        'EI:SE-5567971433'
     ]
 
     for value in values_under_test:

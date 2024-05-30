@@ -290,7 +290,7 @@ class QcStatementIdentifierAllowanceValidator(common.ElementIdentifierAllowanceV
             allowances[en_319_412_5.id_etsi_qcs_QcCClegislation] = Rfc2119Word.MUST_NOT
             allowances[en_319_412_5.id_etsi_qcs_QcType] = Rfc2119Word.MUST
         elif certificate_type in etsi_constants.NON_EU_QWAC_TYPES:
-            allowances[en_319_412_5.id_etsi_qcs_QcCompliance] = Rfc2119Word.MUST_NOT
+            allowances[en_319_412_5.id_etsi_qcs_QcCompliance] = Rfc2119Word.MUST
             allowances[en_319_412_5.id_etsi_qcs_QcCClegislation] = Rfc2119Word.MUST
 
         if certificate_type in etsi_constants.QWAC_TYPES:

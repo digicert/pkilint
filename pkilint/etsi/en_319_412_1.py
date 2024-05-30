@@ -139,7 +139,7 @@ class LegalPersonOrganizationIdentifierValidator(organization_id.OrganizationIde
     def handle_unknown_scheme(cls, node: document.PDUNode, parsed: organization_id.ParsedOrganizationIdentifier):
         is_valid_national_scheme = (
                 parsed.is_national_scheme and
-                parsed.country.upper() in organization_id.ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES and
+                parsed.country in organization_id.ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES and
                 parsed.state_province is None and
                 parsed.reference
         )
@@ -273,7 +273,7 @@ class NaturalPersonIdentifierValidator(validation.Validator):
                     f'Invalid natural person identifier scheme: "{parsed.scheme}"'
                 ))
 
-        if parsed.country.upper() not in organization_id.ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES:
+        if parsed.country not in organization_id.ISO3166_1_WITH_TRANSNATIONAL_COUNTRY_CODES:
             findings.append(validation.ValidationFindingDescription(
                 self.VALIDATION_INVALID_NATURAL_PERSON_ID_COUNTRY,
                 f'Invalid natural person identifier country code: "{parsed.country}"'

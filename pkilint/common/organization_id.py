@@ -160,7 +160,7 @@ class OrganizationIdentifierValidatorBase(validation.Validator):
         allowed_country_codes, finding = scheme_allowance.country_codes
 
         findings = []
-        if parsed.country.upper() not in allowed_country_codes:
+        if parsed.country not in allowed_country_codes:
             findings.append(
                 validation.ValidationFindingDescription(
                     finding,
