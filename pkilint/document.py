@@ -19,11 +19,11 @@ PATH_REGEX = re.compile(r'^((?P<doc_name>[^:]*):)?(?P<node_path>([^.]+\.)*[^.]+)
 
 
 try:
+    # noinspection PyUnresolvedReferences
     from pyasn1_fasder import decode_der
 
     logging.info('Using pyasn1-fasder for ASN.1 DER decoding')
-#    _USE_PYASN1_FASDER = True
-    _USE_PYASN1_FASDER = False
+    _USE_PYASN1_FASDER = True
 except ImportError:
     _USE_PYASN1_FASDER = False
 

@@ -277,6 +277,7 @@ def test_orgid_national_scheme_lowercase_country_code():
             LegalPersonOrganizationIdentifierValidator.VALIDATION_INVALID_ORGANIZATION_ID_SCHEME
         )
 
+
 def _expect_finding_for_natural_person_id_value(value, finding):
     validator = NaturalPersonIdentifierValidator()
 

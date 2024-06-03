@@ -1,8 +1,9 @@
+import typing
 from typing import List
 
 from pyasn1_alt_modules import rfc5280, rfc6962, rfc3739
 
-from pkilint import validation, finding_filter, cabf
+from pkilint import validation, finding_filter, cabf, document
 from pkilint.cabf import serverauth
 from pkilint.cabf.serverauth import serverauth_constants, serverauth_name, serverauth_finding_filter
 from pkilint.common import organization_id, alternative_name
@@ -166,7 +167,13 @@ def create_decoding_validators(certificate_type: CertificateType) -> List[valida
         )
 
 
-def create_validators(certificate_type: CertificateType) -> List[validation.Validator]:
+def create_validators(certificate_type: CertificateType,
+                      validity_period_start_retriever: typing.Optional[document.ValidityPeriodStartRetriever] = None,
+                      additional_validity_validators=None,
+                      additional_spki_validators=None,
+                      additional_name_validators=None,
+                      additional_extension_validators=None,
+                      additional_top_level_validators=None) -> List[validation.Validator]:
     subject_validators = [
         en_319_412_1.LegalPersonOrganizationIdentifierValidator(),
         en_319_412_1.NaturalPersonIdentifierValidator(),
@@ -175,6 +182,9 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         organization_id.OrganizationIdentifierLeiValidator(),
         en_319_412_3.LegalPersonOrganizationAttributesEqualityValidator(),
     ]
+
+    if additional_name_validators:
+        subject_validators.extend(additional_name_validators)
 
     qc_statement_validators = [
         ts_119_495.RolesOfPspValidator(),
@@ -202,15 +212,24 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
         qc_statements_validator_container,
     ]
 
+    if additional_extension_validators:
+        extension_validators.extend(additional_extension_validators)
+
     spki_validators = [
         ts_119_312.RsaKeyValidator(),
         ts_119_312.AllowedPublicKeyTypeValidator(),
     ]
 
+    if additional_spki_validators:
+        spki_validators.extend(additional_spki_validators)
+
     top_level_validators = [
         en_319_412_2.ExtensionsPresenceValidator(),
         ts_119_312.AllowedSignatureAlgorithmValidator(path='certificate.tbsCertificate.signature'),
     ]
+
+    if additional_top_level_validators:
+        top_level_validators.extend(additional_top_level_validators)
 
     if (
             certificate_type in etsi_constants.LEGAL_PERSON_CERTIFICATE_TYPES and
@@ -274,7 +293,9 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
 
         return serverauth.create_validators(
             serverauth_cert_type,
+            validity_period_start_retriever=validity_period_start_retriever,
             additional_top_level_validators=top_level_validators,
+            additional_validity_validators=additional_validity_validators,
             additional_name_validators=subject_validators,
             additional_extension_validators=extension_validators,
             additional_spki_validators=spki_validators
@@ -304,7 +325,7 @@ def create_validators(certificate_type: CertificateType) -> List[validation.Vali
             certificate.create_issuer_validator_container(
                 []
             ),
-            certificate.create_validity_validator_container(),
+            certificate.create_validity_validator_container(additional_validity_validators),
             certificate.create_subject_validator_container(
                 subject_validators
             ),
@@ -327,6 +348,6 @@ def create_etsi_finding_filters(certificate_type) -> List[finding_filter.Finding
         ]
 
     if certificate_type in etsi_constants.QEVCP_W_PSD2_EIDAS_NON_BROWSER_CERTIFICATE_TYPES:
-       filters.append(etsi_finding_filter.Psd2CabfServerauthValidityPeriodFilter())
+        filters.append(etsi_finding_filter.Psd2CabfServerauthValidityPeriodFilter())
 
     return filters
