@@ -15,13 +15,3 @@ ETSI_QC_STATEMENTS_MAPPINGS = {
     rfc3739.id_qcs_pkixQCSyntax_v1: document.OptionalAsn1TypeWrapper(rfc3739.SemanticsInformation()),
     rfc3739.id_qcs_pkixQCSyntax_v2: document.OptionalAsn1TypeWrapper(rfc3739.SemanticsInformation()),
 }
-
-ETSI_CERTIFICATE_TYPE_POLICY_OIDS = {
-    en_319_411_2.id_qcp_natural,
-    en_319_411_2.id_qcp_legal,
-    en_319_411_2.id_qcp_natural_qscd,
-    en_319_411_2.id_qcp_legal_qscd,
-    en_319_411_2.id_qcp_web,
-    en_319_411_2.id_qncp_web,
-    en_319_411_2.id_qncp_web_gen,
-}

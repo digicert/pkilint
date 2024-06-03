@@ -423,12 +423,12 @@ pkilint is built on several open source packages. In particular, these packages 
 | cryptography       | Apache Software License; BSD License | The Python Cryptographic Authority and individual contributors | https://github.com/pyca/cryptography              |
 | fastapi            | MIT License                          | Sebastián Ramírez                                              | https://github.com/tiangolo/fastapi               |
 | iso3166            | MIT License                          | Mike Spindel                                                   | http://github.com/deactivated/python-iso3166      |
+| iso4217            | Public Domain                        | Hong Minhee                                                    | https://github.com/dahlia/iso4217                 |
 | publicsuffixlist   | Mozilla Public License 2.0 (MPL 2.0) | ko-zu                                                          | https://github.com/ko-zu/psl                      |
 | pyasn1             | BSD License                          | Christian Heimes and Simon Pichugin                            | https://github.com/pyasn1/pyasn1                  |
 | pyasn1-alt-modules | BSD License                          | Russ Housley                                                   | https://github.com/russhousley/pyasn1-alt-modules |
 | python-dateutil    | Apache Software License; BSD License | Gustavo Niemeyer                                               | https://github.com/dateutil/dateutil              |
 | python-iso639      | Apache Software License              | Jackson L. Lee                                                 | https://github.com/jacksonllee/iso639             |
 | validators         | MIT License                          | Konsta Vesterinen                                              | https://github.com/kvesteri/validators            |
-| iso4217            | Public Domain                        | Hong Minhee                                                    | https://github.com/dahlia/iso4217                 |
 
 The pkilint maintainers are grateful to the authors of these open source contributions.

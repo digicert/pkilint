@@ -3,6 +3,7 @@ import typing
 from pyasn1.type import univ
 from pyasn1_alt_modules import rfc5280, rfc3739
 
+import pkilint.etsi.asn1.en_319_411_2
 from pkilint import validation, oid, document, common
 from pkilint.etsi import asn1 as etsi_asn1, etsi_shared
 from pkilint.etsi import etsi_constants
@@ -433,7 +434,7 @@ class QualifiedCertificatePoliciesValidator(validation.Validator):
     def validate(self, node):
         policy_oids = node.document.policy_oids
 
-        certificate_type_policy_oids = policy_oids & etsi_asn1.ETSI_CERTIFICATE_TYPE_POLICY_OIDS
+        certificate_type_policy_oids = policy_oids & pkilint.etsi.asn1.en_319_411_2.QUALIFIED_POLICY_OIDS
 
         if len(certificate_type_policy_oids) > 1:
             oids = oid.format_oids(certificate_type_policy_oids)

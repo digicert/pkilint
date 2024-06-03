@@ -17,3 +17,13 @@ id_qcp_web = _ARC + (4,)
 id_qncp_web = _ARC + (5,)
 
 id_qncp_web_gen = _ARC + (6,)
+
+QUALIFIED_POLICY_OIDS = {
+    id_qcp_natural,
+    id_qcp_legal,
+    id_qcp_natural_qscd,
+    id_qcp_legal_qscd,
+    id_qcp_web,
+    id_qncp_web,
+    id_qncp_web_gen,
+}
