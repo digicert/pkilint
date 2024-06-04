@@ -143,7 +143,7 @@ The list of command line linters bundled with pkilint:
 * [lint_pkix_cert](#lintpkixcert)
 * [lint_cabf_smime_cert](#lintcabfsmimecert)
 * [lint_cabf_serverauth_cert](#lintcabfserverauthcert)
-* [lint_etsi_cert] (#lintetsicert)
+* [lint_etsi_cert](#lintetsicert)
 * [lint_crl](#lintcrl)
 * [lint_ocsp_response](#lintocspresponse)
 * [lint_pkix_signer_signee_cert_chain](#lintpkixsignersigneecertchain)
