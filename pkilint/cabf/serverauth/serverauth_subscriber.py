@@ -1,4 +1,3 @@
-import ipaddress
 import operator
 from datetime import timedelta
 
@@ -584,7 +583,6 @@ class OrganizationIdentifierConsistentSubjectAndExtensionValidator(validation.Va
         super().__init__(
             validations=[
                 self.VALIDATION_CABF_ORG_ID_NO_EXT,
-                cabf_name.CabfOrganizationIdentifierAttributeValidator.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
                 self.VALIDATION_CABF_ORG_ID_MISMATCHED_VALUE,
             ],
             pdu_class=x520_name.X520OrganizationIdentifier,
@@ -611,11 +609,9 @@ class OrganizationIdentifierConsistentSubjectAndExtensionValidator(validation.Va
 
         try:
             org_id_attr_parsed = organization_id.parse_organization_identifier(attr_value)
-        except ValueError as e:
-            raise validation.ValidationFindingEncountered(
-                cabf_name.CabfOrganizationIdentifierAttributeValidator.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
-                str(e)
-            )
+        except ValueError:
+            # let the format validator report this error
+            return
 
         org_id_ext_parsed = _parse_organization_identifier_extension(ext_node)
 
