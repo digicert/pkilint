@@ -305,6 +305,8 @@ $
 
 ### lint_etsi_cert
 
+For further information on this linter, see [the Wiki page](https://github.com/digicert/pkilint/wiki/lint_etsi_cert).
+
 This tool lints certificates against the profiles specified in ETSI EN 319 412 and TS 119 495. Currently, the tool
 has the most comprehensive support for website authentication certificates, but support for electronic signature,
 electronic seal, and timestamping certificates is planned.
