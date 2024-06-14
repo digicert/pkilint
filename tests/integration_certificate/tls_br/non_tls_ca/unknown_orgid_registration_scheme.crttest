@@ -52,6 +52,6 @@ certificate.tbsCertificate.extensions.7.extnValue.cRLDistributionPoints,CrlDpDis
 certificate.tbsCertificate.subject.rdnSequence,CaRequiredSubjectAttributesValidator,WARNING,cabf.serverauth.ca.unknown_attribute_present,Unknown attribute present: 2.5.4.97
 certificate.tbsCertificate.extensions.6.extnValue.certificatePolicies.0.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
 certificate.tbsCertificate.subject.rdnSequence,CaRequiredSubjectAttributesValidator,WARNING,cabf.serverauth.ca.unknown_attribute_present,Unknown attribute present: 2.5.4.5
-certificate.tbsCertificate.subject.rdnSequence.2.0,OrganizationIdentifierAttributeValidator,ERROR,cabf.invalid_subject_organization_identifier_registration_scheme,"Invalid registration scheme: ""NIT"""
+certificate.tbsCertificate.subject.rdnSequence.2.0.value.x520OrganizationIdentifier,CabfOrganizationIdentifierAttributeValidator,ERROR,cabf.invalid_organization_identifier_registration_scheme,"Invalid registration scheme: ""NIT"""
 certificate.tbsCertificate.extensions.4.extnValue.keyUsage,CaKeyUsageValidator,NOTICE,cabf.ca_certificate_no_digital_signature_bit,
 certificate.tbsCertificate.subject.rdnSequence,AttributeOrderEncodingValidator,ERROR,cabf.serverauth.invalid_rdn_order,Invalid RDN order: 2.5.4.8 follows 2.5.4.10

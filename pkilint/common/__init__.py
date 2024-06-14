@@ -1,15 +1,15 @@
-from typing import Callable, Mapping, Optional, NamedTuple
+from typing import Callable, Mapping, Optional
 
 from pyasn1.type import univ
-from pyasn1_alt_modules import rfc5280, rfc6962, rfc6960
+from pyasn1_alt_modules import rfc5280, rfc6962, rfc6960, rfc3739
 
-from pkilint import validation, document, pkix, oid
+from pkilint import validation, document, pkix
 from pkilint.cabf.asn1 import ev_guidelines
 from pkilint.itu import x520_name
 from pkilint.pkix import Rfc2119Word
 
 OID_TO_CODE_NAME = {
-    # EKU
+    # EKUs
     rfc5280.id_kp_codeSigning: 'codesigning',
     rfc5280.id_kp_emailProtection: 'emailprotection',
     rfc5280.id_kp_timeStamping: 'timestamping',
@@ -19,7 +19,7 @@ OID_TO_CODE_NAME = {
     rfc5280.id_kp_serverAuth: 'serverauth',
     rfc5280.id_kp_clientAuth: 'clientauth',
 
-    # extension
+    # extensions
     rfc5280.id_ce_authorityKeyIdentifier: 'authority_key_identifier',
     rfc5280.id_ce_basicConstraints: 'basic_constraints',
     rfc5280.id_ce_certificatePolicies: 'certificate_policies',
@@ -33,6 +33,11 @@ OID_TO_CODE_NAME = {
     rfc5280.id_ce_subjectAltName: 'subject_altname',
     rfc6962.id_ce_criticalPoison: 'precert_poison',
     rfc6960.id_pkix_ocsp_nocheck: 'ocsp_nocheck',
+    rfc3739.id_pe_qcStatements: 'qc_statements',
+    rfc5280.id_ce_policyMappings: 'policy_mappings',
+    rfc5280.id_ce_policyConstraints: 'policy_constraints',
+    rfc5280.id_ce_inhibitAnyPolicy: 'inhibit_any_policy',
+
 
     # AIA access methods
     rfc5280.id_ad_ocsp: 'ocsp',
@@ -54,16 +59,20 @@ OID_TO_CODE_NAME = {
     ev_guidelines.id_evat_jurisdiction_localityName: 'jurisdiction_locality',
     rfc5280.id_at_surname: 'surname',
     rfc5280.id_at_givenName: 'given_name',
+    x520_name.id_at_organizationIdentifier: 'organization_identifier',
 }
 
 
 class ElementIdentifierAllowanceValidator(validation.Validator):
-    @staticmethod
-    def _create_finding(fmt: str, rfc2119word: pkix.Rfc2119Word, o: univ.ObjectIdentifier):
+    # use global mappings by default
+    _OID_TO_CODE_NAME = OID_TO_CODE_NAME
+
+    @classmethod
+    def _create_finding(cls, fmt: str, rfc2119word: pkix.Rfc2119Word, o: univ.ObjectIdentifier):
         if rfc2119word == pkix.Rfc2119Word.MAY:
             return None
         else:
-            return validation.ValidationFinding(rfc2119word.to_severity, fmt.format(oid=OID_TO_CODE_NAME[o]))
+            return validation.ValidationFinding(rfc2119word.to_severity, fmt.format(oid=cls._OID_TO_CODE_NAME[o]))
 
     def __init__(self, element_name: str, element_oid_retriever: Callable[[document.PDUNode], document.PDUNode],
                  known_element_allowances: Mapping[univ.ObjectIdentifier, pkix.Rfc2119Word],
@@ -76,12 +85,12 @@ class ElementIdentifierAllowanceValidator(validation.Validator):
         self._element_oid_retriever = element_oid_retriever
 
         self._expected_element_presences = {
-            o: ElementIdentifierAllowanceValidator._create_finding(unexpected_absence_code_format, w, o)
+            o: self._create_finding(unexpected_absence_code_format, w, o)
             for o, w in known_element_allowances.items()
             if w in {Rfc2119Word.MAY, Rfc2119Word.SHOULD, Rfc2119Word.MUST}
         }
         self._expected_element_absences = {
-            o: ElementIdentifierAllowanceValidator._create_finding(unexpected_presence_code_format, w, o)
+            o: self._create_finding(unexpected_presence_code_format, w, o)
             for o, w in known_element_allowances.items()
             if w in {Rfc2119Word.MAY, Rfc2119Word.SHOULD_NOT, Rfc2119Word.MUST_NOT}
         }
@@ -123,14 +132,14 @@ class ElementIdentifierAllowanceValidator(validation.Validator):
 
 
 class ExtensionsPresenceValidator(validation.Validator):
-    def __init__(self, validation):
-        self._validation = validation
+    def __init__(self, validation_extensions_field_absent):
+        self._validation_extensions_field_absent = validation_extensions_field_absent
 
-        super().__init__(validations=validation, pdu_class=rfc5280.TBSCertificate)
+        super().__init__(validations=validation_extensions_field_absent, pdu_class=rfc5280.TBSCertificate)
 
     def validate(self, node):
         if 'extensions' not in node.children:
-            raise validation.ValidationFindingEncountered(self._validation)
+            raise validation.ValidationFindingEncountered(self._validation_extensions_field_absent)
 
 
 class ExtensionIdentifierAllowanceValidator(ElementIdentifierAllowanceValidator):

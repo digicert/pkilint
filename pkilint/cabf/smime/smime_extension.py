@@ -8,7 +8,9 @@ from pkilint.cabf.smime import smime_constants
 from pkilint.cabf.smime.smime_constants import Generation, ValidationLevel
 from pkilint.cabf.smime.smime_name import get_email_addresses_from_san
 from pkilint.iso import lei
+from pkilint.itu import bitstring
 from pkilint.pkix import extension
+from pkilint.pkix.certificate.certificate_extension import KeyUsageBitName
 
 
 class CertificatePoliciesPresenceValidator(extension.ExtensionPresenceValidator):
@@ -277,25 +279,6 @@ class AllowedExtendedKeyUsageValidator(validation.Validator):
         return validation.ValidationResult(self, node, findings)
 
 
-def _has_bit(node, bit_name):
-    bit = rfc5280.KeyUsage.namedValues[bit_name]
-    return len(node.pdu) > bit and node.pdu[bit] != 0
-
-
-def _get_prohibited_kus(node, allowed_kus):
-    prohibited_kus = (
-        set(map(str, rfc5280.KeyUsage.namedValues)).difference(
-            allowed_kus
-        )
-    )
-
-    return [
-        pk
-        for pk in prohibited_kus
-        if _has_bit(node, pk)
-    ]
-
-
 class AllowedKeyUsageValidator(validation.Validator):
     VALIDATION_UNKNOWN_CERT_TYPE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
@@ -317,6 +300,8 @@ class AllowedKeyUsageValidator(validation.Validator):
         'cabf.smime.unsupported_public_key_type'
     )
 
+    _ALL_KUS = {str(n) for n in rfc5280.KeyUsage.namedValues}
+
     def __init__(self, generation):
         super().__init__(
             validations=[
@@ -330,37 +315,41 @@ class AllowedKeyUsageValidator(validation.Validator):
 
         self._generation = generation
 
+    @classmethod
+    def _get_prohibited_kus(cls, node, allowed_kus):
+        return {
+            pk
+            for pk in cls._ALL_KUS - allowed_kus
+            if bitstring.has_named_bit(node, pk)
+        }
+
     def validate(self, node):
         spki_alg_oid = node.navigate(
             ':certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm'
         ).pdu
 
-        DS = 'digitalSignature'
-        NR = 'nonRepudiation'
-        DE = 'dataEncipherment'
-        KE = 'keyEncipherment'
-        KA = 'keyAgreement'
-        EO = 'encipherOnly'
-        DO = 'decipherOnly'
-
-        allowed_kus = {DS}
-        is_signing_cert = _has_bit(node, DS)
+        allowed_kus = {KeyUsageBitName.DIGITAL_SIGNATURE}
+        is_signing_cert = bitstring.has_named_bit(node, KeyUsageBitName.DIGITAL_SIGNATURE)
 
         if is_signing_cert:
-            allowed_kus.add(NR)
+            allowed_kus.add(KeyUsageBitName.NON_REPUDIATION)
 
         if spki_alg_oid == rfc3279.rsaEncryption:
-            allowed_kus.add(KE)
+            allowed_kus.add(KeyUsageBitName.KEY_ENCIPHERMENT)
 
-            is_key_mgmt_cert = _has_bit(node, KE)
+            is_key_mgmt_cert = bitstring.has_named_bit(node, KeyUsageBitName.KEY_ENCIPHERMENT)
 
             if is_key_mgmt_cert and self._generation != Generation.STRICT:
-                allowed_kus.add(DE)
+                allowed_kus.add(KeyUsageBitName.DATA_ENCIPHERMENT)
         elif spki_alg_oid == rfc5480.id_ecPublicKey:
-            is_key_mgmt_cert = _has_bit(node, KA)
+            is_key_mgmt_cert = bitstring.has_named_bit(node, KeyUsageBitName.KEY_AGREEMENT)
 
             if is_key_mgmt_cert:
-                allowed_kus.update({EO, DO, KA})
+                allowed_kus.update({
+                    KeyUsageBitName.ENCIPHER_ONLY,
+                    KeyUsageBitName.DECIPHER_ONLY,
+                    KeyUsageBitName.KEY_AGREEMENT,
+                })
         elif spki_alg_oid in {rfc8410.id_Ed448, rfc8410.id_Ed25519}:
             is_key_mgmt_cert = False
         else:
@@ -369,7 +358,7 @@ class AllowedKeyUsageValidator(validation.Validator):
         if not is_signing_cert and not is_key_mgmt_cert:
             raise validation.ValidationFindingEncountered(self.VALIDATION_UNKNOWN_CERT_TYPE)
 
-        prohibited_kus = _get_prohibited_kus(node, allowed_kus)
+        prohibited_kus = self._get_prohibited_kus(node, allowed_kus)
 
         if len(prohibited_kus) > 0:
             ku_str = ', '.join(sorted(prohibited_kus))

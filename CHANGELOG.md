@@ -2,6 +2,13 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.11.0 - 2024-06-14
+
+### New features/enhancements
+
+- Add support for linting ETSI website authentication certificates (#80)
+- Add opt-in support for using [pyasn1-fasder](https://github.com/CBonnell/pyasn1-fasder) to decode DER (#81)
+
 ## 0.10.3 - 2024-05-13
 
 ### New features/enhancements

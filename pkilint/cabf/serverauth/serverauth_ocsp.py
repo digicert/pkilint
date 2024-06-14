@@ -4,7 +4,7 @@ import pkilint.common
 from pkilint import validation, common
 from pkilint.itu import bitstring
 from pkilint.pkix import Rfc2119Word
-
+from pkilint.pkix.certificate.certificate_extension import KeyUsageBitName
 
 _CODE_CLASSIFIER = 'cabf.serverauth.ocsp_responder'
 
@@ -24,14 +24,14 @@ class OcspResponderKeyUsageValidator(validation.Validator):
 
     _PROHIBITED_KUS = {
                           str(n) for n in rfc5280.KeyUsage.namedValues
-                      } - {'digitalSignature'}
+                      } - {KeyUsageBitName.DIGITAL_SIGNATURE}
 
     def __init__(self):
         super().__init__(validations=[self.VALIDATION_DIGSIG_MISSING, self.VALIDATION_PROHIBITED_KU_PRESENT],
                          pdu_class=rfc5280.KeyUsage)
 
     def validate(self, node):
-        if not bitstring.has_named_bit(node, 'digitalSignature'):
+        if not bitstring.has_named_bit(node, KeyUsageBitName.DIGITAL_SIGNATURE):
             raise validation.ValidationFindingEncountered(self.VALIDATION_DIGSIG_MISSING)
 
         prohibited_kus_asserted = sorted((k for k in self._PROHIBITED_KUS if bitstring.has_named_bit(node, k)))

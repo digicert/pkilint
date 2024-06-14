@@ -130,3 +130,7 @@ dmypy.json
 
 .vscode/
 .idea/
+
+# Apple-specific
+.DS_Store
+

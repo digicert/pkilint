@@ -2,7 +2,7 @@ from typing import NamedTuple, Set
 
 import unicodedata
 from pyasn1.type.univ import ObjectIdentifier
-from pyasn1_alt_modules import rfc5280, rfc4262, rfc6962
+from pyasn1_alt_modules import rfc5280, rfc4262, rfc6962, rfc3739
 
 from pkilint import validation, oid
 from pkilint.itu.bitstring import has_named_bit
@@ -448,7 +448,7 @@ class CertificatePolicyQualifierValidator(validation.Validator):
 class CertificatePoliciesUserNoticeValidator(validation.Validator):
     VALIDATION_NOTICEREF_PRESENT = validation.ValidationFinding(
         validation.ValidationFindingSeverity.WARNING,
-        'pkix.certificate_policies_usernotice_has_noticeRef'
+        'pkix.certificate_policies_usernotice_has_noticeref'
     )
 
     VALIDATION_EXPLICITTEXT_INVALID_ENCODING_5280 = validation.ValidationFinding(
@@ -568,6 +568,19 @@ class KeyUsageCriticalityValidator(validation.Validator):
             )
 
 
+# TODO: consider subclassing from StrEnum when minimum supported Python version is 3.11
+class KeyUsageBitName:
+    DIGITAL_SIGNATURE = 'digitalSignature'
+    NON_REPUDIATION = 'nonRepudiation'
+    KEY_ENCIPHERMENT = 'keyEncipherment'
+    DATA_ENCIPHERMENT = 'dataEncipherment'
+    KEY_AGREEMENT = 'keyAgreement'
+    KEY_CERT_SIGN = 'keyCertSign'
+    CRL_SIGN = 'cRLSign'
+    ENCIPHER_ONLY = 'encipherOnly'
+    DECIPHER_ONLY = 'decipherOnly'
+
+
 class KeyUsageValidator(validation.Validator):
     VALIDATION_NO_BITS_SET = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
@@ -613,7 +626,7 @@ class KeyUsageValidator(validation.Validator):
 
         is_ca = node.document.is_ca
 
-        has_keycertsign = has_named_bit(node, 'keyCertSign')
+        has_keycertsign = has_named_bit(node, KeyUsageBitName.KEY_CERT_SIGN)
 
         if is_ca and not has_keycertsign:
             raise validation.ValidationFindingEncountered(
@@ -624,8 +637,8 @@ class KeyUsageValidator(validation.Validator):
                 self.VALIDATION_EE_KEYCERTSIGN_SET
             )
 
-        has_eo = has_named_bit(node, 'encipherOnly')
-        has_do = has_named_bit(node, 'decipherOnly')
+        has_eo = has_named_bit(node, KeyUsageBitName.ENCIPHER_ONLY)
+        has_do = has_named_bit(node, KeyUsageBitName.DECIPHER_ONLY)
 
         if has_eo and has_do:
             raise validation.ValidationFindingEncountered(
@@ -780,3 +793,94 @@ class CtPrecertPoisonSctListMutuallyExclusiveExtensionsValidator(validation.Vali
         if poison_ext is not None:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_SIMULTANEOUS_PRECERT_POISON_SCTLIST_EXTENSIONS)
+
+
+class PolicyConstraintsPresenceValidator(extension.ExtensionTypeMatchingValidator):
+    VALIDATION_EE_POLICY_CONSTRAINTS_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.end_entity_policy_constraints_extension_present'
+    )
+
+    def __init__(self):
+        super().__init__(
+            extension_oid=rfc5280.id_ce_policyConstraints, validations=[self.VALIDATION_EE_POLICY_CONSTRAINTS_PRESENT]
+         )
+
+    def validate(self, node):
+        if not node.document.is_ca:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_EE_POLICY_CONSTRAINTS_PRESENT)
+
+
+class InhibitAnyPolicyPresenceValidator(extension.ExtensionTypeMatchingValidator):
+    VALIDATION_EE_INHIBIT_ANYPOLICY_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.end_entity_inhibit_anypolicy_extension_present'
+    )
+
+    def __init__(self):
+        super().__init__(
+            extension_oid=rfc5280.id_ce_inhibitAnyPolicy, validations=[self.VALIDATION_EE_INHIBIT_ANYPOLICY_PRESENT]
+        )
+
+    def validate(self, node):
+        if not node.document.is_ca:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_EE_INHIBIT_ANYPOLICY_PRESENT)
+
+
+class PolicyMappingsPresenceValidator(extension.ExtensionTypeMatchingValidator):
+    VALIDATION_EE_POLICY_MAPPINGS_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.end_entity_policy_mappings_extension_present'
+    )
+
+    def __init__(self):
+        super().__init__(
+            extension_oid=rfc5280.id_ce_policyMappings, validations=[self.VALIDATION_EE_POLICY_MAPPINGS_PRESENT]
+        )
+
+    def validate(self, node):
+        if not node.document.is_ca:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_EE_POLICY_MAPPINGS_PRESENT)
+
+
+class ProhibitedQualifiedStatementValidator(validation.Validator):
+    """RFC 3739, section 3.2.6.1 says:
+    The certificate statement (id-qcs-pkixQCSyntax-v1), identifies
+    conformance with requirements defined in the obsoleted RFC 3039
+    (Version 1).  This statement is thus provided for identification of
+    old certificates issued in conformance with RFC 3039.  This statement
+    MUST NOT be included in certificates issued in accordance with this
+    profile.
+    """
+    VALIDATION_PROHIBITED_QUALIFIED_STATEMENT_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.prohibited_qualified_statement_present'
+    )
+
+    def __init__(self):
+        super().__init__(
+            validations=[self.VALIDATION_PROHIBITED_QUALIFIED_STATEMENT_PRESENT],
+            pdu_class=rfc3739.QCStatements
+        )
+
+    def validate(self, node):
+        if rfc3739.id_qcs_pkixQCSyntax_v1 in node.document.qualified_statement_ids:
+            raise validation.ValidationFindingEncountered(self.VALIDATION_PROHIBITED_QUALIFIED_STATEMENT_PRESENT)
+
+
+class IssuerAlternativeNameCriticalityValidator(ExtensionCriticalityValidator):
+    """RFC 5280, section 4.2.1.7 says:
+
+    Where present, conforming CAs SHOULD mark this extension as non-critical.
+    """
+    VALIDATION_ISSUER_ALT_NAME_CRITICAL = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.WARNING,
+        'pkix.issuer_alt_name_extension_critical'
+    )
+
+    def __init__(self):
+        super().__init__(
+            type_oid=rfc5280.id_ce_issuerAltName,
+            is_critical=False,
+            validation=self.VALIDATION_ISSUER_ALT_NAME_CRITICAL
+        )

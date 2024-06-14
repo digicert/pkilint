@@ -9,14 +9,16 @@ import pkilint.adobe.asn1 as adobe_asn1
 import pkilint.cabf.cabf_extension
 import pkilint.cabf.smime.smime_extension
 import pkilint.common
+import pkilint.etsi.asn1
 import pkilint.pkix.certificate
-from pkilint import validation, cabf, document, etsi
+from pkilint import validation, cabf, document
 from pkilint.adobe import adobe_validator
 from pkilint.cabf import cabf_extension, cabf_key, cabf_name
 from pkilint.cabf.smime import (
     smime_constants, smime_name, smime_key, smime_extension
 )
 from pkilint.cabf.smime.smime_constants import Generation
+from pkilint.common import alternative_name
 from pkilint.iso import lei
 from pkilint.msft import asn1 as microsoft_asn1
 from pkilint.msft import msft_name
@@ -119,7 +121,7 @@ def create_decoding_validators():
         cabf.NAME_ATTRIBUTE_MAPPINGS,
         _SMIME_EXTENSION_MAPPINGS,
         [certificate.create_other_name_decoder(OTHER_NAME_MAPPINGS),
-         certificate.create_qc_statements_decoder(etsi.ETSI_QC_STATEMENTS_MAPPINGS)]
+         certificate.create_qc_statements_decoder(pkilint.etsi.asn1.ETSI_QC_STATEMENTS_MAPPINGS)]
     )
 
 
@@ -173,10 +175,14 @@ def create_extensions_validator_container(validation_level, generation):
             cabf_extension.CabfAuthorityKeyIdentifierValidator(),
             smime_extension.SubjectDirectoryAttributesPresenceValidator(validation_level, generation),
             smime_extension.QCStatementsCriticalityValidator(),
-            cabf_name.GeneralNameUriInternalDomainNameValidator(),
-            cabf_name.GeneralNameRfc822NameInternalDomainNameValidator(),
-            cabf_name.SmtpUtf8MailboxInternalDomainNameValidator(),
-            cabf_name.UriInternalDomainNameValidator(pdu_class=rfc5280.CPSuri),
+            alternative_name.create_internal_name_validator_container(
+                cabf_name.VALIDATION_INTERNAL_DOMAIN_NAME,
+                cabf_name.VALIDATION_INTERNAL_IP_ADDRESS,
+                allow_onion_tld=False
+            ),
+            alternative_name.create_cpsuri_internal_domain_name_validator(
+                cabf_name.VALIDATION_INTERNAL_DOMAIN_NAME
+            ),
             adobe_validator.AdobeTimestampValidator(),
             smime_extension.AdobeTimestampCriticalityValidator(),
             smime_extension.AdobeTimestampPresenceValidator(generation),
@@ -229,9 +235,6 @@ def create_subscriber_validators(validation_level, generation):
         create_extensions_validator_container(validation_level, generation),
         smime_key.SmimeAllowedSignatureAlgorithmEncodingValidator(
             path='certificate.tbsCertificate.signature'
-        ),
-        smime_key.SmimeAllowedSignatureAlgorithmEncodingValidator(
-            path='certificate.signatureValue'
         ),
         cabf_extension.CabfExtensionsPresenceValidator(),
     ]

@@ -143,6 +143,7 @@ The list of command line linters bundled with pkilint:
 * [lint_pkix_cert](#lintpkixcert)
 * [lint_cabf_smime_cert](#lintcabfsmimecert)
 * [lint_cabf_serverauth_cert](#lintcabfserverauthcert)
+* [lint_etsi_cert](#lintetsicert)
 * [lint_crl](#lintcrl)
 * [lint_ocsp_response](#lintocspresponse)
 * [lint_pkix_signer_signee_cert_chain](#lintpkixsignersigneecertchain)
@@ -302,6 +303,77 @@ $ lint_cabf_serverauth_cert lint -d dv_final_clean.pem
 $
 ```
 
+### lint_etsi_cert
+
+For further information on this linter, see [the Wiki page](https://github.com/digicert/pkilint/wiki/lint_etsi_cert).
+
+This tool lints certificates against the profiles specified in ETSI EN 319 412 and TS 119 495. Currently, the tool
+has the most comprehensive support for website authentication certificates, but support for electronic signature,
+electronic seal, and timestamping certificates is planned.
+
+The `lint` sub-command requires that the user provide the certificate type/profile of the certificate so that the appropriate
+validations are performed. There are two options:
+
+1. Explicitly specify the type of certificate using the `-t`/`--type` option.
+2. Have the linter detect the type of certificate using the `-d`/`--detect` option. In this case, the linter will determine the certificate type using the values of various extensions and fields included in the certificate. The detection procedure may not always be accurate, so it is recommended to use the `--type` option for the best results.
+
+Several parts of EN 319 412 and TS 119 495 supersede requirements specified in the TLS Baseline Requirements and RFC 5280. For example, the TLS Baseline Requirements requires that certificate validity periods be 398 days or less. However, this requirement need not be followed for PSD2 website authentication certificates that are not trusted
+by browsers. By default, such findings are not reported. To report superseded findings, specify the `--report-all` option.
+
+The `-o`/`--output` option is used to specify that the certificate type used by the linter is written to standard error. This is useful when using the `--detect` option to see which certificate type was determined by the heuristics logic.
+
+#### Example command execution
+
+```shell
+$ echo '-----BEGIN CERTIFICATE-----
+MIIHMTCCBRmgAwIBAgIQVZHNRxiZp9LoR1nlajD1DDANBgkqhkiG9w0BAQsFADCB
+oTELMAkGA1UEBhMCR1IxNjA0BgNVBAoTLUhFTExFTklDIEVYQ0hBTkdFUyAtIEFU
+SEVOUyBTVE9DSyBFWENIQU5HRSBTQTEvMC0GA1UEAxMmQVRIRVggUXVhbGlmaWVk
+IFdFQiBDZXJ0aWZpY2F0ZXMgQ0EtRzMxDzANBgNVBAcTBkF0aGVuczEYMBYGA1UE
+YRMPVkFURUwtMDk5NzU1MTA4MB4XDTI0MDQxMTE0MTY1NVoXDTI1MDQxMTE0MTY1
+NVowgcMxCzAJBgNVBAYTAkdSMTYwNAYDVQQKEy1IRUxMRU5JQyBFWENIQU5HRVMg
+LSBBVEhFTlMgU1RPQ0sgRVhDSEFOR0UgU0ExGDAWBgNVBGETD1ZBVEVMLTA5OTc1
+NTEwODEdMBsGA1UEAxMUd2ViZHNzLmF0aGV4Z3JvdXAuZ3IxDzANBgNVBAcTBkF0
+aGVuczETMBEGCysGAQQBgjc8AgEDEwJHUjEdMBsGA1UEDxMUUHJpdmF0ZSBPcmdh
+bml6YXRpb24wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC4IRER3+RS
+dMkB84htWhzmrcFTqJ47yJtZAgvDxw0aWYWVtyW2SMtygVUZSfp5ewE8OA9tdCa6
+oIuap6hKgZpQnkxS9RP0JRyHrJjxOc4sUUtbOHMCV5hq4Lkonh01DAsad9tVqR4n
+aUSHsPI8v+93fjigi3vBsf5nGeBRrCTBYs8IKqoCC+Z2WWbwRCB6ct+ODsqbLwRx
+T54WY9iTaCNc/71rUlvIo3nkd/H17MCkoBdv4Ec3NG1Jo18FnkATyM12Xzhet+Wv
+vx0yjewRrFxak/wGZ4GGX1Dzy4wHfsceQjAtiZk2oWcn3/mk6oVA0ynF2a/4CmT1
+OZiWGOTqNnxTAgMBAAGjggI/MIICOzAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYB
+BQUHAwIwHwYDVR0jBBgwFoAUIpkkVwZsVnWO2+t9eWWcUzWp0ZEwLQYIKwYBBQUH
+AQMEITAfMAgGBgQAjkYBATATBgYEAI5GAQYwCQYHBACORgEGAzCBlwYIKwYBBQUH
+AQEEgYowgYcwOAYIKwYBBQUHMAGGLGh0dHA6Ly9vY3NwLmF0aGV4Z3JvdXAuZ3Iv
+QXRoZXhRdWFsaWZpZWRDQUczMEsGCCsGAQUFBzAChj9odHRwOi8vcmVwby5hdGhl
+eGdyb3VwLmdyL0FUSEVYUXVhbGlmaWVkV0VCQ2VydGlmaWNhdGVzQ0FHMy5jcnQw
+JQYDVR0gBB4wHDAPBg0rBgEEAYHlWgEDZAEEMAkGBwQAi+xAAQYwTwYDVR0fBEgw
+RjBEoEKgQIY+aHR0cDovL2NybC5hdGhleGdyb3VwLmdyL0FUSEVYUXVhbGlmaWVk
+V0VCQ2VydGlmaWNhdGVzQ0FHMy5jcmwwHQYDVR0OBBYEFNO1Ri+h7gAw1BnwJi1m
+HFV+L6htMA4GA1UdDwEB/wQEAwIHgDB7BgNVHREEdDByghR3ZWJkc3MuYXRoZXhn
+cm91cC5ncoIYd2ViZHNzbW9jay5hdGhleGdyb3VwLmdyghp3ZWJkc3MtcnB4cjEu
+aW5ldC5oZWxleC5ncoIPZHNzLmF0aGV4bmV0LmdyghNkc3Ntb2NrLmF0aGV4bmV0
+LmdyMAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQELBQADggIBAJl4huEpr01gxqGh
+FzkCbhZYW48Bv+zGQodfBnhISH5Dj9Apb2pUCJiPIGy6NQ3nHygyy1y2aW+1ExrZ
+6ZCmtmw2/isk8q9wKa4PS/ip1+IzOin67XmYAz+t03MRl569wtzH+WPL2hb5Zmsw
+AkTP6/N9Jp1I9cryvHO2ZCEYZreWtgvJQaDBQ/qteUKnVNLyuJle9hAYvsWEbgIO
+xlWaDzPnWYYjZuXbyowImmjhufFyrJ2ngwwgw1sI0Se5vGOWWj+i/KBqLbwpp11I
+yXAJkhNTJVxI5B7BpAqoMGOlqf4w4eCqU/HUKL9ZIOHSClPTzaXS45ppPyb+zzLB
+u4vt0PJTAh3wnujcRZ3NxmetsehqunSpyKg0MzL2FDpxD31XHzmlpq5hQGgX1QF3
+0Wl3IADw5JzT4ApHW4ucsLr22HJBTnFab/tbviqg2HcVDAksUqZbPqNCenN/BW3J
+rhXwewWAfHE4LnDQBlAbq95LuijvHx3MaTt8y7wPSOizYTpry19uHT0aaxXfLivh
+YnIjcWwNwowxjVLSVBK0TBvEUVF2DwDNLRfX2aSpt0rq3rxtNcjvJvwHJrDLio8y
+fSyJXu4qGbQ3OwuuJXaEPiBANUEckaPKg5pdua4Lwt708kOG54E7pzz3xLEjtODU
++9Ru72tw8lf1RlWwp5ZI+7CByD0W
+-----END CERTIFICATE-----' > qncp_w_gen.pem
+
+$ lint_etsi_cert lint -d qncp_w_gen.pem
+SubjectKeyIdentifierValidator @ certificate.tbsCertificate.extensions.6.extnValue.subjectKeyIdentifier
+    pkix.subject_key_identifier_method_1_identified (INFO)
+
+$
+```
+
 ### lint_crl
 
 This tool lints CRLs against the RFC 5280 as well as against the CA/Browser Forum profile for CRLs. It is anticipated that this
@@ -353,10 +425,12 @@ pkilint is built on several open source packages. In particular, these packages 
 | cryptography       | Apache Software License; BSD License | The Python Cryptographic Authority and individual contributors | https://github.com/pyca/cryptography              |
 | fastapi            | MIT License                          | Sebastián Ramírez                                              | https://github.com/tiangolo/fastapi               |
 | iso3166            | MIT License                          | Mike Spindel                                                   | http://github.com/deactivated/python-iso3166      |
+| iso4217            | Public Domain                        | Hong Minhee                                                    | https://github.com/dahlia/iso4217                 |
 | publicsuffixlist   | Mozilla Public License 2.0 (MPL 2.0) | ko-zu                                                          | https://github.com/ko-zu/psl                      |
 | pyasn1             | BSD License                          | Christian Heimes and Simon Pichugin                            | https://github.com/pyasn1/pyasn1                  |
 | pyasn1-alt-modules | BSD License                          | Russ Housley                                                   | https://github.com/russhousley/pyasn1-alt-modules |
 | python-dateutil    | Apache Software License; BSD License | Gustavo Niemeyer                                               | https://github.com/dateutil/dateutil              |
+| python-iso639      | Apache Software License              | Jackson L. Lee                                                 | https://github.com/jacksonllee/iso639             |
 | validators         | MIT License                          | Konsta Vesterinen                                              | https://github.com/kvesteri/validators            |
 
 The pkilint maintainers are grateful to the authors of these open source contributions.

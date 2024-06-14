@@ -2,7 +2,7 @@ import binascii
 import datetime
 import logging
 import re
-from typing import Callable, Mapping, Tuple, Type, Union, Optional, Dict, List
+from typing import Callable, Mapping, Tuple, Type, Union, Optional, Dict, List, NamedTuple
 
 from pyasn1.codec.der.decoder import decode
 from pyasn1.codec.der.encoder import encode
@@ -12,9 +12,20 @@ from pyasn1.type.univ import (ObjectIdentifier, SequenceOfAndSetOfBase, Sequence
                               Choice, BitString
                               )
 
+
 logger = logging.getLogger(__name__)
 
 PATH_REGEX = re.compile(r'^((?P<doc_name>[^:]*):)?(?P<node_path>([^.]+\.)*[^.]+)?$')
+
+
+try:
+    # noinspection PyUnresolvedReferences
+    from pyasn1_fasder import decode_der
+
+    logging.info('Using pyasn1-fasder for ASN.1 DER decoding')
+    _USE_PYASN1_FASDER = True
+except ImportError:
+    _USE_PYASN1_FASDER = False
 
 
 class PDUNavigationFailedError(Exception):
@@ -26,8 +37,8 @@ class PDUNavigationFailedError(Exception):
         """Creates an instance of an exception that represents a PDU node lookup failure.
 
         Args: requested_path: The requested path relative to the node which
-        :py:method:`pkilint.document.PDUNode.navigate was called. traversed_path: The relative path that was able to
-        be traversed, as those nodes exist. missing_node_name: The name of the node which could not be found.
+        :py:method:`pkilint.document.PDUNode.navigate was called. traversed_path: The relative path that was
+        traversed, as those nodes exist. missing_node_name: The name of the node which could not be found.
         """
         self.requested_path = requested_path
         self.traversed_path = traversed_path
@@ -50,12 +61,11 @@ class Document(object):
         """Creates a new Document instance. It is not intended that this class be directly
         instantiated by user code; use a sub-class of this class instead.
 
-        Args:
-            pdu_schema_instance: A pyasn1 ASN.1 instance that represents the top-level ASN.1 schema for this document.
-            substrate_source: The source of the document. This can be a URI, file name, or any other identifier.
-            substrate: The raw DER-encoded document.
-            name: An optional name given to the document. May be useful when a :py:meth:`pkilint.validation.Validator` requires multiple documents.
-            parent: An optional collection of documents that are related.
+        Args: pdu_schema_instance: A pyasn1 ASN.1 instance that represents the top-level ASN.1 schema for this
+        document. substrate_source: The source of the document. This can be a URI, file name, or any other
+        identifier. substrate: The raw DER-encoded document. name: An optional name given to the document. May be
+        useful when a :py:meth:`pkilint.validation.Validator` requires multiple documents. parent: An optional
+        collection of documents that are related.
         """
         self.pdu_schema_instance = pdu_schema_instance
         self.substrate = substrate
@@ -90,12 +100,10 @@ class PDUNode(object):
                  ):
         """Creates a new instance representing a node within a document.
 
-        Args:
-            document: The document which contains this node.
-            name: The name of the node. Generally will match the name of a component
-            within an ASN.1 SEQUENCE.
-            pdu: The underlying ASN.1 value.
-            parent: The node which contains this node. In the case where the current node is the top-level node of a document, this will not be populated.
+        Args: document: The document which contains this node. name: The name of the node. Generally will match the
+        name of a component within an ASN.1 SEQUENCE. pdu: The underlying ASN.1 value. parent: The node which
+        contains this node. In the case where the current node is the top-level node of a document, this will not be
+        populated.
         """
         self.document = document
         self.name = name
@@ -203,6 +211,7 @@ class PDUNode(object):
             )
             }
         elif isinstance(self.pdu, SequenceOfAndSetOfBase):
+            # noinspection PyTypeChecker
             return {
                 str(i): PDUNode(
                     self.document, str(i), component, self
@@ -264,13 +273,21 @@ class ValueDecodingFailedError(Exception):
         self.message = message
 
 
+class OptionalAsn1TypeWrapper(NamedTuple):
+    asn1_type: Asn1Type
+
+
 class ValueDecoder(object):
     _BITSTRING_SCHEMA_OBJ = BitString()
 
     VALUE_NODE_ABSENT = object()
 
-    def __init__(self, *, type_path: str, value_path: str,
-                 type_mappings: Dict[ObjectIdentifier, Optional[Asn1Type]], default: Optional[Asn1Type] = None):
+    def __init__(self,
+                 *,
+                 type_path: str,
+                 value_path: str,
+                 type_mappings: Dict[ObjectIdentifier, Union[Asn1Type, OptionalAsn1TypeWrapper]],
+                 default: Optional[Union[Asn1Type, OptionalAsn1TypeWrapper]] = None):
         self.type_path = type_path
         self.value_path = value_path
         self.type_mappings = type_mappings.copy()
@@ -293,14 +310,22 @@ class ValueDecoder(object):
         pdu_type = self.type_mappings.get(type_node.pdu, self.default)
 
         if pdu_type is not None:
+            if type(pdu_type) is OptionalAsn1TypeWrapper:
+                pdu_type = pdu_type.asn1_type
+
+                if value_node is None:
+                    # nothing to decode, so return
+                    return
+
             # value node must be absent, but it exists
-            if pdu_type is self.VALUE_NODE_ABSENT and value_node is not None:
+            elif pdu_type is self.VALUE_NODE_ABSENT and value_node is not None:
                 raise ValueDecodingFailedError(
                     value_node, type_node.pdu, pdu_type,
                     'Value node is present, but the ASN.1 schema specifies that it must be absent'
                 )
+
             # value node must be present, but it doesn't exist
-            if pdu_type is not self.VALUE_NODE_ABSENT and value_node is None:
+            elif pdu_type is not self.VALUE_NODE_ABSENT and value_node is None:
                 raise ValueDecodingFailedError(
                     node, type_node.pdu, pdu_type,
                     'Value node is absent, but the ASN.1 schema specifies that it must be present'
@@ -340,24 +365,29 @@ def decode_substrate(source_document: Document, substrate: bytes,
                      )
         return next(iter(parent_node.children.values()))
 
-    decoded, rest = decode(substrate, asn1Spec=pdu_instance)
+    if _USE_PYASN1_FASDER:
+        decoded, _ = decode_der(substrate, asn1Spec=pdu_instance)
 
-    decoded_pdu_name = get_node_name_for_pdu(decoded)
+        decoded_pdu_name = get_node_name_for_pdu(decoded)
+    else:
+        decoded, rest = decode(substrate, asn1Spec=pdu_instance)
 
-    if len(rest) > 0:
-        raise ValueError(
-            "Unexpected {} octets following {} DER in {}: {}".format(
-                len(rest), decoded_pdu_name, source_document.substrate_source,
-                binascii.hexlify(rest).decode('us-ascii')
+        decoded_pdu_name = get_node_name_for_pdu(decoded)
+
+        if len(rest) > 0:
+            raise ValueError(
+                "Unexpected {} octets following {} DER in {}: {}".format(
+                    len(rest), decoded_pdu_name, source_document.substrate_source,
+                    binascii.hexlify(rest).decode('us-ascii')
+                )
             )
-        )
 
-    encoded = encode(decoded)
-    if encoded != substrate:
-        type_name = decoded.__class__.__name__
-        raise ValueError(
-            f'Substrate of type "{type_name}" is not DER-encoded'
-        )
+        encoded = encode(decoded)
+        if encoded != substrate:
+            type_name = decoded.__class__.__name__
+            raise ValueError(
+                f'Substrate of type "{type_name}" is not DER-encoded'
+            )
 
     node = PDUNode(source_document, decoded_pdu_name, decoded, parent_node)
 

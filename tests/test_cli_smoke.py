@@ -6,6 +6,7 @@ import tempfile
 
 from pkilint.cabf.serverauth import serverauth_constants
 from pkilint.cabf.smime import smime_constants
+from pkilint.etsi import etsi_constants
 
 
 def _test_program_validations(name, args=None):
@@ -492,3 +493,8 @@ eo163oRkEIV75k1Onw==
     assert len(out_lines) == 1 + 256  # header line plus the 256 findings
 
     assert ret.returncode == 255
+
+
+def test_lint_etsi_cert_validations():
+    for cert_type in etsi_constants.CertificateType:
+        _test_program_validations('lint_etsi_cert', ['-t', cert_type.to_option_str])

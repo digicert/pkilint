@@ -3,12 +3,13 @@ from pyasn1.type import char
 from pyasn1_alt_modules import rfc5280, rfc8398
 
 from pkilint import validation, pkix, oid
-from pkilint.cabf import cabf_name, cabf_constants
-from pkilint.cabf.cabf_name import OrganizationIdentifierAttributeValidator
+from pkilint.cabf import cabf_name
+from pkilint.cabf.cabf_name import CabfOrganizationIdentifierAttributeValidator
 from pkilint.cabf.smime.smime_constants import Generation, ValidationLevel
-from pkilint.iso import lei
+from pkilint.common import organization_id
+from pkilint.common.organization_id import OrganizationIdentifierLeiValidator
 from pkilint.itu import x520_name
-from pkilint.pkix import certificate, name
+from pkilint.pkix import certificate, name, Rfc2119Word
 
 SHALL = pkix.Rfc2119Word.SHALL
 SHALL_NOT = pkix.Rfc2119Word.SHALL_NOT
@@ -175,7 +176,8 @@ class SubscriberSubjectValidator(validation.Validator):
             oids = oid.format_oids(self._required_one_of_n_attributes)
 
             findings.append(validation.ValidationFindingDescription(self.VALIDATION_MISSING_ATTRIBUTE,
-                                                                    f'Missing one of these required attributes: {oids}'))
+                                                                    f'Missing one of these required attributes: {oids}')
+                            )
 
         findings.extend((
             validation.ValidationFindingDescription(self.VALIDATION_PROHIBITED_ATTRIBUTE,
@@ -196,6 +198,40 @@ class SubscriberSubjectValidator(validation.Validator):
             ))
 
         return validation.ValidationResult(self, node, findings)
+
+
+class CabfSmimeOrganizationIdentifierAttributeValidator(CabfOrganizationIdentifierAttributeValidator):
+    _REFERENCE_PROHIBITED = (Rfc2119Word.MUST_NOT,
+                             'cabf.smime.prohibited_organization_identifier_reference_present_for_scheme')
+
+    _LEI_SCHEME = organization_id.OrganizationIdentifierElementAllowance(
+        country_codes=({organization_id.COUNTRY_CODE_GLOBAL_SCHEME},
+                       CabfOrganizationIdentifierAttributeValidator.VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY),
+        state_province=CabfOrganizationIdentifierAttributeValidator.STATE_PROVINCE_PROHIBITED,
+        reference=CabfOrganizationIdentifierAttributeValidator.REFERENCE_REQUIRED
+    )
+    _GOV_SCHEME = organization_id.OrganizationIdentifierElementAllowance(
+        country_codes=(organization_id.ISO3166_1_COUNTRY_CODES,
+                       CabfOrganizationIdentifierAttributeValidator.VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY),
+        state_province=(Rfc2119Word.MAY, None),
+        reference=_REFERENCE_PROHIBITED
+    )
+    _INT_SCHEME = organization_id.OrganizationIdentifierElementAllowance(
+        country_codes=({organization_id.COUNTRY_CODE_GLOBAL_SCHEME},
+                       CabfOrganizationIdentifierAttributeValidator.VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY),
+        state_province=CabfOrganizationIdentifierAttributeValidator.STATE_PROVINCE_PROHIBITED,
+        reference=_REFERENCE_PROHIBITED
+    )
+
+    def __init__(self):
+        super().__init__(
+            {
+                'LEI': self._LEI_SCHEME,
+                'GOV': self._GOV_SCHEME,
+                'INT': self._INT_SCHEME,
+            },
+            enforce_strict_state_province_format=False
+        )
 
 
 class SubscriberAttributeDependencyValidator(validation.Validator):
@@ -248,20 +284,7 @@ def create_subscriber_certificate_subject_validator_container(
         SubjectAlternativeNameContainsSubjectEmailAddressesValidator(),
         cabf_name.ValidCountryValidator(),
         CommonNameValidator(validation_level, generation),
-        OrganizationIdentifierAttributeValidator(relax_stateprovince_syntax=True, additional_schemes={
-            'LEI': cabf_constants.RegistrationSchemeNamingConvention(
-                cabf_constants.RegistrationSchemeCountryIdentifierType.XG,
-                False, True
-            ),
-            'GOV': cabf_constants.RegistrationSchemeNamingConvention(
-                cabf_constants.RegistrationSchemeCountryIdentifierType.ISO3166,
-                True, False
-            ),
-            'INT': cabf_constants.RegistrationSchemeNamingConvention(
-                cabf_constants.RegistrationSchemeCountryIdentifierType.XG,
-                False, False
-            )
-        }),
+        CabfSmimeOrganizationIdentifierAttributeValidator(),
         OrganizationIdentifierLeiValidator(),
         OrganizationIdentifierCountryNameConsistentValidator(),
         cabf_name.RelativeDistinguishedNameContainsOneElementValidator(),
@@ -409,36 +432,6 @@ class CommonNameValidator(validation.Validator):
             )
 
 
-class OrganizationIdentifierLeiValidator(validation.Validator):
-    VALIDATION_INVALID_ORGID_LEI_FORMAT = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR, 'cabf.smime.invalid_lei_scheme_format'
-    )
-
-    _LEI_PREFIX = 'LEIXG-'
-
-    def __init__(self):
-        super().__init__(validations=[
-            lei.VALIDATION_INVALID_LEI_CHECKSUM, lei.VALIDATION_INVALID_LEI_FORMAT,
-            self.VALIDATION_INVALID_ORGID_LEI_FORMAT
-        ],
-            pdu_class=x520_name.X520OrganizationIdentifier,
-            predicate=lambda n: any(n.children) and str(n.child[1].pdu).startswith('LEI')
-        )
-
-    def validate(self, node):
-        value = str(node.child[1].pdu)
-
-        if not value.startswith(self._LEI_PREFIX):
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_INVALID_ORGID_LEI_FORMAT,
-                f'Invalid Organization Identifier format: "{value}"'
-            )
-
-        lei_value = value[len(self._LEI_PREFIX):]
-
-        lei.validate_lei(lei_value)
-
-
 class OrganizationIdentifierCountryNameConsistentValidator(validation.Validator):
     VALIDATION_ORGID_COUNTRYNAME_INCONSISTENT = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
@@ -464,15 +457,15 @@ class OrganizationIdentifierCountryNameConsistentValidator(validation.Validator)
 
             x520_value_str = str(x520_value_node.pdu)
 
-            m = cabf_name.ORG_ID_REGEX.match(x520_value_str)
-
-            if m is None:
+            try:
+                parsed_org_id = organization_id.parse_organization_identifier(x520_value_str)
+            except ValueError:
                 continue
 
-            orgid_country_name = m['country']
+            orgid_country_name = parsed_org_id.country
 
-            # skip this orgId attribute if it doesn't contain a countryName or contains XG
-            if not orgid_country_name or orgid_country_name.upper() == 'XG':
+            # skip this orgId attribute if it contains the global scheme identifier
+            if orgid_country_name.casefold() == organization_id.COUNTRY_CODE_GLOBAL_SCHEME.casefold():
                 continue
 
             if orgid_country_name.casefold() != country_name_value.casefold():

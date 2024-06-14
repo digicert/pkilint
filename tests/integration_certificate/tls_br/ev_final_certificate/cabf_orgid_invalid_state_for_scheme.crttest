@@ -43,5 +43,5 @@ EaAJgzlOHGRsk5NZTCZkXpOaUjkNSs4=
 
 node_path,validator,severity,code,message
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.unknown_extension_present,Unknown extension present: 2.23.140.3.1
-certificate.tbsCertificate.extensions.4.extnValue.cABFOrganizationIdentifier,CABFOrganizationIdentifierExtensionValidator,ERROR,cabf.serverauth.organization_identifier_ext_invalid_state_province_for_scheme,"Scheme ""VAT"" does not allow state/province values"
+certificate.tbsCertificate.extensions.4.extnValue.cABFOrganizationIdentifier,CABFOrganizationIdentifierExtensionValidator,ERROR,cabf.invalid_subject_organization_identifier_state_province_for_scheme,"State/province value present for scheme ""VAT"": ""PA"""
 certificate.tbsCertificate.extensions.2.extnValue.certificatePolicies.0.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,

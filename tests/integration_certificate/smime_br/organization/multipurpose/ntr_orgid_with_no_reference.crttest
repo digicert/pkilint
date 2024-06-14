@@ -34,7 +34,7 @@ jf/awhWSiiGacgSJ0qY7iWEapq+HxtJUvLTQ+J5si0RWgPiGAy2tyXdzzIzsL9yl
 e2aVG+Tj1GckmJI+dJL7fgjYMqaFLtkKodE/JR0Tp5tQtb5kI1ze8bjKV5qnMlCI
 V1RtaAubxd8E0dIBazc293NX8ypBQRFYjdUR1A==
 -----END CERTIFICATE-----
-node_path,validator,severity,code,message
-certificate.tbsCertificate.subject.rdnSequence.0.0,OrganizationIdentifierAttributeValidator,ERROR,cabf.invalid_subject_organization_identifier_format,"Missing Registration Reference: ""NTRUS+PA"""
-certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 
+node_path,validator,severity,code,message
+certificate.tbsCertificate.subject.rdnSequence.0.0.value.x520OrganizationIdentifier,CabfSmimeOrganizationIdentifierAttributeValidator,ERROR,cabf.organization_identifier_reference_missing_for_scheme,"Registration reference missing for scheme ""NTR"""
+certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,

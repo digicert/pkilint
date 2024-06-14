@@ -1,3 +1,4 @@
+import collections
 from typing import List, Set
 
 import validators
@@ -23,6 +24,15 @@ def get_name_attributes_by_type(name_node, type_oid):
                 atvs.append((atv, (int(rdn_idx), int(atv_idx))))
 
     return atvs
+
+
+def get_name_attribute_counts(name_node):
+    counts = collections.Counter()
+
+    for rdn_idx, rdn in name_node.children['rdnSequence'].children.items():
+        counts.update((atv.children['type'].pdu for atv in rdn.children.values()))
+
+    return counts
 
 
 class EmptyNameValidator(validation.Validator):

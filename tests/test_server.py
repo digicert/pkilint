@@ -8,6 +8,7 @@ from pkilint import report, pkix
 from pkilint.cabf import serverauth
 from pkilint.cabf.serverauth import serverauth_constants
 from pkilint.cabf.smime import smime_constants
+from pkilint.etsi import etsi_constants
 from pkilint.pkix import certificate, ocsp, name, extension
 from pkilint.rest import app as web_app
 
@@ -182,10 +183,8 @@ def test_groups(client):
 
     j = resp.json()
 
-    # SMIME and serverauth
-
     names = {lg['name'] for lg in j}
-    assert names == {'cabf-serverauth', 'cabf-smime'}
+    assert names == {'cabf-serverauth', 'cabf-smime', 'etsi'}
 
 
 def test_group_no_exist(client):
@@ -408,3 +407,19 @@ def test_ocsp_pkix_lint(client):
     j = resp.json()
 
     assert len(j['results']) == 0
+
+
+def test_detect_and_lint_etsi(client):
+    resp = client.post('/certificate/etsi', json={'pem': _OV_FINAL_CLEAN_PEM})
+    assert resp.status_code == HTTPStatus.OK
+
+    j = resp.json()
+
+    assert j['linter']['name'] == etsi_constants.CertificateType.OVCP_FINAL_CERTIFICATE.to_option_str
+
+
+def test_etsi_detect_bad_extension_der(client):
+    resp = client.post('/certificate/etsi', json={'pem': _BAD_CERT_POLICIES_DER_PEM})
+    assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+    _assert_validationerror_list_present(resp)

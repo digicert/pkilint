@@ -2,6 +2,7 @@ from pyasn1_alt_modules import rfc5280
 
 from pkilint import validation
 from pkilint.itu import bitstring
+from pkilint.pkix.certificate.certificate_extension import KeyUsageBitName
 
 
 # BR 7.1.2.10.7
@@ -23,7 +24,7 @@ class CaKeyUsageValidator(validation.Validator):
 
     _PROHIBITED_KUS = {
         str(n) for n in rfc5280.KeyUsage.namedValues
-    } - {'digitalSignature', 'keyCertSign', 'cRLSign'}
+    } - {KeyUsageBitName.DIGITAL_SIGNATURE, KeyUsageBitName.KEY_CERT_SIGN, KeyUsageBitName.CRL_SIGN}
 
     def __init__(self):
         super().__init__(
@@ -36,12 +37,12 @@ class CaKeyUsageValidator(validation.Validator):
         )
 
     def validate(self, node):
-        if not bitstring.has_named_bit(node, 'keyCertSign'):
+        if not bitstring.has_named_bit(node, KeyUsageBitName.KEY_CERT_SIGN):
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_CA_CERT_REQUIRED_BIT_MISSING,
                 'keyCertSign not asserted'
             )
-        if not bitstring.has_named_bit(node, 'cRLSign'):
+        if not bitstring.has_named_bit(node, KeyUsageBitName.CRL_SIGN):
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_CA_CERT_REQUIRED_BIT_MISSING,
                 'cRLSign not asserted'
@@ -55,7 +56,7 @@ class CaKeyUsageValidator(validation.Validator):
                 f'Prohibited KUs present: {prohibited_kus_str}'
             )
 
-        if not bitstring.has_named_bit(node, 'digitalSignature'):
+        if not bitstring.has_named_bit(node, KeyUsageBitName.DIGITAL_SIGNATURE):
             raise validation.ValidationFindingEncountered(self.VALIDATION_CA_CERT_NO_DIG_SIG)
 
 

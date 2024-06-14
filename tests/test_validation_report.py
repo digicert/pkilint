@@ -1,6 +1,11 @@
-from pkilint import validation
+from pkilint import validation, etsi
+from pkilint.etsi import etsi_constants
 from pkilint.pkix import certificate
 from pkilint.cabf import serverauth, smime
+import re
+
+
+_FINDING_CODE_REGEX = re.compile(r'^[.a-z0-9\-_]+$')
 
 
 def _test(validator, context: str):
@@ -10,7 +15,20 @@ def _test(validator, context: str):
 
     missing_validations = declared_validations - reported_validations
 
-    assert not any(missing_validations), f'{context}: {validator.__class__.__name__} {missing_validations}'
+    validator_name = f'{context}: {validator.__class__.__name__}'
+
+    assert not any(missing_validations), (
+        f'{validator_name} does not declare that it reports the following finding(s): '
+        f'{missing_validations}'
+    )
+
+    incorrect_code_syntax_findings = [
+        v.code for v in validator.validations if not _FINDING_CODE_REGEX.match(v.code)
+    ]
+
+    assert not any(incorrect_code_syntax_findings), (
+        f'{validator_name} has validations with incorrect code syntax: {incorrect_code_syntax_findings}'
+    )
 
     if isinstance(validator, validation.ValidatorContainer):
         for v in validator.validators:
@@ -40,3 +58,15 @@ def test_smime():
             context = f'cabf.smime.{validation_level}-{generation}'
 
             _test(validator, context)
+
+
+def test_etsi():
+    for certificate_type in etsi_constants.CertificateType:
+        validator = certificate.create_pkix_certificate_validator_container(
+            serverauth.create_decoding_validators(),
+            etsi.create_validators(certificate_type)
+        )
+
+        context = f'etsi.{certificate_type}'
+
+        _test(validator, context)
