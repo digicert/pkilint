@@ -20,11 +20,13 @@ def _create_pem_re(ascii_armor=('', '')) -> re.Pattern:
 
 _CERTIFICATE_PEM_REGEX = _create_pem_re(_create_ascii_armor('CERTIFICATE'))
 _CRL_PEM_REGEX = _create_pem_re(_create_ascii_armor('X509 CRL'))
+_OCSPRESPONSE_PEM_REGEX = _create_pem_re(_create_ascii_armor('OCSP RESPONSE'))
 _GENERIC_BASE64_REGEX = _create_pem_re()
 
 _DOCUMENT_CLS_TO_PEM_REGEX = {
     RFC5280Certificate: _CERTIFICATE_PEM_REGEX,
     RFC5280CertificateList: _CRL_PEM_REGEX,
+    RFC6960OCSPResponse: _OCSPRESPONSE_PEM_REGEX,
 }
 
 
