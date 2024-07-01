@@ -209,6 +209,7 @@ def create_validators(certificate_type: CertificateType,
     extension_validators = [
         en_319_412_2.QualifiedCertificatePoliciesValidator(certificate_type),
         en_319_412_5.QcStatementsExtensionCriticalityValidator(),
+        ts_119_495.Psd2CertificatePolicyOidPresenceValidator(certificate_type),
         qc_statements_validator_container,
     ]
 

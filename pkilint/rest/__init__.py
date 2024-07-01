@@ -7,7 +7,7 @@ from pkilint.rest import cabf_serverauth, cabf_smime, etsi, ocsp
 from pkilint.rest import model
 
 _PKILINT_VERSION = version('pkilint')
-_API_VERSION = 'v1.3'
+_API_VERSION = 'v1.4'
 
 app = FastAPI(
     title='pkilint API',

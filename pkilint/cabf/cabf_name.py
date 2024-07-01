@@ -1,12 +1,13 @@
 import typing
 
+import unicodedata
 from iso3166 import countries_by_alpha2
 from pyasn1_alt_modules import rfc5280
 
 from pkilint import validation, document
 from pkilint.common import organization_id
 from pkilint.common.organization_id import ParsedOrganizationIdentifier
-from pkilint.itu import x520_name
+from pkilint.itu import x520_name, asn1_util
 from pkilint.pkix import Rfc2119Word
 
 
@@ -19,7 +20,7 @@ class ValidCountryCodeValidatorBase(validation.TypeMatchingValidator):
                          )
 
     def validate_with_value(self, node, value_node):
-        country_code = str(value_node.pdu).upper()
+        country_code = str(value_node.pdu)
 
         if country_code == 'XX':
             return
@@ -196,8 +197,43 @@ VALIDATION_INTERNAL_IP_ADDRESS = validation.ValidationFinding(
     'cabf.internal_ip_address'
 )
 
-
 VALIDATION_INTERNAL_DOMAIN_NAME = validation.ValidationFinding(
     validation.ValidationFindingSeverity.ERROR,
     'cabf.internal_domain_name'
 )
+
+
+class SignificantAttributeValueValidator(validation.Validator):
+    VALIDATION_INSIGNIFICANT_ATTRIUBTE_VALUE_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'cabf.insignificant_attribute_value_present'
+    )
+
+    @classmethod
+    def _is_significant_code_point(cls, c):
+        # https://www.unicode.org/reports/tr44/#General_Category_Values
+
+        category = unicodedata.category(c)
+
+        major_class = category[0]
+
+        # any letter, number, or currency symbol is significant
+        return major_class == 'L' or major_class == 'N' or category == 'Sc'
+
+    def __init__(self):
+        super().__init__(
+            validations=[self.VALIDATION_INSIGNIFICANT_ATTRIUBTE_VALUE_PRESENT],
+            pdu_class=rfc5280.AttributeTypeAndValue
+        )
+
+    def validate(self, node):
+        value = asn1_util.get_string_value_from_attribute_node(node)
+
+        if value is None:
+            return
+
+        if not any(self._is_significant_code_point(c) for c in value):
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_INSIGNIFICANT_ATTRIUBTE_VALUE_PRESENT,
+                f'Insignificant attribute value: "{value}"'
+            )

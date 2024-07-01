@@ -39,3 +39,4 @@ certificate.tbsCertificate.signature,ServerauthAllowedSignatureAlgorithmEncoding
 certificate.tbsCertificate.extensions.2.extnValue.basicConstraints,RootBasicConstraintsValidator,WARNING,cabf.serverauth.root_basic_constraints_pathlenconstraint_present,
 certificate.tbsCertificate.extensions,RootExtensionAllowanceValidator,WARNING,cabf.serverauth.root.unknown_extension_present,Unknown extension present: 2.5.29.33
 certificate.tbsCertificate.extensions.4.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
+certificate.tbsCertificate.subject.rdnSequence.0.0,ValidCountryValidator,ERROR,cabf.invalid_country_code,"Invalid country code: ""ch"""

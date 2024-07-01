@@ -1,144 +1,128 @@
 import base64
-import functools
 import re
-import sys
 
 from pkilint.pkix.certificate import RFC5280Certificate
 from pkilint.pkix.crl import RFC5280CertificateList
 from pkilint.pkix.ocsp import RFC6960OCSPResponse
 
 
-def _create_ascii_armor(document_kind: str):
-    document_kind = document_kind.upper()
+class DocumentDecoder:
+    def __init__(self, document_cls, document_pem_label: str):
+        self._document_cls = document_cls
+        self._document_pem_label = document_pem_label.upper()
 
-    return f'-----BEGIN {document_kind}-----', f'-----END {document_kind}-----'
+        self._pem_re = self._create_pem_re()
 
+    def _create_pem_re(self) -> re.Pattern:
+        ascii_armor_start = f'-----BEGIN {self._document_pem_label}-----'
+        ascii_armor_end = f'-----END {self._document_pem_label}-----'
 
-def _create_pem_re(ascii_armor=('', '')) -> re.Pattern:
-    return re.compile(f'^\\s*{ascii_armor[0]}(?P<pem>.+){ascii_armor[1]}\\s*$', re.DOTALL)
+        return re.compile(f'^\\s*{ascii_armor_start}(?P<pem>.+){ascii_armor_end}\\s*$', re.DOTALL)
 
+    def load_der_document(self, substrate: bytes, document_name: str = None, substrate_source: str = None, parent=None):
+        if not substrate.startswith(b'\x30'):
+            raise ValueError('Substrate is not DER-encoded')
 
-_CERTIFICATE_PEM_REGEX = _create_pem_re(_create_ascii_armor('CERTIFICATE'))
-_CRL_PEM_REGEX = _create_pem_re(_create_ascii_armor('X509 CRL'))
-_GENERIC_BASE64_REGEX = _create_pem_re()
+        doc = self._document_cls(substrate_source, substrate, document_name, parent)
+        doc.decode()
 
-_DOCUMENT_CLS_TO_PEM_REGEX = {
-    RFC5280Certificate: _CERTIFICATE_PEM_REGEX,
-    RFC5280CertificateList: _CRL_PEM_REGEX,
-}
+        return doc
 
+    def load_der_file(self, f, document_name: str = None, substrate_source: str = None, parent=None):
+        return self.load_der_document(f.read(), document_name, substrate_source, parent)
 
-def _convert_pem_str_to_der(regex: re.Pattern, pem_text: str) -> bytes:
-    m = regex.match(pem_text)
+    def load_b64_document(self, substrate: str, document_name: str = None, substrate_source: str = None, parent=None):
+        der = base64.b64decode(substrate)
 
-    if m is None:
-        raise ValueError('Invalid PEM text')
+        return self.load_der_document(der, document_name, substrate_source, parent)
 
-    b64_text = m.group('pem')
+    def load_b64_file(self, f, document_name: str = None, substrate_source: str = None, parent=None):
+        data = f.read()
 
-    return base64.b64decode(b64_text)
+        if isinstance(data, bytes):
+            data = data.decode('us-ascii')
 
+        return self.load_b64_file(data, document_name, substrate_source, parent)
 
-def _convert_pem_bytes_to_der(regex: re.Pattern, pem_text: bytes) -> bytes:
-    return _convert_pem_str_to_der(regex, pem_text.decode())
+    def load_pem_document(self, substrate: str, document_name: str = None, substrate_source: str = None, parent=None):
+        m = self._pem_re.match(substrate)
 
+        if m is None:
+            raise ValueError('Invalid PEM text')
 
-def _load_der_document(document_cls, substrate: bytes, document_name: str = None,
-                       substrate_source: str = None, parent=None):
-    if not substrate.startswith(b'\x30'):
-        raise ValueError('Substrate is not DER-encoded')
+        b64_text = m.group('pem')
 
-    doc = document_cls(substrate_source, substrate, document_name, parent)
-    doc.decode()
+        return self.load_b64_document(b64_text, document_name, substrate_source, parent)
 
-    return doc
+    def load_pem_file(self, f, document_name: str = None, substrate_source: str = None, parent=None):
+        data = f.read()
 
+        if isinstance(data, bytes):
+            data = data.decode('us-ascii')
 
-def _load_pem_document(document_cls, substrate: str, document_name: str = None,
-                       substrate_source: str = None, parent=None):
-    regex = _DOCUMENT_CLS_TO_PEM_REGEX.get(document_cls, _GENERIC_BASE64_REGEX)
+        return self.load_pem_document(data, document_name, substrate_source, parent)
 
-    der = _convert_pem_str_to_der(regex, substrate)
+    @classmethod
+    def _is_ascii_armor_start_present(cls, substrate: str):
+        first_significant_char = next((c for c in substrate if not c.isspace()), None)
 
-    return _load_der_document(document_cls, der, document_name, substrate_source, parent)
+        return first_significant_char == '-'
 
+    def load_document(self, substrate, document_name: str = None, substrate_source: str = None, parent=None):
+        if isinstance(substrate, bytes):
+            try:
+                return self.load_der_document(substrate, document_name, substrate_source, parent)
+            except ValueError:
+                substrate = substrate.decode('us-ascii')
 
-def _load_pem_file(document_cls, f, document_name: str = None, substrate_source: str = None, parent=None):
-    data = f.read()
-
-    regex = _DOCUMENT_CLS_TO_PEM_REGEX.get(document_cls, _GENERIC_BASE64_REGEX)
-
-    if isinstance(data, bytes):
-        der = _convert_pem_bytes_to_der(regex, data)
-    else:
-        der = _convert_pem_str_to_der(regex, data)
-
-    return _load_der_document(document_cls, der, document_name, substrate_source, parent)
-
-
-def _load_der_file(document_cls, f, document_name: str = None, substrate_source: str = None, parent=None):
-    data = f.read()
-
-    return _load_der_document(document_cls, data, document_name, substrate_source, parent)
-
-
-_this_module = sys.modules[__name__]
-
-for doc_name, doc_cls in [
-    ('certificate', RFC5280Certificate),
-    ('crl', RFC5280CertificateList),
-    ('ocsp_response', RFC6960OCSPResponse),
-]:
-    for func in [
-        _load_der_file,
-        _load_pem_file,
-        _load_der_document,
-        _load_pem_document,
-    ]:
-        if func == _load_der_file:
-            func_name = f'load_der_{doc_name}_file'
-        elif func == _load_pem_file:
-            func_name = f'load_pem_{doc_name}_file'
-        elif func == _load_der_document:
-            func_name = f'load_der_{doc_name}'
-        elif func == _load_pem_document:
-            func_name = f'load_pem_{doc_name}'
+        if self._is_ascii_armor_start_present(substrate):
+            return self.load_pem_document(substrate, document_name, substrate_source, parent)
         else:
-            raise ValueError(f'Unknown function: {func}')
+            return self.load_b64_document(substrate, document_name, substrate_source, parent)
 
-        setattr(
-            _this_module,
-            func_name,
-            functools.partial(func, doc_cls)
-        )
+    def load_file(self, f, document_name: str = None, substrate_source: str = None, parent=None):
+        substrate = f.read()
 
+        return self.load_document(substrate, document_name, substrate_source, parent)
 
-def _load_document(der_loader, pem_loader, substrate, name=None, substrate_source=None, parent=None):
-    if isinstance(substrate, str):
-        return pem_loader(substrate, name, substrate_source, parent)
-    elif isinstance(substrate, bytes):
+    def load_document_or_file(self, substrate, document_name: str = None, substrate_source: str = None, parent=None):
         try:
-            return der_loader(substrate, name, substrate_source, parent)
-        except ValueError:
-            pem_str = substrate.decode()
-
-            return pem_loader(pem_str, name, substrate_source, parent)
-    else:
-        data = substrate.read()
-
-        return _load_document(der_loader, pem_loader, data, name, substrate_source, parent)
+            return self.load_file(substrate, document_name, substrate_source, parent)
+        except AttributeError:
+            return self.load_document(substrate, document_name, substrate_source, parent)
 
 
-def load_certificate(io, substrate_source, name=None, parent=None):
-    return _load_document(getattr(_this_module, 'load_der_certificate'), getattr(_this_module, 'load_pem_certificate'),
-                          io, name, substrate_source, parent)
+# RFC 5280 Certificate
+_RFC5280_CERTIFICATE_DECODER = DocumentDecoder(RFC5280Certificate, 'CERTIFICATE')
+load_der_certificate = _RFC5280_CERTIFICATE_DECODER.load_der_document
+load_pem_certificate = _RFC5280_CERTIFICATE_DECODER.load_pem_document
+load_b64_certificate = _RFC5280_CERTIFICATE_DECODER.load_b64_document
+load_certificate = _RFC5280_CERTIFICATE_DECODER.load_document_or_file
+load_der_certificate_file = _RFC5280_CERTIFICATE_DECODER.load_der_file
+load_pem_certificate_file = _RFC5280_CERTIFICATE_DECODER.load_pem_file
+load_b64_certificate_file = _RFC5280_CERTIFICATE_DECODER.load_b64_file
+load_certificate_file = _RFC5280_CERTIFICATE_DECODER.load_file
 
 
-def load_crl(io, substrate_source, name=None, parent=None):
-    return _load_document(getattr(_this_module, 'load_der_crl'), getattr(_this_module, 'load_pem_crl'),
-                          io, name, substrate_source, parent)
+# RFC 5280 CRL
+_RFC5280_CERTIFICATE_LIST_DECODER = DocumentDecoder(RFC5280CertificateList, 'X509 CRL')
+load_der_crl = _RFC5280_CERTIFICATE_LIST_DECODER.load_der_document
+load_pem_crl = _RFC5280_CERTIFICATE_LIST_DECODER.load_pem_document
+load_b64_crl = _RFC5280_CERTIFICATE_LIST_DECODER.load_b64_document
+load_crl = _RFC5280_CERTIFICATE_LIST_DECODER.load_document_or_file
+load_der_crl_file = _RFC5280_CERTIFICATE_LIST_DECODER.load_der_file
+load_pem_crl_file = _RFC5280_CERTIFICATE_LIST_DECODER.load_pem_file
+load_b64_crl_file = _RFC5280_CERTIFICATE_LIST_DECODER.load_b64_file
+load_crl_file = _RFC5280_CERTIFICATE_LIST_DECODER.load_file
 
 
-def load_ocsp_response(io, substrate_source, name=None, parent=None):
-    return _load_document(getattr(_this_module, 'load_der_ocsp_response'),
-                          getattr(_this_module, 'load_pem_ocsp_response'), io, name, substrate_source, parent)
+# RFC 6960 OCSP Response
+_RFC6960_OCSP_RESPONSE_DECODER = DocumentDecoder(RFC6960OCSPResponse, 'OCSP RESPONSE')
+load_der_ocsp_response = _RFC6960_OCSP_RESPONSE_DECODER.load_der_document
+load_pem_ocsp_response = _RFC6960_OCSP_RESPONSE_DECODER.load_pem_document
+load_b64_ocsp_response = _RFC6960_OCSP_RESPONSE_DECODER.load_b64_document
+load_ocsp_response = _RFC6960_OCSP_RESPONSE_DECODER.load_document_or_file
+load_der_ocsp_response_file = _RFC6960_OCSP_RESPONSE_DECODER.load_der_file
+load_pem_ocsp_response_file = _RFC6960_OCSP_RESPONSE_DECODER.load_pem_file
+load_b64_ocsp_response_file = _RFC6960_OCSP_RESPONSE_DECODER.load_b64_file
+load_ocsp_response_file = _RFC6960_OCSP_RESPONSE_DECODER.load_file
