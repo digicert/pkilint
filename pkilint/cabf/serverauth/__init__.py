@@ -152,6 +152,7 @@ def create_subject_name_validators() -> List[validation.Validator]:
         serverauth_name.ValidBusinessCategoryValidator(),
         cabf_name.CabfOrganizationIdentifierAttributeValidator(),
         serverauth_name.ServerauthRelativeDistinguishedNameContainsOneElementValidator(),
+        cabf_name.SignificantAttributeValueValidator(),
     ]
 
 

@@ -6,6 +6,7 @@ ERROR,cabf.aia_ca_issuers_has_no_http_uri,SMBR 7.1.2.3 (c),"Legacy: ""When provi
 ERROR,cabf.aia_ocsp_has_no_http_uri,SMBR 7.1.2.3 (c),"Legacy: ""When provided, at least one accessMethod SHALL have the URI scheme HTTP"". MP and strict: ""When provided, every accessMethod SHALL have the URI scheme HTTP"""
 ERROR,cabf.authority_key_identifier_has_issuer_cert,SMBR 7.1.2.3 (g),"""authorityCertIssuer and authorityCertSerialNumber fields SHALL NOT be present."""
 ERROR,cabf.crldp_extension_missing,SMBR 7.1.2.3 (b),"""SHALL be present"""
+ERROR,cabf.insignificant_attribute_value_present,SMBR 7.1.4.2,"Subject attributes SHALL NOT contain only metadata such as '.', '-', and ' ' (i.e., space) characters, and/or any other indication that the value is absent, incomplete, or not applicable."
 ERROR,cabf.internal_domain_name,,The use of an internal domain name (whose superior domain labels do not appear on the PSL)
 ERROR,cabf.invalid_country_code,,The use of a country code that does not appear on ISO 3166.
 ERROR,cabf.invalid_organization_identifier_country,SMBR 7.1.4.2.2 (d),The use of a country code that is not allowed in the organizationIdentifier attribute

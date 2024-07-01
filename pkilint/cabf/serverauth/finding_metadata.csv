@@ -19,6 +19,7 @@ ERROR,cabf.ev_guidelines.organization_name_attribute_absent,Validates that the c
 ERROR,cabf.ev_guidelines.prohibited_san_type,Validates that the types of GeneralNames included in the SAN extension conform to EVG 9.8.1.
 ERROR,cabf.ev_guidelines.serial_number_attribute_absent,Validates that the content of the subject conforms to EVG 9.2.: A required element is absent
 ERROR,cabf.ev_guidelines.unknown_attribute_present,Validates that the content of the subject conforms to EVG 9.2.: A prohibited element is present
+cabf.insignificant_attribute_value_present,"Subject attributes SHALL NOT contain only metadata such as '.', '-', and ' ' (i.e., space) characters, and/or any other indication that the value is absent, incomplete, or not applicable."
 ERROR,cabf.internal_domain_name,An Internal Domain has been specified.
 ERROR,cabf.internal_ip_address,A Reserved IP Address has been specified.
 ERROR,cabf.invalid_country_code,A country code which does not appear on the ISO 3166-1 list has been specified.

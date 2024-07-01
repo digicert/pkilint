@@ -4,7 +4,7 @@ from pkilint import common
 from pkilint import validation
 from pkilint.common import organization_id
 from pkilint.etsi import etsi_shared
-from pkilint.itu import x520_name
+from pkilint.itu import x520_name, asn1_util
 from pkilint.pkix import Rfc2119Word, name
 
 _REQUIRED_ATTRIBUTES = {
@@ -70,16 +70,6 @@ class LegalPersonOrganizationAttributesEqualityValidator(validation.Validator):
             pdu_class=rfc5280.Name
         )
 
-    @classmethod
-    def _get_dirstring_attribute_value(cls, node):
-        try:
-            _, value_node = node.children['value'].child
-            _, decoded_value_node = value_node.child
-
-            return str(decoded_value_node.pdu)
-        except ValueError:
-            return None
-
     def validate(self, node):
         # only get the first instance of the attributes
         orgname_attr_and_idx = next(
@@ -93,8 +83,8 @@ class LegalPersonOrganizationAttributesEqualityValidator(validation.Validator):
             orgname_attr, _ = orgname_attr_and_idx
             orgid_attr, _ = orgid_attr_and_idx
 
-            orgname = self._get_dirstring_attribute_value(orgname_attr)
-            orgid = self._get_dirstring_attribute_value(orgid_attr)
+            orgname = asn1_util.get_string_value_from_attribute_node(orgname_attr)
+            orgid = asn1_util.get_string_value_from_attribute_node(orgid_attr)
 
             # if any of the attributes were not decoded, then return early
             if orgname is None or orgid is None:

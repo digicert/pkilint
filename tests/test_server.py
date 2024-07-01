@@ -1,7 +1,7 @@
-import pytest
 from http import HTTPStatus
 from importlib.metadata import version
 
+import pytest
 from fastapi.testclient import TestClient
 
 from pkilint import report, pkix
@@ -143,7 +143,7 @@ kJePcGspl/I0jGLIvpG34YRy9mLrgiWskyETVNFDPIzddBDAqWu2JkDK
 '''
 
 
-_OCSP_RESPONSE = '''MIIDnwoBAKCCA5gwggOUBgkrBgEFBQcwAQEEggOFMIIDgTCBsKIWBBQK46D+ndQl
+_OCSP_RESPONSE_B64 = '''MIIDnwoBAKCCA5gwggOUBgkrBgEFBQcwAQEEggOFMIIDgTCBsKIWBBQK46D+ndQl
 dpi163Lrygznvz318RgPMjAyNDA0MDIxMjM3NDdaMIGEMIGBMFkwDQYJYIZIAWUD
 BAIBBQAEIDqZRndWgHOnB7/eUBhjReTNYTTbCF66odEEJfA7bwjqBCBHSmyjAfI9
 yff3B4cE4cf1/JbnFnX27YguerZcP1hFQwIEAarwDYAAGA8yMDI0MDQwMzEyMzc0
@@ -163,6 +163,9 @@ BQUHMAEFBAIFADAKBggqhkjOPQQDBAOBigAwgYYCQRQqjNYKbGXHdGXfEVvB//i+
 DiG02hraU9kGNKXeiQcPdZRajQsY/hdZPVyaykkAFVQGv29yWmTrEax+r4oZTtzG
 AkFJCwtJpi7m00Qx9r/ugNWsnCFSiKUdxuvj7mg9lJtz0hexRJZKFODWJG5dUh//
 Bc2w8vywgYYoduXu4QLcoP17CA=='''
+
+
+_OCSP_RESPONSE_PEM = f'''-----BEGIN OCSP RESPONSE-----\n{_OCSP_RESPONSE_B64}\n-----END OCSP RESPONSE-----\n'''
 
 
 def _assert_validationerror_list_present(resp):
@@ -401,12 +404,26 @@ def test_ocsp_pkix_validations_list(client):
 
 
 def test_ocsp_pkix_lint(client):
-    resp = client.post('/ocsp/pkix', json={'b64': _OCSP_RESPONSE})
+    resp = client.post('/ocsp/pkix', json={'b64': _OCSP_RESPONSE_B64})
     assert resp.status_code == HTTPStatus.OK
 
     j = resp.json()
 
     assert len(j['results']) == 0
+
+
+def test_ocsp_pkix_lint_pem(client):
+    resp = client.post('/ocsp/pkix', json={'pem': _OCSP_RESPONSE_PEM})
+    assert resp.status_code == HTTPStatus.OK
+
+    j = resp.json()
+
+    assert len(j['results']) == 0
+
+
+def test_ocsp_pkix_lint_b64_in_pem_field(client):
+    resp = client.post('/ocsp/pkix', json={'pem': _OCSP_RESPONSE_B64})
+    assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
 def test_detect_and_lint_etsi(client):

@@ -116,10 +116,8 @@ class CertificateModel(DocumentModel):
             except PyAsn1Error as e:
                 raise ValueError('Invalid PEM text specified') from e
         else:
-            b64 = base64.b64decode(self.b64)
-
             try:
-                self._parsed_document = loader.load_der_certificate(b64, 'request', 'request')
+                self._parsed_document = loader.load_b64_certificate(self.b64, 'request', 'request')
             except PyAsn1Error as e:
                 raise ValueError('Invalid Base-64 encoding specified') from e
 
@@ -139,13 +137,12 @@ class OcspResponseModel(DocumentModel):
 
         if self.pem is not None:
             try:
-                self._parsed_document = loader.load_ocsp_response(self.pem, 'request', 'request')
+                self._parsed_document = loader.load_pem_ocsp_response(self.pem, 'request', 'request')
             except PyAsn1Error as e:
                 raise ValueError('Invalid PEM text specified') from e
         else:
-            ocsp_der_response = base64.b64decode(self.b64)
             try:
-                self._parsed_document = loader.load_ocsp_response(ocsp_der_response, 'request', 'request')
+                self._parsed_document = loader.load_b64_ocsp_response(self.b64, 'request', 'request')
             except PyAsn1Error as e:
                 raise ValueError('Invalid Base-64 encoding specified') from e
         return self

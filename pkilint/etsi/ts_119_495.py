@@ -1,10 +1,12 @@
 import re
 
-from pkilint import validation
-from pkilint.etsi.asn1 import ts_119_495 as ts_119_495_asn1
-from pyasn1_alt_modules import rfc3739
 from iso3166 import countries_by_alpha2
+from pyasn1_alt_modules import rfc3739, rfc5280
+
 import pkilint.oid
+from pkilint import validation
+from pkilint.etsi import etsi_constants
+from pkilint.etsi.asn1 import ts_119_495 as ts_119_495_asn1
 from pkilint.itu import x520_name
 
 
@@ -191,4 +193,33 @@ class PsdOrganizationIdentifierFormatValidator(validation.Validator):
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_INVALID_PSD_ORGANIZATION_ID_FORMAT,
                 f'Invalid PSD organization identifier format: "{value_str}"'
+            )
+
+
+class Psd2CertificatePolicyOidPresenceValidator(validation.Validator):
+    """
+    OVR-6.1-3: TSPs issuing certificates for EU PSD2 may use the following policy identifier to augment the policy
+    requirements associated with policy identifier QEVCP-w or QNCP-w as specified in ETSI EN 319 411-2 [5] giving
+    precedence to the requirements defined in the present document.
+    """
+    VALIDATION_PROHIBITED_PSD2_POLICY_OID_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'etsi.ts_119_495.ovr-6.1-3.prohibited_psd2_policy_oid_present'
+    )
+
+    def __init__(self, certificate_type):
+        super().__init__(
+            validations=[self.VALIDATION_PROHIBITED_PSD2_POLICY_OID_PRESENT], pdu_class=rfc5280.CertificatePolicies
+        )
+
+        self._certificate_type = certificate_type
+
+    def validate(self, node):
+        if (
+                ts_119_495_asn1.qcp_web_psd2 in node.document.policy_oids and
+                self._certificate_type not in etsi_constants.PSD2_EIDAS_CERTIFICATE_TYPES
+        ):
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_PROHIBITED_PSD2_POLICY_OID_PRESENT,
+                f'Certificate type is "{self._certificate_type}" but PSD2 policy identifier is present'
             )
