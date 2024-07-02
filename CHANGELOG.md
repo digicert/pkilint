@@ -2,6 +2,18 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.11.1 - 2024-07-02
+
+### New features/enhancements
+
+- Add support for PEM-encoded OCSP responses (#86)
+- Add validator to verify that the PSD2 policy OID is only asserted in PSD2 certificates (#87)
+- Add validator to flag insignificant attribute values (#84)
+
+### Fixes
+
+- Perform case-sensitive match for ISO 3166-1 country codes (#83)
+
 ## 0.11.0 - 2024-06-14
 
 ### New features/enhancements
