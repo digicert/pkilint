@@ -1,5 +1,4 @@
 import validators
-from pyasn1.type import char
 from pyasn1_alt_modules import rfc5280, rfc8398
 
 from pkilint import validation, pkix, oid
@@ -8,8 +7,8 @@ from pkilint.cabf.cabf_name import CabfOrganizationIdentifierAttributeValidator
 from pkilint.cabf.smime.smime_constants import Generation, ValidationLevel
 from pkilint.common import organization_id
 from pkilint.common.organization_id import OrganizationIdentifierLeiValidator
-from pkilint.itu import x520_name
-from pkilint.pkix import certificate, name, Rfc2119Word
+from pkilint.itu import x520_name, asn1_util
+from pkilint.pkix import certificate, name, Rfc2119Word, general_name
 
 SHALL = pkix.Rfc2119Word.SHALL
 SHALL_NOT = pkix.Rfc2119Word.SHALL_NOT
@@ -288,6 +287,7 @@ def create_subscriber_certificate_subject_validator_container(
         OrganizationIdentifierLeiValidator(),
         OrganizationIdentifierCountryNameConsistentValidator(),
         cabf_name.RelativeDistinguishedNameContainsOneElementValidator(),
+        cabf_name.SignificantAttributeValueValidator(),
     ]
 
     return certificate.create_subject_validator_container(
@@ -322,26 +322,14 @@ class SubjectAlternativeNameContainsSubjectEmailAddressesValidator(
 
     def validate(self, node):
         oid = node.children['type'].pdu
-        value = node.children['value']
 
-        while True:
-            if len(value.children) != 1:
-                value = None
-                break
-            else:
-                _, value = value.child
+        value_str = asn1_util.get_string_value_from_attribute_node(node)
 
-                if len(value.children) == 0:
-                    if isinstance(value.pdu, char.AbstractCharacterString):
-                        break
-
-        if value is None:
+        if value_str is None:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_UNPARSED_ATTRIBUTE,
                 f'Unparsed attribute {str(oid)} encountered'
             )
-
-        value_str = str(value.pdu)
 
         if bool(validators.email(value_str)):
             san_email_addresses = get_email_addresses_from_san(node.document)
@@ -375,20 +363,9 @@ class CommonNameValidator(validation.Validator):
 
     @staticmethod
     def _is_value_in_dirstring_atvs(atvs, expected_value_node):
-        for atv in atvs:
-            try:
-                # get the value contained within the DirectoryString-encoded ATV value
-                _, atv_dirstring_value_node = atv.children['value'].child
-                _, value = atv_dirstring_value_node.child
-            except ValueError:
-                # skip unparsed field
+        expected_value_str = str(expected_value_node.pdu)
 
-                continue
-
-            if str(value.pdu) == str(expected_value_node.pdu):
-                return True
-
-        return False
+        return any(expected_value_str == asn1_util.get_string_value_from_attribute_node(a) for a in atvs)
 
     def validate(self, node):
         try:
@@ -446,16 +423,10 @@ class OrganizationIdentifierCountryNameConsistentValidator(validation.Validator)
         country_name_value = str(node.pdu)
 
         for atv, _ in node.document.get_subject_attributes_by_type(x520_name.id_at_organizationIdentifier):
-            attr_value_node = atv.navigate('value')
+            x520_value_str = asn1_util.get_string_value_from_attribute_node(atv)
 
-            try:
-                _, x520_dirstring_value_node = attr_value_node.child
-            except ValueError:
+            if x520_value_str is None:
                 continue
-
-            _, x520_value_node = x520_dirstring_value_node.child
-
-            x520_value_str = str(x520_value_node.pdu)
 
             try:
                 parsed_org_id = organization_id.parse_organization_identifier(x520_value_str)
@@ -465,10 +436,10 @@ class OrganizationIdentifierCountryNameConsistentValidator(validation.Validator)
             orgid_country_name = parsed_org_id.country
 
             # skip this orgId attribute if it contains the global scheme identifier
-            if orgid_country_name.casefold() == organization_id.COUNTRY_CODE_GLOBAL_SCHEME.casefold():
+            if orgid_country_name == organization_id.COUNTRY_CODE_GLOBAL_SCHEME:
                 continue
 
-            if orgid_country_name.casefold() != country_name_value.casefold():
+            if orgid_country_name != country_name_value:
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_ORGID_COUNTRYNAME_INCONSISTENT,
                     f'CountryName attribute value: "{country_name_value}", '
@@ -488,9 +459,12 @@ def get_email_addresses_from_san(cert_document):
     for gn in san_ext.navigate('extnValue.subjectAltName').children.values():
         name, value = gn.child
 
-        if name == 'rfc822Name':
+        if name == general_name.GeneralNameTypeName.RFC822_NAME:
             email_addresses.append(value.pdu)
-        elif name == 'otherName' and value.navigate('type-id').pdu == rfc8398.id_on_SmtpUTF8Mailbox:
+        elif (
+                name == general_name.GeneralNameTypeName.OTHER_NAME and
+                value.navigate('type-id').pdu == rfc8398.id_on_SmtpUTF8Mailbox
+        ):
             email_addresses.append(value.navigate('value').child[1].pdu)
 
     return email_addresses

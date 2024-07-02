@@ -20,6 +20,7 @@ class CertificatePoliciesValidator(validation.Validator):
         'etsi.en_319_411_1.gen-6.3.3-12.prohibited_reserved_policy_oid_present',
     )
 
+    # mapping of certificate types to ETSI policy OIDs
     _CERTIFICATE_TYPE_SET_TO_POLICY_OID_MAPPINGS = [
         (etsi_constants.CABF_EV_CERTIFICATE_TYPES, en_319_411_1.id_evcp),
         (etsi_constants.CABF_DV_CERTIFICATE_TYPES, en_319_411_1.id_dvcp),
@@ -41,8 +42,10 @@ class CertificatePoliciesValidator(validation.Validator):
         )
 
     def validate(self, node):
+        # extract ETSI reserved policy OIDs from certificate policy OIDs
         etsi_policy_oids = en_319_411_1.POLICY_OIDS & node.document.policy_oids
 
+        # if multiple ETSI policy OIDs are present, then report
         if len(etsi_policy_oids) > 1:
             oids = oid.format_oids(etsi_policy_oids)
 
@@ -51,6 +54,7 @@ class CertificatePoliciesValidator(validation.Validator):
                 f'Multiple reserved certificate policy OIDs present: {oids}'
             )
 
+        # if there is a mismatch between the certificate type and reserved ETSI policy OID, then report
         if etsi_policy_oids and self._expected_policy_oid not in etsi_policy_oids:
             prohibited_oid = next(iter(etsi_policy_oids))
 
