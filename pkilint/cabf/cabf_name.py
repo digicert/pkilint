@@ -209,16 +209,9 @@ class SignificantAttributeValueValidator(validation.Validator):
         'cabf.insignificant_attribute_value_present'
     )
 
-    @classmethod
-    def _is_significant_code_point(cls, c):
-        # https://www.unicode.org/reports/tr44/#General_Category_Values
-
-        category = unicodedata.category(c)
-
-        major_class = category[0]
-
-        # any letter, number, or currency symbol is significant
-        return major_class == 'L' or major_class == 'N' or category == 'Sc'
+    # https://www.unicode.org/reports/tr44/#General_Category_Values
+    # TODO: any letter, number, or symbol is significant. revisit this to restrict S to only Sc (currency symbol)?
+    _SIGNIFICANT_MAJOR_CLASSES = {'L', 'N', 'S', }
 
     def __init__(self):
         super().__init__(
@@ -232,7 +225,7 @@ class SignificantAttributeValueValidator(validation.Validator):
         if value is None:
             return
 
-        if not any(self._is_significant_code_point(c) for c in value):
+        if not any(unicodedata.category(c)[0] in self._SIGNIFICANT_MAJOR_CLASSES for c in value):
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_INSIGNIFICANT_ATTRIUBTE_VALUE_PRESENT,
                 f'Insignificant attribute value: "{value}"'
