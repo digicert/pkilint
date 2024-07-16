@@ -67,6 +67,7 @@ U8/E3Jf1bDTbf5OLWqombrgLIWL+A/SrRvnqyLpyDv2PHJ0IgbsylDRalxeGHa1Q
 Eqpda1II90v7ae6kNwIPK+140WOhkKilZ526OHvetaZ9XUc=
 -----END CERTIFICATE-----'''
 
+
 _OV_FINAL_CLEAN_PEM = '''-----BEGIN CERTIFICATE-----
 MIIGxDCCBKygAwIBAgIMS9Kjc1CWWKwCO6fGMA0GCSqGSIb3DQEBCwUAMEUxCzAJ
 BgNVBAYTAlVTMRMwEQYDVQQKEwpDZXJ0cyBSIFVzMSEwHwYDVQQDExhDZXJ0cyBS
@@ -107,6 +108,7 @@ CTe59IndMLJ8wwru0OHco8qL4Qf9VcuDMpNWUZGDp6o9EaAJgzlOHGRsk5NZTCZk
 XpOaUjkNSs4=
 -----END CERTIFICATE-----'''
 
+
 _BAD_CERT_POLICIES_DER_PEM = '''-----BEGIN CERTIFICATE-----
 MIIFxjCCBK6gAwIBAgIQAROrI6zwQH6igXlKWdEvgjANBgkqhkiG9w0BAQsFADBP
 MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMSkwJwYDVQQDEyBE
@@ -139,8 +141,40 @@ ZjFu9ITmHjNz/55f5BwD7SHi5ZqbT8wYEN1Oy+duFTpeZgJzZFYw8cEIrEYVGrNn
 TcujtM2w710EQ+DXIPlXMpMJmtCzzrLzVYdPmIGwiIUoj9BwhgMtBtPInxe7qjm6
 B0iBclRQb246wAEPjF/sWAUS+LgmJL2u1CclSWu3h/Ae+yIMKAbdL6Vn5GeLHfCD
 kJePcGspl/I0jGLIvpG34YRy9mLrgiWskyETVNFDPIzddBDAqWu2JkDK
------END CERTIFICATE-----
-'''
+-----END CERTIFICATE-----'''
+
+
+_CERT_WITH_TRAILER_B64 = '''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
+p6o9EaAJgzlOHGRsk5NZTCZkXpOaUjkNSs5B'''
 
 
 _OCSP_RESPONSE_B64 = '''MIIDnwoBAKCCA5gwggOUBgkrBgEFBQcwAQEEggOFMIIDgTCBsKIWBBQK46D+ndQl
@@ -304,8 +338,13 @@ def test_serverauth_bad_pem(client):
     assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
-def test_serverauuth_bad_base64(client):
+def test_serverauth_bad_base64(client):
     resp = client.post('/certificate/cabf-serverauth', json={'b64': 'foo'})
+    assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+
+def test_serverauth_with_bad_base64_trailer(client):
+    resp = client.post('/certificate/cabf-serverauth', json={'b64': _CERT_WITH_TRAILER_B64})
     assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
@@ -324,13 +363,6 @@ def test_serverauth_detect_not_serverauth(client):
     j = resp.json()
 
     assert j['linter']['name'] == serverauth_constants.CertificateType.DV_FINAL_CERTIFICATE.to_option_str
-
-
-def test_serverauth_detect_bad_extension_der(client):
-    resp = client.post('/certificate/cabf-serverauth', json={'pem': _BAD_CERT_POLICIES_DER_PEM})
-    assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
-
-    _assert_validationerror_list_present(resp)
 
 
 def test_lint_serverauth_unknown_linter(client):
@@ -433,10 +465,3 @@ def test_detect_and_lint_etsi(client):
     j = resp.json()
 
     assert j['linter']['name'] == etsi_constants.CertificateType.OVCP_FINAL_CERTIFICATE.to_option_str
-
-
-def test_etsi_detect_bad_extension_der(client):
-    resp = client.post('/certificate/etsi', json={'pem': _BAD_CERT_POLICIES_DER_PEM})
-    assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
-
-    _assert_validationerror_list_present(resp)

@@ -27,6 +27,6 @@ o3WH27OlZEKVZQw+QOvSOWv0
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.extensions.7,ExtensionsDecodingValidator,FATAL,itu.invalid_asn1_syntax,"ASN.1 decoding failure occurred at ""certificate.tbsCertificate.extensions.7.extnValue"" with schema ""CertificatePolicies"", OID 2.5.29.32: Substrate of type ""CertificatePolicies"" is not DER-encoded"
+certificate.tbsCertificate.extensions.7,ExtensionsDecodingValidator,FATAL,itu.invalid_asn1_syntax,"ASN.1 decoding failure occurred at ""certificate.tbsCertificate.extensions.7.extnValue"" with schema ""CertificatePolicies"" corresponding to type OID 2.5.29.32: Substrate of type ""CertificatePolicies"" is not DER-encoded"
 certificate.tbsCertificate.extensions.0.extnValue.keyUsage,CaKeyUsageValidator,NOTICE,cabf.ca_certificate_no_digital_signature_bit,
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,

@@ -1,0 +1,21 @@
+from pkilint import loader, pkix
+
+_BAD_VALIDITY_TIMES_CRL_PEM = '''-----BEGIN X509 CRL-----
+MIIBzTCBtgIBATANBgkqhkiG9w0BAQsFADAiMQswCQYDVQQGEwJYWDETMBEGA1UE
+CgwKQ1JMcyAnciBVcxcNWDQwMzI1MTg0NzAwWhcNWDQwNDAxMTg0NzAwWqBgMF4w
+CgYDVR0UBAMCAQEwHwYDVR0jBBgwFoAU/NE0t8uklbG2WeoLBWIe6JqPtDowLwYD
+VR0cAQH/BCUwI6AeoByGGmh0dHA6Ly9mb28uZXhhbXBsZS9jcmwuZGxshAH/MA0G
+CSqGSIb3DQEBCwUAA4IBAQAN8oDSvWsg3JvUJ4MkXvczaFb72VH0J/VL5PV2cBSm
+MfaVBKnUsNr1IcxT06KF8gNrDTpKqJ9fetO290swZfcPt9sEVUBVQUpdlQc3tya1
+jYWmFkA3tkpqH5rBCQa3CBm1Cg8cbFBtwWgWr70NsVvfD6etjAEP9Ze+MSXnGV0p
+w9EeOV07HnSD/PGQwqCiaSn5DdIDVoH8eFSGmgNLw+b4SwUjmz8PqsZwvHxJvleV
+1D8cj7zdR4ywgRMjEfJZ8Bp+Tdu64Gv0doDS0iEJIshLHYkcW1okpq/tPm8kKAbD
+reparePNQwhScVcDiSL73eEBIPokgG3QhohiucP5MeF1
+-----END X509 CRL-----'''
+
+
+def test_bad_time():
+    crl = loader.load_pem_crl(_BAD_VALIDITY_TIMES_CRL_PEM)
+
+    assert crl.this_update == pkix.MAXIMUM_TIME_DATETIME
+    assert crl.next_update == pkix.MAXIMUM_TIME_DATETIME

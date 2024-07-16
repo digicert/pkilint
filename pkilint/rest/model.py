@@ -1,8 +1,6 @@
-import base64
 from typing import List, Optional
 
 from fastapi import HTTPException
-from pyasn1.error import PyAsn1Error
 from pydantic import BaseModel, Field, model_validator
 from typing_extensions import Annotated
 
@@ -113,12 +111,12 @@ class CertificateModel(DocumentModel):
         if self.pem is not None:
             try:
                 self._parsed_document = loader.load_pem_certificate(self.pem, 'request', 'request')
-            except PyAsn1Error as e:
+            except ValueError as e:
                 raise ValueError('Invalid PEM text specified') from e
         else:
             try:
                 self._parsed_document = loader.load_b64_certificate(self.b64, 'request', 'request')
-            except PyAsn1Error as e:
+            except ValueError as e:
                 raise ValueError('Invalid Base-64 encoding specified') from e
 
         return self
@@ -138,12 +136,12 @@ class OcspResponseModel(DocumentModel):
         if self.pem is not None:
             try:
                 self._parsed_document = loader.load_pem_ocsp_response(self.pem, 'request', 'request')
-            except PyAsn1Error as e:
+            except ValueError as e:
                 raise ValueError('Invalid PEM text specified') from e
         else:
             try:
                 self._parsed_document = loader.load_b64_ocsp_response(self.b64, 'request', 'request')
-            except PyAsn1Error as e:
+            except ValueError as e:
                 raise ValueError('Invalid Base-64 encoding specified') from e
         return self
 

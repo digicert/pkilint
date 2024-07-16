@@ -36,15 +36,21 @@ class RFC5280Certificate(Document):
 
     @property
     def not_before(self):
-        return time.parse_time_node(
-            self.root.navigate('tbsCertificate.validity.notBefore')
-        )
+        try:
+            return time.parse_time_node(
+                self.root.navigate('tbsCertificate.validity.notBefore')
+            )
+        except ValueError:
+            return pkix.MAXIMUM_TIME_DATETIME
 
     @property
     def not_after(self):
-        return time.parse_time_node(
-            self.root.navigate('tbsCertificate.validity.notAfter')
-        )
+        try:
+            return time.parse_time_node(
+                self.root.navigate('tbsCertificate.validity.notAfter')
+            )
+        except ValueError:
+            return pkix.MAXIMUM_TIME_DATETIME
 
     def _decode_and_append_extension(
             self, ext_oid: univ.ObjectIdentifier, ext_asn1_spec: Asn1Type) -> Optional[document.PDUNode]:
@@ -56,7 +62,11 @@ class RFC5280Certificate(Document):
         ext, _ = ext_and_idx
         ext_value = ext.children['extnValue']
 
-        return document.decode_substrate(self, ext_value.pdu.asOctets(), ext_asn1_spec, ext_value)
+        try:
+            return document.decode_substrate(self, ext_value.pdu.asOctets(), ext_asn1_spec, ext_value)
+        except ValueError:
+            # suppress decoding errors, which will be reported by DecodingValidator instances
+            return None
 
     @functools.cached_property
     def is_ca(self) -> bool:

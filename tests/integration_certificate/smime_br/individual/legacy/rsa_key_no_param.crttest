@@ -33,7 +33,7 @@ vwa3P9bp46dIC6RB3ZNPCbrR7YMO/GD3Iyu28hE6hrfrkcsQjfe9E1OzSPEadmF8
 A9uBf/ih
 -----END CERTIFICATE-----
 node_path,validator,severity,code,message
-certificate.tbsCertificate.subjectPublicKeyInfo,SubjectPublicKeyParametersDecodingValidator,FATAL,itu.invalid_asn1_syntax,"ASN.1 decoding failure occurred at ""certificate.tbsCertificate.subjectPublicKeyInfo"" with schema ""Null"", OID 1.2.840.113549.1.1.1: Value node is absent, but the ASN.1 schema specifies that it must be present"
+certificate.tbsCertificate.subjectPublicKeyInfo,SubjectPublicKeyParametersDecodingValidator,FATAL,itu.invalid_asn1_syntax,"Value node is absent, but type OID 1.2.840.113549.1.1.1 specifies that a ""Null"" value must be present"
 certificate.tbsCertificate.subjectPublicKeyInfo.algorithm,SmimeAllowedPublicKeyAlgorithmEncodingValidator,ERROR,cabf.smime.prohibited_spki_algorithm_encoding,Prohibited encoding: 300b06092a864886f70d010101
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 

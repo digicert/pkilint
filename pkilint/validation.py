@@ -1,16 +1,14 @@
 import enum
 import itertools
 import logging
-from typing import Any, Callable, Mapping, NamedTuple, List, Tuple, Optional
+from typing import Callable, NamedTuple, List, Optional
 
 from pyasn1.codec.der.encoder import encode
 from pyasn1.type.constraint import PermittedAlphabetConstraint, ValueRangeConstraint
 from pyasn1.type.error import ValueConstraintError
 from pyasn1.type.univ import ObjectIdentifier
 
-from pkilint.document import (PDUNode, NodeVisitor, ValueDecodingFailedError,
-                              PDUNavigationFailedError
-                              )
+from pkilint.document import PDUNode, NodeVisitor, SubstrateDecodingFailedError, PDUNavigationFailedError
 
 logger = logging.getLogger(__name__)
 
@@ -250,25 +248,15 @@ class DecodingValidator(Validator):
     def __init__(self, *, decode_func=Callable[[PDUNode], None], **kwargs):
         self.decode_func = decode_func
 
-        super().__init__(validations=[self.VALIDATION_ASN1_DECODING_FAILURE],
-                         **kwargs
-                         )
+        super().__init__(validations=[self.VALIDATION_ASN1_DECODING_FAILURE], **kwargs)
 
     def validate(self, node):
         try:
             self.decode_func(node)
-        except ValueDecodingFailedError as e:
-            schema_name = e.pdu_type.__class__.__name__
-            path = e.value_node.path
-
-            description = (f'ASN.1 decoding failure occurred at "{path}"'
-                           f' with schema "{schema_name}", OID {str(e.type_oid)}: '
-                           f'{e.message}'
-                           )
-
+        except SubstrateDecodingFailedError as e:
             raise ValidationFindingEncountered(
                 self.VALIDATION_ASN1_DECODING_FAILURE,
-                description
+                e.message
             )
 
 

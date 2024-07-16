@@ -26,18 +26,23 @@ class RFC5280CertificateList(Document):
 
     @property
     def this_update(self):
-        return time.parse_time_node(
-            self.root.navigate('tbsCertificateList.thisUpdate')
-        )
+        try:
+            return time.parse_time_node(
+                self.root.navigate('tbsCertList.thisUpdate')
+            )
+        except ValueError:
+            return pkix.MAXIMUM_TIME_DATETIME
 
     @property
     def next_update(self):
         try:
             return time.parse_time_node(
-                self.root.navigate('tbsCertificateList.nextUpdate')
+                self.root.navigate('tbsCertList.nextUpdate')
             )
         except document.PDUNavigationFailedError:
             return None
+        except ValueError:
+            return pkix.MAXIMUM_TIME_DATETIME
 
     def get_extension_by_oid(self, oid):
         tbs_crl = self.root.children['tbsCertList']
