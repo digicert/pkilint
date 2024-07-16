@@ -1,4 +1,3 @@
-import binascii
 import datetime
 import logging
 import re
@@ -12,11 +11,9 @@ from pyasn1.type.univ import (ObjectIdentifier, SequenceOfAndSetOfBase, Sequence
                               Choice, BitString
                               )
 
-
 logger = logging.getLogger(__name__)
 
 PATH_REGEX = re.compile(r'^((?P<doc_name>[^:]*):)?(?P<node_path>([^.]+\.)*[^.]+)?$')
-
 
 try:
     # noinspection PyUnresolvedReferences
@@ -50,7 +47,7 @@ class PDUNavigationFailedError(Exception):
                 )
 
 
-class Document(object):
+class Document:
     """Represents an ASN.1-encoded document."""
 
     def __init__(
@@ -92,7 +89,7 @@ class Document(object):
         return f'{self.root.name} document "{self.substrate_source}"'
 
 
-class PDUNode(object):
+class PDUNode:
     """Represents a node of a document."""
 
     def __init__(self, document: Document, name: str, pdu: Asn1Type,
@@ -234,7 +231,7 @@ class PDUNode(object):
         return f'{self.pdu.__class__.__name__} @ {path}'
 
 
-class NodeVisitor(object):
+class NodeVisitor:
     def __init__(self, *,
                  path: str = None,
                  path_re: re.Pattern = None,
@@ -263,21 +260,96 @@ class NodeVisitor(object):
         return True
 
 
-class ValueDecodingFailedError(Exception):
-    def __init__(self, value_node: PDUNode, type_oid: ObjectIdentifier,
-                 pdu_type: Optional[Asn1Type], message: str
-                 ):
-        self.value_node = value_node
-        self.type_oid = type_oid
-        self.pdu_type = pdu_type
+def get_node_name_for_pdu(pdu: Asn1Type) -> str:
+    name = pdu.__class__.__name__
+    # convert PDU class name to camelCase
+    return name[0].lower() + name[1:]
+
+
+class SubstrateDecodingFailedError(ValueError):
+    def __init__(
+            self, source_document: Document, pdu_instance: Optional[Asn1Type], parent_node: Optional[PDUNode],
+            message: Optional[str]
+    ):
+        self.source_document = source_document
+        self.pdu_instance = pdu_instance
+        self.parent_node = parent_node
         self.message = message
+
+    def __str__(self):
+        message = f'Error occurred while decoding substrate in document "{self.source_document.name}"'
+
+        if self.parent_node:
+            message += f' @ {self.parent_node.path}'
+
+        if self.pdu_instance:
+            message += f' using schema "{self.pdu_instance.__class__.__name__}"'
+
+        if self.message:
+            message += f': {self.message}'
+
+        return message
+
+
+def decode_substrate(source_document: Document, substrate: bytes,
+                     pdu_instance: Asn1Type, parent_node: Optional[PDUNode] = None) -> PDUNode:
+    if parent_node is not None and any(parent_node.children):
+        logger.debug("%s has child node; not creating new PDU node",
+                     parent_node.path
+                     )
+        return next(iter(parent_node.children.values()))
+
+    if _USE_PYASN1_FASDER:
+        try:
+            decoded, _ = decode_der(substrate, asn1Spec=pdu_instance)
+        except (ValueError, PyAsn1Error) as e:
+            raise SubstrateDecodingFailedError(source_document, pdu_instance, parent_node, str(e)) from e
+
+        decoded_pdu_name = get_node_name_for_pdu(decoded)
+    else:
+        try:
+            decoded, rest = decode(substrate, asn1Spec=pdu_instance)
+        except (ValueError, PyAsn1Error) as e:
+            raise SubstrateDecodingFailedError(source_document, pdu_instance, parent_node, str(e)) from e
+
+        decoded_pdu_name = get_node_name_for_pdu(decoded)
+        type_name = decoded.__class__.__name__
+
+        if len(rest) > 0:
+            raise SubstrateDecodingFailedError(
+                source_document, pdu_instance, parent_node,
+                f'{len(rest)} unexpected octet(s) following {type_name} TLV: "{rest.hex()}"'
+            )
+
+        try:
+            encoded = encode(decoded)
+            if encoded != substrate:
+                raise SubstrateDecodingFailedError(
+                    source_document, pdu_instance, parent_node,
+                    f'Substrate of type "{type_name}" is not binary equal to re-encoded DER representation'
+                )
+        except (ValueError, PyAsn1Error) as e:
+            raise SubstrateDecodingFailedError(
+                source_document, pdu_instance, parent_node,
+                f'Substrate of type "{type_name}" is not DER-encoded'
+            ) from e
+
+    node = PDUNode(source_document, decoded_pdu_name, decoded, parent_node)
+
+    if parent_node is not None:
+        parent_node.children[decoded_pdu_name] = node
+        logger.debug("Appended %s node to %s", node.name,
+                     parent_node.path
+                     )
+
+    return node
 
 
 class OptionalAsn1TypeWrapper(NamedTuple):
     asn1_type: Asn1Type
 
 
-class ValueDecoder(object):
+class ValueDecoder:
     _BITSTRING_SCHEMA_OBJ = BitString()
 
     VALUE_NODE_ABSENT = object()
@@ -319,16 +391,19 @@ class ValueDecoder(object):
 
             # value node must be absent, but it exists
             elif pdu_type is self.VALUE_NODE_ABSENT and value_node is not None:
-                raise ValueDecodingFailedError(
-                    value_node, type_node.pdu, pdu_type,
-                    'Value node is present, but the ASN.1 schema specifies that it must be absent'
+                raise SubstrateDecodingFailedError(
+                    node.document, None, value_node,
+                    f'Value node is present, but type OID {type_node.pdu} specifies that it must be absent'
                 )
 
             # value node must be present, but it doesn't exist
             elif pdu_type is not self.VALUE_NODE_ABSENT and value_node is None:
-                raise ValueDecodingFailedError(
-                    node, type_node.pdu, pdu_type,
-                    'Value node is absent, but the ASN.1 schema specifies that it must be present'
+                schema_name = pdu_type.__class__.__name__
+
+                raise SubstrateDecodingFailedError(
+                    node.document, pdu_type, value_node,
+                    f'Value node is absent, but type OID {type_node.pdu} specifies that a '
+                    f'"{schema_name}" value must be present'
                 )
 
         if pdu_type is self.VALUE_NODE_ABSENT or pdu_type is None:
@@ -337,67 +412,23 @@ class ValueDecoder(object):
         value_octets = self.filter_value(node, type_node, value_node, pdu_type)
 
         try:
-            decode_substrate(value_node.document, value_octets,
-                             pdu_type, value_node
-                             )
-        except (PyAsn1Error, ValueError) as e:
-            raise ValueDecodingFailedError(
-                value_node, type_node.pdu, pdu_type, str(e)
+            decode_substrate(value_node.document, value_octets, pdu_type, value_node)
+        except SubstrateDecodingFailedError as e:
+            schema_name = pdu_type.__class__.__name__
+
+            message = (
+                f'ASN.1 decoding failure occurred at "{value_node.path}" with schema "{schema_name}" corresponding to '
+                f'type OID {type_node.pdu}: {e.message}'
             )
 
-
-def get_node_name_for_pdu(pdu: Asn1Type) -> str:
-    name = pdu.__class__.__name__
-    # convert PDU class name to camelCase
-    return name[0].lower() + name[1:]
+            raise SubstrateDecodingFailedError(
+                e.source_document, e.pdu_instance, e.parent_node, message
+            ) from e
 
 
 def get_document_by_name(node: PDUNode, document_name: str) -> Document:
     """Retrieves the document with the specified name"""
     return node.document.parent[document_name]
-
-
-def decode_substrate(source_document: Document, substrate: bytes,
-                     pdu_instance: Asn1Type, parent_node: Optional[PDUNode] = None) -> PDUNode:
-    if parent_node is not None and any(parent_node.children):
-        logger.debug("%s has child node; not creating new PDU node",
-                     parent_node.path
-                     )
-        return next(iter(parent_node.children.values()))
-
-    if _USE_PYASN1_FASDER:
-        decoded, _ = decode_der(substrate, asn1Spec=pdu_instance)
-
-        decoded_pdu_name = get_node_name_for_pdu(decoded)
-    else:
-        decoded, rest = decode(substrate, asn1Spec=pdu_instance)
-
-        decoded_pdu_name = get_node_name_for_pdu(decoded)
-
-        if len(rest) > 0:
-            raise ValueError(
-                "Unexpected {} octets following {} DER in {}: {}".format(
-                    len(rest), decoded_pdu_name, source_document.substrate_source,
-                    binascii.hexlify(rest).decode('us-ascii')
-                )
-            )
-
-        encoded = encode(decoded)
-        if encoded != substrate:
-            type_name = decoded.__class__.__name__
-            raise ValueError(
-                f'Substrate of type "{type_name}" is not DER-encoded'
-            )
-
-    node = PDUNode(source_document, decoded_pdu_name, decoded, parent_node)
-
-    if parent_node is not None:
-        parent_node.children[decoded_pdu_name] = node
-        logger.debug("Appended %s node to %s", node.name,
-                     parent_node.path
-                     )
-
-    return node
 
 
 def get_re_for_path_glob(path_glob: str) -> re.Pattern:

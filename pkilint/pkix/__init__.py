@@ -1,3 +1,4 @@
+import datetime
 import enum
 from typing import Optional
 
@@ -7,6 +8,8 @@ from pyasn1_alt_modules import rfc5280
 from pkilint import validation
 from pkilint.document import ValueDecoder
 from pkilint.pkix import extension, algorithm, name
+
+MAXIMUM_TIME_DATETIME = datetime.datetime(9999, 12, 31, 23, 59, 59, tzinfo=datetime.timezone.utc)
 
 
 def create_attribute_decoder(type_mappings, decode_unknown_as_directorystring=True):
