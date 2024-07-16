@@ -316,9 +316,11 @@ def decode_substrate(source_document: Document, substrate: bytes,
         type_name = decoded.__class__.__name__
 
         if len(rest) > 0:
+            rest_hex = bytes(rest).hex()
+
             raise SubstrateDecodingFailedError(
                 source_document, pdu_instance, parent_node,
-                f'{len(rest)} unexpected octet(s) following {type_name} TLV: "{rest.hex()}"'
+                f'{len(rest)} unexpected octet(s) following {type_name} TLV: "{rest_hex}"'
             )
 
         try:
