@@ -325,16 +325,16 @@ def decode_substrate(source_document: Document, substrate: bytes,
 
         try:
             encoded = encode(decoded)
-            if encoded != substrate:
-                raise SubstrateDecodingFailedError(
-                    source_document, pdu_instance, parent_node,
-                    f'Substrate of type "{type_name}" is not binary equal to re-encoded DER representation'
-                )
-        except (ValueError, PyAsn1Error) as e:
+
+            substrate_is_der = encoded == substrate
+        except (ValueError, PyAsn1Error):
+            substrate_is_der = False
+
+        if not substrate_is_der:
             raise SubstrateDecodingFailedError(
                 source_document, pdu_instance, parent_node,
                 f'Substrate of type "{type_name}" is not DER-encoded'
-            ) from e
+            )
 
     node = PDUNode(source_document, decoded_pdu_name, decoded, parent_node)
 
