@@ -320,7 +320,7 @@ def decode_substrate(source_document: Document, substrate: bytes,
 
             raise SubstrateDecodingFailedError(
                 source_document, pdu_instance, parent_node,
-                f'{len(rest)} unexpected octet(s) following {type_name} TLV: "{rest_hex}"'
+                f'{len(rest)} unexpected octet(s) following "{type_name}" TLV: "{rest_hex}"'
             )
 
         try:
