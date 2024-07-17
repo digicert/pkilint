@@ -97,7 +97,7 @@ def determine_certificate_type(cert: certificate.RFC5280Certificate) -> Certific
                     )
                 else:
                     return (
-                        CertificateType.NCP_W_NATURAL_PERSON_PRE_CERTIFICATE if is_webauth
+                        CertificateType.NCP_W_NATURAL_PERSON_PRE_CERTIFICATE if is_precert
                         else CertificateType.NCP_W_NATURAL_PERSON_FINAL_CERTIFICATE
                     )
 
@@ -116,7 +116,7 @@ def determine_certificate_type(cert: certificate.RFC5280Certificate) -> Certific
                     )
                 else:
                     return (
-                        CertificateType.NCP_W_LEGAL_PERSON_PRE_CERTIFICATE if is_webauth
+                        CertificateType.NCP_W_LEGAL_PERSON_PRE_CERTIFICATE if is_precert
                         else CertificateType.NCP_W_LEGAL_PERSON_FINAL_CERTIFICATE
                     )
 
