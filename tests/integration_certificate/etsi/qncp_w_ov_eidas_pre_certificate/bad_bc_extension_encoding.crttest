@@ -47,7 +47,7 @@ PMeG9uZkYykeSL8vGkuW7QwDUXmnQ5U6hHjM8Wen
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.extensions.5,ExtensionsDecodingValidator,FATAL,itu.invalid_asn1_syntax,"ASN.1 decoding failure occurred at ""certificate.tbsCertificate.extensions.5.extnValue"" with schema ""BasicConstraints"" corresponding to type OID 2.5.29.19: Substrate of type ""BasicConstraints"" is not DER-encoded"
+certificate.tbsCertificate.extensions.5,ExtensionsDecodingValidator,FATAL,itu.invalid_asn1_syntax,"ASN.1 decoding failure occurred at ""certificate.tbsCertificate.extensions.5.extnValue"" with schema ""BasicConstraints"" corresponding to type OID 2.5.29.19: Error decoding ""BasicConstraints"" TLV near substrate offset 0: Explicitly encoded default value"
 certificate.tbsCertificate.subject.rdnSequence,OvSubscriberAttributeAllowanceValidator,WARNING,cabf.serverauth.ov.common_name_attribute_present,
 certificate.tbsCertificate.subject.rdnSequence,OvSubscriberAttributeAllowanceValidator,WARNING,cabf.serverauth.ov.unknown_attribute_present,Unknown attribute present: 2.5.4.5
 certificate.tbsCertificate.extensions.1.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,

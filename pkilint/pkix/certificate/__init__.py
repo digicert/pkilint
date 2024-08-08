@@ -13,8 +13,6 @@ from pyasn1_alt_modules import rfc5280, rfc3739
 
 from pkilint import validation, pkix, document
 from pkilint.document import Document, ValueDecoder
-from pkilint.itu.bitstring import NamedBitStringMinimalEncodingValidator
-from pkilint.itu.string import PrintableStringConstraintValidator
 from pkilint.pkix import (extension, time, name,
                           create_name_validator_container, general_name, algorithm
                           )
@@ -339,7 +337,6 @@ def create_pkix_certificate_validator_container(
     ]
 
     validators += [
-        PrintableStringConstraintValidator(),
         certificate_validator.CorrectVersionValidator(),
         pkix.CertificateSerialNumberValidator(),
         certificate_validator.SignatureAlgorithmMatchValidator(),
@@ -348,7 +345,6 @@ def create_pkix_certificate_validator_container(
         certificate_extension.KeyUsagePresenceValidator(),
         time.UtcTimeCorrectSyntaxValidator(),
         time.GeneralizedTimeCorrectSyntaxValidator(),
-        NamedBitStringMinimalEncodingValidator(),
         certificate_validator.IssuerUniqueIdAbsenceValidator(),
         certificate_validator.SubjectUniqueIdAbsenceValidator(),
     ]

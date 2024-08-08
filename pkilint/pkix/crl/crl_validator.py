@@ -42,3 +42,22 @@ class SignatureAlgorithmMatchValidator(validation.DEREqualityValidator):
                 'pkix.crl_signature_algorithm_match'
             )
         )
+
+
+class RevokedCertificatesEmptyValidator(validation.Validator):
+    VALIDATION_REVOKED_CERTIFICATES_EMPTY = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.crl_revoked_certificates_empty'
+    )
+
+    def __init__(self):
+        super().__init__(
+            validations=[self.VALIDATION_REVOKED_CERTIFICATES_EMPTY],
+            pdu_class=rfc5280.TBSCertList
+        )
+
+    def validate(self, node):
+        revoked_certificates = node.children.get('revokedCertificates')
+
+        if revoked_certificates is not None and not any(revoked_certificates.pdu):
+            raise validation.ValidationFindingEncountered(self.VALIDATION_REVOKED_CERTIFICATES_EMPTY)

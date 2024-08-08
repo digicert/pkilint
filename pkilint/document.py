@@ -10,19 +10,11 @@ from pyasn1.type.base import Asn1Type
 from pyasn1.type.univ import (ObjectIdentifier, SequenceOfAndSetOfBase, SequenceAndSetBase,
                               Choice, BitString
                               )
+from pyasn1_fasder import decode_der
 
 logger = logging.getLogger(__name__)
 
 PATH_REGEX = re.compile(r'^((?P<doc_name>[^:]*):)?(?P<node_path>([^.]+\.)*[^.]+)?$')
-
-try:
-    # noinspection PyUnresolvedReferences
-    from pyasn1_fasder import decode_der
-
-    logging.info('Using pyasn1-fasder for ASN.1 DER decoding')
-    _USE_PYASN1_FASDER = True
-except ImportError:
-    _USE_PYASN1_FASDER = False
 
 
 class PDUNavigationFailedError(Exception):
@@ -299,42 +291,12 @@ def decode_substrate(source_document: Document, substrate: bytes,
                      )
         return next(iter(parent_node.children.values()))
 
-    if _USE_PYASN1_FASDER:
-        try:
-            decoded, _ = decode_der(substrate, asn1Spec=pdu_instance)
-        except (ValueError, PyAsn1Error) as e:
-            raise SubstrateDecodingFailedError(source_document, pdu_instance, parent_node, str(e)) from e
+    try:
+        decoded, _ = decode_der(substrate, asn1Spec=pdu_instance)
+    except (ValueError, PyAsn1Error) as e:
+        raise SubstrateDecodingFailedError(source_document, pdu_instance, parent_node, str(e)) from e
 
-        decoded_pdu_name = get_node_name_for_pdu(decoded)
-    else:
-        try:
-            decoded, rest = decode(substrate, asn1Spec=pdu_instance)
-        except (ValueError, PyAsn1Error) as e:
-            raise SubstrateDecodingFailedError(source_document, pdu_instance, parent_node, str(e)) from e
-
-        decoded_pdu_name = get_node_name_for_pdu(decoded)
-        type_name = decoded.__class__.__name__
-
-        if len(rest) > 0:
-            rest_hex = bytes(rest).hex()
-
-            raise SubstrateDecodingFailedError(
-                source_document, pdu_instance, parent_node,
-                f'{len(rest)} unexpected octet(s) following "{type_name}" TLV: "{rest_hex}"'
-            )
-
-        try:
-            encoded = encode(decoded)
-
-            substrate_is_der = encoded == substrate
-        except (ValueError, PyAsn1Error):
-            substrate_is_der = False
-
-        if not substrate_is_der:
-            raise SubstrateDecodingFailedError(
-                source_document, pdu_instance, parent_node,
-                f'Substrate of type "{type_name}" is not DER-encoded'
-            )
+    decoded_pdu_name = get_node_name_for_pdu(decoded)
 
     node = PDUNode(source_document, decoded_pdu_name, decoded, parent_node)
 

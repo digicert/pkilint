@@ -13,7 +13,7 @@ zOQ9r8SRI+9NirupPTkF5AKNe6kUhKJ1luB7S27ZkvB3tSTT3P593VVJvnzOjaA1
 z6Cz+4+eRvcysqhrRgFlwI9TEwIDAQABo4IBrzCCAaswDAYDVR0TAQH/BAIwADAO
 BgNVHQ8BAf8EBAMCB4AwHwYDVR0jBBgwFoAU1kQAMnyoDf+sT2tm7rWumyzFOFQw
 HQYDVR0OBBYEFIkZWV4O8Wn1y71H4TT84pjMaTCRMBQGA1UdIAQNMAswCQYHZ4EM
-AQUEAjAQBgNVHR8ECTAHMAWBAwUAIDBLBggrBgEFBQcBAQQ/MD0wOwYIKwYBBQUH
+AQUEAjAQBgNVHR8ECTAHMAWBAwUAQDBLBggrBgEFBQcBAQQ/MD0wOwYIKwYBBQUH
 MAKGL2h0dHA6Ly9yZXBvc2l0b3J5LmNhLmV4YW1wbGUuY29tL2lzc3VpbmdfY2Eu
 ZGVyMB0GA1UdJQQWMBQGCCsGAQUFBwMEBggrBgEFBQcDAjCBtgYDVR0RBIGuMIGr
 gRloYW5ha28ueWFtYWRhQGV4YW1wbGUuY29toCkGCisGAQQBgjcUAgOgGwwZaGFu
@@ -32,8 +32,7 @@ wGlaWz8x7WKMUf9+POXbTpOz1qlott9ODUkZNwWA6gFRxMWn2leMv/eYQwCNhAbT
 n+QDBx22AIECDkySEND7mAM1EpfaYajbVqZ6oM5nbtv4JsKPSbKEOQh7Rbs/7jqE
 V2zAlZQn7G0hl+EZvO+48fFzaSRN8jATyCcMsxLldw==
 -----END CERTIFICATE-----
+
 node_path,validator,severity,code,message
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
-certificate.tbsCertificate.extensions.5.extnValue.cRLDistributionPoints.0,DistributionPointValidator,ERROR,pkix.distribution_point_does_not_contain_name_or_issuer,
-certificate.tbsCertificate.extensions.5.extnValue.cRLDistributionPoints.0.reasons,NamedBitStringMinimalEncodingValidator,ERROR,itu.bitstring_not_der_encoded,"Expected: ""810100"", actual: ""8103050020"""
-
+certificate.tbsCertificate.extensions.5,ExtensionsDecodingValidator,FATAL,itu.invalid_asn1_syntax,"ASN.1 decoding failure occurred at ""certificate.tbsCertificate.extensions.5.extnValue"" with schema ""CRLDistributionPoints"" corresponding to type OID 2.5.29.31: Error decoding ""ReasonFlags"" TLV near substrate offset 4: Trailing zero bit in named BIT STRING"

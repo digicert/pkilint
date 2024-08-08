@@ -19,8 +19,8 @@ ZGil0pxx9jdMS5qaTdjb66GvPpkQI1uH4E9xiYbJu5bD+SX0Sgzih79GEhaP8vjc
 w6+P//nJ3ExJkVT7OvIJmwGvV0ULtmsghoigcd2BBc/fOKdbyIBmJBe152dd02EW
 6FwMfHKDtHO8k+/XBeZcxF0=
 -----END CERTIFICATE-----
+
 node_path,validator,severity,code,message
 certificate.tbsCertificate.serialNumber,CertificateSerialNumberValidator,ERROR,pkix.certificate_serial_number_out_of_range,"ASN.1 constraint failed: Invalid value outside range 1 - 730750818665451459101842416358141509827966271487 on content ""-741604493682452113825656873529250578000121114"""
 certificate.tbsCertificate.extensions.4.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,NOTICE,pkix.unknown_subject_key_identifier_calculation_method,
-certificate.tbsCertificate.extensions.3.extnValue.keyUsage,NamedBitStringMinimalEncodingValidator,ERROR,itu.bitstring_not_der_encoded,"Expected: ""03020520"", actual: ""0303072000"""
-
+certificate.tbsCertificate.extensions.3,ExtensionsDecodingValidator,FATAL,itu.invalid_asn1_syntax,"ASN.1 decoding failure occurred at ""certificate.tbsCertificate.extensions.3.extnValue"" with schema ""KeyUsage"" corresponding to type OID 2.5.29.15: Error decoding ""KeyUsage"" TLV near substrate offset 0: Trailing zero bit in named BIT STRING"
