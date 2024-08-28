@@ -2,11 +2,11 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
-## 0.11.4 - 2024-08-XX
+## 0.11.4 - 2024-08-28
 
 ### New features/enhancements
 
-- Use pyasn1-fasder for ASN.1 decoding by default (#XX)
+- Use pyasn1-fasder for ASN.1 DER decoding by default (#98)
 
 ## 0.11.3 - 2024-07-17
 
