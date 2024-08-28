@@ -184,8 +184,6 @@ ERROR,cabf.serverauth.subscriber_missing_reserved_policy_oid,Validates that the 
 ERROR,cabf.serverauth.subscriber_prohibited_ku_present,Validates that the content of the key usage extension conforms with BR 7.1.2.7.11.
 ERROR,cabf.serverauth.subscriber_required_ku_missing,Validates that the content of the key usage extension conforms with BR 7.1.2.7.11.
 ERROR,cabf.serverauth.subscriber_stateprovince_and_locality_missing,"Validates that the stateOrProvinceName and/or localityName subject attributes are present, as per EVG 9.2.6, BR 7.1.2.7.3, and BR 7.1.2.7.4."
-ERROR,itu.bitstring_not_der_encoded,"X.690 2002-07, clause 11.2.2: ""Where ITU-T Rec. X.680 &#124; ISO/IEC 8824-1, 21.7, applies, the bitstring shall have all trailing 0 bits removed before it is encoded"""
-ERROR,itu.invalid_printablestring_character,"X.680 2002-07, clause 37.4: ""Table 8 lists the characters which can appear in the PrintableString type and PrintableString character abstract syntax"""
 ERROR,pkix.aki_with_cert_issuer_but_serial_number_absent,"RFC 5280 4.2.1.1: ""The identification MAY be based on either the key identifier (the subject key identifier in the issuer's certificate) or the issuer name and serial number"""
 ERROR,pkix.aki_with_serial_number_but_cert_issuer_absent,"RFC 5280 4.2.1.1: ""The identification MAY be based on either the key identifier (the subject key identifier in the issuer's certificate) or the issuer name and serial number"""
 ERROR,pkix.authority_information_access_extension_critical,"RFC 5280 4.2.2.1: ""Conforming CAs MUST mark this extension as non-critical."""

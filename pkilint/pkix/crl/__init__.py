@@ -4,8 +4,6 @@ from pyasn1_alt_modules import rfc5280
 
 from pkilint import validation, pkix, document
 from pkilint.document import Document
-from pkilint.itu.bitstring import NamedBitStringMinimalEncodingValidator
-from pkilint.itu.string import PrintableStringConstraintValidator
 from pkilint.pkix import name, extension, time, general_name
 from pkilint.pkix.crl import crl_validator, crl_extension, crl_validity
 
@@ -109,18 +107,17 @@ def create_pkix_crl_validator_container(
     ]
 
     validators += [
-        PrintableStringConstraintValidator(),
         crl_validator.VersionPresenceValidator(),
         crl_validator.CorrectVersionValidator(),
         crl_extension.CrlNumberPresenceValidator(),
         crl_extension.AuthorityKeyIdentifierPresenceValidator(),
         crl_validator.SignatureAlgorithmMatchValidator(),
+        crl_validator.RevokedCertificatesEmptyValidator(),
         crl_extension.CrlReasonCodeCriticalityValidator(),
         time.UtcTimeCorrectSyntaxValidator(),
         time.GeneralizedTimeCorrectSyntaxValidator(),
         pkix.CertificateSerialNumberValidator(),
         crl_extension.CrlNumberValueValidator(),
-        NamedBitStringMinimalEncodingValidator(),
         general_name.GeneralNameIpAddressSyntaxValidator(),
         general_name.GeneralNameMailboxAddressSyntaxValidator(),
         general_name.GeneralNameIpAddressSyntaxValidator(),

@@ -63,8 +63,6 @@ ERROR,cabf.smime.unsupported_public_key_type,SMBR 7.1.3.1,
 ERROR,cabf.smime.usernotice_has_noticeref,SMBR 7.1.2.3 (a),"""If a qualifier of type id-qt-unotice (OID: 1.3.6.1.5.5.7.2.2) is included, then it SHALL contain explicitText and SHALL NOT contain noticeRef"""
 ERROR,iso.lei.invalid_lei_checksum,ISO 17442,LEI checksum character is incorrect
 ERROR,iso.lei.invalid_lei_format,ISO 17442,LEI value format is not correct
-ERROR,itu.bitstring_not_der_encoded,"X.690 2002-07, clause 11.2.2","""Where ITU-T Rec. X.680 &#124; ISO/IEC 8824-1, 21.7, applies, the bitstring shall have all trailing 0 bits removed before it is encoded"""
-ERROR,itu.invalid_printablestring_character,"X.680 2002-07, clause 37.4","""Table 8 lists the characters which can appear in the PrintableString type and PrintableString character abstract syntax"""
 ERROR,msft.invalid_user_principal_name_syntax,https://learn.microsoft.com/en-us/windows/win32/ad/naming-properties,"""A UPN is an Internet-style login name for a user based on the Internet standard RFC 822"""
 ERROR,pkix.aki_with_cert_issuer_but_serial_number_absent,RFC 5280 4.2.1.1,"""The identification MAY be based on either the key identifier (the subject key identifier in the issuer's certificate) or the issuer name and serial number"""
 ERROR,pkix.aki_with_serial_number_but_cert_issuer_absent,RFC 5280 4.2.1.1,"""The identification MAY be based on either the key identifier (the subject key identifier in the issuer's certificate) or the issuer name and serial number"""

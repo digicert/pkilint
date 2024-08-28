@@ -1,8 +1,6 @@
 from pyasn1_alt_modules import rfc6960
 
 from pkilint import document, validation
-from pkilint.itu.bitstring import NamedBitStringMinimalEncodingValidator
-from pkilint.itu.string import PrintableStringConstraintValidator
 from pkilint.pkix import time
 from pkilint.pkix.ocsp import ocsp_response, ocsp_basic_response, ocsp_validity
 
@@ -40,10 +38,8 @@ def create_pkix_ocsp_response_validator_container(
         ocsp_basic_response.OCSPBasicResponseCertsNotPresentValidator(),
         ocsp_basic_response.ResponderKeyHashIsSHA1HashValidator(),
         ocsp_validity.OCSPSaneValidityPeriodValidator(),
-        PrintableStringConstraintValidator(),
         time.UtcTimeCorrectSyntaxValidator(),
         time.GeneralizedTimeCorrectSyntaxValidator(),
-        NamedBitStringMinimalEncodingValidator(),
     ]
 
     return validation.ValidatorContainer(

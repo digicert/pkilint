@@ -11,7 +11,7 @@ P62jQzBBMA8GA1UdEwEB/wQFMAMBAf8wDwYDVR0PAQH/BAUDAwcGADAdBgNVHQ4EFgQUo0EGrJBt
 0UrrdaVKEJmzsaGLSvcwCgYIKoZIzj0EAwIDRwAwRAIgB+ZU2g6gWrKuEZ+Hxbb/ad4lvvigtwjz
 RM4q3wghDDcCIC0mA6AFvWvR9lz4ZcyGbbOcNEhjhAnFjXca4syc4XR7
 -----END CERTIFICATE-----
+
 node_path,validator,severity,code,message
 certificate.tbsCertificate.extensions.2.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
-certificate.tbsCertificate.extensions.1.extnValue.keyUsage,NamedBitStringMinimalEncodingValidator,ERROR,itu.bitstring_not_der_encoded,"Expected: ""03020106"", actual: ""0303070600"""
-
+certificate.tbsCertificate.extensions.1,ExtensionsDecodingValidator,FATAL,itu.invalid_asn1_syntax,"ASN.1 decoding failure occurred at ""certificate.tbsCertificate.extensions.1.extnValue"" with schema ""KeyUsage"" corresponding to type OID 2.5.29.15: Error decoding ""KeyUsage"" TLV near substrate offset 0: Trailing zero bit in named BIT STRING"

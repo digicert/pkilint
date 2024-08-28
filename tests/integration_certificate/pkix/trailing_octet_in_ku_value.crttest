@@ -39,5 +39,5 @@ ZF6TmlI5DUrO
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.extensions.0,ExtensionsDecodingValidator,FATAL,itu.invalid_asn1_syntax,"ASN.1 decoding failure occurred at ""certificate.tbsCertificate.extensions.0.extnValue"" with schema ""KeyUsage"" corresponding to type OID 2.5.29.15: 1 unexpected octet(s) following ""KeyUsage"" TLV: ""41"""
+certificate.tbsCertificate.extensions.0,ExtensionsDecodingValidator,FATAL,itu.invalid_asn1_syntax,"ASN.1 decoding failure occurred at ""certificate.tbsCertificate.extensions.0.extnValue"" with schema ""KeyUsage"" corresponding to type OID 2.5.29.15: 1 trailing octet(s) after TLV near substrate offset 0"
 certificate,SubjectKeyIdentifierPresenceValidator,WARNING,pkix.certificate_skid_end_entity_missing,

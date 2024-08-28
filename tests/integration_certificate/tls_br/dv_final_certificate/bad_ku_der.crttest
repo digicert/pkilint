@@ -24,7 +24,7 @@ O3ZcACqwkmj6nVcHvvLbdTkomSPfZLB2vgigksh+
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.extensions.2.extnValue.keyUsage,NamedBitStringMinimalEncodingValidator,ERROR,itu.bitstring_not_der_encoded,"Expected: ""03020780"", actual: ""03020580"""
+certificate.tbsCertificate.extensions.2,ExtensionsDecodingValidator,FATAL,itu.invalid_asn1_syntax,"ASN.1 decoding failure occurred at ""certificate.tbsCertificate.extensions.2.extnValue"" with schema ""KeyUsage"" corresponding to type OID 2.5.29.15: Error decoding ""KeyUsage"" TLV near substrate offset 0: Trailing zero bit in named BIT STRING"
 certificate.tbsCertificate.subject.rdnSequence,DvSubcriberAttributeAllowanceValidator,ERROR,cabf.serverauth.dv.unknown_attribute_present,Unknown attribute present: 2.5.4.11
 certificate.tbsCertificate.extensions.1.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.subject_key_identifier_extension_present,
