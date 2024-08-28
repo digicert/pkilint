@@ -37,6 +37,7 @@ ERROR,cabf.smime.extended_key_usage_extension_missing,SMBR 7.1.2.3 (f),"""SHALL 
 ERROR,cabf.smime.invalid_lei_scheme_format,SMBR 7.1.4.2.2 (d) and SMBR 7.1.2.3 (l),LEI value does not conform to standard LEI format (20 alphanumeric characters)
 ERROR,cabf.smime.is_ca_certificate,SMBR 7.1.2.3 (d),"""The cA field SHALL NOT be true"""
 ERROR,cabf.smime.key_usage_extension_missing,SMBR 7.1.2.3 (e),"""SHALL be present"""
+ERROR,cabf.smime.legacy_generation_certificate_issued_after_prohibition,SMBR 7.1.6.1,"Effective July 15, 2025 S/MIME Subscriber Certificates SHALL NOT be issued using the Legacy Generation profiles 2.23.140.1.5.1.1, 2.23.140.1.5.2.1, 2.23.140.1.5.3.1, or 2.23.140.1.5.4.1."
 ERROR,cabf.smime.lei_extension_critical,SMBR 7.1.2.3 (l),""" SHALL NOT be marked critical"""
 ERROR,cabf.smime.lei_extension_prohibited,SMBR 7.1.2.3 (l),Mailbox- and individual-validated: Prohibited
 ERROR,cabf.smime.lei_role_extension_critical,SMBR 7.1.2.3 (l),"""SHALL NOT be marked critical"""

@@ -1,5 +1,5 @@
 import operator
-from typing import Mapping, Tuple
+from typing import Mapping, Tuple, Optional
 
 from dateutil.relativedelta import relativedelta
 from pyasn1.type import univ
@@ -15,7 +15,7 @@ from pkilint import validation, cabf, document
 from pkilint.adobe import adobe_validator
 from pkilint.cabf import cabf_extension, cabf_key, cabf_name
 from pkilint.cabf.smime import (
-    smime_constants, smime_name, smime_key, smime_extension
+    smime_constants, smime_name, smime_key, smime_extension, smime_validity
 )
 from pkilint.cabf.smime.smime_constants import Generation
 from pkilint.common import alternative_name
@@ -23,6 +23,7 @@ from pkilint.iso import lei
 from pkilint.msft import asn1 as microsoft_asn1
 from pkilint.msft import msft_name
 from pkilint.pkix import certificate, time
+from pkilint.pkix.certificate import certificate_validity
 from pkilint.pkix.general_name import OTHER_NAME_MAPPINGS as PKIX_OTHERNAME_MAPPINGS
 
 OTHER_NAME_MAPPINGS = {
@@ -192,7 +193,7 @@ def create_extensions_validator_container(validation_level, generation):
     )
 
 
-def create_validity_validators(generation):
+def create_validity_validators(generation, validity_period_start_retriever: document.ValidityPeriodStartRetriever):
     days = 1185 if generation == Generation.LEGACY else 825
 
     threshold_error = (
@@ -212,7 +213,8 @@ def create_validity_validators(generation):
             'cabf.smime.certificate_validity_period_at_maximum'
         )
     )
-    return [
+
+    validators = [
         time.ValidityPeriodThresholdsValidator(
             path='certificate.tbsCertificate.validity.notBefore',
             end_validity_node_retriever=lambda n: n.navigate('^.notAfter'),
@@ -221,8 +223,20 @@ def create_validity_validators(generation):
         )
     ]
 
+    if generation == smime_constants.Generation.LEGACY:
+        validators.append(smime_validity.LegacyGenerationSunsetValidator(validity_period_start_retriever))
 
-def create_subscriber_validators(validation_level, generation):
+    return validators
+
+
+def create_subscriber_validators(
+        validation_level,
+        generation,
+        validity_period_start_retriever: Optional[document.ValidityPeriodStartRetriever] = None
+):
+    if validity_period_start_retriever is None:
+        validity_period_start_retriever = certificate_validity.CertificateValidityPeriodStartRetriever()
+
     return [
         smime_name.create_subscriber_certificate_subject_validator_container(validation_level, generation),
         create_spki_validation_container(),
@@ -230,7 +244,7 @@ def create_subscriber_validators(validation_level, generation):
             []
         ),
         certificate.create_validity_validator_container(
-            create_validity_validators(generation)
+            create_validity_validators(generation, validity_period_start_retriever)
         ),
         create_extensions_validator_container(validation_level, generation),
         smime_key.SmimeAllowedSignatureAlgorithmEncodingValidator(

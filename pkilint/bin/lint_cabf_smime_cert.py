@@ -93,6 +93,8 @@ def main(cli_args=None) -> int:
                              help='Output the type of S/MIME certificate to standard error. This option may be '
                                   'useful when using the --detect, --guess, or --mapping options.')
 
+    util.add_certificate_validity_period_start_arg(lint_parser)
+
     util.add_standard_args(lint_parser)
 
     lint_parser.add_argument('file',
@@ -142,7 +144,7 @@ def main(cli_args=None) -> int:
         doc_validator = certificate.create_pkix_certificate_validator_container(
             smime.create_decoding_validators(),
             smime.create_subscriber_validators(
-                validation_level, generation
+                validation_level, generation, args.validity_period_start
             )
         )
 

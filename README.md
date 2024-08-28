@@ -194,6 +194,13 @@ For example, the following mapping file is used to map policy OID `1.2.3.4.5.6` 
 
 The `-o`/`--output` option is used to specify that the validation level and generation used by the linter is written to standard error. This is useful when using the `--guess` option to see which validation level and generation was determined by the heuristics logic.
 
+The `--validity-period-start` option is used to override how the issuance date/time of a certificate is determined. Many requirements are applicable based on the date/time of issuance of certificates, so this option is useful
+to evaluate whether a certificate complies with an upcoming requirement. There are three possible types of values for this option:
+
+1. `DOCUMENT`: Use the value of the `notBefore` field to determine the issuance date/time. This is the default value.
+2. `NOW`: Use the current date/time to override the issuance date/time.
+3. An ISO 8601 timestamp: Use the specified timestamp to override the issuance date/time.
+
 #### Example command execution
 
 ```shell
