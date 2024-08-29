@@ -6,6 +6,11 @@ from pkilint import validation, document
 
 
 class LegacyGenerationSunsetValidator(validation.Validator):
+    """
+    SMBR, section 7.1.6.1:
+    Effective July 15, 2025 S/MIME Subscriber Certificates SHALL NOT be issued using the Legacy Generation profiles
+    2.23.140.1.5.1.1, 2.23.140.1.5.2.1, 2.23.140.1.5.3.1, or 2.23.140.1.5.4.1.
+    """
     VALIDATION_LEGACY_GENERATION_CERTIFICATE_ISSUED_AFTER_PROHIBITION = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
         'cabf.smime.legacy_generation_certificate_issued_after_prohibition'

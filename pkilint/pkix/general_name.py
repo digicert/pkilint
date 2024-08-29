@@ -307,6 +307,11 @@ class SmtpUTF8MailboxValidator(validation.Validator):
         'pkix.smtp_utf8_mailbox_has_uppercase'
     )
 
+    """
+    RFC 9598, section 3:
+     In SmtpUTF8Mailbox, labels that include non-ASCII characters MUST be stored in A-label (rather than U-label)
+     form [RFC5890].
+    """
     VALIDATION_DOMAIN_PART_INVALID_DOMAIN_SYNTAX = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
         'pkix.smtp_utf8_mailbox_domain_part_invalid_syntax'
