@@ -37,6 +37,7 @@ ERROR,cabf.smime.extended_key_usage_extension_missing,SMBR 7.1.2.3 (f),"""SHALL 
 ERROR,cabf.smime.invalid_lei_scheme_format,SMBR 7.1.4.2.2 (d) and SMBR 7.1.2.3 (l),LEI value does not conform to standard LEI format (20 alphanumeric characters)
 ERROR,cabf.smime.is_ca_certificate,SMBR 7.1.2.3 (d),"""The cA field SHALL NOT be true"""
 ERROR,cabf.smime.key_usage_extension_missing,SMBR 7.1.2.3 (e),"""SHALL be present"""
+ERROR,cabf.smime.legacy_generation_certificate_issued_after_prohibition,SMBR 7.1.6.1,"Effective July 15, 2025 S/MIME Subscriber Certificates SHALL NOT be issued using the Legacy Generation profiles 2.23.140.1.5.1.1, 2.23.140.1.5.2.1, 2.23.140.1.5.3.1, or 2.23.140.1.5.4.1."
 ERROR,cabf.smime.lei_extension_critical,SMBR 7.1.2.3 (l),""" SHALL NOT be marked critical"""
 ERROR,cabf.smime.lei_extension_prohibited,SMBR 7.1.2.3 (l),Mailbox- and individual-validated: Prohibited
 ERROR,cabf.smime.lei_role_extension_critical,SMBR 7.1.2.3 (l),"""SHALL NOT be marked critical"""
@@ -108,6 +109,7 @@ ERROR,pkix.rfc6818_certificate_policies_invalid_explicit_text_encoding,RFC 6818 
 ERROR,pkix.san_extension_not_critical,RFC 5280 4.2.1.6,"""If the subject field contains an empty sequence, then the issuing CA MUST include a subjectAltName extension that is marked as critical"""
 ERROR,pkix.sct_list_empty,"RFC 6962 3.3: ""At least one SCT MUST be included""",
 ERROR,pkix.smime_capabilities_extension_critical,RFC 4262 2,"""This extension MUST NOT be marked critical."""
+ERROR,pkix.smtp_utf8_mailbox_domain_part_invalid_syntax,"RFC 9598, section 3: "". In SmtpUTF8Mailbox, labels that include non-ASCII characters MUST be stored in A-label (rather than U-label) form [RFC5890]."""
 ERROR,pkix.smtp_utf8_mailbox_has_bom,RFC 8398 3,"""The UTF8String encoding MUST NOT contain a Byte-Order-Mark (BOM) [RFC3629] to aid consistency across implementations, particularly for comparison."""
 ERROR,pkix.smtp_utf8_mailbox_has_uppercase,RFC 8398 3,"""In SmtpUTF8Mailbox, domain labels that solely use ASCII characters (meaning neither A- nor U-labels) SHALL use NR-LDH restrictions as specified by Section 2.3.1 of [RFC5890] and SHALL be restricted to lowercase letters."""
 ERROR,pkix.smtp_utf8_mailbox_invalid_syntax,RFC 8398 3,"Value does not contain ""@"""

@@ -307,6 +307,16 @@ class SmtpUTF8MailboxValidator(validation.Validator):
         'pkix.smtp_utf8_mailbox_has_uppercase'
     )
 
+    """
+    RFC 9598, section 3:
+     In SmtpUTF8Mailbox, labels that include non-ASCII characters MUST be stored in A-label (rather than U-label)
+     form [RFC5890].
+    """
+    VALIDATION_DOMAIN_PART_INVALID_DOMAIN_SYNTAX = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'pkix.smtp_utf8_mailbox_domain_part_invalid_syntax'
+    )
+
     def __init__(self):
         super().__init__(
             validations=[
@@ -314,6 +324,7 @@ class SmtpUTF8MailboxValidator(validation.Validator):
                 self.VALIDATION_ASCII_ONLY,
                 self.VALIDATION_HAS_BOM,
                 self.VALIDATION_DOMAIN_PART_NOT_LOWERCASE,
+                self.VALIDATION_DOMAIN_PART_INVALID_DOMAIN_SYNTAX,
             ],
             pdu_class=rfc8398.SmtpUTF8Mailbox
         )
@@ -335,6 +346,9 @@ class SmtpUTF8MailboxValidator(validation.Validator):
 
         if domain_part != domain_part.lower():
             raise validation.ValidationFindingEncountered(self.VALIDATION_DOMAIN_PART_NOT_LOWERCASE)
+
+        if not domain_part.isascii() or not validators_predicate(validators.domain, domain_part):
+            raise validation.ValidationFindingEncountered(self.VALIDATION_DOMAIN_PART_INVALID_DOMAIN_SYNTAX)
 
 
 class DomainNameLengthValidator(validation.Validator):
