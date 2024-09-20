@@ -1,6 +1,7 @@
 import typing
 
 import unicodedata
+import html
 from iso3166 import countries_by_alpha2
 from pyasn1_alt_modules import rfc5280
 
@@ -229,4 +230,33 @@ class SignificantAttributeValueValidator(validation.Validator):
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_INSIGNIFICANT_ATTRIUBTE_VALUE_PRESENT,
                 f'Insignificant attribute value: "{value}"'
+            )
+
+
+class HTMLEntitiesValidator(validation.Validator):
+    """Validates that attribute values do not contain HTML entities using html.unescape."""
+
+    VALIDATION_ATTRIBUTE_VALUE_CONTAINS_HTML_ENTITY = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'cabf.name.attribute_value_contains_html_entity'
+    )
+
+    def __init__(self):
+        super().__init__(
+            validations=[self.VALIDATION_ATTRIBUTE_VALUE_CONTAINS_HTML_ENTITY],
+            pdu_class=rfc5280.AttributeTypeAndValue
+        )
+
+    def validate(self, node):
+        value_str = asn1_util.get_string_value_from_attribute_node(node)
+
+        if not value_str:
+            return
+
+        unescaped_value = html.unescape(value_str)
+
+        if value_str != unescaped_value:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_ATTRIBUTE_VALUE_CONTAINS_HTML_ENTITY,
+                f'Attribute value contains HTML entity: "{value_str}"'
             )
