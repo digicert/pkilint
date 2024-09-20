@@ -15,7 +15,7 @@ ERROR,cabf.invalid_subject_organization_identifier_format,SMBR 7.1.4.2.2 (d),The
 ERROR,cabf.invalid_subject_organization_identifier_registration_scheme,SMBR 7.1.4.2.2 (d),The inclusion of a scheme which is not recognized
 ERROR,cabf.invalid_subject_organization_identifier_state_province_for_scheme,SMBR 7.1.4.2.2 (d),The inclusion of a state/province value when the scheme does not permit such inclusion
 ERROR,cabf.invalid_subject_organization_identifier_state_province_format,SMBR 7.1.4.2.2 (d),"The inclusion of a state/province value that violates "" 2 character ISO 3166?2 identifier for the subdivision of the nation in which the Registration Scheme is operated"""
-ERROR,cabf.name.attribute_value_contains_html_entity,Validates that attribute values do not contain HTML entities confroms with BR 7.1.4.2.2.
+ERROR,cabf.name.attribute_value_contains_html_entity,BR 7.1.4.2.2,"""Validates that attribute values do not contain HTML entities confroms with BR 7.1.4.2.2."""
 ERROR,cabf.no_http_crldp_uri,SMBR 7.1.2.3 (b),"""At least one uniformResourceIdentifier SHALL have the URI scheme HTTP"""
 ERROR,cabf.rsa_exponent_prohibited_value,SMBR 6.1.6,"""For RSA key pairs: the CA SHALL confirm that the value of the public exponent is an odd number equal to 3 or more."""
 ERROR,cabf.rsa_modulus_invalid_length,SMBR 6.1.5,"""For RSA key pairs the CA SHALL: Ensure that the modulus size, when encoded, is at least 2048 bits; and Ensure that the modulus size, in bits, is evenly divisible by 8"""
