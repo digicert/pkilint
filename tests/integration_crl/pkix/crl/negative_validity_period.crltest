@@ -1,0 +1,14 @@
+-----BEGIN X509 CRL-----
+MIIBnDCBhQIBATANBgkqhkiG9w0BAQsFADAiMQswCQYDVQQGEwJYWDETMBEGA1UE
+CgwKQ1JMcyAnciBVcxcNMjQwMzI1MTg0NzAwWhcNMjMwNDAxMTg0NzAwWqAvMC0w
+CgYDVR0UBAMCAQEwHwYDVR0jBBgwFoAU/NE0t8uklbG2WeoLBWIe6JqPtDowDQYJ
+KoZIhvcNAQELBQADggEBAA3ygNK9ayDcm9QngyRe9zNoVvvZUfQn9Uvk9XZwFKYx
+9pUEqdSw2vUhzFPTooXyA2sNOkqon19607b3SzBl9w+32wRVQFVBSl2VBze3JrWN
+haYWQDe2SmofmsEJBrcIGbUKDxxsUG3BaBavvQ2xW98Pp62MAQ/1l74xJecZXSnD
+0R45XTsedIP88ZDCoKJpKfkN0gNWgfx4VIaaA0vD5vhLBSObPw+qxnC8fEm+V5XU
+PxyPvN1HjLCBEyMR8lnwGn5N27rga/R2gNLSIQkiyEsdiRxbWiSmr+0+byQoBsOt
+6lqt481DCFJxVwOJIvvd4QEg+iSAbdCGiGK5w/kx4XU=
+-----END X509 CRL-----
+
+node_path,validator,severity,code,message
+certificateList.tbsCertList.thisUpdate,CrlSaneValidityPeriodValidator,ERROR,pkix.crl_negative_validity_period,"Start of validity period ""2024-03-25 18:47:00+00:00"" is greater than end of validity period ""2023-04-01 18:47:00+00:00"""

@@ -11,6 +11,6 @@ class CrlSaneValidityPeriodValidator(time.SaneValidityPeriodValidator):
     def __init__(self):
         super().__init__(
             end_validity_node_retriever=lambda n: n.navigate('^.nextUpdate'),
-            path='certificateList.tbsCertificateList.thisUpdate',
+            path='certificateList.tbsCertList.thisUpdate',
             validation=self.VALIDATION_NEGATIVE_VALIDITY_PERIOD
         )

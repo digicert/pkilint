@@ -75,10 +75,9 @@ def create_validity_validator_container(additional_validators=None):
         additional_validators = []
     return validation.ValidatorContainer(
         validators=[
-                       crl_validity.CrlSaneValidityPeriodValidator(),
                        time.TimeCorrectEncodingValidator(),
                    ] + additional_validators,
-        path='certificateList.tbsCertList'
+        pdu_class=rfc5280.Time
     )
 
 
@@ -116,6 +115,7 @@ def create_pkix_crl_validator_container(
         crl_extension.CrlReasonCodeCriticalityValidator(),
         time.UtcTimeCorrectSyntaxValidator(),
         time.GeneralizedTimeCorrectSyntaxValidator(),
+        crl_validity.CrlSaneValidityPeriodValidator(),
         pkix.CertificateSerialNumberValidator(),
         crl_extension.CrlNumberValueValidator(),
         general_name.GeneralNameValidatorContainer(),
