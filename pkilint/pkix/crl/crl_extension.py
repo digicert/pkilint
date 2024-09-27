@@ -95,7 +95,7 @@ class CrlReasonCodeCriticalityValidator(extension.ExtensionCriticalityValidator)
 class CrlReasonCodeAllowlistValidator(validation.Validator):
     VALIDATION_PROHIBITED_CRL_REASON_CODE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'pkix.crl_prohibited_reason_code'
+        'itu.crl_prohibited_reason_code'
     )
 
     def __init__(self, *, allowed_reason_codes):
