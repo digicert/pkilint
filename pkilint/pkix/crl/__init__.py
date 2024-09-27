@@ -118,10 +118,7 @@ def create_pkix_crl_validator_container(
         time.GeneralizedTimeCorrectSyntaxValidator(),
         pkix.CertificateSerialNumberValidator(),
         crl_extension.CrlNumberValueValidator(),
-        general_name.GeneralNameIpAddressSyntaxValidator(),
-        general_name.GeneralNameMailboxAddressSyntaxValidator(),
-        general_name.GeneralNameIpAddressSyntaxValidator(),
-        general_name.GeneralNameUriSyntaxValidator(),
+        general_name.GeneralNameValidatorContainer(),
     ]
 
     return validation.ValidatorContainer(

@@ -48,6 +48,24 @@ def create_generalname_type_predicate(generalname_type):
         raise ValueError(f'Invalid type specified: {generalname_type}')
 
 
+class GeneralNameValidatorContainer(validation.ValidatorContainer):
+    def __init__(self):
+        super().__init__(
+            validators=[
+                GeneralNameUriSyntaxValidator(),
+                GeneralNameDnsNameSyntaxValidator(),
+                GeneralNameIpAddressSyntaxValidator(),
+                GeneralNameMailboxAddressSyntaxValidator(),
+                SmtpUTF8MailboxValidator(),
+                GeneralNameDnsNameDomainNameLengthValidator(),
+                GeneralNameUriDomainNameLengthValidator(),
+                GeneralNameRfc822NameDomainNameLengthValidator(),
+                SmtpUTF8MailboxDomainNameLengthValidator(),
+            ],
+            pdu_class=rfc5280.GeneralName
+        )
+
+
 class UriSyntaxValidator(validation.Validator):
     VALIDATION_INVALID_URI_SYNTAX = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
