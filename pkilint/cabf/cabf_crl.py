@@ -36,23 +36,25 @@ def create_validity_period_validator(
     )
 
 
-def create_reason_code_validator(
-        crl_type: crl.CertificateRevocationListType
-):
-    allowed_reasons = [
-        rfc5280.CRLReason.namedValues[r]
-        for r in [
-            'keyCompromise',
-            'affiliationChanged',
-            'superseded',
-            'cessationOfOperation',
-            'privilegeWithdrawn',
-        ]
-    ]
-
-    if crl_type == crl.CertificateRevocationListType.ARL:
-        allowed_reasons.append(rfc5280.CRLReason.namedValues['cACompromise'])
-
-    return crl_extension.CrlReasonCodeAllowlistValidator(
-        allowed_reason_codes=allowed_reasons
+class CabfCrlReasonCodeAllowlistValidator(crl_extension.CrlReasonCodeAllowlistValidator):
+    VALIDATION_PROHIBITED_CRL_REASON_CODE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        'cabf.crl_prohibited_reason_code'
     )
+
+    def __init__(self, crl_type: crl.CertificateRevocationListType):
+        allowed_reasons = [
+            rfc5280.CRLReason.namedValues[r]
+            for r in [
+                'keyCompromise',
+                'affiliationChanged',
+                'superseded',
+                'cessationOfOperation',
+                'privilegeWithdrawn',
+            ]
+        ]
+
+        if crl_type == crl.CertificateRevocationListType.ARL:
+            allowed_reasons.append(rfc5280.CRLReason.namedValues['cACompromise'])
+
+        super().__init__(allowed_reasons, self.VALIDATION_PROHIBITED_CRL_REASON_CODE)
