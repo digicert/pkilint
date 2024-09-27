@@ -7,12 +7,15 @@ def _test_csv(filename, expected_fieldnames):
     filename = path.join(cur_dir, '..', filename)
 
     with open(filename, 'r', encoding='utf8') as csvfile:
-        reader = csv.DictReader(csvfile)
+        reader = csv.DictReader(csvfile, restkey='extra')
 
         assert reader.fieldnames == expected_fieldnames
 
         for row_idx, row in enumerate(reader):
             lineno = row_idx + 1 + 1  # 1-based index and header row
+
+            extra = row.pop('extra', None)
+            assert extra is None, f'Row "{row}" (line {lineno}) has extra fields'
 
             assert all(c is not None for c in row.values()), f'Row "{row}" (line {lineno}) has a None value'
 
