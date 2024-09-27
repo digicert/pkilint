@@ -1,0 +1,15 @@
+-----BEGIN X509 CRL-----
+MIIBsDCCATcCAQEwCgYIKoZIzj0EAwMwRzELMAkGA1UEBhMCVVMxIjAgBgNVBAoT
+GUdvb2dsZSBUcnVzdCBTZXJ2aWNlcyBMTEMxFDASBgNVBAMTC0dUUyBSb290IFI0
+Fw0yNDA3MjUwOTAwMDBaFw0yNTA3MDEwMDAwMDBaMIGNMC8CEG5Hqc5PRsI94knq
+zDiUU3MXDTE5MDkzMDAwMDAwMFowDDAKBgNVHRUEAwoBBTAsAg0B8JxbcAWm3Ibi
++Z7zFw0yMDAxMzEwMDAwMDBaMAwwCgYDVR0VBAMKAQUwLAINAf6lgUR+O/07uBwk
+mBcNMjMwNjEzMDAwMDAwWjAMMAoGA1UdFQQDCgEAoC8wLTAKBgNVHRQEAwIBFjAf
+BgNVHSMEGDAWgBSATNbrdP9JNqPV2Py1PsVq8JQdjDAKBggqhkjOPQQDAwNnADBk
+AjA5X1pgTcj5bS+WsuSa4wEph63mswxZzAABv48n5Eux2mivldbo/H5r5whnYuHB
+Y70CMCAZb2XUaCri3uaxtNbLp1nwCD/G7eRY0sdhpqVUAeqFNQ8MZPT+mMZo1B4C
+c762xg==
+-----END X509 CRL-----
+
+node_path,validator,severity,code,message
+certificateList.tbsCertList.revokedCertificates.2.crlEntryExtensions.0.extnValue.cRLReason,CabfCrlReasonCodeAllowlistValidator,ERROR,cabf.crl_prohibited_reason_code,"Prohibited reason code ""unspecified"""
