@@ -3,10 +3,11 @@ import glob
 import sys
 from os import path
 
+import tests.integration_test_common
 from pkilint import etsi
 from pkilint.etsi import etsi_constants
 from pkilint.pkix import certificate
-from tests import integration_certificate
+from tests.integration_certificate import register_test
 
 this_module = sys.modules[__name__]
 
@@ -27,6 +28,6 @@ for certificate_type in etsi_constants.CertificateType:
 
         file_no_ext, _ = path.splitext(path.basename(file))
 
-        func_name = f'test_{certificate_type}_{file_no_ext}'
+        test_name = f'test_{certificate_type}_{file_no_ext}'
 
-        setattr(this_module, func_name, functools.partial(integration_certificate.run_test, file, validator, filters))
+        register_test(this_module, file, test_name, validator, filters)
