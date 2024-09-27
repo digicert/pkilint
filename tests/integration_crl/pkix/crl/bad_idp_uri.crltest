@@ -1,0 +1,15 @@
+-----BEGIN X509 CRL-----
+MIIBvDCBpQIBATANBgkqhkiG9w0BAQsFADAiMQswCQYDVQQGEwJYWDETMBEGA1UE
+CgwKQ1JMcyAnciBVcxcNMjQwMzI1MTg0NzAwWhcNMjQwNDAxMTg0NzAwWqBPME0w
+CgYDVR0UBAMCAQEwHwYDVR0jBBgwFoAU/NE0t8uklbG2WeoLBWIe6JqPtDowHgYD
+VR0cAQH/BBQwEqANoAuGCWxvY2FsaG9zdIQB/zANBgkqhkiG9w0BAQsFAAOCAQEA
+DfKA0r1rINyb1CeDJF73M2hW+9lR9Cf1S+T1dnAUpjH2lQSp1LDa9SHMU9OihfID
+aw06SqifX3rTtvdLMGX3D7fbBFVAVUFKXZUHN7cmtY2FphZAN7ZKah+awQkGtwgZ
+tQoPHGxQbcFoFq+9DbFb3w+nrYwBD/WXvjEl5xldKcPRHjldOx50g/zxkMKgomkp
++Q3SA1aB/HhUhpoDS8Pm+EsFI5s/D6rGcLx8Sb5XldQ/HI+83UeMsIETIxHyWfAa
+fk3buuBr9HaA0tIhCSLISx2JHFtaJKav7T5vJCgGw63qWq3jzUMIUnFXA4ki+93h
+ASD6JIBt0IaIYrnD+THhdQ==
+-----END X509 CRL-----
+
+node_path,validator,severity,code,message
+certificateList.tbsCertList.crlExtensions.2.extnValue.issuingDistributionPoint.distributionPoint.fullName.0.uniformResourceIdentifier,GeneralNameUriSyntaxValidator,ERROR,pkix.invalid_uri_syntax,"Invalid URI syntax: ""localhost"""

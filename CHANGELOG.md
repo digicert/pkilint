@@ -2,6 +2,12 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.11.5 - 2024-10-03
+
+### New features/enhancements
+
+### Fixes
+
 ## 0.11.4 - 2024-08-29
 
 ### New features/enhancements

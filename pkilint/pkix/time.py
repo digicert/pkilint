@@ -85,18 +85,15 @@ class TimeCorrectEncodingValidator(validation.Validator):
 
     def __init__(self):
         super().__init__(pdu_class=rfc5280.Time, validations=[
-            VALIDATION_INVALID_TIME_SYNTAX,
             self.VALIDATION_WRONG_TIME_TYPE,
         ])
 
     def validate(self, node):
         try:
             parsed_datetime = parse_time_node(node)
-        except ValueError as e:
-            raise validation.ValidationFindingEncountered(
-                VALIDATION_INVALID_TIME_SYNTAX,
-                str(e)
-            )
+        except ValueError:
+            # the time syntax validator will report any errors
+            return
 
         if ('generalTime' in node.children) and (
                 parsed_datetime.year >= 1950) and (

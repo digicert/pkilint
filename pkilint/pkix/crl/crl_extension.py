@@ -93,22 +93,18 @@ class CrlReasonCodeCriticalityValidator(extension.ExtensionCriticalityValidator)
 
 
 class CrlReasonCodeAllowlistValidator(validation.Validator):
-    VALIDATION_PROHIBITED_CRL_REASON_CODE = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'pkix.crl_prohibited_reason_code'
-    )
-
-    def __init__(self, *, allowed_reason_codes):
+    def __init__(self, allowed_reason_codes, prohibited_reason_code_validation: validation.ValidationFinding):
         self._allowed_reason_codes = allowed_reason_codes
+        self._prohibited_reason_code_validation = prohibited_reason_code_validation
 
         super().__init__(
             pdu_class=rfc5280.CRLReason,
-            validations=[self.VALIDATION_PROHIBITED_CRL_REASON_CODE]
+            validations=[self._prohibited_reason_code_validation]
         )
 
     def validate(self, node):
         if node.pdu not in self._allowed_reason_codes:
             raise validation.ValidationFindingEncountered(
-                self.VALIDATION_PROHIBITED_CRL_REASON_CODE,
+                self._prohibited_reason_code_validation,
                 f'Prohibited reason code "{node.pdu}"'
             )

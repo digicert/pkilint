@@ -49,7 +49,7 @@ def main(cli_args=None) -> int:
 
     if args.profile == 'BR':
         doc_additional_validators.append(
-            cabf_crl.create_reason_code_validator(crl_type)
+            cabf_crl.CabfCrlReasonCodeAllowlistValidator(crl_type)
         )
 
         validity_additional_validators.append(
