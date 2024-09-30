@@ -150,6 +150,30 @@ class OcspResponseModel(DocumentModel):
         return self._parsed_document
 
 
+class CrlModel(DocumentModel):
+    _parsed_document = None
+
+    @model_validator(mode='after')
+    def validate(self) -> 'CrlModel':
+        super()._validate()
+
+        if self.pem is not None:
+            try:
+                self._parsed_document = loader.load_pem_crl(self.pem, 'request', 'request')
+            except ValueError as e:
+                raise ValueError('Invalid PEM text specified') from e
+        else:
+            try:
+                self._parsed_document = loader.load_b64_crl(self.b64, 'request', 'request')
+            except ValueError as e:
+                raise ValueError('Invalid Base-64 encoding specified') from e
+        return self
+
+    @property
+    def parsed_document(self):
+        return self._parsed_document
+
+
 def create_unprocessable_entity_error_detail(message: str, error_type: str = 'value_error'):
     return [
         {
