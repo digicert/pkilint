@@ -6,7 +6,7 @@ import sys
 
 from pyasn1.type.univ import ObjectIdentifier
 
-from pkilint import util, loader, report
+from pkilint import cli_util, loader, report
 from pkilint.cabf import smime
 from pkilint.cabf.smime import smime_constants
 from pkilint.pkix import certificate
@@ -93,9 +93,9 @@ def main(cli_args=None) -> int:
                              help='Output the type of S/MIME certificate to standard error. This option may be '
                                   'useful when using the --detect, --guess, or --mapping options.')
 
-    util.add_certificate_validity_period_start_arg(lint_parser)
+    cli_util.add_certificate_validity_period_start_arg(lint_parser)
 
-    util.add_standard_args(lint_parser)
+    cli_util.add_standard_args(lint_parser)
 
     lint_parser.add_argument('file',
                              type=argparse.FileType('rb'),
@@ -119,7 +119,9 @@ def main(cli_args=None) -> int:
         return 0
     else:
         try:
-            cert = loader.load_certificate_file(args.file, args.file.name)
+            cert = loader.RFC5280CertificateDocumentLoader().get_file_loader_func(args.document_format)(
+                args.file, args.file.name
+            )
         except ValueError as e:
             print(f'Failed to load certificate: {e}', file=sys.stderr)
             return 1
@@ -152,7 +154,7 @@ def main(cli_args=None) -> int:
 
         print(args.format(results, args.severity))
 
-        return util.clamp_exit_code(report.get_findings_count(results, args.severity))
+        return cli_util.clamp_exit_code(report.get_findings_count(results, args.severity))
 
 
 if __name__ == '__main__':

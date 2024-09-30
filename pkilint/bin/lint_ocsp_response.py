@@ -4,7 +4,7 @@ import argparse
 import sys
 
 from pkilint import pkix
-from pkilint import util, loader, report
+from pkilint import cli_util, loader, report
 from pkilint.pkix import extension, name, ocsp
 
 
@@ -15,7 +15,7 @@ def main(cli_args=None) -> int:
     subparsers.add_parser('validations', help='Output the set of validations which this linter performs')
 
     lint_parser = subparsers.add_parser('lint', help='Lint the specified OCSP response')
-    util.add_standard_args(lint_parser)
+    cli_util.add_standard_args(lint_parser)
 
     lint_parser.add_argument('file', type=argparse.FileType('rb'),
                              help='The OCSP response to lint'
@@ -38,7 +38,9 @@ def main(cli_args=None) -> int:
         return 0
     else:
         try:
-            ocsp_response = loader.load_ocsp_response_file(args.file, args.file.name)
+            ocsp_response = loader.RFC6960OCSPResponseDocumentLoader().get_file_loader_func(args.document_format)(
+                args.file, args.file.name
+            )
         except ValueError as e:
             print(f'Failed to load OCSP response: {e}', file=sys.stderr)
             return 1
@@ -47,7 +49,7 @@ def main(cli_args=None) -> int:
 
         print(args.format(results, args.severity))
 
-        return util.clamp_exit_code(report.get_findings_count(results, args.severity))
+        return cli_util.clamp_exit_code(report.get_findings_count(results, args.severity))
 
 
 if __name__ == "__main__":
