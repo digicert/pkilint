@@ -2,11 +2,19 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
-## 0.11.5 - 2024-10-03
+## 0.12.0 - 2024-10-02
 
 ### New features/enhancements
 
+- Add REST API for linting CRLs (#113 - implemented by @dipaktilekar)
+- Add validator to flag HTML entities in subject attribute values (#116)
+- Add --document-format CLI flag (#115)
+
 ### Fixes
+
+- Remove duplicate registration of GeneralNameIpAddressSyntaxValidator in CRL linter (#103 - found by @zzzsz)
+- Amend finding code for CRL reason code validator (#104 - found by @zzzsz)
+- Remove duplicate registration of CRL validity period validator, fix positive validity period validator (#106 - found by @zzzsz)
 
 ## 0.11.4 - 2024-08-29
 
