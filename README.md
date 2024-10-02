@@ -151,11 +151,11 @@ The list of command line linters bundled with pkilint:
 
 Each of the linters share common command line parameters:
 
-| Parameter           | Default value | Description                                                                                                                                                                      |
-|---------------------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `-s`/`--severity`   | INFO          | Sets the severity threshold for findings. Findings that are below this threshold are not reported.                                                                               |
-| `-f`/`--format`     | TEXT          | Sets the format in which results will be reported. Current options are TEXT, CSV, or JSON.                                                                                       |
-| `--document-format` | DETECT        | Sets the expected format of documents. If a document is not in the specified format, then a fatal error is reported. Current options are BASE64, DER, PEM, and DETECT (default). |
+| Parameter           | Default value | Description                                                                                                                                                                                      |
+|---------------------|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `-s`/`--severity`   | INFO          | Sets the severity threshold for findings. Findings that are below this threshold are not reported.                                                                                               |
+| `-f`/`--format`     | TEXT          | Sets the format in which results will be reported. Current options are TEXT, CSV, or JSON.                                                                                                       |
+| `--document-format` | DETECT        | Sets the expected format of documents. If a document is not in the specified format, then an error is reported and the linter exits. Current options are BASE64, DER, PEM, and DETECT (default). |
 
 Additionally, each linter has ability to lint document (certificate, CRL, OCSP response, etc.) files as well as output the set of validations
 which are performed by each linter. When the `validations` sub-command is specified, the set of validations that are performed by the linter
