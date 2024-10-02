@@ -5,7 +5,7 @@ import sys
 
 from pyasn1_alt_modules import rfc5280
 
-from pkilint import loader, document, util, validation, pkix, report
+from pkilint import loader, document, cli_util, validation, pkix, report
 from pkilint.pkix import certificate, name, extension, algorithm
 from pkilint.pkix.certificate import certificate_extension, certificate_key
 
@@ -70,7 +70,7 @@ def main(cli_args=None) -> int:
     subparsers.add_parser('validations', help='Output the set of validations which this linter performs')
 
     lint_parser = subparsers.add_parser('lint', help='Lint the specified issuer and subject certificates')
-    util.add_standard_args(lint_parser)
+    cli_util.add_standard_args(lint_parser)
 
     lint_parser.add_argument(dest='issuer', type=argparse.FileType('rb'),
                              help='The issuer certificate to lint'
@@ -93,8 +93,10 @@ def main(cli_args=None) -> int:
     else:
         doc_collection = {}
 
+        loader_func = loader.RFC5280CertificateDocumentLoader().get_file_loader_func(args.document_format)
+
         try:
-            issuer = loader.load_certificate_file(
+            issuer = loader_func(
                 args.issuer, args.issuer.name, 'issuer', doc_collection
             )
         except ValueError as e:
@@ -104,7 +106,7 @@ def main(cli_args=None) -> int:
         doc_collection['issuer'] = issuer
 
         try:
-            subject = loader.load_certificate_file(
+            subject = loader_func(
                 args.subject, args.subject.name, 'subject', doc_collection
             )
         except ValueError as e:
@@ -120,7 +122,7 @@ def main(cli_args=None) -> int:
 
         print(args.format(results, args.severity))
 
-        return util.clamp_exit_code(report.get_findings_count(results, args.severity))
+        return cli_util.clamp_exit_code(report.get_findings_count(results, args.severity))
 
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-from pkilint import loader, report, util, finding_filter
+from pkilint import loader, report, cli_util, finding_filter
 from pkilint.cabf import serverauth
 from pkilint.cabf.serverauth import serverauth_constants
 from pkilint.pkix import certificate
@@ -53,9 +53,9 @@ def main(cli_args=None) -> int:
     lint_parser.add_argument('-r', '--report-all', action='store_true', help='Report all findings without filtering '
                              'any PKIX findings that are superseded by CA/Browser Forum requirements')
 
-    util.add_certificate_validity_period_start_arg(lint_parser)
+    cli_util.add_certificate_validity_period_start_arg(lint_parser)
 
-    util.add_standard_args(lint_parser)
+    cli_util.add_standard_args(lint_parser)
     lint_parser.add_argument('file', type=argparse.FileType('rb'),
                              help='The certificate to lint'
                              )
@@ -73,7 +73,9 @@ def main(cli_args=None) -> int:
         return 0
     else:
         try:
-            cert = loader.load_certificate_file(args.file, args.file.name)
+            cert = loader.RFC5280CertificateDocumentLoader().get_file_loader_func(args.document_format)(
+                args.file, args.file.name
+            )
         except ValueError as e:
             print(f'Failed to load certificate: {e}', file=sys.stderr)
             return 1
@@ -100,7 +102,7 @@ def main(cli_args=None) -> int:
 
         print(args.format(results, args.severity))
 
-        return util.clamp_exit_code(report.get_findings_count(results, args.severity))
+        return cli_util.clamp_exit_code(report.get_findings_count(results, args.severity))
 
 
 if __name__ == "__main__":

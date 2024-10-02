@@ -263,15 +263,15 @@ def _test_loader_obj(loader_instance, doc_b64):
 
 
 def test_certificate_loader():
-    _test_loader_obj(loader._RFC5280_CERTIFICATE_LOADER, _CERT_B64)
+    _test_loader_obj(loader._RFC5280_CERTIFICATE_LOADER_INSTANCE, _CERT_B64)
 
 
 def test_crl_loader():
-    _test_loader_obj(loader._RFC5280_CERTIFICATE_LIST_LOADER, _CRL_B64)
+    _test_loader_obj(loader._RFC5280_CERTIFICATE_LIST_LOADER_INSTANCE, _CRL_B64)
 
 
 def test_ocsp_response_loader():
-    _test_loader_obj(loader._RFC6960_OCSP_RESPONSE_LOADER, _OCSP_RESPONSE_B64)
+    _test_loader_obj(loader._RFC6960_OCSP_RESPONSE_LOADER_INSTANCE, _OCSP_RESPONSE_B64)
 
 
 def test_load_cert_with_trailer():

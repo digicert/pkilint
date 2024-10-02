@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-from pkilint import loader, pkix, report, util
+from pkilint import loader, pkix, report, cli_util
 from pkilint.cabf import cabf_crl
 from pkilint.pkix import crl, name, extension
 
@@ -34,7 +34,7 @@ def main(cli_args=None) -> int:
 
     lint_parser = subparsers.add_parser('lint', help='Lint the specified CRL')
     _add_args(lint_parser)
-    util.add_standard_args(lint_parser)
+    cli_util.add_standard_args(lint_parser)
 
     lint_parser.add_argument('file', type=argparse.FileType('rb'),
                              help='The CRL file to lint'
@@ -80,7 +80,9 @@ def main(cli_args=None) -> int:
         return 0
     else:
         try:
-            crl_doc = loader.load_crl_file(args.file, args.file.name)
+            crl_doc = loader.RFC5280CertificateListDocumentLoader().get_file_loader_func(args.document_format)(
+                args.file, args.file.name
+            )
         except ValueError as e:
             print(f'Failed to load CRL: {e}', file=sys.stderr)
             return 1
@@ -89,7 +91,7 @@ def main(cli_args=None) -> int:
 
         print(args.format(results, args.severity))
 
-        return util.clamp_exit_code(report.get_findings_count(results, args.severity))
+        return cli_util.clamp_exit_code(report.get_findings_count(results, args.severity))
 
 
 if __name__ == "__main__":
