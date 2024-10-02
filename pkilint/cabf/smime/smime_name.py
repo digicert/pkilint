@@ -288,6 +288,7 @@ def create_subscriber_certificate_subject_validator_container(
         OrganizationIdentifierCountryNameConsistentValidator(),
         cabf_name.RelativeDistinguishedNameContainsOneElementValidator(),
         cabf_name.SignificantAttributeValueValidator(),
+        cabf_name.HTMLEntitiesValidator(),
     ]
 
     return certificate.create_subject_validator_container(
