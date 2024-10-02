@@ -507,7 +507,7 @@ def test_crl_pkix_validations_list(client, validity_additional_validators=None, 
     if validity_additional_validators is None:
         validity_additional_validators = []
 
-    resp = client.get('/crl/pkix')
+    resp = client.get('/crl/pkix/crl')
     assert resp.status_code == HTTPStatus.OK
 
     j = resp.json()
@@ -533,7 +533,7 @@ def test_crl_pkix_validations_list(client, validity_additional_validators=None, 
         assert actual['severity'] == str(expected.severity)
 
 def test_crl_pkix_lint(client):
-    resp = client.post('/crl/pkix', json={'b64': _CRL_B64})
+    resp = client.post('/crl/pkix/crl', json={'b64': _CRL_B64})
     assert resp.status_code == HTTPStatus.OK
 
     j = resp.json()
@@ -541,7 +541,7 @@ def test_crl_pkix_lint(client):
     assert len(j['results']) == 0
 
 def test_crl_pkix_lint_pem(client):
-    resp = client.post('/crl/pkix', json={'pem': _CRL_PEM})
+    resp = client.post('/crl/pkix/crl', json={'pem': _CRL_PEM})
     assert resp.status_code == HTTPStatus.OK
 
     j = resp.json()
@@ -549,11 +549,11 @@ def test_crl_pkix_lint_pem(client):
     assert len(j['results']) == 0
 
 def test_crl_pkix_lint_b64_in_pem_field(client):
-    resp = client.post('/crl/pkix', json={'pem': _CRL_B64})
+    resp = client.post('/crl/pkix/crl', json={'pem': _CRL_B64})
     assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 def test_crl_pkix_lint_pem_with_error(client):
-    resp = client.post('/crl/pkix', json={'pem': _CRL_PEM_EXPECT_ERROR})
+    resp = client.post('/crl/pkix/crl', json={'pem': _CRL_PEM_EXPECT_ERROR})
     assert resp.status_code == HTTPStatus.OK
 
     j = resp.json()

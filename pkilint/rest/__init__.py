@@ -115,13 +115,13 @@ def ocsp_response_lint(doc: model.OcspResponseModel) -> model.LintResultList:
 
     return _OCSP_PKIX_LINTER.lint(parsed_doc)
 
-@app.get('/crl/pkix')
+@app.get('/crl/pkix/crl')
 def crl_linter_validations() -> List[model.Validation]:
     """Returns the set of validations performed by the CRL linter"""
 
     return _CRL_PKIX_LINTER.validations
 
-@app.post('/crl/pkix')
+@app.post('/crl/pkix/crl')
 def crl_lint(doc: model.CrlModel) -> model.LintResultList:
     """Lints the specified CRL"""
 
