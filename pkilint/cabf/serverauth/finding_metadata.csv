@@ -70,7 +70,6 @@ ERROR,cabf.serverauth.ca_basic_constraints_ca_bit_not_set,
 ERROR,cabf.serverauth.ca_external_anypolicy,Validates that the content of the certificate policies extension complies with BR 7.1.2.10.5.
 ERROR,cabf.serverauth.ca_missing_reserved_policy_oid,Validates that the content of the certificate policies extension complies with BR 7.1.2.10.5.
 ERROR,cabf.serverauth.ca_multiple_reserved_policy_oids,Validates that the content of the certificate policies extension complies with BR 7.1.2.10.5.
-ERROR,cabf.serverauth.ca_multiple_reserved_policy_oids,Validates that the certificate policy OID(s) conform to BR 7.1.2.7.9.
 ERROR,cabf.serverauth.ca_non_tls_has_reserved_policy_oid,A non-TLS CA certificate contains a CA/Browser Forum serverauth reserved policy OID.
 ERROR,cabf.serverauth.ca_precert_signing.precertsigning_eku_absent,Validates that the content of the extended key usage extension complies with BR 7.1.2.4.2.: A required element is absent
 ERROR,cabf.serverauth.ca_precert_signing.unknown_eku_present,Validates that the content of the extended key usage extension complies with BR 7.1.2.4.2.: A prohibited element is present
@@ -182,6 +181,7 @@ ERROR,cabf.serverauth.subscriber_anypolicy_oid_present,Validates that the certif
 ERROR,cabf.serverauth.subscriber_basic_constraints_ca_bit_set,
 ERROR,cabf.serverauth.subscriber_common_name_unknown_source,Validates that the content of the commonName attribute conforms to BR 7.1.4.3.
 ERROR,cabf.serverauth.subscriber_missing_reserved_policy_oid,Validates that the certificate policy OID(s) conform to BR 7.1.2.7.9.
+ERROR,cabf.serverauth.subscriber_multiple_reserved_policy_oids,Validates that the certificate policy OID(s) conform to BR 7.1.2.7.9.
 ERROR,cabf.serverauth.subscriber_prohibited_ku_present,Validates that the content of the key usage extension conforms with BR 7.1.2.7.11.
 ERROR,cabf.serverauth.subscriber_required_ku_missing,Validates that the content of the key usage extension conforms with BR 7.1.2.7.11.
 ERROR,cabf.serverauth.subscriber_stateprovince_and_locality_missing,"Validates that the stateOrProvinceName and/or localityName subject attributes are present, as per EVG 9.2.6, BR 7.1.2.7.3, and BR 7.1.2.7.4."

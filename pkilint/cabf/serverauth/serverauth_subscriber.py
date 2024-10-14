@@ -467,7 +467,7 @@ class SubscriberPoliciesValidator(validation.Validator):
 
     VALIDATION_MULTIPLE_RESERVED_OIDS = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.ca_multiple_reserved_policy_oids'
+        'cabf.serverauth.subscriber_multiple_reserved_policy_oids'
     )
 
     VALIDATION_NO_RESERVED_OID = validation.ValidationFinding(

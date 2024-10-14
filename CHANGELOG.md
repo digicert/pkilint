@@ -2,6 +2,12 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.12.2 - 2024-10-14
+
+### Fixes
+
+- Fix typo in finding code for multiple TLS BR policy OIDs in Subscriber certificates (#122 - found by @robstradling)
+
 ## 0.12.1 - 2024-10-14
 
 ### New features/enhancements
