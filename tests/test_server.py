@@ -251,7 +251,7 @@ def test_groups(client):
     j = resp.json()
 
     names = {lg['name'] for lg in j}
-    assert names == {'cabf-serverauth', 'cabf-smime', 'etsi'}
+    assert names == {'cabf-serverauth', 'cabf-smime', 'etsi', 'pkix'}
 
 
 def test_group_no_exist(client):
