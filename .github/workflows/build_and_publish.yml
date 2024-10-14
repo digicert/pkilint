@@ -42,6 +42,8 @@ jobs:
       - name: Test wheel
         run: |
           export WHEELFILE=`ls -1 dist/*.whl | head -n 1`
+          python -m venv pkilint-testbed
+          source pkilint-testbed/bin/activate
           pip install "$WHEELFILE[dev]"
           pytest
 
