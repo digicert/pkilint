@@ -2,6 +2,13 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.12.1 - 2024-10-14
+
+### New features/enhancements
+
+- Add REST API endpoint for linting certificates with the PKIX linter (#119)
+- Add support for Python 3.13 (#120)
+
 ## 0.12.0 - 2024-10-02
 
 ### New features/enhancements
