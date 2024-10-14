@@ -3,7 +3,7 @@ from typing import List
 
 from fastapi import FastAPI, HTTPException
 
-from pkilint.rest import cabf_serverauth, cabf_smime, etsi, ocsp, crl
+from pkilint.rest import cabf_serverauth, cabf_smime, pkix, etsi, ocsp, crl
 from pkilint.rest import model
 
 _PKILINT_VERSION = version('pkilint')
@@ -17,6 +17,7 @@ app = FastAPI(
 
 _CERTIFICATE_LINTER_GROUPS = [
     m.create_linter_group_instance() for m in (
+        pkix,
         cabf_smime,
         cabf_serverauth,
         etsi,
@@ -25,6 +26,7 @@ _CERTIFICATE_LINTER_GROUPS = [
 
 _OCSP_PKIX_LINTER = ocsp.create_ocsp_response_linter()
 _CRL_PKIX_LINTER = crl.create_crl_linter()
+
 
 @app.get('/version')
 def version() -> model.Version:
@@ -115,11 +117,13 @@ def ocsp_response_lint(doc: model.OcspResponseModel) -> model.LintResultList:
 
     return _OCSP_PKIX_LINTER.lint(parsed_doc)
 
+
 @app.get('/crl/pkix/crl')
 def crl_linter_validations() -> List[model.Validation]:
     """Returns the set of validations performed by the CRL linter"""
 
     return _CRL_PKIX_LINTER.validations
+
 
 @app.post('/crl/pkix/crl')
 def crl_lint(doc: model.CrlModel) -> model.LintResultList:
