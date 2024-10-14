@@ -153,6 +153,7 @@ def create_subject_name_validators() -> List[validation.Validator]:
         cabf_name.CabfOrganizationIdentifierAttributeValidator(),
         serverauth_name.ServerauthRelativeDistinguishedNameContainsOneElementValidator(),
         cabf_name.SignificantAttributeValueValidator(),
+        cabf_name.HTMLEntitiesValidator(),
     ]
 
 

@@ -4,7 +4,7 @@ import argparse
 import sys
 
 from pkilint import loader
-from pkilint import report, util
+from pkilint import report, cli_util
 from pkilint.pkix import certificate, name, extension
 
 
@@ -15,7 +15,7 @@ def main(cli_args=None) -> int:
     subparsers.add_parser('validations', help='Output the set of validations which this linter performs')
 
     lint_parser = subparsers.add_parser('lint', help='Lint the specified certificate')
-    util.add_standard_args(lint_parser)
+    cli_util.add_standard_args(lint_parser)
 
     lint_parser.add_argument('file', type=argparse.FileType('rb'),
                              help='The certificate to lint'
@@ -45,7 +45,9 @@ def main(cli_args=None) -> int:
         return 0
     else:
         try:
-            cert = loader.load_certificate_file(args.file, args.file.name)
+            cert = loader.RFC5280CertificateDocumentLoader().get_file_loader_func(args.document_format)(
+                args.file, args.file.name
+            )
         except ValueError as e:
             print(f'Failed to load certificate: {e}', file=sys.stderr)
             return 1
@@ -54,7 +56,7 @@ def main(cli_args=None) -> int:
 
         print(args.format(results, args.severity))
 
-        return util.clamp_exit_code(report.get_findings_count(results, args.severity))
+        return cli_util.clamp_exit_code(report.get_findings_count(results, args.severity))
 
 
 if __name__ == "__main__":

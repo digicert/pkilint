@@ -9,7 +9,7 @@ from pkilint.cabf import serverauth
 from pkilint.cabf.serverauth import serverauth_constants
 from pkilint.cabf.smime import smime_constants
 from pkilint.etsi import etsi_constants
-from pkilint.pkix import certificate, ocsp, name, extension
+from pkilint.pkix import certificate, ocsp, name, extension, crl
 from pkilint.rest import app as web_app
 
 
@@ -67,7 +67,6 @@ U8/E3Jf1bDTbf5OLWqombrgLIWL+A/SrRvnqyLpyDv2PHJ0IgbsylDRalxeGHa1Q
 Eqpda1II90v7ae6kNwIPK+140WOhkKilZ526OHvetaZ9XUc=
 -----END CERTIFICATE-----'''
 
-
 _OV_FINAL_CLEAN_PEM = '''-----BEGIN CERTIFICATE-----
 MIIGxDCCBKygAwIBAgIMS9Kjc1CWWKwCO6fGMA0GCSqGSIb3DQEBCwUAMEUxCzAJ
 BgNVBAYTAlVTMRMwEQYDVQQKEwpDZXJ0cyBSIFVzMSEwHwYDVQQDExhDZXJ0cyBS
@@ -108,7 +107,6 @@ CTe59IndMLJ8wwru0OHco8qL4Qf9VcuDMpNWUZGDp6o9EaAJgzlOHGRsk5NZTCZk
 XpOaUjkNSs4=
 -----END CERTIFICATE-----'''
 
-
 _BAD_CERT_POLICIES_DER_PEM = '''-----BEGIN CERTIFICATE-----
 MIIFxjCCBK6gAwIBAgIQAROrI6zwQH6igXlKWdEvgjANBgkqhkiG9w0BAQsFADBP
 MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMSkwJwYDVQQDEyBE
@@ -143,7 +141,6 @@ B0iBclRQb246wAEPjF/sWAUS+LgmJL2u1CclSWu3h/Ae+yIMKAbdL6Vn5GeLHfCD
 kJePcGspl/I0jGLIvpG34YRy9mLrgiWskyETVNFDPIzddBDAqWu2JkDK
 -----END CERTIFICATE-----'''
 
-
 _CERT_WITH_TRAILER_B64 = '''MIIGxDCCBKygAwIBAgIMS9Kjc1CWWKwCO6fGMA0GCSqGSIb3DQEBCwUAMEUxCzAJBgNVBAYTAlVT
 MRMwEQYDVQQKEwpDZXJ0cyBSIFVzMSEwHwYDVQQDExhDZXJ0cyBSIFVzIElzc3VpbmcgQ0EgRzEw
 HhcNMjIwODE4MDgwNjI3WhcNMjMwOTE5MDgwNjI2WjBBMQswCQYDVQQGEwJGUjEOMAwGA1UECBMF
@@ -176,7 +173,6 @@ rUm3gcIsupXxCzId9P9nASzs5Ygl+xpxOCdRRIWIlJBm5kF7SJHrnnEIJ8T/TXatuRCyrWa4Yaxp
 cdn6cFbcd93aknIHd9Te8Z2v8saRPeLQCtFiCTe59IndMLJ8wwru0OHco8qL4Qf9VcuDMpNWUZGD
 p6o9EaAJgzlOHGRsk5NZTCZkXpOaUjkNSs5B'''
 
-
 _OCSP_RESPONSE_B64 = '''MIIDnwoBAKCCA5gwggOUBgkrBgEFBQcwAQEEggOFMIIDgTCBsKIWBBQK46D+ndQl
 dpi163Lrygznvz318RgPMjAyNDA0MDIxMjM3NDdaMIGEMIGBMFkwDQYJYIZIAWUD
 BAIBBQAEIDqZRndWgHOnB7/eUBhjReTNYTTbCF66odEEJfA7bwjqBCBHSmyjAfI9
@@ -198,8 +194,42 @@ DiG02hraU9kGNKXeiQcPdZRajQsY/hdZPVyaykkAFVQGv29yWmTrEax+r4oZTtzG
 AkFJCwtJpi7m00Qx9r/ugNWsnCFSiKUdxuvj7mg9lJtz0hexRJZKFODWJG5dUh//
 Bc2w8vywgYYoduXu4QLcoP17CA=='''
 
-
 _OCSP_RESPONSE_PEM = f'''-----BEGIN OCSP RESPONSE-----\n{_OCSP_RESPONSE_B64}\n-----END OCSP RESPONSE-----\n'''
+
+_CRL_B64 = '''MIIBzTCBtgIBATANBgkqhkiG9w0BAQsFADAiMQswCQYDVQQGEwJYWDETMBEGA1UE
+CgwKQ1JMcyAnciBVcxcNMjQwMzI1MTg0NzAwWhcNMjQwNDAxMTg0NzAwWqBgMF4w
+CgYDVR0UBAMCAQEwHwYDVR0jBBgwFoAU/NE0t8uklbG2WeoLBWIe6JqPtDowLwYD
+VR0cAQH/BCUwI6AeoByGGmh0dHA6Ly9mb28uZXhhbXBsZS9jcmwuZGxshAH/MA0G
+CSqGSIb3DQEBCwUAA4IBAQAN8oDSvWsg3JvUJ4MkXvczaFb72VH0J/VL5PV2cBSm
+MfaVBKnUsNr1IcxT06KF8gNrDTpKqJ9fetO290swZfcPt9sEVUBVQUpdlQc3tya1
+jYWmFkA3tkpqH5rBCQa3CBm1Cg8cbFBtwWgWr70NsVvfD6etjAEP9Ze+MSXnGV0p
+w9EeOV07HnSD/PGQwqCiaSn5DdIDVoH8eFSGmgNLw+b4SwUjmz8PqsZwvHxJvleV
+1D8cj7zdR4ywgRMjEfJZ8Bp+Tdu64Gv0doDS0iEJIshLHYkcW1okpq/tPm8kKAbD
+reparePNQwhScVcDiSL73eEBIPokgG3QhohiucP5MeF1'''
+
+_CRL_PEM = '''-----BEGIN X509 CRL-----
+MIIBzTCBtgIBATANBgkqhkiG9w0BAQsFADAiMQswCQYDVQQGEwJYWDETMBEGA1UE
+CgwKQ1JMcyAnciBVcxcNMjQwMzI1MTg0NzAwWhcNMjQwNDAxMTg0NzAwWqBgMF4w
+CgYDVR0UBAMCAQEwHwYDVR0jBBgwFoAU/NE0t8uklbG2WeoLBWIe6JqPtDowLwYD
+VR0cAQH/BCUwI6AeoByGGmh0dHA6Ly9mb28uZXhhbXBsZS9jcmwuZGxshAH/MA0G
+CSqGSIb3DQEBCwUAA4IBAQAN8oDSvWsg3JvUJ4MkXvczaFb72VH0J/VL5PV2cBSm
+MfaVBKnUsNr1IcxT06KF8gNrDTpKqJ9fetO290swZfcPt9sEVUBVQUpdlQc3tya1
+jYWmFkA3tkpqH5rBCQa3CBm1Cg8cbFBtwWgWr70NsVvfD6etjAEP9Ze+MSXnGV0p
+w9EeOV07HnSD/PGQwqCiaSn5DdIDVoH8eFSGmgNLw+b4SwUjmz8PqsZwvHxJvleV
+1D8cj7zdR4ywgRMjEfJZ8Bp+Tdu64Gv0doDS0iEJIshLHYkcW1okpq/tPm8kKAbD
+reparePNQwhScVcDiSL73eEBIPokgG3QhohiucP5MeF1
+-----END X509 CRL-----'''
+
+_CRL_PEM_EXPECT_ERROR = '''-----BEGIN X509 CRL-----
+MIIBYDBKAgEBMA0GCSqGSIb3DQEBCwUAMBYxFDASBgNVBAoTC0NlcnRzICdyIFVz
+Fw0yNDA0MTUxNDMzMDBaFw0yNDA1MTUxNDMzMDBaMAAwDQYJKoZIhvcNAQELBQAD
+ggEBAGhq9yTTM2ZjzAxyNvXpVbOI4xQhC0L6pdjsZ13d3QFi41QvRFib13fHgcBm
++hWXFSmOT8qgMlIk74y01DBCmrVyn6mTznr49Vy9k6eBEs34F9EtQrJ5MlYNghX2
+8UNNTMbQS/T7aYQuVWp4VRZsM2ZFRC1XxDdj85qraRhhc6fDGS3PS6m5vnRuZlVv
+3wVB2N2zutQeZcxHDbAa68rSS3fK8jdKjC8uzbYhCvWYIc/ZUB0c+o9clwbZdkl4
+eC6gxZ1/uD98+GilFUdX9JNVsi6Il1x9Upm+Oz6JZ43Ly2+yuQZu2rohZNxEzv/f
+rzDRkyHn2a+5mqqc2J9asb6RFUs=
+-----END X509 CRL-----'''
 
 
 def _assert_validationerror_list_present(resp):
@@ -221,7 +251,7 @@ def test_groups(client):
     j = resp.json()
 
     names = {lg['name'] for lg in j}
-    assert names == {'cabf-serverauth', 'cabf-smime', 'etsi'}
+    assert names == {'cabf-serverauth', 'cabf-smime', 'etsi', 'pkix'}
 
 
 def test_group_no_exist(client):
@@ -465,3 +495,90 @@ def test_detect_and_lint_etsi(client):
     j = resp.json()
 
     assert j['linter']['name'] == etsi_constants.CertificateType.OVCP_FINAL_CERTIFICATE.to_option_str
+
+
+def test_crl_pkix_validations_list(client, validity_additional_validators=None, doc_additional_validators=None):
+    if doc_additional_validators is None:
+        doc_additional_validators = []
+    if validity_additional_validators is None:
+        validity_additional_validators = []
+
+    resp = client.get('/crl/pkix/crl')
+    assert resp.status_code == HTTPStatus.OK
+
+    j = resp.json()
+
+    v = crl.create_pkix_crl_validator_container([
+        pkix.create_attribute_decoder(name.ATTRIBUTE_TYPE_MAPPINGS),
+        pkix.create_extension_decoder(extension.EXTENSION_MAPPINGS),
+    ],
+        [
+            crl.create_issuer_validator_container(
+                []
+            ),
+            crl.create_validity_validator_container(
+                validity_additional_validators
+            ),
+            crl.create_extensions_validator_container(
+                []
+            ),
+        ] + doc_additional_validators)
+
+    for actual, expected in zip(j, report.get_included_validations(v)):
+        assert actual['code'] == expected.code
+        assert actual['severity'] == str(expected.severity)
+
+
+def test_crl_pkix_lint(client):
+    resp = client.post('/crl/pkix/crl', json={'b64': _CRL_B64})
+    assert resp.status_code == HTTPStatus.OK
+
+    j = resp.json()
+
+    assert len(j['results']) == 0
+
+
+def test_crl_pkix_lint_pem(client):
+    resp = client.post('/crl/pkix/crl', json={'pem': _CRL_PEM})
+    assert resp.status_code == HTTPStatus.OK
+
+    j = resp.json()
+
+    assert len(j['results']) == 0
+
+
+def test_crl_pkix_lint_b64_in_pem_field(client):
+    resp = client.post('/crl/pkix/crl', json={'pem': _CRL_B64})
+    assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+
+def test_crl_pkix_lint_pem_with_error(client):
+    resp = client.post('/crl/pkix/crl', json={'pem': _CRL_PEM_EXPECT_ERROR})
+    assert resp.status_code == HTTPStatus.OK
+
+    j = resp.json()
+
+    assert len(j['results']) == 3
+
+
+def test_pkix_certificate_group(client):
+    resp = client.get('/certificate/pkix')
+    assert resp.status_code == HTTPStatus.OK
+
+    j = resp.json()
+
+    assert j['linters'][0]['name'] == 'certificate'
+
+
+def test_pkix_certificate_lint(client):
+    resp = client.post('/certificate/pkix', json={'pem': _OV_FINAL_CLEAN_PEM})
+
+    assert resp.status_code == HTTPStatus.OK
+
+    j = resp.json()
+
+    assert j['linter']['name'] == 'certificate'
+
+    r = j['results'][0]
+
+    assert r['finding_descriptions'][0]['code'] == 'pkix.certificate_skid_end_entity_missing'

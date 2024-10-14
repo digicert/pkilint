@@ -1,9 +1,17 @@
 import base64
+import enum
 import re
 
 from pkilint.pkix.certificate import RFC5280Certificate
 from pkilint.pkix.crl import RFC5280CertificateList
 from pkilint.pkix.ocsp import RFC6960OCSPResponse
+
+
+class DocumentFormat(enum.Enum):
+    DETECT = enum.auto()
+    BASE64 = enum.auto()
+    DER = enum.auto()
+    PEM = enum.auto()
 
 
 class DocumentLoader:
@@ -91,38 +99,65 @@ class DocumentLoader:
         except AttributeError:
             return self.load_document(substrate, document_name, substrate_source, parent)
 
+    def get_file_loader_func(self, document_format: DocumentFormat):
+        if document_format == DocumentFormat.BASE64:
+            return self.load_b64_file
+        elif document_format == DocumentFormat.DER:
+            return self.load_der_file
+        elif document_format == DocumentFormat.PEM:
+            return self.load_pem_file
+        elif document_format == DocumentFormat.DETECT:
+            return self.load_file
+        else:
+            raise ValueError(f'Unknown document format: {document_format}')
+
+
+class RFC5280CertificateDocumentLoader(DocumentLoader):
+    def __init__(self):
+        super().__init__(RFC5280Certificate, 'CERTIFICATE')
+
+
+class RFC5280CertificateListDocumentLoader(DocumentLoader):
+    def __init__(self):
+        super().__init__(RFC5280CertificateList, 'X509 CRL')
+
+
+class RFC6960OCSPResponseDocumentLoader(DocumentLoader):
+    def __init__(self):
+        super().__init__(RFC6960OCSPResponse, 'OCSP RESPONSE')
+
 
 # RFC 5280 Certificate
-_RFC5280_CERTIFICATE_LOADER = DocumentLoader(RFC5280Certificate, 'CERTIFICATE')
-load_der_certificate = _RFC5280_CERTIFICATE_LOADER.load_der_document
-load_pem_certificate = _RFC5280_CERTIFICATE_LOADER.load_pem_document
-load_b64_certificate = _RFC5280_CERTIFICATE_LOADER.load_b64_document
-load_certificate = _RFC5280_CERTIFICATE_LOADER.load_document_or_file
-load_der_certificate_file = _RFC5280_CERTIFICATE_LOADER.load_der_file
-load_pem_certificate_file = _RFC5280_CERTIFICATE_LOADER.load_pem_file
-load_b64_certificate_file = _RFC5280_CERTIFICATE_LOADER.load_b64_file
-load_certificate_file = _RFC5280_CERTIFICATE_LOADER.load_file
+_RFC5280_CERTIFICATE_LOADER_INSTANCE = RFC5280CertificateDocumentLoader()
+load_der_certificate = _RFC5280_CERTIFICATE_LOADER_INSTANCE.load_der_document
+load_pem_certificate = _RFC5280_CERTIFICATE_LOADER_INSTANCE.load_pem_document
+load_b64_certificate = _RFC5280_CERTIFICATE_LOADER_INSTANCE.load_b64_document
+load_certificate = _RFC5280_CERTIFICATE_LOADER_INSTANCE.load_document_or_file
+load_der_certificate_file = _RFC5280_CERTIFICATE_LOADER_INSTANCE.load_der_file
+load_pem_certificate_file = _RFC5280_CERTIFICATE_LOADER_INSTANCE.load_pem_file
+load_b64_certificate_file = _RFC5280_CERTIFICATE_LOADER_INSTANCE.load_b64_file
+load_certificate_file = _RFC5280_CERTIFICATE_LOADER_INSTANCE.load_file
 
 
 # RFC 5280 CRL
-_RFC5280_CERTIFICATE_LIST_LOADER = DocumentLoader(RFC5280CertificateList, 'X509 CRL')
-load_der_crl = _RFC5280_CERTIFICATE_LIST_LOADER.load_der_document
-load_pem_crl = _RFC5280_CERTIFICATE_LIST_LOADER.load_pem_document
-load_b64_crl = _RFC5280_CERTIFICATE_LIST_LOADER.load_b64_document
-load_crl = _RFC5280_CERTIFICATE_LIST_LOADER.load_document_or_file
-load_der_crl_file = _RFC5280_CERTIFICATE_LIST_LOADER.load_der_file
-load_pem_crl_file = _RFC5280_CERTIFICATE_LIST_LOADER.load_pem_file
-load_b64_crl_file = _RFC5280_CERTIFICATE_LIST_LOADER.load_b64_file
-load_crl_file = _RFC5280_CERTIFICATE_LIST_LOADER.load_file
+_RFC5280_CERTIFICATE_LIST_LOADER_INSTANCE = RFC5280CertificateListDocumentLoader()
+load_der_crl = _RFC5280_CERTIFICATE_LIST_LOADER_INSTANCE.load_der_document
+load_pem_crl = _RFC5280_CERTIFICATE_LIST_LOADER_INSTANCE.load_pem_document
+load_b64_crl = _RFC5280_CERTIFICATE_LIST_LOADER_INSTANCE.load_b64_document
+load_crl = _RFC5280_CERTIFICATE_LIST_LOADER_INSTANCE.load_document_or_file
+load_der_crl_file = _RFC5280_CERTIFICATE_LIST_LOADER_INSTANCE.load_der_file
+load_pem_crl_file = _RFC5280_CERTIFICATE_LIST_LOADER_INSTANCE.load_pem_file
+load_b64_crl_file = _RFC5280_CERTIFICATE_LIST_LOADER_INSTANCE.load_b64_file
+load_crl_file = _RFC5280_CERTIFICATE_LIST_LOADER_INSTANCE.load_file
 
 
 # RFC 6960 OCSP Response
-_RFC6960_OCSP_RESPONSE_LOADER = DocumentLoader(RFC6960OCSPResponse, 'OCSP RESPONSE')
-load_der_ocsp_response = _RFC6960_OCSP_RESPONSE_LOADER.load_der_document
-load_pem_ocsp_response = _RFC6960_OCSP_RESPONSE_LOADER.load_pem_document
-load_b64_ocsp_response = _RFC6960_OCSP_RESPONSE_LOADER.load_b64_document
-load_ocsp_response = _RFC6960_OCSP_RESPONSE_LOADER.load_document_or_file
-load_der_ocsp_response_file = _RFC6960_OCSP_RESPONSE_LOADER.load_der_file
-load_pem_ocsp_response_file = _RFC6960_OCSP_RESPONSE_LOADER.load_pem_file
-load_b64_ocsp_response_file = _RFC6960_OCSP_RESPONSE_LOADER.load_b64_file
-load_ocsp_response_file = _RFC6960_OCSP_RESPONSE_LOADER.load_file
+_RFC6960_OCSP_RESPONSE_LOADER_INSTANCE = RFC6960OCSPResponseDocumentLoader()
+load_der_ocsp_response = _RFC6960_OCSP_RESPONSE_LOADER_INSTANCE.load_der_document
+load_pem_ocsp_response = _RFC6960_OCSP_RESPONSE_LOADER_INSTANCE.load_pem_document
+load_b64_ocsp_response = _RFC6960_OCSP_RESPONSE_LOADER_INSTANCE.load_b64_document
+load_ocsp_response = _RFC6960_OCSP_RESPONSE_LOADER_INSTANCE.load_document_or_file
+load_der_ocsp_response_file = _RFC6960_OCSP_RESPONSE_LOADER_INSTANCE.load_der_file
+load_pem_ocsp_response_file = _RFC6960_OCSP_RESPONSE_LOADER_INSTANCE.load_pem_file
+load_b64_ocsp_response_file = _RFC6960_OCSP_RESPONSE_LOADER_INSTANCE.load_b64_file
+load_ocsp_response_file = _RFC6960_OCSP_RESPONSE_LOADER_INSTANCE.load_file
