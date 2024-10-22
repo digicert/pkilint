@@ -69,7 +69,7 @@ def main(cli_args=None) -> int:
         "useful when using the --detect option.",
     )
     lint_parser.add_argument(
-       '-r',
+        "-r",
         "--report-all",
         action="store_true",
         help="Report all findings without filtering "
