@@ -12,7 +12,15 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  test_source_format:
+    name: Test source code against Black formatter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: psf/black@stable
+
   build_wheel:
+    needs: [test_source_format]
     name: Build pure-Python wheel and source distribution
     runs-on: ubuntu-latest
     steps:
@@ -47,15 +55,8 @@ jobs:
           pip install "$WHEELFILE[dev]"
           pytest
 
-  test_source_format:
-    name: Test source code against Black formatter
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: psf/black@stable
-
   build_and_push_docker:
-    needs: [test_wheel, test_source_format]
+    needs: [test_wheel]
     name: Build and push Docker image
     runs-on: ubuntu-latest
     steps:
@@ -133,7 +134,7 @@ jobs:
           echo "${TAGS}" | xargs -I {} ./cosign sign --recursive --key "${{ secrets.SM_KEY_URI }}" --yes {}@${DIGEST}
 
   upload_pypi:
-    needs: [build_wheel, test_wheel, test_source_format]
+    needs: [build_wheel, test_wheel]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     environment:
