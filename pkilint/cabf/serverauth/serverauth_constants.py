@@ -1,4 +1,5 @@
 import enum
+from enum import auto
 
 from pyasn1.type.univ import ObjectIdentifier
 
@@ -20,26 +21,26 @@ SERVERAUTH_RESERVED_POLICY_OIDS = {
 
 @enum.unique
 class CertificateType(enum.IntEnum):
-    ROOT_CA = (1,)
-    INTERNAL_CROSS_CA = (2,)
-    EXTERNAL_CROSS_CA = (3,)
-    NON_TLS_CA = (4,)
-    PRECERT_SIGNING_CA = (5,)
-    INTERNAL_UNCONSTRAINED_TLS_CA = (6,)
-    INTERNAL_CONSTRAINED_TLS_CA = (7,)
-    EXTERNAL_UNCONSTRAINED_TLS_CA = (8,)
-    EXTERNAL_UNCONSTRAINED_EV_TLS_CA = (9,)
-    EXTERNAL_CONSTRAINED_TLS_CA = (10,)
-    EXTERNAL_CONSTRAINED_EV_TLS_CA = (11,)
-    DV_FINAL_CERTIFICATE = (12,)
-    IV_FINAL_CERTIFICATE = (13,)
-    OV_FINAL_CERTIFICATE = (14,)
-    EV_FINAL_CERTIFICATE = (15,)
-    OCSP_RESPONDER = (16,)
-    DV_PRE_CERTIFICATE = (17,)
-    IV_PRE_CERTIFICATE = (18,)
-    OV_PRE_CERTIFICATE = (19,)
-    EV_PRE_CERTIFICATE = (20,)
+    ROOT_CA = auto()
+    INTERNAL_CROSS_CA = auto()
+    EXTERNAL_CROSS_CA = auto()
+    NON_TLS_CA = auto()
+    PRECERT_SIGNING_CA = auto()
+    INTERNAL_UNCONSTRAINED_TLS_CA = auto()
+    INTERNAL_CONSTRAINED_TLS_CA = auto()
+    EXTERNAL_UNCONSTRAINED_TLS_CA = auto()
+    EXTERNAL_UNCONSTRAINED_EV_TLS_CA = auto()
+    EXTERNAL_CONSTRAINED_TLS_CA = auto()
+    EXTERNAL_CONSTRAINED_EV_TLS_CA = auto()
+    DV_FINAL_CERTIFICATE = auto()
+    IV_FINAL_CERTIFICATE = auto()
+    OV_FINAL_CERTIFICATE = auto()
+    EV_FINAL_CERTIFICATE = auto()
+    OCSP_RESPONDER = auto()
+    DV_PRE_CERTIFICATE = auto()
+    IV_PRE_CERTIFICATE = auto()
+    OV_PRE_CERTIFICATE = auto()
+    EV_PRE_CERTIFICATE = auto()
 
     def __str__(self):
         return self.name
