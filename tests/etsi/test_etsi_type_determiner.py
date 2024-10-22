@@ -4,14 +4,15 @@ from pkilint.etsi.etsi_constants import CertificateType
 
 
 def _assert_pem_is_certificate_type(expected_type, pem):
-    cert = loader.load_certificate(pem, 'pem')
+    cert = loader.load_certificate(pem, "pem")
 
     assert etsi.determine_certificate_type(cert) == expected_type
 
 
 def test_qevcp_w_non_eidas_certificate_type():
-    _assert_pem_is_certificate_type(CertificateType.QEVCP_W_NON_EIDAS_PRE_CERTIFICATE,
-                                    '''-----BEGIN CERTIFICATE-----
+    _assert_pem_is_certificate_type(
+        CertificateType.QEVCP_W_NON_EIDAS_PRE_CERTIFICATE,
+        """-----BEGIN CERTIFICATE-----
 MIIHfTCCBWWgAwIBAgIMFzle8tVI5MLthWVyMA0GCSqGSIb3DQEBCwUAMFkxCzAJ
 BgNVBAYTAkdCMRswGQYDVQQKExJHTU8gR2xvYmFsU2lnbiBMdGQxLTArBgNVBAMT
 JEdsb2JhbFNpZ24gR0NDIFIzIFVLIEVWIFFXQUMgQ0EgMjAyMDAeFw0yMzA2MTYw
@@ -53,11 +54,14 @@ m/LareZcoDwUBT70C6EMm6cc9C2XVDHPs5wW9eIWL8IF1Jd03tXIIDIfuIHnFX3o
 w8PRAMBKq4f+ZYAHj/I54QT/Rvj2Wyhna9QNBvjWgImHPEDrIZ4MGlTeJuL7WjsQ
 hfQZjQ3aw24SEg51Sf1UTQ80xAZJoK8Q3kTzymzUZgqeutUtYrTgXjzd4Mv+52YQ
 oQ==
------END CERTIFICATE-----''')
+-----END CERTIFICATE-----""",
+    )
 
 
 def test_qevcp_w_psd2():
-    _assert_pem_is_certificate_type(CertificateType.QEVCP_W_PSD2_EIDAS_PRE_CERTIFICATE, '''-----BEGIN CERTIFICATE-----
+    _assert_pem_is_certificate_type(
+        CertificateType.QEVCP_W_PSD2_EIDAS_PRE_CERTIFICATE,
+        """-----BEGIN CERTIFICATE-----
 MIIH4DCCBcigAwIBAgIUZ2W0z0CUqkRQtqh+2ZeuUOubCNswDQYJKoZIhvcNAQEL
 BQAwVzELMAkGA1UEBhMCTkwxIDAeBgNVBAoMF1F1b1ZhZGlzIFRydXN0bGluayBC
 LlYuMSYwJAYDVQQDDB1RdW9WYWRpcyBRdWFsaWZpZWQgV2ViIElDQSBHMjAeFw0y
@@ -101,11 +105,14 @@ ZcrLZUy7r4ZdU0dSRsYx2WDRcIuHcQ593VzM8XBYPtYZ7z8cMlzkRr/fUpjWtujH
 1joq8HiMKZaMqLBhS1cyiEaSCv99MRqxq2UT58HanAJ2St/1u6UVbXJ39VXpRtWZ
 3IjZc9mgkHoOf1h1VLc2DSoWSjfWabjbDH2rBLRNywStpQhSjAdeSeiUPTE7wz6N
 yrv/BQ==
------END CERTIFICATE-----''')
+-----END CERTIFICATE-----""",
+    )
 
 
 def test_qncp_w_ov_eidas_final_certificate():
-    _assert_pem_is_certificate_type(CertificateType.QNCP_W_OV_EIDAS_FINAL_CERTIFICATE, '''-----BEGIN CERTIFICATE-----
+    _assert_pem_is_certificate_type(
+        CertificateType.QNCP_W_OV_EIDAS_FINAL_CERTIFICATE,
+        """-----BEGIN CERTIFICATE-----
 MIIH4zCCBsugAwIBAgIQT8EQTyw0XlFlsnajhgndxTANBgkqhkiG9w0BAQsFADBH
 MQswCQYDVQQGEwJFUzERMA8GA1UECgwIRk5NVC1SQ00xJTAjBgNVBAsMHEFDIENv
 bXBvbmVudGVzIEluZm9ybcOhdGljb3MwHhcNMjQwMTI1MTQ1NjM1WhcNMjUwMTI1
@@ -149,11 +156,14 @@ uW7NntGHECR0M6HBiKg8fxLSjC728o1/DpFcmJE4h3mvNcQh5cC2JtwHG05HPgjk
 sLcGGRTmBRY8tG32VsdbwFaIH2tX/mV9GOuXx+g/+kPHyCikfwtYnmtNn+lbzTuQ
 0a3sOHC4LATcVfZ3OSt+2Vdk5nHsLxGB2Xla1pI/4u/go3p2B3fFv6zAtPVsTyDh
 qyg2qSji3w==
------END CERTIFICATE-----''')
+-----END CERTIFICATE-----""",
+    )
 
 
 def test_ncp_w_legal_person_final_certificate():
-    _assert_pem_is_certificate_type(CertificateType.NCP_W_LEGAL_PERSON_FINAL_CERTIFICATE, '''-----BEGIN CERTIFICATE-----
+    _assert_pem_is_certificate_type(
+        CertificateType.NCP_W_LEGAL_PERSON_FINAL_CERTIFICATE,
+        """-----BEGIN CERTIFICATE-----
 MIIHJzCCBQ+gAwIBAgIQVZHNRxiZp9LoR1nlajD1DDANBgkqhkiG9w0BAQsFADCB
 oTELMAkGA1UEBhMCR1IxNjA0BgNVBAoTLUhFTExFTklDIEVYQ0hBTkdFUyAtIEFU
 SEVOUyBTVE9DSyBFWENIQU5HRSBTQTEvMC0GA1UEAxMmQVRIRVggUXVhbGlmaWVk
@@ -193,4 +203,5 @@ cNAGUBur3ku6KO8fHcxpO3zLvA9I6LNhOmvLX24dPRprFd8uK+FiciNxbA3CjDGN
 UtJUErRMG8RRUXYPAM0tF9fZpKm3SurevG01yO8m/AcmsMuKjzJ9LIle7ioZtDc7
 C64ldoQ+IEA1QRyRo8qDml25rgvC3vTyQ4bngTunPPfEsSO04NT71G7va3DyV/VG
 VbCnlkj7sIHIPRY=
------END CERTIFICATE-----''')
+-----END CERTIFICATE-----""",
+    )

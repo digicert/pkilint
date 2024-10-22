@@ -15,15 +15,15 @@ class NcpWCommonNameValidator(common_name.CommonNameValidator):
     domain name or a Wildcard Domain Name (as defined in BRG [9]) which is one of the dNSName values of
     the subjectAltName extension of a website authentication certificate.
     """
+
     VALIDATION_COMMON_NAME_UNKNOWN_SOURCE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.en_319_412_4.web-4.1.3-4.common_name_unknown_source'
+        "etsi.en_319_412_4.web-4.1.3-4.common_name_unknown_source",
     )
 
     def __init__(self):
         super().__init__(
-            _ALLOWED_GENERAL_NAME_TYPES,
-            self.VALIDATION_COMMON_NAME_UNKNOWN_SOURCE
+            _ALLOWED_GENERAL_NAME_TYPES, self.VALIDATION_COMMON_NAME_UNKNOWN_SOURCE
         )
 
 
@@ -35,15 +35,15 @@ class QncpWCommonNameValidator(common_name.CommonNameValidator):
     domain name or a Wildcard Domain Name (as defined in BRG [9]) which is one of the dNSName values of
     the subjectAltName extension of a website authentication certificate.
     """
+
     VALIDATION_COMMON_NAME_UNKNOWN_SOURCE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.en_319_412_4.web-4.1.4-2.common_name_unknown_source'
+        "etsi.en_319_412_4.web-4.1.4-2.common_name_unknown_source",
     )
 
     def __init__(self):
         super().__init__(
-            _ALLOWED_GENERAL_NAME_TYPES,
-            self.VALIDATION_COMMON_NAME_UNKNOWN_SOURCE
+            _ALLOWED_GENERAL_NAME_TYPES, self.VALIDATION_COMMON_NAME_UNKNOWN_SOURCE
         )
 
 
@@ -54,15 +54,17 @@ class NcpWExtendedKeyUsagePresenceValidator(extension.ExtensionPresenceValidator
     in ETSI EN 319 411-1 [6] for [WEB] requirements):
     a) 7.1.2.3 f) extKeyUsage
     """
+
     VALIDATION_EKU_MISSING = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.en_319_412_4.web-4.1.3-4.eku_missing')
+        "etsi.en_319_412_4.web-4.1.3-4.eku_missing",
+    )
 
     def __init__(self):
         super().__init__(
             extension_oid=rfc5280.id_ce_extKeyUsage,
             validation=self.VALIDATION_EKU_MISSING,
-            pdu_class=rfc5280.Extensions
+            pdu_class=rfc5280.Extensions,
         )
 
 
@@ -73,26 +75,31 @@ class NcpWSubjectAltNamePresenceValidator(extension.ExtensionPresenceValidator):
     in ETSI EN 319 411-1 [6] for [WEB] requirements):
     a) 7.1.2.3 b) Subject Alternative Name
     """
+
     VALIDATION_SAN_MISSING = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.en_319_412_4.web-4.1.3-4.san_missing')
+        "etsi.en_319_412_4.web-4.1.3-4.san_missing",
+    )
 
     def __init__(self):
         super().__init__(
             extension_oid=rfc5280.id_ce_subjectAltName,
             validation=self.VALIDATION_SAN_MISSING,
-            pdu_class=rfc5280.Extensions
+            pdu_class=rfc5280.Extensions,
         )
 
 
 class NcpWCriticalityExtendedKeyUsageValidator(extension.ExtensionCriticalityValidator):
     """Validates that the criticality of the EKU extension conforms to BRG."""
+
     EXTENDED_KEY_USAGE_CRITICAL = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.en_319_412_4.web-4.1.3-4.eku_extension_is_critical'
+        "etsi.en_319_412_4.web-4.1.3-4.eku_extension_is_critical",
     )
 
     def __init__(self):
-        super().__init__(validation=self.EXTENDED_KEY_USAGE_CRITICAL,
-                         type_oid=rfc5280.id_ce_extKeyUsage,
-                         is_critical=False)
+        super().__init__(
+            validation=self.EXTENDED_KEY_USAGE_CRITICAL,
+            type_oid=rfc5280.id_ce_extKeyUsage,
+            is_critical=False,
+        )

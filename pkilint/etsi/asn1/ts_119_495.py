@@ -45,8 +45,8 @@ class RoleOfPSP(univ.Sequence):
 
 
 RoleOfPSP.componentType = namedtype.NamedTypes(
-    namedtype.NamedType('roleOfPspOid', RoleOfPspOid()),
-    namedtype.NamedType('roleOfPspName', RoleOfPspName())
+    namedtype.NamedType("roleOfPspOid", RoleOfPspOid()),
+    namedtype.NamedType("roleOfPspName", RoleOfPspName()),
 )
 
 
@@ -62,9 +62,9 @@ class PSD2QcType(univ.Sequence):
 
 
 PSD2QcType.componentType = namedtype.NamedTypes(
-    namedtype.NamedType('rolesOfPSP', RolesOfPSP()),
-    namedtype.NamedType('nCAName', NCAName()),
-    namedtype.NamedType('nCAId', NCAId())
+    namedtype.NamedType("rolesOfPSP", RolesOfPSP()),
+    namedtype.NamedType("nCAName", NCAName()),
+    namedtype.NamedType("nCAId", NCAId()),
 )
 
 
@@ -93,5 +93,3 @@ id_psd2_role_psp_unspecified = _OID(0, 4, 0, 19495, 1, 0)
 
 
 qcp_web_psd2 = _OID(0, 4, 0, 19495, 3, 1)
-
-

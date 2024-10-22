@@ -9,12 +9,14 @@ from pkilint.pkix import general_name
 
 class CommonNameValidator(validation.Validator):
     def __init__(
-            self,
-            allowed_general_name_types: typing.Set[str],
-            validation_unknown_value_source: validation.ValidationFinding):
+        self,
+        allowed_general_name_types: typing.Set[str],
+        validation_unknown_value_source: validation.ValidationFinding,
+    ):
         super().__init__(
             validations=[validation_unknown_value_source],
-            pdu_class=rfc5280.X520CommonName)
+            pdu_class=rfc5280.X520CommonName,
+        )
 
         self._allowed_general_name_types = allowed_general_name_types
         self._validation_unknown_value_source = validation_unknown_value_source
@@ -27,18 +29,20 @@ class CommonNameValidator(validation.Validator):
         _, value_node = node.child
         value_str = str(value_node.pdu)
 
-        san_ext_and_idx = node.document.get_extension_by_oid(rfc5280.id_ce_subjectAltName)
+        san_ext_and_idx = node.document.get_extension_by_oid(
+            rfc5280.id_ce_subjectAltName
+        )
 
         if san_ext_and_idx is None:
             raise validation.ValidationFindingEncountered(
                 self._validation_unknown_value_source,
-                f'Unknown source for value of common name: "{value_str}"'
+                f'Unknown source for value of common name: "{value_str}"',
             )
 
         san_ext_node, _ = san_ext_and_idx
 
         try:
-            san_value_node = san_ext_node.navigate('extnValue.subjectAltName')
+            san_value_node = san_ext_node.navigate("extnValue.subjectAltName")
         except document.PDUNavigationFailedError:
             # unparsed SAN extension, return
             return
@@ -68,5 +72,5 @@ class CommonNameValidator(validation.Validator):
 
         raise validation.ValidationFindingEncountered(
             self._validation_unknown_value_source,
-            f'Unknown source for value of common name: "{value_str}"'
+            f'Unknown source for value of common name: "{value_str}"',
         )

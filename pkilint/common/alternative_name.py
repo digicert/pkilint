@@ -9,12 +9,21 @@ from pkilint.pkix import general_name
 
 
 class InternalDomainNameValidator(validation.Validator):
-    def __init__(self, validation_internal_domain_name_present: validation.ValidationFinding, *args, **kwargs):
+    def __init__(
+        self,
+        validation_internal_domain_name_present: validation.ValidationFinding,
+        *args,
+        **kwargs,
+    ):
         self._psl = publicsuffixlist.PublicSuffixList(accept_unknown=False)
 
-        super().__init__(validations=[validation_internal_domain_name_present], **kwargs)
+        super().__init__(
+            validations=[validation_internal_domain_name_present], **kwargs
+        )
 
-        self._validation_internal_domain_name_present = validation_internal_domain_name_present
+        self._validation_internal_domain_name_present = (
+            validation_internal_domain_name_present
+        )
 
     @classmethod
     def extract_domain_name(cls, node):
@@ -24,7 +33,7 @@ class InternalDomainNameValidator(validation.Validator):
         if self._psl.publicsuffix(value) is None:
             raise validation.ValidationFindingEncountered(
                 self._validation_internal_domain_name_present,
-                f'Internal domain name: "{value}"'
+                f'Internal domain name: "{value}"',
             )
 
     def validate(self, node):
@@ -34,46 +43,59 @@ class InternalDomainNameValidator(validation.Validator):
 
 
 class GeneralNameDnsNameInternalDomainNameValidator(InternalDomainNameValidator):
-    def __init__(self, validation_internal_domain_name_present: validation.ValidationFinding, allow_onion_tld=False):
+    def __init__(
+        self,
+        validation_internal_domain_name_present: validation.ValidationFinding,
+        allow_onion_tld=False,
+    ):
         self._allow_onion_tld = allow_onion_tld
 
         super().__init__(
             validation_internal_domain_name_present,
-            predicate=general_name.create_generalname_type_predicate(general_name.GeneralNameTypeName.DNS_NAME)
+            predicate=general_name.create_generalname_type_predicate(
+                general_name.GeneralNameTypeName.DNS_NAME
+            ),
         )
 
     def validate_with_value(self, node, value):
         if len(value) == 0 and general_name.is_nameconstraints_child_node(node):
             return
         else:
-            if self._allow_onion_tld and value.lower().endswith('.onion'):
+            if self._allow_onion_tld and value.lower().endswith(".onion"):
                 return
             else:
                 return super().validate_with_value(node, value)
 
 
 class UriInternalDomainNameValidator(InternalDomainNameValidator):
-    def __init__(self, validation_internal_domain_name_present: validation.ValidationFinding, *args, **kwargs):
+    def __init__(
+        self,
+        validation_internal_domain_name_present: validation.ValidationFinding,
+        *args,
+        **kwargs,
+    ):
         super().__init__(validation_internal_domain_name_present, *args, **kwargs)
 
     def extract_domain_name(self, node):
-        return urlparse(str(node.pdu)).hostname or ''
+        return urlparse(str(node.pdu)).hostname or ""
 
 
 class GeneralNameUriInternalDomainNameValidator(InternalDomainNameValidator):
-    def __init__(self, validation_internal_domain_name_present: validation.ValidationFinding):
+    def __init__(
+        self, validation_internal_domain_name_present: validation.ValidationFinding
+    ):
         super().__init__(
             validation_internal_domain_name_present,
             predicate=general_name.create_generalname_type_predicate(
                 general_name.GeneralNameTypeName.UNIFORM_RESOURCE_IDENTIFIER
-            )
+            ),
         )
 
     def extract_domain_name(self, node):
         if general_name.is_nameconstraints_child_node(node):
-            return str(node.pdu).lstrip('.')
+            return str(node.pdu).lstrip(".")
         else:
-            return urlparse(str(node.pdu)).hostname or ''
+            return urlparse(str(node.pdu)).hostname or ""
 
     def validate_with_value(self, node, value):
         if len(value) == 0 and general_name.is_nameconstraints_child_node(node):
@@ -83,25 +105,36 @@ class GeneralNameUriInternalDomainNameValidator(InternalDomainNameValidator):
 
 
 class EmailAddressInternalDomainNameValidator(InternalDomainNameValidator):
-    def __init__(self, validation_internal_domain_name_present: validation.ValidationFinding, *args, **kwargs):
+    def __init__(
+        self,
+        validation_internal_domain_name_present: validation.ValidationFinding,
+        *args,
+        **kwargs,
+    ):
         super().__init__(validation_internal_domain_name_present, *args, **kwargs)
 
     def extract_domain_name(self, node):
-        parts = str(node.pdu).split('@', maxsplit=1)
+        parts = str(node.pdu).split("@", maxsplit=1)
 
-        return parts[1] if len(parts) == 2 else ''
+        return parts[1] if len(parts) == 2 else ""
 
 
-class GeneralNameRfc822NameInternalDomainNameValidator(EmailAddressInternalDomainNameValidator):
-    def __init__(self, validation_internal_domain_name_present: validation.ValidationFinding):
+class GeneralNameRfc822NameInternalDomainNameValidator(
+    EmailAddressInternalDomainNameValidator
+):
+    def __init__(
+        self, validation_internal_domain_name_present: validation.ValidationFinding
+    ):
         super().__init__(
             validation_internal_domain_name_present,
-            predicate=general_name.create_generalname_type_predicate(general_name.GeneralNameTypeName.RFC822_NAME)
+            predicate=general_name.create_generalname_type_predicate(
+                general_name.GeneralNameTypeName.RFC822_NAME
+            ),
         )
 
     def extract_domain_name(self, node):
         if general_name.is_nameconstraints_child_node(node):
-            return str(node.pdu).lstrip('.')
+            return str(node.pdu).lstrip(".")
         else:
             return super().extract_domain_name(node)
 
@@ -112,22 +145,35 @@ class GeneralNameRfc822NameInternalDomainNameValidator(EmailAddressInternalDomai
             super().validate_with_value(node, value)
 
 
-class SmtpUtf8MailboxInternalDomainNameValidator(EmailAddressInternalDomainNameValidator):
-    def __init__(self, validation_internal_domain_name_present: validation.ValidationFinding):
-        super().__init__(validation_internal_domain_name_present, pdu_class=rfc8398.SmtpUTF8Mailbox)
+class SmtpUtf8MailboxInternalDomainNameValidator(
+    EmailAddressInternalDomainNameValidator
+):
+    def __init__(
+        self, validation_internal_domain_name_present: validation.ValidationFinding
+    ):
+        super().__init__(
+            validation_internal_domain_name_present, pdu_class=rfc8398.SmtpUTF8Mailbox
+        )
 
     def extract_domain_name(self, node):
         domain_part = super().extract_domain_name(node)
 
         # remove ToASCII once RFC 9598 is published
-        return domain_part.encode('idna').decode()
+        return domain_part.encode("idna").decode()
 
 
 class InternalIpAddressValidator(validation.Validator):
-    def __init__(self, validation_internal_ip_address_present: validation.ValidationFinding, *args, **kwargs):
+    def __init__(
+        self,
+        validation_internal_ip_address_present: validation.ValidationFinding,
+        *args,
+        **kwargs,
+    ):
         super().__init__(validations=[validation_internal_ip_address_present], **kwargs)
 
-        self._validation_internal_ip_address_present = validation_internal_ip_address_present
+        self._validation_internal_ip_address_present = (
+            validation_internal_ip_address_present
+        )
 
     @classmethod
     def _extract_ip_address(cls, node):
@@ -144,15 +190,19 @@ class InternalIpAddressValidator(validation.Validator):
         if not ip_addr.is_global:
             raise validation.ValidationFindingEncountered(
                 self._validation_internal_ip_address_present,
-                f'Internal IP address: "{ip_addr}"'
+                f'Internal IP address: "{ip_addr}"',
             )
 
 
 class GeneralNameInternalIpAddressValidator(InternalIpAddressValidator):
-    def __init__(self, validation_internal_ip_address_present: validation.ValidationFinding):
+    def __init__(
+        self, validation_internal_ip_address_present: validation.ValidationFinding
+    ):
         super().__init__(
             validation_internal_ip_address_present,
-            predicate=general_name.create_generalname_type_predicate(general_name.GeneralNameTypeName.IP_ADDRESS)
+            predicate=general_name.create_generalname_type_predicate(
+                general_name.GeneralNameTypeName.IP_ADDRESS
+            ),
         )
 
     def validate(self, node):
@@ -165,21 +215,32 @@ class GeneralNameInternalIpAddressValidator(InternalIpAddressValidator):
 def create_internal_name_validator_container(
     validation_internal_domain_name_present: validation.ValidationFinding,
     validation_internal_ip_address_present: validation.ValidationFinding,
-    allow_onion_tld: bool = False
+    allow_onion_tld: bool = False,
 ):
     validators = [
-        GeneralNameDnsNameInternalDomainNameValidator(validation_internal_domain_name_present, allow_onion_tld),
-        GeneralNameUriInternalDomainNameValidator(validation_internal_domain_name_present),
-        GeneralNameRfc822NameInternalDomainNameValidator(validation_internal_domain_name_present),
-        SmtpUtf8MailboxInternalDomainNameValidator(validation_internal_domain_name_present),
+        GeneralNameDnsNameInternalDomainNameValidator(
+            validation_internal_domain_name_present, allow_onion_tld
+        ),
+        GeneralNameUriInternalDomainNameValidator(
+            validation_internal_domain_name_present
+        ),
+        GeneralNameRfc822NameInternalDomainNameValidator(
+            validation_internal_domain_name_present
+        ),
+        SmtpUtf8MailboxInternalDomainNameValidator(
+            validation_internal_domain_name_present
+        ),
         GeneralNameInternalIpAddressValidator(validation_internal_ip_address_present),
     ]
 
     return validation.ValidatorContainer(
-        validators=validators,
-        pdu_class=rfc5280.GeneralName
+        validators=validators, pdu_class=rfc5280.GeneralName
     )
 
 
-def create_cpsuri_internal_domain_name_validator(validation_internal_domain_name_present: validation.ValidationFinding):
-    return UriInternalDomainNameValidator(validation_internal_domain_name_present, pdu_class=rfc5280.CPSuri)
+def create_cpsuri_internal_domain_name_validator(
+    validation_internal_domain_name_present: validation.ValidationFinding,
+):
+    return UriInternalDomainNameValidator(
+        validation_internal_domain_name_present, pdu_class=rfc5280.CPSuri
+    )

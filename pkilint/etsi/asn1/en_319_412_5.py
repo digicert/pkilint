@@ -4,7 +4,7 @@
 
 from pyasn1.type import univ, char, namedtype, constraint
 
-MAX = float('inf')
+MAX = float("inf")
 
 
 def _OID(*components):
@@ -30,8 +30,16 @@ class Iso4217CurrencyCode(univ.Choice):
 
 
 Iso4217CurrencyCode.componentType = namedtype.NamedTypes(
-    namedtype.NamedType('alphabetic', char.PrintableString().subtype(subtypeSpec=constraint.ValueSizeConstraint(3, 3))),
-    namedtype.NamedType('numeric', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(1, 999)))
+    namedtype.NamedType(
+        "alphabetic",
+        char.PrintableString().subtype(
+            subtypeSpec=constraint.ValueSizeConstraint(3, 3)
+        ),
+    ),
+    namedtype.NamedType(
+        "numeric",
+        univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(1, 999)),
+    ),
 )
 
 
@@ -40,9 +48,9 @@ class MonetaryValue(univ.Sequence):
 
 
 MonetaryValue.componentType = namedtype.NamedTypes(
-    namedtype.NamedType('currency', Iso4217CurrencyCode()),
-    namedtype.NamedType('amount', univ.Integer()),
-    namedtype.NamedType('exponent', univ.Integer())
+    namedtype.NamedType("currency", Iso4217CurrencyCode()),
+    namedtype.NamedType("amount", univ.Integer()),
+    namedtype.NamedType("exponent", univ.Integer()),
 )
 
 
@@ -51,8 +59,13 @@ class PdsLocation(univ.Sequence):
 
 
 PdsLocation.componentType = namedtype.NamedTypes(
-    namedtype.NamedType('url', char.IA5String()),
-    namedtype.NamedType('language', char.PrintableString().subtype(subtypeSpec=constraint.ValueSizeConstraint(2, 2)))
+    namedtype.NamedType("url", char.IA5String()),
+    namedtype.NamedType(
+        "language",
+        char.PrintableString().subtype(
+            subtypeSpec=constraint.ValueSizeConstraint(2, 2)
+        ),
+    ),
 )
 
 

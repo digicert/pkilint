@@ -47,17 +47,11 @@ FNqVFqH0g3T6SeJbPvAU2mE=
     validator = pkix.CertificateSerialNumberValidator()
 
     result = util.ExpectedResult(
-        [
-            validator.VALIDATION_FINDING_CERTIFICATE_SERIAL_NUMBER_OOR
-        ],
-        pdu_class=rfc5280.CertificateSerialNumber
+        [validator.VALIDATION_FINDING_CERTIFICATE_SERIAL_NUMBER_OOR],
+        pdu_class=rfc5280.CertificateSerialNumber,
     )
 
-    util.certificate_test_harness(
-        pem,
-        validator,
-        [result]
-    )
+    util.certificate_test_harness(pem, validator, [result])
 
 
 def test_serial_number_non_positive():
@@ -94,14 +88,8 @@ tGWaIZDgqtCYvDi1czyL+Nw=
     validator = pkix.CertificateSerialNumberValidator()
 
     result = util.ExpectedResult(
-        [
-            validator.VALIDATION_FINDING_CERTIFICATE_SERIAL_NUMBER_OOR
-        ],
-        pdu_class=rfc5280.CertificateSerialNumber
+        [validator.VALIDATION_FINDING_CERTIFICATE_SERIAL_NUMBER_OOR],
+        pdu_class=rfc5280.CertificateSerialNumber,
     )
 
-    util.certificate_test_harness(
-        pem,
-        validator,
-        [result]
-    )
+    util.certificate_test_harness(pem, validator, [result])

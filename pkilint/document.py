@@ -1,28 +1,42 @@
 import datetime
 import logging
 import re
-from typing import Callable, Mapping, Tuple, Type, Union, Optional, Dict, List, NamedTuple
+from typing import (
+    Callable,
+    Mapping,
+    Tuple,
+    Type,
+    Union,
+    Optional,
+    Dict,
+    List,
+    NamedTuple,
+)
 
 from pyasn1.codec.der.decoder import decode
 from pyasn1.codec.der.encoder import encode
 from pyasn1.error import PyAsn1Error
 from pyasn1.type.base import Asn1Type
-from pyasn1.type.univ import (ObjectIdentifier, SequenceOfAndSetOfBase, SequenceAndSetBase,
-                              Choice, BitString
-                              )
+from pyasn1.type.univ import (
+    ObjectIdentifier,
+    SequenceOfAndSetOfBase,
+    SequenceAndSetBase,
+    Choice,
+    BitString,
+)
 from pyasn1_fasder import decode_der
 
 logger = logging.getLogger(__name__)
 
-PATH_REGEX = re.compile(r'^((?P<doc_name>[^:]*):)?(?P<node_path>([^.]+\.)*[^.]+)?$')
+PATH_REGEX = re.compile(r"^((?P<doc_name>[^:]*):)?(?P<node_path>([^.]+\.)*[^.]+)?$")
 
 
 class PDUNavigationFailedError(Exception):
     """Represents the failure to find the requested node in a document."""
 
-    def __init__(self, requested_path: str, traversed_path: str,
-                 missing_node_name: str
-                 ):
+    def __init__(
+        self, requested_path: str, traversed_path: str, missing_node_name: str
+    ):
         """Creates an instance of an exception that represents a PDU node lookup failure.
 
         Args: requested_path: The requested path relative to the node which
@@ -34,18 +48,22 @@ class PDUNavigationFailedError(Exception):
         self.missing_node_name = missing_node_name
 
     def __str__(self) -> str:
-        return (f'Node with name "{self.missing_node_name}" does not exist at '
-                f'"{self.traversed_path}" (requested path: "{self.requested_path}")'
-                )
+        return (
+            f'Node with name "{self.missing_node_name}" does not exist at '
+            f'"{self.traversed_path}" (requested path: "{self.requested_path}")'
+        )
 
 
 class Document:
     """Represents an ASN.1-encoded document."""
 
     def __init__(
-            self, pdu_schema_instance: Asn1Type, substrate_source: str, substrate: bytes,
-            name: Optional[str] = None,
-            parent: Optional[Mapping[str, 'Document']] = None
+        self,
+        pdu_schema_instance: Asn1Type,
+        substrate_source: str,
+        substrate: bytes,
+        name: Optional[str] = None,
+        parent: Optional[Mapping[str, "Document"]] = None,
     ):
         """Creates a new Document instance. It is not intended that this class be directly
         instantiated by user code; use a sub-class of this class instead.
@@ -66,14 +84,12 @@ class Document:
 
     def decode(self):
         """
-            Decodes the DER-encoded substrate with the specified ASN.1 schema object.
+        Decodes the DER-encoded substrate with the specified ASN.1 schema object.
 
-            If the document does not conform to the schema, then this will fail.
+        If the document does not conform to the schema, then this will fail.
         """
         if self.root is None:
-            self.root = decode_substrate(self, self.substrate,
-                                         self.pdu_schema_instance
-                                         )
+            self.root = decode_substrate(self, self.substrate, self.pdu_schema_instance)
 
         return self.root
 
@@ -84,9 +100,9 @@ class Document:
 class PDUNode:
     """Represents a node of a document."""
 
-    def __init__(self, document: Document, name: str, pdu: Asn1Type,
-                 parent: Optional['PDUNode']
-                 ):
+    def __init__(
+        self, document: Document, name: str, pdu: Asn1Type, parent: Optional["PDUNode"]
+    ):
         """Creates a new instance representing a node within a document.
 
         Args: document: The document which contains this node. name: The name of the node. Generally will match the
@@ -101,12 +117,12 @@ class PDUNode:
         if self.parent is None:
             self.path = self.name
         else:
-            self.path = f'{self.parent.path}.{self.name}'
+            self.path = f"{self.parent.path}.{self.name}"
 
         self.children = self._generate_child_nodes()
 
     @property
-    def parents(self) -> List['PDUNode']:
+    def parents(self) -> List["PDUNode"]:
         """All parent nodes up to the root of the document."""
         nodes = []
         node = self.parent
@@ -117,7 +133,7 @@ class PDUNode:
         return nodes
 
     @property
-    def child(self) -> Tuple[str, 'PDUNode']:
+    def child(self) -> Tuple[str, "PDUNode"]:
         """The node name and node of the single child node.
 
         This property will fail if no child nodes or more than one child node is present.
@@ -129,7 +145,7 @@ class PDUNode:
         else:
             return next(iter(self.children.items()))
 
-    def navigate(self, path: str) -> Union['PDUNode', Document]:
+    def navigate(self, path: str) -> Union["PDUNode", Document]:
         """Navigates to a node or document (depending on the path specified).
 
         Elements within a path are separated by periods ("."). Paths may be absolute or relative. Relative paths can
@@ -154,23 +170,23 @@ class PDUNode:
         if m is None:
             raise ValueError(f'Invalid path syntax: "{path}"')
 
-        doc_name = m.group('doc_name')
-        if m.group('node_path') is None:
+        doc_name = m.group("doc_name")
+        if m.group("node_path") is None:
             node_path_parts = []
         else:
-            node_path_parts = m.group('node_path').split('.')
+            node_path_parts = m.group("node_path").split(".")
 
         if doc_name is None:
             node = self
         else:
-            if doc_name == '':
+            if doc_name == "":
                 doc = self.document
 
                 if len(node_path_parts) == 0:
                     return doc
             else:
                 if self.document.parent is None or doc_name not in self.document.parent:
-                    raise PDUNavigationFailedError(requested_path, '', doc_name)
+                    raise PDUNavigationFailedError(requested_path, "", doc_name)
 
                 doc = self.document.parent[doc_name]
 
@@ -182,7 +198,7 @@ class PDUNode:
             node_path_parts = node_path_parts[1:]
 
         for part in node_path_parts:
-            if part == '^':
+            if part == "^":
                 node = node.parent
             else:
                 try:
@@ -195,42 +211,40 @@ class PDUNode:
     def _generate_child_nodes(self):
         if isinstance(self.pdu, Choice):
             name = self.pdu.getName()
-            return {name: PDUNode(
-                self.document, name, self.pdu.getComponent(), self
-            )
-            }
+            return {name: PDUNode(self.document, name, self.pdu.getComponent(), self)}
         elif isinstance(self.pdu, SequenceOfAndSetOfBase):
             # noinspection PyTypeChecker
             return {
-                str(i): PDUNode(
-                    self.document, str(i), component, self
-                )
+                str(i): PDUNode(self.document, str(i), component, self)
                 for i, component in enumerate(self.pdu)
             }
         elif isinstance(self.pdu, SequenceAndSetBase):
-            return {name: PDUNode(self.document, name, value, self)
-                    for name, value in self.pdu.items()
-                    if value.isValue
-                    }
+            return {
+                name: PDUNode(self.document, name, value, self)
+                for name, value in self.pdu.items()
+                if value.isValue
+            }
         else:
             return {}
 
     def __repr__(self):
         if self.document is not None and self.document.name is not None:
-            path = f'{self.document.name}:{self.path}'
+            path = f"{self.document.name}:{self.path}"
         else:
             path = self.path
-        return f'{self.pdu.__class__.__name__} @ {path}'
+        return f"{self.pdu.__class__.__name__} @ {path}"
 
 
 class NodeVisitor:
-    def __init__(self, *,
-                 path: str = None,
-                 path_re: re.Pattern = None,
-                 pdu_class: Type[Asn1Type] = None,
-                 pdu_supertype: Asn1Type = None,
-                 predicate: Callable[[PDUNode], bool] = None
-                 ):
+    def __init__(
+        self,
+        *,
+        path: str = None,
+        path_re: re.Pattern = None,
+        pdu_class: Type[Asn1Type] = None,
+        pdu_supertype: Asn1Type = None,
+        predicate: Callable[[PDUNode], bool] = None,
+    ):
         self._path = path
         self._path_re = path_re
         self._pdu_class = pdu_class
@@ -244,7 +258,9 @@ class NodeVisitor:
             return False
         if self._pdu_class is not None and not isinstance(node.pdu, self._pdu_class):
             return False
-        if self._pdu_supertype is not None and not self._pdu_supertype.isSuperTypeOf(node.pdu):
+        if self._pdu_supertype is not None and not self._pdu_supertype.isSuperTypeOf(
+            node.pdu
+        ):
             return False
         if self._predicate is not None and not self._predicate(node):
             return False
@@ -260,8 +276,11 @@ def get_node_name_for_pdu(pdu: Asn1Type) -> str:
 
 class SubstrateDecodingFailedError(ValueError):
     def __init__(
-            self, source_document: Document, pdu_instance: Optional[Asn1Type], parent_node: Optional[PDUNode],
-            message: Optional[str]
+        self,
+        source_document: Document,
+        pdu_instance: Optional[Asn1Type],
+        parent_node: Optional[PDUNode],
+        message: Optional[str],
     ):
         self.source_document = source_document
         self.pdu_instance = pdu_instance
@@ -272,29 +291,33 @@ class SubstrateDecodingFailedError(ValueError):
         message = f'Error occurred while decoding substrate in document "{self.source_document.name}"'
 
         if self.parent_node:
-            message += f' @ {self.parent_node.path}'
+            message += f" @ {self.parent_node.path}"
 
         if self.pdu_instance:
             message += f' using schema "{self.pdu_instance.__class__.__name__}"'
 
         if self.message:
-            message += f': {self.message}'
+            message += f": {self.message}"
 
         return message
 
 
-def decode_substrate(source_document: Document, substrate: bytes,
-                     pdu_instance: Asn1Type, parent_node: Optional[PDUNode] = None) -> PDUNode:
+def decode_substrate(
+    source_document: Document,
+    substrate: bytes,
+    pdu_instance: Asn1Type,
+    parent_node: Optional[PDUNode] = None,
+) -> PDUNode:
     if parent_node is not None and any(parent_node.children):
-        logger.debug("%s has child node; not creating new PDU node",
-                     parent_node.path
-                     )
+        logger.debug("%s has child node; not creating new PDU node", parent_node.path)
         return next(iter(parent_node.children.values()))
 
     try:
         decoded, _ = decode_der(substrate, asn1Spec=pdu_instance)
     except (ValueError, PyAsn1Error) as e:
-        raise SubstrateDecodingFailedError(source_document, pdu_instance, parent_node, str(e)) from e
+        raise SubstrateDecodingFailedError(
+            source_document, pdu_instance, parent_node, str(e)
+        ) from e
 
     decoded_pdu_name = get_node_name_for_pdu(decoded)
 
@@ -302,9 +325,7 @@ def decode_substrate(source_document: Document, substrate: bytes,
 
     if parent_node is not None:
         parent_node.children[decoded_pdu_name] = node
-        logger.debug("Appended %s node to %s", node.name,
-                     parent_node.path
-                     )
+        logger.debug("Appended %s node to %s", node.name, parent_node.path)
 
     return node
 
@@ -318,12 +339,14 @@ class ValueDecoder:
 
     VALUE_NODE_ABSENT = object()
 
-    def __init__(self,
-                 *,
-                 type_path: str,
-                 value_path: str,
-                 type_mappings: Dict[ObjectIdentifier, Union[Asn1Type, OptionalAsn1TypeWrapper]],
-                 default: Optional[Union[Asn1Type, OptionalAsn1TypeWrapper]] = None):
+    def __init__(
+        self,
+        *,
+        type_path: str,
+        value_path: str,
+        type_mappings: Dict[ObjectIdentifier, Union[Asn1Type, OptionalAsn1TypeWrapper]],
+        default: Optional[Union[Asn1Type, OptionalAsn1TypeWrapper]] = None,
+    ):
         self.type_path = type_path
         self.value_path = value_path
         self.type_mappings = type_mappings.copy()
@@ -356,8 +379,10 @@ class ValueDecoder:
             # value node must be absent, but it exists
             elif pdu_type is self.VALUE_NODE_ABSENT and value_node is not None:
                 raise SubstrateDecodingFailedError(
-                    node.document, None, value_node,
-                    f'Value node is present, but type OID {type_node.pdu} specifies that it must be absent'
+                    node.document,
+                    None,
+                    value_node,
+                    f"Value node is present, but type OID {type_node.pdu} specifies that it must be absent",
                 )
 
             # value node must be present, but it doesn't exist
@@ -365,9 +390,11 @@ class ValueDecoder:
                 schema_name = pdu_type.__class__.__name__
 
                 raise SubstrateDecodingFailedError(
-                    node.document, pdu_type, value_node,
-                    f'Value node is absent, but type OID {type_node.pdu} specifies that a '
-                    f'"{schema_name}" value must be present'
+                    node.document,
+                    pdu_type,
+                    value_node,
+                    f"Value node is absent, but type OID {type_node.pdu} specifies that a "
+                    f'"{schema_name}" value must be present',
                 )
 
         if pdu_type is self.VALUE_NODE_ABSENT or pdu_type is None:
@@ -382,7 +409,7 @@ class ValueDecoder:
 
             message = (
                 f'ASN.1 decoding failure occurred at "{value_node.path}" with schema "{schema_name}" corresponding to '
-                f'type OID {type_node.pdu}: {e.message}'
+                f"type OID {type_node.pdu}: {e.message}"
             )
 
             raise SubstrateDecodingFailedError(
@@ -397,7 +424,7 @@ def get_document_by_name(node: PDUNode, document_name: str) -> Document:
 
 def get_re_for_path_glob(path_glob: str) -> re.Pattern:
     return re.compile(
-        path_glob.replace('.', r'\.').replace('?', r'\w').replace('*', r'\w*')
+        path_glob.replace(".", r"\.").replace("?", r"\w").replace("*", r"\w*")
     )
 
 
@@ -409,8 +436,11 @@ class ValidityPeriodStartRetriever:
 class StaticValidityPeriodStartRetriever(ValidityPeriodStartRetriever):
     def __init__(self, validity_period_start: datetime.datetime):
         # require timezone-aware datetime values
-        if validity_period_start.tzinfo is None or validity_period_start.tzinfo.utcoffset(None) is None:
-            raise ValueError('Validity period start value must be timezone-aware')
+        if (
+            validity_period_start.tzinfo is None
+            or validity_period_start.tzinfo.utcoffset(None) is None
+        ):
+            raise ValueError("Validity period start value must be timezone-aware")
 
         self._validity_period_start = validity_period_start
 

@@ -24,7 +24,9 @@ class SignatureAlgorithm(enum.IntEnum):
     ECDSA = 3
 
 
-_UNIX_EPOCH_DATETIME = datetime.datetime(1970, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
+_UNIX_EPOCH_DATETIME = datetime.datetime(
+    1970, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc
+)
 
 
 class SignedCertificateTimestamp(NamedTuple):
@@ -39,7 +41,9 @@ class SignedCertificateTimestamp(NamedTuple):
 
     @property
     def timestamp_datetime(self):
-        return _UNIX_EPOCH_DATETIME + datetime.timedelta(milliseconds=self.timestamp_msec)
+        return _UNIX_EPOCH_DATETIME + datetime.timedelta(
+            milliseconds=self.timestamp_msec
+        )
 
 
 # Thank you JHA
@@ -47,22 +51,24 @@ class SignedCertificateTimestamp(NamedTuple):
 def _decode_sct(octets: bytes, offset: int):
     initial_offset = offset
 
-    length = int.from_bytes(octets[offset:offset + 2], 'big')
+    length = int.from_bytes(octets[offset : offset + 2], "big")
     offset += 2
 
     version = octets[offset]
     offset += 1
 
-    log_id = octets[offset:offset + 32]
+    log_id = octets[offset : offset + 32]
     offset += 32
 
-    timestamp = int.from_bytes(octets[offset: offset + 8], 'big')
+    timestamp = int.from_bytes(octets[offset : offset + 8], "big")
     offset += 8
 
-    extensions_length = int.from_bytes(octets[offset: offset + 2], 'big')
+    extensions_length = int.from_bytes(octets[offset : offset + 2], "big")
     offset += 2
 
-    extensions = b'' if extensions_length == 0 else octets[offset:offset + extensions_length]
+    extensions = (
+        b"" if extensions_length == 0 else octets[offset : offset + extensions_length]
+    )
     offset += extensions_length
 
     raw = octets[initial_offset:offset]
@@ -73,27 +79,30 @@ def _decode_sct(octets: bytes, offset: int):
     sig_alg = SignatureAlgorithm(octets[offset])
     offset += 1
 
-    signature_length = int.from_bytes(octets[offset:offset + 2], 'big')
+    signature_length = int.from_bytes(octets[offset : offset + 2], "big")
     offset += 2
 
-    signature_octets = octets[offset:offset + signature_length]
+    signature_octets = octets[offset : offset + signature_length]
     offset += signature_length
 
     return offset, SignedCertificateTimestamp(
-        version, log_id, timestamp, extensions, hash_alg, sig_alg, signature_octets, raw)
+        version, log_id, timestamp, extensions, hash_alg, sig_alg, signature_octets, raw
+    )
 
 
 def _decode(instance) -> List[SignedCertificateTimestamp]:
     octets = instance.asOctets()
 
-    expected_length = int.from_bytes(octets[0:2], 'big')
+    expected_length = int.from_bytes(octets[0:2], "big")
     offset = 2
 
     actual_length = len(octets) - 2
 
     if actual_length != expected_length:
-        raise ValueError('Invalid SCT list encoding: '
-                         f'expected length: {expected_length}, actual length: {actual_length}')
+        raise ValueError(
+            "Invalid SCT list encoding: "
+            f"expected length: {expected_length}, actual length: {actual_length}"
+        )
 
     scts = []
     while offset < actual_length:
@@ -107,12 +116,14 @@ def _decode(instance) -> List[SignedCertificateTimestamp]:
 class SctListExtensionDecodingValidator(validation.Validator):
     VALIDATION_SCT_EXTENSION_INVALID_ENCODING = validation.ValidationFinding(
         validation.ValidationFindingSeverity.FATAL,
-        'pkix.sct_list_extension_invalid_encoding'
+        "pkix.sct_list_extension_invalid_encoding",
     )
 
     def __init__(self, append_decoded=True):
-        super().__init__(validations=self.VALIDATION_SCT_EXTENSION_INVALID_ENCODING,
-                         pdu_class=rfc6962.SignedCertificateTimestampList)
+        super().__init__(
+            validations=self.VALIDATION_SCT_EXTENSION_INVALID_ENCODING,
+            pdu_class=rfc6962.SignedCertificateTimestampList,
+        )
 
         self._append_decoded = append_decoded
 
@@ -121,28 +132,31 @@ class SctListExtensionDecodingValidator(validation.Validator):
             decoded = _decode(node.pdu)
 
             if self._append_decoded:
-                setattr(node.pdu, 'decoded', decoded)
+                setattr(node.pdu, "decoded", decoded)
         except ValueError as e:
             raise validation.ValidationFindingEncountered(
-                self.VALIDATION_SCT_EXTENSION_INVALID_ENCODING,
-                str(e)
+                self.VALIDATION_SCT_EXTENSION_INVALID_ENCODING, str(e)
             )
 
 
 class SctListElementCountValidator(validation.Validator):
     VALIDATION_SCT_LIST_EMPTY = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'pkix.sct_list_empty'
+        validation.ValidationFindingSeverity.ERROR, "pkix.sct_list_empty"
     )
 
     def __init__(self):
-        super().__init__(validations=self.VALIDATION_SCT_LIST_EMPTY, pdu_class=rfc6962.SignedCertificateTimestampList)
+        super().__init__(
+            validations=self.VALIDATION_SCT_LIST_EMPTY,
+            pdu_class=rfc6962.SignedCertificateTimestampList,
+        )
 
     def validate(self, node):
         try:
-            decoded = getattr(node.pdu, 'decoded')
+            decoded = getattr(node.pdu, "decoded")
         except AttributeError:
             return
 
         if len(decoded) == 0:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_SCT_LIST_EMPTY)
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_SCT_LIST_EMPTY
+            )

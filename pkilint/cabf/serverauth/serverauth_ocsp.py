@@ -6,7 +6,7 @@ from pkilint.itu import bitstring
 from pkilint.pkix import Rfc2119Word
 from pkilint.pkix.certificate.certificate_extension import KeyUsageBitName
 
-_CODE_CLASSIFIER = 'cabf.serverauth.ocsp_responder'
+_CODE_CLASSIFIER = "cabf.serverauth.ocsp_responder"
 
 
 class OcspResponderKeyUsageValidator(validation.Validator):
@@ -14,38 +14,49 @@ class OcspResponderKeyUsageValidator(validation.Validator):
 
     VALIDATION_DIGSIG_MISSING = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        _CODE_CLASSIFIER + '.digitalsignature_bit_missing'
+        _CODE_CLASSIFIER + ".digitalsignature_bit_missing",
     )
 
     VALIDATION_PROHIBITED_KU_PRESENT = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        _CODE_CLASSIFIER + '.prohibited_ku_present'
+        _CODE_CLASSIFIER + ".prohibited_ku_present",
     )
 
-    _PROHIBITED_KUS = {
-                          str(n) for n in rfc5280.KeyUsage.namedValues
-                      } - {KeyUsageBitName.DIGITAL_SIGNATURE}
+    _PROHIBITED_KUS = {str(n) for n in rfc5280.KeyUsage.namedValues} - {
+        KeyUsageBitName.DIGITAL_SIGNATURE
+    }
 
     def __init__(self):
-        super().__init__(validations=[self.VALIDATION_DIGSIG_MISSING, self.VALIDATION_PROHIBITED_KU_PRESENT],
-                         pdu_class=rfc5280.KeyUsage)
+        super().__init__(
+            validations=[
+                self.VALIDATION_DIGSIG_MISSING,
+                self.VALIDATION_PROHIBITED_KU_PRESENT,
+            ],
+            pdu_class=rfc5280.KeyUsage,
+        )
 
     def validate(self, node):
         if not bitstring.has_named_bit(node, KeyUsageBitName.DIGITAL_SIGNATURE):
-            raise validation.ValidationFindingEncountered(self.VALIDATION_DIGSIG_MISSING)
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_DIGSIG_MISSING
+            )
 
-        prohibited_kus_asserted = sorted((k for k in self._PROHIBITED_KUS if bitstring.has_named_bit(node, k)))
+        prohibited_kus_asserted = sorted(
+            (k for k in self._PROHIBITED_KUS if bitstring.has_named_bit(node, k))
+        )
 
         if any(prohibited_kus_asserted):
-            prohibited_kus_str = ', '.join(prohibited_kus_asserted)
+            prohibited_kus_str = ", ".join(prohibited_kus_asserted)
 
             raise validation.ValidationFindingEncountered(
-                self.VALIDATION_PROHIBITED_KU_PRESENT, f'Prohibited KUs present: {prohibited_kus_str}'
+                self.VALIDATION_PROHIBITED_KU_PRESENT,
+                f"Prohibited KUs present: {prohibited_kus_str}",
             )
 
 
 class OcspAuthorityInformationAccessAccessMethodPresenceValidator(
-        common.AuthorityInformationAccessAccessMethodPresenceValidator):
+    common.AuthorityInformationAccessAccessMethodPresenceValidator
+):
     """Validates that the content of the AIA extension conforms with BR 7.1.2.8.3."""
 
     _ACCESS_METHOD_ALLOWANCES = {
@@ -53,10 +64,14 @@ class OcspAuthorityInformationAccessAccessMethodPresenceValidator(
     }
 
     def __init__(self):
-        super().__init__(self._ACCESS_METHOD_ALLOWANCES, _CODE_CLASSIFIER, Rfc2119Word.MUST_NOT)
+        super().__init__(
+            self._ACCESS_METHOD_ALLOWANCES, _CODE_CLASSIFIER, Rfc2119Word.MUST_NOT
+        )
 
 
-class OcspExtensionAllowanceValidator(pkilint.common.ExtensionIdentifierAllowanceValidator):
+class OcspExtensionAllowanceValidator(
+    pkilint.common.ExtensionIdentifierAllowanceValidator
+):
     """Validates that the included extensions conform with BR 7.1.2.8.2."""
 
     _EXTENSION_ALLOWANCES = {
@@ -75,7 +90,9 @@ class OcspExtensionAllowanceValidator(pkilint.common.ExtensionIdentifierAllowanc
     }
 
     def __init__(self):
-        super().__init__(self._EXTENSION_ALLOWANCES, _CODE_CLASSIFIER, Rfc2119Word.SHOULD_NOT)
+        super().__init__(
+            self._EXTENSION_ALLOWANCES, _CODE_CLASSIFIER, Rfc2119Word.SHOULD_NOT
+        )
 
 
 class OcspEkuAllowanceValidator(pkilint.common.ExtendedKeyUsageAllowanceValidator):
@@ -94,12 +111,14 @@ class OcspBasicConstraintsValidator(validation.Validator):
 
     VALIDATION_CA_BIT_SET = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        _CODE_CLASSIFIER + '.basic_constraints_ca_bit_set'
+        _CODE_CLASSIFIER + ".basic_constraints_ca_bit_set",
     )
 
     def __init__(self):
-        super().__init__(validations=self.VALIDATION_CA_BIT_SET, pdu_class=rfc5280.BasicConstraints)
+        super().__init__(
+            validations=self.VALIDATION_CA_BIT_SET, pdu_class=rfc5280.BasicConstraints
+        )
 
     def validate(self, node):
-        if bool(node.children['cA'].pdu):
+        if bool(node.children["cA"].pdu):
             raise validation.ValidationFindingEncountered(self.VALIDATION_CA_BIT_SET)

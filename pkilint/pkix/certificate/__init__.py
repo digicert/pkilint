@@ -4,7 +4,12 @@ from typing import Set, Optional
 
 from cryptography import x509, exceptions
 from cryptography.hazmat.primitives.asymmetric import (
-    padding, rsa, dsa, ec, ed25519, ed448
+    padding,
+    rsa,
+    dsa,
+    ec,
+    ed25519,
+    ed448,
 )
 from pyasn1.codec.der.encoder import encode
 from pyasn1.type import univ
@@ -13,21 +18,28 @@ from pyasn1_alt_modules import rfc5280, rfc3739
 
 from pkilint import validation, pkix, document
 from pkilint.document import Document, ValueDecoder
-from pkilint.pkix import (extension, time, name,
-                          create_name_validator_container, general_name, algorithm
-                          )
+from pkilint.pkix import (
+    extension,
+    time,
+    name,
+    create_name_validator_container,
+    general_name,
+    algorithm,
+)
 from pkilint.pkix.certificate import (
-    certificate_validity, certificate_extension, certificate_validator,
-    certificate_key, certificate_name, certificate_transparency,
+    certificate_validity,
+    certificate_extension,
+    certificate_validator,
+    certificate_key,
+    certificate_name,
+    certificate_transparency,
 )
 
 logger = logging.getLogger(__name__)
 
 
 class RFC5280Certificate(Document):
-    def __init__(self, substrate_source, substrate,
-                 name=None, parent=None
-                 ):
+    def __init__(self, substrate_source, substrate, name=None, parent=None):
         super().__init__(
             rfc5280.Certificate(), substrate_source, substrate, name, parent
         )
@@ -36,7 +48,7 @@ class RFC5280Certificate(Document):
     def not_before(self):
         try:
             return time.parse_time_node(
-                self.root.navigate('tbsCertificate.validity.notBefore')
+                self.root.navigate("tbsCertificate.validity.notBefore")
             )
         except ValueError:
             return pkix.MAXIMUM_TIME_DATETIME
@@ -45,44 +57,61 @@ class RFC5280Certificate(Document):
     def not_after(self):
         try:
             return time.parse_time_node(
-                self.root.navigate('tbsCertificate.validity.notAfter')
+                self.root.navigate("tbsCertificate.validity.notAfter")
             )
         except ValueError:
             return pkix.MAXIMUM_TIME_DATETIME
 
     def _decode_and_append_extension(
-            self, ext_oid: univ.ObjectIdentifier, ext_asn1_spec: Asn1Type) -> Optional[document.PDUNode]:
+        self, ext_oid: univ.ObjectIdentifier, ext_asn1_spec: Asn1Type
+    ) -> Optional[document.PDUNode]:
         ext_and_idx = self.get_extension_by_oid(ext_oid)
 
         if ext_and_idx is None:
             return None
 
         ext, _ = ext_and_idx
-        ext_value = ext.children['extnValue']
+        ext_value = ext.children["extnValue"]
 
         try:
-            return document.decode_substrate(self, ext_value.pdu.asOctets(), ext_asn1_spec, ext_value)
+            return document.decode_substrate(
+                self, ext_value.pdu.asOctets(), ext_asn1_spec, ext_value
+            )
         except ValueError:
             # suppress decoding errors, which will be reported by DecodingValidator instances
             return None
 
     @functools.cached_property
     def is_ca(self) -> bool:
-        decoded = self._decode_and_append_extension(rfc5280.id_ce_basicConstraints, rfc5280.BasicConstraints())
+        decoded = self._decode_and_append_extension(
+            rfc5280.id_ce_basicConstraints, rfc5280.BasicConstraints()
+        )
 
-        return bool(decoded.navigate('cA').pdu) if decoded else False
+        return bool(decoded.navigate("cA").pdu) if decoded else False
 
     @functools.cached_property
     def extended_key_usages(self) -> Set[univ.ObjectIdentifier]:
-        decoded = self._decode_and_append_extension(rfc5280.id_ce_extKeyUsage, rfc5280.ExtKeyUsageSyntax())
+        decoded = self._decode_and_append_extension(
+            rfc5280.id_ce_extKeyUsage, rfc5280.ExtKeyUsageSyntax()
+        )
 
-        return {eku_node.pdu for eku_node in decoded.children.values()} if decoded else set()
+        return (
+            {eku_node.pdu for eku_node in decoded.children.values()}
+            if decoded
+            else set()
+        )
 
     @functools.cached_property
     def qualified_statement_ids(self) -> Set[univ.ObjectIdentifier]:
-        decoded = self._decode_and_append_extension(rfc3739.id_pe_qcStatements, rfc3739.QCStatements())
+        decoded = self._decode_and_append_extension(
+            rfc3739.id_pe_qcStatements, rfc3739.QCStatements()
+        )
 
-        return {qs.children['statementId'].pdu for qs in decoded.children.values()} if decoded else set()
+        return (
+            {qs.children["statementId"].pdu for qs in decoded.children.values()}
+            if decoded
+            else set()
+        )
 
     @functools.cached_property
     def cryptography_object(self):
@@ -90,8 +119,8 @@ class RFC5280Certificate(Document):
 
     @functools.cached_property
     def is_self_issued(self):
-        issuer_node = self.root.navigate('tbsCertificate.issuer')
-        subject_node = self.root.navigate('tbsCertificate.subject')
+        issuer_node = self.root.navigate("tbsCertificate.issuer")
+        subject_node = self.root.navigate("tbsCertificate.subject")
 
         return encode(issuer_node.pdu) == encode(subject_node.pdu)
 
@@ -108,49 +137,32 @@ class RFC5280Certificate(Document):
         try:
             if isinstance(public_key, rsa.RSAPublicKey):
                 public_key.verify(
-                    signature_octets,
-                    tbs_octets,
-                    padding.PKCS1v15(),
-                    hash_alg
+                    signature_octets, tbs_octets, padding.PKCS1v15(), hash_alg
                 )
             elif isinstance(public_key, dsa.DSAPublicKey):
-                public_key.verify(
-                    signature_octets,
-                    tbs_octets,
-                    hash_alg
-                )
+                public_key.verify(signature_octets, tbs_octets, hash_alg)
             elif isinstance(public_key, ec.EllipticCurvePublicKey):
-                public_key.verify(
-                    signature_octets,
-                    tbs_octets,
-                    ec.ECDSA(hash_alg)
-                )
+                public_key.verify(signature_octets, tbs_octets, ec.ECDSA(hash_alg))
             elif isinstance(public_key, ed25519.Ed25519PublicKey):
-                public_key.verify(
-                    signature_octets,
-                    tbs_octets
-                )
+                public_key.verify(signature_octets, tbs_octets)
             elif isinstance(public_key, ed448.Ed448PublicKey):
-                public_key.verify(
-                    signature_octets,
-                    tbs_octets
-                )
+                public_key.verify(signature_octets, tbs_octets)
         except exceptions.InvalidSignature:
             return False
 
         return True
 
     def get_extension_by_oid(self, oid):
-        tbs_cert = self.root.children['tbsCertificate']
+        tbs_cert = self.root.children["tbsCertificate"]
 
         # ensure there's extensions
-        if 'extensions' not in tbs_cert.children:
+        if "extensions" not in tbs_cert.children:
             return None
 
-        extensions_node = tbs_cert.children['extensions']
+        extensions_node = tbs_cert.children["extensions"]
 
         for ext_idx, extension_node in extensions_node.children.items():
-            ext_oid = extension_node.children['extnID'].pdu
+            ext_oid = extension_node.children["extnID"].pdu
 
             if ext_oid == oid:
                 return extension_node, int(ext_idx)
@@ -163,24 +175,34 @@ class RFC5280Certificate(Document):
         return name.get_name_attributes_by_type(name_node, oid)
 
     def get_issuer_attributes_by_type(self, oid):
-        return self.get_name_attributes_by_type(oid, 'tbsCertificate.issuer')
+        return self.get_name_attributes_by_type(oid, "tbsCertificate.issuer")
 
     def get_subject_attributes_by_type(self, oid):
-        return self.get_name_attributes_by_type(oid, 'tbsCertificate.subject')
+        return self.get_name_attributes_by_type(oid, "tbsCertificate.subject")
 
     @functools.cached_property
     def policy_oids(self) -> Set[univ.ObjectIdentifier]:
-        decoded = self._decode_and_append_extension(rfc5280.id_ce_certificatePolicies, rfc5280.CertificatePolicies())
+        decoded = self._decode_and_append_extension(
+            rfc5280.id_ce_certificatePolicies, rfc5280.CertificatePolicies()
+        )
 
-        return {pi.children['policyIdentifier'].pdu for pi in decoded.children.values()} if decoded else set()
+        return (
+            {pi.children["policyIdentifier"].pdu for pi in decoded.children.values()}
+            if decoded
+            else set()
+        )
 
 
-def create_spki_decoder(subject_public_key_type_mappings, subject_public_key_parameters_type_mappings):
+def create_spki_decoder(
+    subject_public_key_type_mappings, subject_public_key_parameters_type_mappings
+):
     subject_public_key_decoder = certificate_key.SubjectPublicKeyDecoder(
         type_mappings=subject_public_key_type_mappings
     )
-    subject_public_key_parameters_decoder = certificate_key.SubjectPublicKeyParametersDecoder(
-        type_mappings=subject_public_key_parameters_type_mappings
+    subject_public_key_parameters_decoder = (
+        certificate_key.SubjectPublicKeyParametersDecoder(
+            type_mappings=subject_public_key_parameters_type_mappings
+        )
     )
 
     return validation.ValidatorContainer(
@@ -190,44 +212,42 @@ def create_spki_decoder(subject_public_key_type_mappings, subject_public_key_par
             ),
             certificate_key.SubjectPublicKeyParametersDecodingValidator(
                 decode_func=subject_public_key_parameters_decoder
-            )
+            ),
         ],
-        pdu_class=rfc5280.SubjectPublicKeyInfo
+        pdu_class=rfc5280.SubjectPublicKeyInfo,
     )
 
 
 def create_policy_qualifier_decoder(type_mappings):
     decoder = ValueDecoder(
-        type_path='policyQualifierId',
-        value_path='qualifier',
-        type_mappings=type_mappings
+        type_path="policyQualifierId",
+        value_path="qualifier",
+        type_mappings=type_mappings,
     )
 
-    return validation.DecodingValidator(decode_func=decoder,
-                                        pdu_class=rfc5280.PolicyQualifierInfo
-                                        )
+    return validation.DecodingValidator(
+        decode_func=decoder, pdu_class=rfc5280.PolicyQualifierInfo
+    )
 
 
 def create_other_name_decoder(type_mappings):
     decoder = ValueDecoder(
-        type_path='type-id',
-        value_path='value',
-        type_mappings=type_mappings
+        type_path="type-id", value_path="value", type_mappings=type_mappings
     )
 
-    return validation.DecodingValidator(decode_func=decoder,
-                                        pdu_class=rfc5280.AnotherName
-                                        )
+    return validation.DecodingValidator(
+        decode_func=decoder, pdu_class=rfc5280.AnotherName
+    )
 
 
 def create_qc_statements_decoder(type_mappings):
     decoder = ValueDecoder(
-        type_path='statementId',
-        value_path='statementInfo',
-        type_mappings=type_mappings
+        type_path="statementId", value_path="statementInfo", type_mappings=type_mappings
     )
 
-    return validation.DecodingValidator(decode_func=decoder, pdu_class=rfc3739.QCStatement)
+    return validation.DecodingValidator(
+        decode_func=decoder, pdu_class=rfc3739.QCStatement
+    )
 
 
 def create_issuer_validator_container(additional_validators=None, **kwargs):
@@ -235,16 +255,16 @@ def create_issuer_validator_container(additional_validators=None, **kwargs):
         additional_validators = []
 
     if len(kwargs) == 0:
-        kwargs['path'] = 'certificate.tbsCertificate.issuer'
+        kwargs["path"] = "certificate.tbsCertificate.issuer"
 
-    return create_name_validator_container([
-                                               name.EmptyNameValidator(),
-                                               general_name.MailboxAddressSyntaxValidator(
-                                                   pdu_class=rfc5280.EmailAddress
-                                               )
-                                           ] + additional_validators,
-                                           **kwargs
-                                           )
+    return create_name_validator_container(
+        [
+            name.EmptyNameValidator(),
+            general_name.MailboxAddressSyntaxValidator(pdu_class=rfc5280.EmailAddress),
+        ]
+        + additional_validators,
+        **kwargs
+    )
 
 
 def create_subject_validator_container(additional_validators=None, **kwargs):
@@ -252,19 +272,17 @@ def create_subject_validator_container(additional_validators=None, **kwargs):
         additional_validators = []
 
     if len(kwargs) == 0:
-        kwargs['path'] = 'certificate.tbsCertificate.subject'
+        kwargs["path"] = "certificate.tbsCertificate.subject"
 
-    return create_name_validator_container([
-                                               certificate_name.SubjectEmailAddressInSanValidator(),
-                                               general_name.MailboxAddressSyntaxValidator(
-                                                   pdu_class=rfc5280.EmailAddress
-                                               ),
-                                               name.DomainComponentValidDomainNameValidator(
-                                                   pdu_class=rfc5280.Name
-                                               ),
-                                           ] + additional_validators,
-                                           **kwargs
-                                           )
+    return create_name_validator_container(
+        [
+            certificate_name.SubjectEmailAddressInSanValidator(),
+            general_name.MailboxAddressSyntaxValidator(pdu_class=rfc5280.EmailAddress),
+            name.DomainComponentValidDomainNameValidator(pdu_class=rfc5280.Name),
+        ]
+        + additional_validators,
+        **kwargs
+    )
 
 
 def create_validity_validator_container(additional_validators=None):
@@ -272,10 +290,11 @@ def create_validity_validator_container(additional_validators=None):
         additional_validators = []
     return validation.ValidatorContainer(
         validators=[
-                       certificate_validity.CertificateSaneValidityPeriodValidator(),
-                       time.TimeCorrectEncodingValidator(),
-                   ] + additional_validators,
-        path='certificate.tbsCertificate.validity'
+            certificate_validity.CertificateSaneValidityPeriodValidator(),
+            time.TimeCorrectEncodingValidator(),
+        ]
+        + additional_validators,
+        path="certificate.tbsCertificate.validity",
     )
 
 
@@ -315,16 +334,16 @@ def create_extensions_validator_container(additional_validators=None):
             certificate_extension.InhibitAnyPolicyPresenceValidator(),
             certificate_extension.ProhibitedQualifiedStatementValidator(),
             certificate_extension.IssuerAlternativeNameCriticalityValidator(),
-        ] + additional_validators,
-        path='certificate.tbsCertificate.extensions'
+        ]
+        + additional_validators,
+        path="certificate.tbsCertificate.extensions",
     )
 
 
-def create_pkix_certificate_validator_container(
-        decoding_validators, validators):
+def create_pkix_certificate_validator_container(decoding_validators, validators):
     decoding_validator_container = [
         validation.ValidatorContainer(
-            validators=decoding_validators, path='certificate'
+            validators=decoding_validators, path="certificate"
         )
     ]
 
@@ -346,29 +365,25 @@ def create_pkix_certificate_validator_container(
     )
 
 
-def create_decoding_validators(name_mappings, extension_mappings, additional_decoding_validators=None):
+def create_decoding_validators(
+    name_mappings, extension_mappings, additional_decoding_validators=None
+):
     if additional_decoding_validators is None:
         additional_decoding_validators = []
     return [
-        pkix.create_attribute_decoder(
-            name_mappings
-        ),
-        pkix.create_extension_decoder(
-            extension_mappings
-        ),
+        pkix.create_attribute_decoder(name_mappings),
+        pkix.create_extension_decoder(extension_mappings),
         pkix.create_signature_algorithm_identifier_decoder(
             algorithm.SIGNATURE_ALGORITHM_IDENTIFIER_MAPPINGS,
-            path='certificate.tbsCertificate.signature'
+            path="certificate.tbsCertificate.signature",
         ),
         create_spki_decoder(
             certificate_key.SUBJECT_PUBLIC_KEY_ALGORITHM_IDENTIFIER_MAPPINGS,
-            certificate_key.SUBJECT_KEY_PARAMETER_ALGORITHM_IDENTIFIER_MAPPINGS
+            certificate_key.SUBJECT_KEY_PARAMETER_ALGORITHM_IDENTIFIER_MAPPINGS,
         ),
         create_policy_qualifier_decoder(
             certificate_extension.CERTIFICATE_POLICY_QUALIFIER_MAPPINGS
         ),
-        create_other_name_decoder(
-            general_name.OTHER_NAME_MAPPINGS
-        ),
+        create_other_name_decoder(general_name.OTHER_NAME_MAPPINGS),
         certificate_transparency.SctListExtensionDecodingValidator(),
     ] + additional_decoding_validators

@@ -22,51 +22,77 @@ class DocumentLoader:
         self._pem_re = self._create_pem_re()
 
     def _create_pem_re(self) -> re.Pattern:
-        ascii_armor_start = f'-----BEGIN {self._document_pem_label}-----'
-        ascii_armor_end = f'-----END {self._document_pem_label}-----'
+        ascii_armor_start = f"-----BEGIN {self._document_pem_label}-----"
+        ascii_armor_end = f"-----END {self._document_pem_label}-----"
 
-        return re.compile(f'^\\s*{ascii_armor_start}(?P<pem>.+){ascii_armor_end}\\s*$', re.DOTALL)
+        return re.compile(
+            f"^\\s*{ascii_armor_start}(?P<pem>.+){ascii_armor_end}\\s*$", re.DOTALL
+        )
 
-    def load_der_document(self, substrate: bytes, document_name: str = None, substrate_source: str = None, parent=None):
-        if not substrate.startswith(b'\x30'):
-            raise ValueError('Substrate is not DER-encoded')
+    def load_der_document(
+        self,
+        substrate: bytes,
+        document_name: str = None,
+        substrate_source: str = None,
+        parent=None,
+    ):
+        if not substrate.startswith(b"\x30"):
+            raise ValueError("Substrate is not DER-encoded")
 
         doc = self._document_cls(substrate_source, substrate, document_name, parent)
         doc.decode()
 
         return doc
 
-    def load_der_file(self, f, document_name: str = None, substrate_source: str = None, parent=None):
+    def load_der_file(
+        self, f, document_name: str = None, substrate_source: str = None, parent=None
+    ):
         return self.load_der_document(f.read(), document_name, substrate_source, parent)
 
-    def load_b64_document(self, substrate: str, document_name: str = None, substrate_source: str = None, parent=None):
+    def load_b64_document(
+        self,
+        substrate: str,
+        document_name: str = None,
+        substrate_source: str = None,
+        parent=None,
+    ):
         der = base64.b64decode(substrate)
 
         return self.load_der_document(der, document_name, substrate_source, parent)
 
-    def load_b64_file(self, f, document_name: str = None, substrate_source: str = None, parent=None):
+    def load_b64_file(
+        self, f, document_name: str = None, substrate_source: str = None, parent=None
+    ):
         data = f.read()
 
         if isinstance(data, bytes):
-            data = data.decode('us-ascii')
+            data = data.decode("us-ascii")
 
         return self.load_b64_document(data, document_name, substrate_source, parent)
 
-    def load_pem_document(self, substrate: str, document_name: str = None, substrate_source: str = None, parent=None):
+    def load_pem_document(
+        self,
+        substrate: str,
+        document_name: str = None,
+        substrate_source: str = None,
+        parent=None,
+    ):
         m = self._pem_re.match(substrate)
 
         if m is None:
-            raise ValueError('Invalid PEM text')
+            raise ValueError("Invalid PEM text")
 
-        b64_text = m.group('pem')
+        b64_text = m.group("pem")
 
         return self.load_b64_document(b64_text, document_name, substrate_source, parent)
 
-    def load_pem_file(self, f, document_name: str = None, substrate_source: str = None, parent=None):
+    def load_pem_file(
+        self, f, document_name: str = None, substrate_source: str = None, parent=None
+    ):
         data = f.read()
 
         if isinstance(data, bytes):
-            data = data.decode('us-ascii')
+            data = data.decode("us-ascii")
 
         return self.load_pem_document(data, document_name, substrate_source, parent)
 
@@ -74,30 +100,52 @@ class DocumentLoader:
     def _is_ascii_armor_start_present(cls, substrate: str):
         first_significant_char = next((c for c in substrate if not c.isspace()), None)
 
-        return first_significant_char == '-'
+        return first_significant_char == "-"
 
-    def load_document(self, substrate, document_name: str = None, substrate_source: str = None, parent=None):
+    def load_document(
+        self,
+        substrate,
+        document_name: str = None,
+        substrate_source: str = None,
+        parent=None,
+    ):
         if isinstance(substrate, bytes):
             try:
-                return self.load_der_document(substrate, document_name, substrate_source, parent)
+                return self.load_der_document(
+                    substrate, document_name, substrate_source, parent
+                )
             except ValueError:
-                substrate = substrate.decode('us-ascii')
+                substrate = substrate.decode("us-ascii")
 
         if self._is_ascii_armor_start_present(substrate):
-            return self.load_pem_document(substrate, document_name, substrate_source, parent)
+            return self.load_pem_document(
+                substrate, document_name, substrate_source, parent
+            )
         else:
-            return self.load_b64_document(substrate, document_name, substrate_source, parent)
+            return self.load_b64_document(
+                substrate, document_name, substrate_source, parent
+            )
 
-    def load_file(self, f, document_name: str = None, substrate_source: str = None, parent=None):
+    def load_file(
+        self, f, document_name: str = None, substrate_source: str = None, parent=None
+    ):
         substrate = f.read()
 
         return self.load_document(substrate, document_name, substrate_source, parent)
 
-    def load_document_or_file(self, substrate, document_name: str = None, substrate_source: str = None, parent=None):
+    def load_document_or_file(
+        self,
+        substrate,
+        document_name: str = None,
+        substrate_source: str = None,
+        parent=None,
+    ):
         try:
             return self.load_file(substrate, document_name, substrate_source, parent)
         except AttributeError:
-            return self.load_document(substrate, document_name, substrate_source, parent)
+            return self.load_document(
+                substrate, document_name, substrate_source, parent
+            )
 
     def get_file_loader_func(self, document_format: DocumentFormat):
         if document_format == DocumentFormat.BASE64:
@@ -109,22 +157,22 @@ class DocumentLoader:
         elif document_format == DocumentFormat.DETECT:
             return self.load_file
         else:
-            raise ValueError(f'Unknown document format: {document_format}')
+            raise ValueError(f"Unknown document format: {document_format}")
 
 
 class RFC5280CertificateDocumentLoader(DocumentLoader):
     def __init__(self):
-        super().__init__(RFC5280Certificate, 'CERTIFICATE')
+        super().__init__(RFC5280Certificate, "CERTIFICATE")
 
 
 class RFC5280CertificateListDocumentLoader(DocumentLoader):
     def __init__(self):
-        super().__init__(RFC5280CertificateList, 'X509 CRL')
+        super().__init__(RFC5280CertificateList, "X509 CRL")
 
 
 class RFC6960OCSPResponseDocumentLoader(DocumentLoader):
     def __init__(self):
-        super().__init__(RFC6960OCSPResponse, 'OCSP RESPONSE')
+        super().__init__(RFC6960OCSPResponse, "OCSP RESPONSE")
 
 
 # RFC 5280 Certificate

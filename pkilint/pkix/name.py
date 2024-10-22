@@ -18,9 +18,9 @@ ATTRIBUTE_TYPE_MAPPINGS = {
 def get_name_attributes_by_type(name_node, type_oid):
     atvs = []
 
-    for rdn_idx, rdn in name_node.children['rdnSequence'].children.items():
+    for rdn_idx, rdn in name_node.children["rdnSequence"].children.items():
         for atv_idx, atv in rdn.children.items():
-            if atv.children['type'].pdu == type_oid:
+            if atv.children["type"].pdu == type_oid:
                 atvs.append((atv, (int(rdn_idx), int(atv_idx))))
 
     return atvs
@@ -29,21 +29,23 @@ def get_name_attributes_by_type(name_node, type_oid):
 def get_name_attribute_counts(name_node):
     counts = collections.Counter()
 
-    for rdn_idx, rdn in name_node.children['rdnSequence'].children.items():
-        counts.update((atv.children['type'].pdu for atv in rdn.children.values()))
+    for rdn_idx, rdn in name_node.children["rdnSequence"].children.items():
+        counts.update((atv.children["type"].pdu for atv in rdn.children.values()))
 
     return counts
 
 
 class EmptyNameValidator(validation.Validator):
     VALIDATION_NAME_IS_EMPTY = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'pkix.name_empty'
+        validation.ValidationFindingSeverity.ERROR, "pkix.name_empty"
     )
 
     def __init__(self, **kwargs):
-        super().__init__(validations=[self.VALIDATION_NAME_IS_EMPTY],
-                         pdu_class=rfc5280.RDNSequence, **kwargs)
+        super().__init__(
+            validations=[self.VALIDATION_NAME_IS_EMPTY],
+            pdu_class=rfc5280.RDNSequence,
+            **kwargs,
+        )
 
     def validate(self, node):
         if len(node.children) == 0:
@@ -55,63 +57,60 @@ class EmptyNameValidator(validation.Validator):
 class RDNContainsUniqueTypesValidator(validation.Validator):
     VALIDATION_ATTRIBUTE_TYPES_NOT_UNIQUE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'pkix.rdn_contains_duplicate_attribute_types'
+        "pkix.rdn_contains_duplicate_attribute_types",
     )
 
     def __init__(self):
-        super().__init__(validations=self.VALIDATION_ATTRIBUTE_TYPES_NOT_UNIQUE,
-                         pdu_class=rfc5280.RelativeDistinguishedName
-                         )
+        super().__init__(
+            validations=self.VALIDATION_ATTRIBUTE_TYPES_NOT_UNIQUE,
+            pdu_class=rfc5280.RelativeDistinguishedName,
+        )
 
     def validate(self, node):
         oids = set()
         for child in node.children.values():
-            oid = child.children['type'].pdu
+            oid = child.children["type"].pdu
             if oid in oids:
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_ATTRIBUTE_TYPES_NOT_UNIQUE,
-                    f'Multiple attributes of type "{str(oid)}"'
+                    f'Multiple attributes of type "{str(oid)}"',
                 )
 
             oids.add(oid)
 
 
 class NameAttributeTypesValidatorBase(validation.Validator):
-    def __init__(self, *, expected_oid_set: Set[ObjectIdentifier],
-                 validation: validation.ValidationFinding, **kwargs
-                 ):
+    def __init__(
+        self,
+        *,
+        expected_oid_set: Set[ObjectIdentifier],
+        validation: validation.ValidationFinding,
+        **kwargs,
+    ):
         self.expected_oid_set = expected_oid_set
         self.validation = validation
 
         super().__init__(
-            validations=[self.validation],
-            pdu_class=rfc5280.RDNSequence,
-            **kwargs
+            validations=[self.validation], pdu_class=rfc5280.RDNSequence, **kwargs
         )
 
-    def validate_attributes(self, node: document.PDUNode,
-                            attributes: List[ObjectIdentifier]
-                            ) -> validation.ValidationResult:
+    def validate_attributes(
+        self, node: document.PDUNode, attributes: List[ObjectIdentifier]
+    ) -> validation.ValidationResult:
         pass
 
     def validate(self, node):
         attributes = []
 
         for rdn in node.children.values():
-            attributes += [
-                atv.children['type'].pdu
-                for atv in rdn.children.values()
-            ]
+            attributes += [atv.children["type"].pdu for atv in rdn.children.values()]
 
         return self.validate_attributes(node, attributes)
 
 
 class PermittedAttributeTypeValidator(NameAttributeTypesValidatorBase):
     def __init__(self, *, allowed_oid_set, validation):
-        super().__init__(
-            expected_oid_set=allowed_oid_set,
-            validation=validation
-        )
+        super().__init__(expected_oid_set=allowed_oid_set, validation=validation)
 
     def validate_attributes(self, node, attributes):
         attributes = set(attributes)
@@ -122,17 +121,13 @@ class PermittedAttributeTypeValidator(NameAttributeTypesValidatorBase):
             oids_str = oid.format_oids(prohibited_oids)
 
             raise validation.ValidationFindingEncountered(
-                self.validation,
-                f'Prohibited attribute types: {oids_str}'
+                self.validation, f"Prohibited attribute types: {oids_str}"
             )
 
 
 class RequiredAttributeTypeValidator(NameAttributeTypesValidatorBase):
     def __init__(self, *, required_oid_set, validation):
-        super().__init__(
-            expected_oid_set=required_oid_set,
-            validation=validation
-        )
+        super().__init__(expected_oid_set=required_oid_set, validation=validation)
 
     def validate_attributes(self, node, attributes):
         attributes = set(attributes)
@@ -143,23 +138,21 @@ class RequiredAttributeTypeValidator(NameAttributeTypesValidatorBase):
             oids_str = oid.format_oids(missing_oids)
 
             raise validation.ValidationFindingEncountered(
-                self.validation,
-                f'Required attribute types not present: {oids_str}'
+                self.validation, f"Required attribute types not present: {oids_str}"
             )
 
 
 class NameDecodingValidator(validation.DecodingValidator):
     def __init__(self, *, decode_func, **kwargs):
-        super().__init__(decode_func=decode_func,
-                         pdu_class=rfc5280.AttributeTypeAndValue,
-                         **kwargs
-                         )
+        super().__init__(
+            decode_func=decode_func, pdu_class=rfc5280.AttributeTypeAndValue, **kwargs
+        )
 
 
 class IssuerSubjectNameBinaryEqualValidator(validation.DEREqualityValidator):
     VALIDATION_ISSUER_AND_SUBJECT_NOT_DER_EQUAL = validation.ValidationFinding(
         validation.ValidationFindingSeverity.NOTICE,
-        'pkix.issuer_and_subject_dn_not_binary_equal'
+        "pkix.issuer_and_subject_dn_not_binary_equal",
     )
 
     def _retrieve_subject_issuer_dn(self, node):
@@ -168,40 +161,37 @@ class IssuerSubjectNameBinaryEqualValidator(validation.DEREqualityValidator):
     def __init__(self, *, subject_document_issuer_dn_path, **kwargs):
         self._subject_document_issuer_dn_path = subject_document_issuer_dn_path
 
-        super().__init__(other_node_retriever=self._retrieve_subject_issuer_dn,
-                         validation=self.VALIDATION_ISSUER_AND_SUBJECT_NOT_DER_EQUAL,
-                         **kwargs
-                         )
+        super().__init__(
+            other_node_retriever=self._retrieve_subject_issuer_dn,
+            validation=self.VALIDATION_ISSUER_AND_SUBJECT_NOT_DER_EQUAL,
+            **kwargs,
+        )
 
 
 class DomainComponentValidDomainNameValidator(validation.Validator):
     VALIDATION_NAME_DC_NOT_A_VALID_DOMAIN_NAME = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'pkix.name_domain_components_invalid_domain_name'
+        "pkix.name_domain_components_invalid_domain_name",
     )
 
     def __init__(self, **kwargs):
         super().__init__(
-            validations=[self.VALIDATION_NAME_DC_NOT_A_VALID_DOMAIN_NAME],
-            **kwargs
+            validations=[self.VALIDATION_NAME_DC_NOT_A_VALID_DOMAIN_NAME], **kwargs
         )
 
     def validate(self, node):
         atvs = node.document.get_name_attributes_by_type(
-            rfc5280.id_domainComponent, f':{node.path}'
+            rfc5280.id_domainComponent, f":{node.path}"
         )
 
         try:
-            components = [
-                str(a.navigate('value.domainComponent').pdu)
-                for a, _ in atvs
-            ]
+            components = [str(a.navigate("value.domainComponent").pdu) for a, _ in atvs]
         except document.PDUNavigationFailedError:
             return
 
         components.reverse()
 
-        domain_name = '.'.join(components)
+        domain_name = ".".join(components)
 
         if len(domain_name) > 0:
             ret = validators.domain(domain_name)
@@ -209,23 +199,19 @@ class DomainComponentValidDomainNameValidator(validation.Validator):
             if not isinstance(ret, bool) or not ret:
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_NAME_DC_NOT_A_VALID_DOMAIN_NAME,
-                    f'Invalid domain name in domainComponents: "{domain_name}"'
+                    f'Invalid domain name in domainComponents: "{domain_name}"',
                 )
 
 
 class DuplicateAttributeTypeValidator(NameAttributeTypesValidatorBase):
-    def __init__(
-            self, *, allowed_duplicate_oid_set, validation
-    ):
+    def __init__(self, *, allowed_duplicate_oid_set, validation):
         super().__init__(
             expected_oid_set=allowed_duplicate_oid_set,
             validation=validation,
         )
 
     def validate_attributes(self, node, attributes):
-        duplicates = set((
-            o for o in attributes if attributes.count(o) > 1
-        ))
+        duplicates = set((o for o in attributes if attributes.count(o) > 1))
 
         disallowed_duplicates = duplicates - self.expected_oid_set
 
@@ -234,5 +220,5 @@ class DuplicateAttributeTypeValidator(NameAttributeTypesValidatorBase):
 
             raise validation.ValidationFindingEncountered(
                 self.validation,
-                f'Prohibited multiple instances of attribute types: {oids_str}'
+                f"Prohibited multiple instances of attribute types: {oids_str}",
             )

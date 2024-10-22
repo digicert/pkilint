@@ -5,6 +5,7 @@
 [![Python Versions](https://img.shields.io/pypi/pyversions/pkilint)](https://pypi.org/project/pkilint/)
 [![Build status](https://github.com/digicert/pkilint/actions/workflows/build_and_publish.yml/badge.svg)](https://github.com/digicert/pkilint/actions/workflows/build_and_publish.yml)
 [![GitHub license](https://img.shields.io/pypi/l/pkilint)](https://raw.githubusercontent.com/digicert/pkilint/main/LICENSE)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 pkilint is a linting framework for documents that are encoded using ASN.1. pkilint is designed to
 be a highly extensible toolbox to quickly create linters for a variety of ASN.1 structure/"document" types to check for compliance with

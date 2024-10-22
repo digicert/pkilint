@@ -12,6 +12,10 @@ ETSI_QC_STATEMENTS_MAPPINGS = {
     en_319_412_5.id_etsi_qcs_QcType: en_319_412_5.QcType(),
     en_319_412_5.id_etsi_qcs_QcCClegislation: en_319_412_5.QcCClegislation(),
     ts_119_495.id_etsi_psd2_qcStatement: ts_119_495.PSD2QcType(),
-    rfc3739.id_qcs_pkixQCSyntax_v1: document.OptionalAsn1TypeWrapper(rfc3739.SemanticsInformation()),
-    rfc3739.id_qcs_pkixQCSyntax_v2: document.OptionalAsn1TypeWrapper(rfc3739.SemanticsInformation()),
+    rfc3739.id_qcs_pkixQCSyntax_v1: document.OptionalAsn1TypeWrapper(
+        rfc3739.SemanticsInformation()
+    ),
+    rfc3739.id_qcs_pkixQCSyntax_v2: document.OptionalAsn1TypeWrapper(
+        rfc3739.SemanticsInformation()
+    ),
 }
