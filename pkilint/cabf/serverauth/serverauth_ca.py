@@ -12,76 +12,102 @@ class CaCertificatePoliciesValidator(validation.Validator):
 
     VALIDATION_ANYPOLICY_EXTERNAL_CA = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.ca_external_anypolicy'
+        "cabf.serverauth.ca_external_anypolicy",
     )
 
     VALIDATION_MULTIPLE_RESERVED_OIDS = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.ca_multiple_reserved_policy_oids'
+        "cabf.serverauth.ca_multiple_reserved_policy_oids",
     )
 
     VALIDATION_NO_RESERVED_OID = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.ca_missing_reserved_policy_oid'
+        "cabf.serverauth.ca_missing_reserved_policy_oid",
     )
 
     VALIDATION_NON_TLS_CA_HAS_SERVERAUTH_OID = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.ca_non_tls_has_reserved_policy_oid'
+        "cabf.serverauth.ca_non_tls_has_reserved_policy_oid",
     )
 
     VALIDATION_ANYPOLICY_WITH_OTHER_OID = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.ca_anypolicy_with_other_policy_oid'
+        "cabf.serverauth.ca_anypolicy_with_other_policy_oid",
     )
 
     VALIDATION_FIRST_OID_NOT_RESERVED = validation.ValidationFinding(
         validation.ValidationFindingSeverity.WARNING,
-        'cabf.serverauth.ca_first_policy_oid_not_reserved'
+        "cabf.serverauth.ca_first_policy_oid_not_reserved",
     )
 
     def __init__(self, certificate_type: serverauth_constants.CertificateType):
         self._certificate_type = certificate_type
 
-        super().__init__(validations=[self.VALIDATION_ANYPOLICY_EXTERNAL_CA, self.VALIDATION_MULTIPLE_RESERVED_OIDS,
-                                      self.VALIDATION_NO_RESERVED_OID, self.VALIDATION_NON_TLS_CA_HAS_SERVERAUTH_OID,
-                                      self.VALIDATION_ANYPOLICY_WITH_OTHER_OID, self.VALIDATION_FIRST_OID_NOT_RESERVED],
-                         pdu_class=rfc5280.CertificatePolicies)
+        super().__init__(
+            validations=[
+                self.VALIDATION_ANYPOLICY_EXTERNAL_CA,
+                self.VALIDATION_MULTIPLE_RESERVED_OIDS,
+                self.VALIDATION_NO_RESERVED_OID,
+                self.VALIDATION_NON_TLS_CA_HAS_SERVERAUTH_OID,
+                self.VALIDATION_ANYPOLICY_WITH_OTHER_OID,
+                self.VALIDATION_FIRST_OID_NOT_RESERVED,
+            ],
+            pdu_class=rfc5280.CertificatePolicies,
+        )
 
     def validate(self, node):
-        policy_oids = [pi.children['policyIdentifier'].pdu for pi in node.children.values()]
+        policy_oids = [
+            pi.children["policyIdentifier"].pdu for pi in node.children.values()
+        ]
 
         has_any_policy = rfc5280.anyPolicy in policy_oids
 
         if has_any_policy:
             if self._certificate_type in serverauth_constants.EXTERNAL_CA_TYPES:
-                raise validation.ValidationFindingEncountered(self.VALIDATION_ANYPOLICY_EXTERNAL_CA)
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_ANYPOLICY_EXTERNAL_CA
+                )
 
             if len(policy_oids) > 1:
-                raise validation.ValidationFindingEncountered(self.VALIDATION_ANYPOLICY_WITH_OTHER_OID)
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_ANYPOLICY_WITH_OTHER_OID
+                )
         else:
-            reserved_oids = set(policy_oids) & serverauth_constants.SERVERAUTH_RESERVED_POLICY_OIDS
+            reserved_oids = (
+                set(policy_oids) & serverauth_constants.SERVERAUTH_RESERVED_POLICY_OIDS
+            )
 
-            if self._certificate_type == serverauth_constants.CertificateType.NON_TLS_CA:
+            if (
+                self._certificate_type
+                == serverauth_constants.CertificateType.NON_TLS_CA
+            ):
                 if any(reserved_oids):
                     oids = oid.format_oids(reserved_oids)
 
                     raise validation.ValidationFindingEncountered(
                         self.VALIDATION_NON_TLS_CA_HAS_SERVERAUTH_OID,
-                        f'Non-TLS CA has reserved policy OIDs: {oids}'
+                        f"Non-TLS CA has reserved policy OIDs: {oids}",
                     )
             else:
                 if not any(reserved_oids):
-                    raise validation.ValidationFindingEncountered(self.VALIDATION_NO_RESERVED_OID)
+                    raise validation.ValidationFindingEncountered(
+                        self.VALIDATION_NO_RESERVED_OID
+                    )
 
             if len(reserved_oids) > 1:
                 oids_str = oid.format_oids(reserved_oids)
 
-                raise validation.ValidationFindingEncountered(self.VALIDATION_MULTIPLE_RESERVED_OIDS,
-                                                              f'Multiple reserved policy OIDs present: {oids_str}')
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_MULTIPLE_RESERVED_OIDS,
+                    f"Multiple reserved policy OIDs present: {oids_str}",
+                )
 
-            if (self._certificate_type != serverauth_constants.CertificateType.NON_TLS_CA and
-                    policy_oids[0] not in serverauth_constants.SERVERAUTH_RESERVED_POLICY_OIDS):
+            if (
+                self._certificate_type
+                != serverauth_constants.CertificateType.NON_TLS_CA
+                and policy_oids[0]
+                not in serverauth_constants.SERVERAUTH_RESERVED_POLICY_OIDS
+            ):
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_FIRST_OID_NOT_RESERVED
                 )
@@ -90,44 +116,54 @@ class CaCertificatePoliciesValidator(validation.Validator):
 class TlsCaCertificateAllowedEkuValidator(common.ExtendedKeyUsageAllowanceValidator):
     """Validates that the content of the extended key usage extension complies with BR  7.1.2.10.6."""
 
-    _CODE_CLASSIFIER = 'cabf.serverauth.ca'
+    _CODE_CLASSIFIER = "cabf.serverauth.ca"
 
     _EKU_ALLOWANCES = {
-        **{e: Rfc2119Word.MUST_NOT for e in (
-            rfc5280.id_kp_codeSigning,
-            rfc5280.id_kp_emailProtection,
-            rfc5280.id_kp_OCSPSigning,
-            rfc5280.anyExtendedKeyUsage,
-            rfc6962.id_kp_precertificateSigning
-        )},
+        **{
+            e: Rfc2119Word.MUST_NOT
+            for e in (
+                rfc5280.id_kp_codeSigning,
+                rfc5280.id_kp_emailProtection,
+                rfc5280.id_kp_OCSPSigning,
+                rfc5280.anyExtendedKeyUsage,
+                rfc6962.id_kp_precertificateSigning,
+            )
+        },
         rfc5280.id_kp_serverAuth: Rfc2119Word.MUST,
         rfc5280.id_kp_clientAuth: Rfc2119Word.MAY,
     }
 
     def __init__(self):
-        super().__init__(self._EKU_ALLOWANCES, self._CODE_CLASSIFIER, Rfc2119Word.SHOULD_NOT)
+        super().__init__(
+            self._EKU_ALLOWANCES, self._CODE_CLASSIFIER, Rfc2119Word.SHOULD_NOT
+        )
 
 
 # BR 7.1.2.4.2
-class PrecertSigningCaCertificateAllowedEkuValidator(common.ExtendedKeyUsageAllowanceValidator):
+class PrecertSigningCaCertificateAllowedEkuValidator(
+    common.ExtendedKeyUsageAllowanceValidator
+):
     """Validates that the content of the extended key usage extension complies with BR  7.1.2.4.2."""
 
-    _CODE_CLASSIFIER = 'cabf.serverauth.ca_precert_signing'
+    _CODE_CLASSIFIER = "cabf.serverauth.ca_precert_signing"
 
     _EKU_ALLOWANCES = {
         rfc6962.id_kp_precertificateSigning: Rfc2119Word.MUST,
     }
 
     def __init__(self):
-        super().__init__(self._EKU_ALLOWANCES, self._CODE_CLASSIFIER, Rfc2119Word.MUST_NOT)
+        super().__init__(
+            self._EKU_ALLOWANCES, self._CODE_CLASSIFIER, Rfc2119Word.MUST_NOT
+        )
 
 
 # BR 7.1.2.3.3
 class NonTlsCaCertificateAllowedEkuValidator(common.ExtendedKeyUsageAllowanceValidator):
-    _CODE_CLASSIFIER = 'cabf.serverauth.non_tls_ca'
+    _CODE_CLASSIFIER = "cabf.serverauth.non_tls_ca"
 
     _EKU_ALLOWANCES = {
-        e: Rfc2119Word.MUST_NOT for e in (
+        e: Rfc2119Word.MUST_NOT
+        for e in (
             rfc5280.id_kp_serverAuth,
             rfc5280.id_kp_OCSPSigning,
             rfc5280.anyExtendedKeyUsage,
@@ -139,10 +175,12 @@ class NonTlsCaCertificateAllowedEkuValidator(common.ExtendedKeyUsageAllowanceVal
         super().__init__(self._EKU_ALLOWANCES, self._CODE_CLASSIFIER, Rfc2119Word.MAY)
 
 
-class CaRequiredSubjectAttributesValidator(pkilint.common.AttributeIdentifierAllowanceValidator):
+class CaRequiredSubjectAttributesValidator(
+    pkilint.common.AttributeIdentifierAllowanceValidator
+):
     """Validates that the subject contains attributes in accordance with BR 7.1.2.10.2."""
 
-    _CODE_CLASSIFIER = 'cabf.serverauth.ca'
+    _CODE_CLASSIFIER = "cabf.serverauth.ca"
 
     _ATTRIBUTE_ALLOWANCES = {
         rfc5280.id_at_countryName: Rfc2119Word.MUST,
@@ -157,14 +195,21 @@ class CaRequiredSubjectAttributesValidator(pkilint.common.AttributeIdentifierAll
     def __init__(self, certificate_type: serverauth_constants.CertificateType):
         self._attribute_allowances = self._ATTRIBUTE_ALLOWANCES.copy()
 
-        if certificate_type in (serverauth_constants.TLS_CA_TYPES | {serverauth_constants.CertificateType.ROOT_CA}):
+        if certificate_type in (
+            serverauth_constants.TLS_CA_TYPES
+            | {serverauth_constants.CertificateType.ROOT_CA}
+        ):
             ou_allowance_word = Rfc2119Word.MUST_NOT
         else:
             ou_allowance_word = Rfc2119Word.SHOULD_NOT
 
-        self._attribute_allowances[rfc5280.id_at_organizationalUnitName] = ou_allowance_word
+        self._attribute_allowances[rfc5280.id_at_organizationalUnitName] = (
+            ou_allowance_word
+        )
 
-        super().__init__(self._attribute_allowances, self._CODE_CLASSIFIER, Rfc2119Word.SHOULD_NOT)
+        super().__init__(
+            self._attribute_allowances, self._CODE_CLASSIFIER, Rfc2119Word.SHOULD_NOT
+        )
 
 
 class NameConstraintsBaseTypeValidator(validation.Validator):
@@ -172,37 +217,43 @@ class NameConstraintsBaseTypeValidator(validation.Validator):
 
     VALIDATION_DISCOURAGED_BASE_NAME_TYPE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.WARNING,
-        'cabf.serverauth.name_constraints_discouraged_name_type'
+        "cabf.serverauth.name_constraints_discouraged_name_type",
     )
 
     VALIDATION_DIRNAME_IN_EXCLUDED_SUBTREES = validation.ValidationFinding(
         validation.ValidationFindingSeverity.WARNING,
-        'cabf.serverauth.name_constraints_dirname_in_excluded_subtrees'
+        "cabf.serverauth.name_constraints_dirname_in_excluded_subtrees",
     )
 
     def __init__(self):
-        super().__init__(validations=[self.VALIDATION_DISCOURAGED_BASE_NAME_TYPE,
-                                      self.VALIDATION_DIRNAME_IN_EXCLUDED_SUBTREES],
-                         pdu_class=rfc5280.GeneralSubtree)
+        super().__init__(
+            validations=[
+                self.VALIDATION_DISCOURAGED_BASE_NAME_TYPE,
+                self.VALIDATION_DIRNAME_IN_EXCLUDED_SUBTREES,
+            ],
+            pdu_class=rfc5280.GeneralSubtree,
+        )
 
     def validate(self, node):
-        gn_type, gn_value = node.children['base'].child
+        gn_type, gn_value = node.children["base"].child
 
-        if gn_type not in {'dNSName', 'iPAddress', 'directoryName'}:
+        if gn_type not in {"dNSName", "iPAddress", "directoryName"}:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_DISCOURAGED_BASE_NAME_TYPE,
-                f'Discouraged GeneralSubtree base type: {gn_type}'
+                f"Discouraged GeneralSubtree base type: {gn_type}",
             )
 
-        if node.parent.name == 'excludedSubtrees' and gn_type == 'directoryName':
-            raise validation.ValidationFindingEncountered(self.VALIDATION_DIRNAME_IN_EXCLUDED_SUBTREES)
+        if node.parent.name == "excludedSubtrees" and gn_type == "directoryName":
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_DIRNAME_IN_EXCLUDED_SUBTREES
+            )
 
 
 # all extension criticalities are aligned for the CA profiles; BR 7.1.2.5.1 has the most comprehensive specification
 class CaCertificateExtensionCriticalityValidator(common.ExtensionCriticalityValidator):
     """Validates that the criticality of all extensions conforms with BR 7.1.2.5.1."""
 
-    _CODE_CLASSIFIER = 'cabf.serverauth.ca'
+    _CODE_CLASSIFIER = "cabf.serverauth.ca"
 
     _CRITICALITY_MAPPING = {
         rfc5280.id_ce_authorityKeyIdentifier: False,
@@ -217,14 +268,21 @@ class CaCertificateExtensionCriticalityValidator(common.ExtensionCriticalityVali
     }
 
     def __init__(self):
-        super().__init__(self._CRITICALITY_MAPPING, self._CODE_CLASSIFIER, Rfc2119Word.MUST, Rfc2119Word.MUST)
+        super().__init__(
+            self._CRITICALITY_MAPPING,
+            self._CODE_CLASSIFIER,
+            Rfc2119Word.MUST,
+            Rfc2119Word.MUST,
+        )
 
 
-class CaCertificateExtensionAllowanceValidator(common.ExtensionIdentifierAllowanceValidator):
+class CaCertificateExtensionAllowanceValidator(
+    common.ExtensionIdentifierAllowanceValidator
+):
     """Validates that the included extensions conform with BR 7.1.2.4.1, 7.1.2.5.1, or 7.1.2.6.1 (depending on
     certificate type)"""
 
-    _CODE_CLASSIFIER = 'cabf.serverauth.ca'
+    _CODE_CLASSIFIER = "cabf.serverauth.ca"
 
     _EXTENSION_ALLOWANCES = {
         rfc5280.id_ce_authorityKeyIdentifier: Rfc2119Word.MUST,
@@ -248,14 +306,17 @@ class CaCertificateExtensionAllowanceValidator(common.ExtensionIdentifierAllowan
         if certificate_type != serverauth_constants.CertificateType.PRECERT_SIGNING_CA:
             extension_allowances[rfc6962.id_ce_embeddedSCT] = Rfc2119Word.MAY
 
-        super().__init__(extension_allowances, self._CODE_CLASSIFIER, Rfc2119Word.SHOULD_NOT)
+        super().__init__(
+            extension_allowances, self._CODE_CLASSIFIER, Rfc2119Word.SHOULD_NOT
+        )
 
 
 class CaCertificateAuthorityInformationAccessAccessMethodPresenceValidator(
-        common.AuthorityInformationAccessAccessMethodPresenceValidator):
+    common.AuthorityInformationAccessAccessMethodPresenceValidator
+):
     """Validates that the content of the authority information access extension conforms to BR 7.1.2.10.3."""
 
-    _CODE_CLASSIFIER = 'cabf.serverauth.ca'
+    _CODE_CLASSIFIER = "cabf.serverauth.ca"
 
     _ACCESS_METHOD_ALLOWANCES = {
         rfc5280.id_ad_ocsp: Rfc2119Word.SHOULD,
@@ -263,7 +324,9 @@ class CaCertificateAuthorityInformationAccessAccessMethodPresenceValidator(
     }
 
     def __init__(self):
-        super().__init__(self._ACCESS_METHOD_ALLOWANCES, self._CODE_CLASSIFIER, Rfc2119Word.MUST_NOT)
+        super().__init__(
+            self._ACCESS_METHOD_ALLOWANCES, self._CODE_CLASSIFIER, Rfc2119Word.MUST_NOT
+        )
 
 
 # BR 7.1.2.5.2
@@ -272,19 +335,22 @@ class TlsCaTechnicallyConstrainedValidator(validation.Validator):
 
     VALIDATION_INCOMPLETE_NAME_CONSTRAINTS = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.ca.incomplete_name_constraints'
+        "cabf.serverauth.ca.incomplete_name_constraints",
     )
 
     def __init__(self):
-        super().__init__(validations=self.VALIDATION_INCOMPLETE_NAME_CONSTRAINTS, pdu_class=rfc5280.NameConstraints)
+        super().__init__(
+            validations=self.VALIDATION_INCOMPLETE_NAME_CONSTRAINTS,
+            pdu_class=rfc5280.NameConstraints,
+        )
 
     def validate(self, node):
         try:
-            permitted_subtrees = node.navigate('permittedSubtrees')
+            permitted_subtrees = node.navigate("permittedSubtrees")
         except document.PDUNavigationFailedError:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_INCOMPLETE_NAME_CONSTRAINTS,
-                '"permittedSubtrees" is absent'
+                '"permittedSubtrees" is absent',
             )
 
         has_dirname_constraint = False
@@ -293,13 +359,13 @@ class TlsCaTechnicallyConstrainedValidator(validation.Validator):
         has_ipv6_constraint = False
 
         for subtree in permitted_subtrees.children.values():
-            gn_type, gn_value = subtree.children['base'].child
+            gn_type, gn_value = subtree.children["base"].child
 
-            if gn_type == 'directoryName':
+            if gn_type == "directoryName":
                 has_dirname_constraint = True
-            elif gn_type == 'dNSName':
+            elif gn_type == "dNSName":
                 has_dnsname_constraint = True
-            elif gn_type == 'iPAddress':
+            elif gn_type == "iPAddress":
                 ip_network_octet_len = len(gn_value.pdu.asOctets())
 
                 if ip_network_octet_len == 8:
@@ -310,26 +376,31 @@ class TlsCaTechnicallyConstrainedValidator(validation.Validator):
         if not has_dirname_constraint:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_INCOMPLETE_NAME_CONSTRAINTS,
-                '"permittedSubtrees" does not contain a directoryName'
+                '"permittedSubtrees" does not contain a directoryName',
             )
 
-        if has_dirname_constraint and has_dnsname_constraint and has_ipv4_constraint and has_ipv6_constraint:
+        if (
+            has_dirname_constraint
+            and has_dnsname_constraint
+            and has_ipv4_constraint
+            and has_ipv6_constraint
+        ):
             return
 
         try:
-            excluded_subtrees = node.navigate('excludedSubtrees')
+            excluded_subtrees = node.navigate("excludedSubtrees")
         except document.PDUNavigationFailedError:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_INCOMPLETE_NAME_CONSTRAINTS,
-                '"excludedSubtrees" absent with incomplete constraints in "permittedSubtrees"'
+                '"excludedSubtrees" absent with incomplete constraints in "permittedSubtrees"',
             )
 
         for subtree in excluded_subtrees.children.values():
-            gn_type, gn_value = subtree.children['base'].child
+            gn_type, gn_value = subtree.children["base"].child
 
-            if gn_type == 'dNSName' and len(str(gn_value.pdu)) == 0:
+            if gn_type == "dNSName" and len(str(gn_value.pdu)) == 0:
                 has_dnsname_constraint = True
-            elif gn_type == 'iPAddress':
+            elif gn_type == "iPAddress":
                 ip_network_octets = gn_value.pdu.asOctets()
 
                 if all((o == 0 for o in ip_network_octets)):
@@ -340,7 +411,14 @@ class TlsCaTechnicallyConstrainedValidator(validation.Validator):
                     else:
                         has_ipv6_constraint = True
 
-        if has_dirname_constraint and has_dnsname_constraint and has_ipv4_constraint and has_ipv6_constraint:
+        if (
+            has_dirname_constraint
+            and has_dnsname_constraint
+            and has_ipv4_constraint
+            and has_ipv6_constraint
+        ):
             return
         else:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_INCOMPLETE_NAME_CONSTRAINTS)
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_INCOMPLETE_NAME_CONSTRAINTS
+            )

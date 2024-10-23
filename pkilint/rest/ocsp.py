@@ -1,4 +1,10 @@
-from pkilint.pkix import ocsp, create_attribute_decoder, create_extension_decoder, extension, name
+from pkilint.pkix import (
+    ocsp,
+    create_attribute_decoder,
+    create_extension_decoder,
+    extension,
+    name,
+)
 from pkilint.rest import model
 
 
@@ -9,5 +15,8 @@ def create_ocsp_response_linter():
                 ocsp.create_response_decoder(),
                 create_attribute_decoder(name.ATTRIBUTE_TYPE_MAPPINGS),
                 create_extension_decoder(extension.EXTENSION_MAPPINGS),
-            ], []), name='ocsp_linter'
+            ],
+            [],
+        ),
+        name="ocsp_linter",
     )

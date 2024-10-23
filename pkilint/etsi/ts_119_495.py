@@ -22,86 +22,119 @@ class RolesOfPspValidator(validation.Validator):
     GEN-5.2.2-5 The TSP shall ensure that the name in roleofPSPName is the one associated with the role object
     identifier held in roleofPSPOid.
     """
+
     VALIDATION_PSP_ROLES_EMPTY = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.ts_119_495.gen-5.2.2-1.roles_of_psp_empty'
+        "etsi.ts_119_495.gen-5.2.2-1.roles_of_psp_empty",
     )
-    VALIDATION_PSP_ROLES_INVALID = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
-                                                                'etsi.ts_119_495.gen-5.2-2.invalid_psp_role')
+    VALIDATION_PSP_ROLES_INVALID = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "etsi.ts_119_495.gen-5.2-2.invalid_psp_role",
+    )
 
-    VALIDATION_PSP_OIDS_INVALID = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
-                                                               'etsi.ts_119_495.gen-5.2-2.invalid_psp_oid')
+    VALIDATION_PSP_OIDS_INVALID = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "etsi.ts_119_495.gen-5.2-2.invalid_psp_oid",
+    )
 
-    VALIDATION_PSP_ROLES_MISMATCH = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
-                                                                 'etsi.ts_119_495.gen-5.2.2-5.psp_role_mismatch')
+    VALIDATION_PSP_ROLES_MISMATCH = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "etsi.ts_119_495.gen-5.2.2-5.psp_role_mismatch",
+    )
 
     def __init__(self):
-        super().__init__(validations=[self.VALIDATION_PSP_ROLES_EMPTY, self.VALIDATION_PSP_ROLES_INVALID,
-                                      self.VALIDATION_PSP_ROLES_MISMATCH, self.VALIDATION_PSP_OIDS_INVALID],
-                         pdu_class=ts_119_495_asn1.RolesOfPSP)
-        self._expected_roles = {ts_119_495_asn1.id_psd2_role_psp_ai: 'PSP_AI',
-                                ts_119_495_asn1.id_psd2_role_psp_as: 'PSP_AS',
-                                ts_119_495_asn1.id_psd2_role_psp_ic: 'PSP_IC',
-                                ts_119_495_asn1.id_psd2_role_psp_pi: 'PSP_PI',
-                                ts_119_495_asn1.id_psd2_role_psp_unspecified: 'Unspecified'}
+        super().__init__(
+            validations=[
+                self.VALIDATION_PSP_ROLES_EMPTY,
+                self.VALIDATION_PSP_ROLES_INVALID,
+                self.VALIDATION_PSP_ROLES_MISMATCH,
+                self.VALIDATION_PSP_OIDS_INVALID,
+            ],
+            pdu_class=ts_119_495_asn1.RolesOfPSP,
+        )
+        self._expected_roles = {
+            ts_119_495_asn1.id_psd2_role_psp_ai: "PSP_AI",
+            ts_119_495_asn1.id_psd2_role_psp_as: "PSP_AS",
+            ts_119_495_asn1.id_psd2_role_psp_ic: "PSP_IC",
+            ts_119_495_asn1.id_psd2_role_psp_pi: "PSP_PI",
+            ts_119_495_asn1.id_psd2_role_psp_unspecified: "Unspecified",
+        }
 
     def validate(self, node):
         if not any(node.children):
-            raise validation.ValidationFindingEncountered(self.VALIDATION_PSP_ROLES_EMPTY)
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_PSP_ROLES_EMPTY
+            )
 
         for child in node.children.values():
-            psp_oid = child.children['roleOfPspOid'].pdu
-            role_psp = str(child.children['roleOfPspName'].pdu)
+            psp_oid = child.children["roleOfPspOid"].pdu
+            role_psp = str(child.children["roleOfPspName"].pdu)
             expected_role = self._expected_roles.get(psp_oid)
 
             if psp_oid not in self._expected_roles.keys():
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_PSP_OIDS_INVALID,
-                    f'expected oid values are {pkilint.oid.format_oids(self._expected_roles.keys())} got {psp_oid}'
+                    f"expected oid values are {pkilint.oid.format_oids(self._expected_roles.keys())} got {psp_oid}",
                 )
             if role_psp not in self._expected_roles.values():
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_PSP_ROLES_INVALID,
-                    f"expected role values are [ {', '.join(map(str, self._expected_roles.values()))}]. Got {role_psp}"
+                    f"expected role values are [ {', '.join(map(str, self._expected_roles.values()))}]. Got {role_psp}",
                 )
             if role_psp != expected_role:
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_PSP_ROLES_MISMATCH,
-                    f'Expected role is: {expected_role}. Role in cert is: {role_psp}. Oid in cert is: {psp_oid}'
+                    f"Expected role is: {expected_role}. Role in cert is: {role_psp}. Oid in cert is: {psp_oid}",
                 )
 
 
 class PresenceofQCEUPDSStatementValidator(validation.Validator):
     """GEN-5.1.1 The Open Banking Attributes shall be included in a QCSTatement within the qcStatements extension
     as specified in clause 3.2.5 of IETF RFC 3739."""
-    VALIDATION_QC_EU_PDS_MISSING = validation.ValidationFinding(validation.ValidationFindingSeverity.ERROR,
-                                                                'etsi.ts_119_495.gen-5.1.1.qc_eu_pds_missing')
+
+    VALIDATION_QC_EU_PDS_MISSING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "etsi.ts_119_495.gen-5.1.1.qc_eu_pds_missing",
+    )
 
     def __init__(self):
-        super().__init__(validations=[self.VALIDATION_QC_EU_PDS_MISSING], pdu_class=rfc3739.QCStatements)
+        super().__init__(
+            validations=[self.VALIDATION_QC_EU_PDS_MISSING],
+            pdu_class=rfc3739.QCStatements,
+        )
 
     def validate(self, node):
-        if ts_119_495_asn1.id_etsi_psd2_qcStatement not in node.document.qualified_statement_ids:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_QC_EU_PDS_MISSING)
+        if (
+            ts_119_495_asn1.id_etsi_psd2_qcStatement
+            not in node.document.qualified_statement_ids
+        ):
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_QC_EU_PDS_MISSING
+            )
 
 
 class NCANameLatinCharactersValidator(validation.Validator):
     """GEN-5.2.3-1: The NCAName shall be plain text using Latin alphabet provided by the Competent Authority itself
     for purpose of identification in certificates."""
+
     VALIDATION_NCA_NAME_NON_LATIN = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.ts_119_495.gen-5.2.3-1.nca_name_non_latin'
+        "etsi.ts_119_495.gen-5.2.3-1.nca_name_non_latin",
     )
 
     def __init__(self):
-        super().__init__(validations=[self.VALIDATION_NCA_NAME_NON_LATIN], pdu_class=ts_119_495_asn1.NCAName)
+        super().__init__(
+            validations=[self.VALIDATION_NCA_NAME_NON_LATIN],
+            pdu_class=ts_119_495_asn1.NCAName,
+        )
 
     def validate(self, node):
         nca_name = str(node.pdu)
 
         if not nca_name.isascii():
-            raise validation.ValidationFindingEncountered(self.VALIDATION_NCA_NAME_NON_LATIN,
-                                                          f'invalid NCA name: {nca_name}')
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_NCA_NAME_NON_LATIN, f"invalid NCA name: {nca_name}"
+            )
 
 
 class NCAIdValidator(validation.Validator):
@@ -109,43 +142,58 @@ class NCAIdValidator(validation.Validator):
     The NCAId shall contain information using the following structure in the presented order:
     • 2 character ISO 3166-1 country code representing the Competent Authority country;
     • hyphen-minus "-" (0x2D (ASCII), U+002D (UTF-8)); and
-    • 2-8 character Competent Authority identifier without country code (A-Z uppercase only, no separator)."""
+    • 2-8 character Competent Authority identifier without country code (A-Z uppercase only, no separator).
+    """
 
     VALIDATION_INVALID_STRUCTURE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.ts_119_495.gen-5.2.3-2.invalid_structure'
+        "etsi.ts_119_495.gen-5.2.3-2.invalid_structure",
     )
     VALIDATION_INVALID_ISO_COUNTRY = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.ts_119_495.gen-5.2.3-2.invalid_iso_country'
+        "etsi.ts_119_495.gen-5.2.3-2.invalid_iso_country",
     )
     VALIDATION_INVALID_CA_IDENTIFIER = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.ts_119_495.gen-5.2.3-2.invalid_ca_identifier'
+        "etsi.ts_119_495.gen-5.2.3-2.invalid_ca_identifier",
     )
 
     def __init__(self):
-        super().__init__(validations=[self.VALIDATION_INVALID_STRUCTURE,
-                                      self.VALIDATION_INVALID_ISO_COUNTRY,
-                                      self.VALIDATION_INVALID_CA_IDENTIFIER],
-                         pdu_class=ts_119_495_asn1.NCAId)
+        super().__init__(
+            validations=[
+                self.VALIDATION_INVALID_STRUCTURE,
+                self.VALIDATION_INVALID_ISO_COUNTRY,
+                self.VALIDATION_INVALID_CA_IDENTIFIER,
+            ],
+            pdu_class=ts_119_495_asn1.NCAId,
+        )
 
     def validate(self, node):
         nca_id = str(node.pdu)
 
-        if nca_id.count('-') != 1:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_INVALID_STRUCTURE,
-                                                          f'Invalid separator in NCAId: {nca_id}')
+        if nca_id.count("-") != 1:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_INVALID_STRUCTURE,
+                f"Invalid separator in NCAId: {nca_id}",
+            )
 
-        iso_country_code, ca_identifier = nca_id.rsplit('-', 1)
+        iso_country_code, ca_identifier = nca_id.rsplit("-", 1)
 
         if iso_country_code not in countries_by_alpha2:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_INVALID_ISO_COUNTRY,
-                                                          f'Invalid ISO country code: {iso_country_code}')
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_INVALID_ISO_COUNTRY,
+                f"Invalid ISO country code: {iso_country_code}",
+            )
 
-        if not (2 <= len(ca_identifier) <= 8 and ca_identifier.isalpha() and ca_identifier.isupper()):
-            raise validation.ValidationFindingEncountered(self.VALIDATION_INVALID_CA_IDENTIFIER,
-                                                          f'Invalid Competent Authority identifier: {ca_identifier}')
+        if not (
+            2 <= len(ca_identifier) <= 8
+            and ca_identifier.isalpha()
+            and ca_identifier.isupper()
+        ):
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_INVALID_CA_IDENTIFIER,
+                f"Invalid Competent Authority identifier: {ca_identifier}",
+            )
 
 
 class PsdOrganizationIdentifierFormatValidator(validation.Validator):
@@ -166,17 +214,18 @@ class PsdOrganizationIdentifierFormatValidator(validation.Validator):
     GEN-5.3-3: The organizationIdentifier shall be present in the Subject's Distinguished Name and encoded with legal
     person syntax as specified in clause 5.2.1.
     """
+
     VALIDATION_INVALID_PSD_ORGANIZATION_ID_FORMAT = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.ts_119_495.gen-5.2.1-3.invalid_psd_organization_id_format'
+        "etsi.ts_119_495.gen-5.2.1-3.invalid_psd_organization_id_format",
     )
 
-    _PSD_ORGID_FORMAT_REGEX = re.compile('^PSD[A-Z]{2}-[A-Z]{2,8}-.+$')
+    _PSD_ORGID_FORMAT_REGEX = re.compile("^PSD[A-Z]{2}-[A-Z]{2,8}-.+$")
 
     def __init__(self):
         super().__init__(
             validations=[self.VALIDATION_INVALID_PSD_ORGANIZATION_ID_FORMAT],
-            pdu_class=x520_name.X520OrganizationIdentifier
+            pdu_class=x520_name.X520OrganizationIdentifier,
         )
 
     def validate(self, node):
@@ -192,7 +241,7 @@ class PsdOrganizationIdentifierFormatValidator(validation.Validator):
         if m is None:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_INVALID_PSD_ORGANIZATION_ID_FORMAT,
-                f'Invalid PSD organization identifier format: "{value_str}"'
+                f'Invalid PSD organization identifier format: "{value_str}"',
             )
 
 
@@ -202,24 +251,27 @@ class Psd2CertificatePolicyOidPresenceValidator(validation.Validator):
     requirements associated with policy identifier QEVCP-w or QNCP-w as specified in ETSI EN 319 411-2 [5] giving
     precedence to the requirements defined in the present document.
     """
+
     VALIDATION_PROHIBITED_PSD2_POLICY_OID_PRESENT = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.ts_119_495.ovr-6.1-3.prohibited_psd2_policy_oid_present'
+        "etsi.ts_119_495.ovr-6.1-3.prohibited_psd2_policy_oid_present",
     )
 
     def __init__(self, certificate_type):
         super().__init__(
-            validations=[self.VALIDATION_PROHIBITED_PSD2_POLICY_OID_PRESENT], pdu_class=rfc5280.CertificatePolicies
+            validations=[self.VALIDATION_PROHIBITED_PSD2_POLICY_OID_PRESENT],
+            pdu_class=rfc5280.CertificatePolicies,
         )
 
         self._certificate_type = certificate_type
 
     def validate(self, node):
         if (
-                ts_119_495_asn1.qcp_web_psd2 in node.document.policy_oids and
-                self._certificate_type not in etsi_constants.PSD2_EIDAS_CERTIFICATE_TYPES
+            ts_119_495_asn1.qcp_web_psd2 in node.document.policy_oids
+            and self._certificate_type
+            not in etsi_constants.PSD2_EIDAS_CERTIFICATE_TYPES
         ):
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_PROHIBITED_PSD2_POLICY_OID_PRESENT,
-                f'Certificate type is "{self._certificate_type}" but PSD2 policy identifier is present'
+                f'Certificate type is "{self._certificate_type}" but PSD2 policy identifier is present',
             )

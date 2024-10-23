@@ -1,7 +1,7 @@
 from pyasn1.type.univ import ObjectIdentifier
 
 
-_ARC = ObjectIdentifier('0.4.0.194112.1')
+_ARC = ObjectIdentifier("0.4.0.194112.1")
 
 
 id_qcp_natural = _ARC + (0,)

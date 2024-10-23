@@ -12,7 +12,15 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  test_source_format:
+    name: Test source code against Black formatter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: psf/black@stable
+
   build_wheel:
+    needs: [test_source_format]
     name: Build pure-Python wheel and source distribution
     runs-on: ubuntu-latest
     steps:

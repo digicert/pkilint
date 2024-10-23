@@ -10,14 +10,15 @@ class CertificatePoliciesValidator(validation.Validator):
     GEN-6.3.3-12: The CP identifier shall be [CHOICE]:
     ...
     """
+
     VALIDATION_MULTIPLE_RESERVED_POLICY_OIDS_PRESENT = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.en_319_411_1.gen-6.3.3-12.multiple_reserved_policy_oids_present',
+        "etsi.en_319_411_1.gen-6.3.3-12.multiple_reserved_policy_oids_present",
     )
 
     VALIDATION_PROHIBITED_RESERVED_POLICY_OID_PRESENT = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'etsi.en_319_411_1.gen-6.3.3-12.prohibited_reserved_policy_oid_present',
+        "etsi.en_319_411_1.gen-6.3.3-12.prohibited_reserved_policy_oid_present",
     )
 
     # mapping of certificate types to ETSI policy OIDs
@@ -32,13 +33,15 @@ class CertificatePoliciesValidator(validation.Validator):
         super().__init__(
             validations=[
                 self.VALIDATION_MULTIPLE_RESERVED_POLICY_OIDS_PRESENT,
-                self.VALIDATION_PROHIBITED_RESERVED_POLICY_OID_PRESENT
+                self.VALIDATION_PROHIBITED_RESERVED_POLICY_OID_PRESENT,
             ],
-            pdu_class=rfc5280.CertificatePolicies
+            pdu_class=rfc5280.CertificatePolicies,
         )
 
         self._expected_policy_oid = next(
-            p for t, p in self._CERTIFICATE_TYPE_SET_TO_POLICY_OID_MAPPINGS if certificate_type in t
+            p
+            for t, p in self._CERTIFICATE_TYPE_SET_TO_POLICY_OID_MAPPINGS
+            if certificate_type in t
         )
 
     def validate(self, node):
@@ -51,7 +54,7 @@ class CertificatePoliciesValidator(validation.Validator):
 
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_MULTIPLE_RESERVED_POLICY_OIDS_PRESENT,
-                f'Multiple reserved certificate policy OIDs present: {oids}'
+                f"Multiple reserved certificate policy OIDs present: {oids}",
             )
 
         # if there is a mismatch between the certificate type and reserved ETSI policy OID, then report
@@ -60,5 +63,5 @@ class CertificatePoliciesValidator(validation.Validator):
 
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_PROHIBITED_RESERVED_POLICY_OID_PRESENT,
-                f'Prohibited reserved certificate policy OID present: {prohibited_oid}'
+                f"Prohibited reserved certificate policy OID present: {prohibited_oid}",
             )

@@ -5,7 +5,7 @@ import pytest
 
 from pkilint import loader, document
 
-_CERT_B64 = '''MIIGrzCCBJegAwIBAgIUYsQ+Fan+RfQ1ToEaA+PeZh43OTEwDQYJKoZIhvcNAQEL
+_CERT_B64 = """MIIGrzCCBJegAwIBAgIUYsQ+Fan+RfQ1ToEaA+PeZh43OTEwDQYJKoZIhvcNAQEL
 BQAwSDELMAkGA1UEBhMCVVMxHzAdBgNVBAoMFkZvbyBJbmR1c3RyaWVzIExpbWl0
 ZWQxGDAWBgNVBAMMD0ludGVybWVkaWF0ZSBDQTAeFw0yMzA0MTkwMDAwMDBaFw0y
 MzA3MTgyMzU5NTlaMIGpMSMwIQYDVQRhExpMRUlYRy1BRVlFMDBFS1hFU1ZaVVVF
@@ -40,10 +40,10 @@ Abh4XCOUfb4UJo23uHsNZyoLOX8lVOsesLOE/BGvlKHzT0x49uNKZq0O6lU9fxFt
 iM4MRNqmNZTN9jZ1yu06cuI8nr8AEWt7Hp5OTldj5KXZFd945DqWyZHx01Uv/w5Z
 U8/E3Jf1bDTbf5OLWqombrgLIWL+A/SrRvnqyLpyDv2PHJ0IgbsylDRalxeGHa1Q
 3egwHqkYRzYOy3LYRphJITSGCnqRGshySonks4osE7KbXFwMEEmEWlF1S7S+VDkq
-Eqpda1II90v7ae6kNwIPK+140WOhkKilZ526OHvetaZ9XUc='''
+Eqpda1II90v7ae6kNwIPK+140WOhkKilZ526OHvetaZ9XUc="""
 
 
-_CERT_WITH_TRAILER_B64 = '''MIIGxDCCBKygAwIBAgIMS9Kjc1CWWKwCO6fGMA0GCSqGSIb3DQEBCwUAMEUxCzAJBgNVBAYTAlVT
+_CERT_WITH_TRAILER_B64 = """MIIGxDCCBKygAwIBAgIMS9Kjc1CWWKwCO6fGMA0GCSqGSIb3DQEBCwUAMEUxCzAJBgNVBAYTAlVT
 MRMwEQYDVQQKEwpDZXJ0cyBSIFVzMSEwHwYDVQQDExhDZXJ0cyBSIFVzIElzc3VpbmcgQ0EgRzEw
 HhcNMjIwODE4MDgwNjI3WhcNMjMwOTE5MDgwNjI2WjBBMQswCQYDVQQGEwJGUjEOMAwGA1UECBMF
 UGFyaXMxDjAMBgNVBAcTBVBhcmlzMRIwEAYDVQQKDAlMZSBCYW5xdWUwggEiMA0GCSqGSIb3DQEB
@@ -73,10 +73,10 @@ Z/Y3PogMim9QIXmWoX/f77ei0yvlxi9598KTrnyz7jVoLWE6pP3Z7MNU5esMs+pBvAVY3YP23QQ6
 YxjPMgRlOJCWqTeAWlmzwR5mwuk7Kc7pDaRg01lj2K2UZvpKmspMnGrkUWxNzTQ2D4m3+UrcB5Nr
 rUm3gcIsupXxCzId9P9nASzs5Ygl+xpxOCdRRIWIlJBm5kF7SJHrnnEIJ8T/TXatuRCyrWa4Yaxp
 cdn6cFbcd93aknIHd9Te8Z2v8saRPeLQCtFiCTe59IndMLJ8wwru0OHco8qL4Qf9VcuDMpNWUZGD
-p6o9EaAJgzlOHGRsk5NZTCZkXpOaUjkNSs5B'''
+p6o9EaAJgzlOHGRsk5NZTCZkXpOaUjkNSs5B"""
 
 
-_OCSP_RESPONSE_B64 = '''MIIDnwoBAKCCA5gwggOUBgkrBgEFBQcwAQEEggOFMIIDgTCBsKIWBBQK46D+ndQl
+_OCSP_RESPONSE_B64 = """MIIDnwoBAKCCA5gwggOUBgkrBgEFBQcwAQEEggOFMIIDgTCBsKIWBBQK46D+ndQl
 dpi163Lrygznvz318RgPMjAyNDA0MDIxMjM3NDdaMIGEMIGBMFkwDQYJYIZIAWUD
 BAIBBQAEIDqZRndWgHOnB7/eUBhjReTNYTTbCF66odEEJfA7bwjqBCBHSmyjAfI9
 yff3B4cE4cf1/JbnFnX27YguerZcP1hFQwIEAarwDYAAGA8yMDI0MDQwMzEyMzc0
@@ -95,10 +95,10 @@ BAIwADAOBgNVHQ8BAf8EBAMCB4AwEwYDVR0lBAwwCgYIKwYBBQUHAwkwDwYJKwYB
 BQUHMAEFBAIFADAKBggqhkjOPQQDBAOBigAwgYYCQRQqjNYKbGXHdGXfEVvB//i+
 DiG02hraU9kGNKXeiQcPdZRajQsY/hdZPVyaykkAFVQGv29yWmTrEax+r4oZTtzG
 AkFJCwtJpi7m00Qx9r/ugNWsnCFSiKUdxuvj7mg9lJtz0hexRJZKFODWJG5dUh//
-Bc2w8vywgYYoduXu4QLcoP17CA=='''
+Bc2w8vywgYYoduXu4QLcoP17CA=="""
 
 
-_CRL_B64 = '''MIIBzTCBtgIBATANBgkqhkiG9w0BAQsFADAiMQswCQYDVQQGEwJYWDETMBEGA1UE
+_CRL_B64 = """MIIBzTCBtgIBATANBgkqhkiG9w0BAQsFADAiMQswCQYDVQQGEwJYWDETMBEGA1UE
 CgwKQ1JMcyAnciBVcxcNMjQwMzI1MTg0NzAwWhcNMjQwNDAxMTg0NzAwWqBgMF4w
 CgYDVR0UBAMCAQEwHwYDVR0jBBgwFoAU/NE0t8uklbG2WeoLBWIe6JqPtDowLwYD
 VR0cAQH/BCUwI6AeoByGGmh0dHA6Ly9mb28uZXhhbXBsZS9jcmwuZGxshAH/MA0G
@@ -107,11 +107,11 @@ MfaVBKnUsNr1IcxT06KF8gNrDTpKqJ9fetO290swZfcPt9sEVUBVQUpdlQc3tya1
 jYWmFkA3tkpqH5rBCQa3CBm1Cg8cbFBtwWgWr70NsVvfD6etjAEP9Ze+MSXnGV0p
 w9EeOV07HnSD/PGQwqCiaSn5DdIDVoH8eFSGmgNLw+b4SwUjmz8PqsZwvHxJvleV
 1D8cj7zdR4ywgRMjEfJZ8Bp+Tdu64Gv0doDS0iEJIshLHYkcW1okpq/tPm8kKAbD
-reparePNQwhScVcDiSL73eEBIPokgG3QhohiucP5MeF1'''
+reparePNQwhScVcDiSL73eEBIPokgG3QhohiucP5MeF1"""
 
 
 def _make_pem(b64, pem_label):
-    return f'-----BEGIN {pem_label}-----\n{b64}\n-----END {pem_label}-----'
+    return f"-----BEGIN {pem_label}-----\n{b64}\n-----END {pem_label}-----"
 
 
 def _load_and_compare(loader_func, expected_doc_cls, expected_substrate):
@@ -128,138 +128,186 @@ def _test_loader_obj(loader_instance, doc_b64):
     doc_pem = _make_pem(doc_b64, label)
     doc_der = base64.b64decode(doc_b64)
 
-    _load_and_compare(lambda: loader_instance.load_b64_document(doc_b64, 'test'), doc_cls, doc_der)
-    _load_and_compare(lambda: loader_instance.load_pem_document(doc_pem, 'test'), doc_cls, doc_der)
-    _load_and_compare(lambda: loader_instance.load_der_document(doc_der, 'test'), doc_cls, doc_der)
-    _load_and_compare(lambda: loader_instance.load_document(doc_b64, 'test'), doc_cls, doc_der)
-    _load_and_compare(lambda: loader_instance.load_document(doc_pem, 'test'), doc_cls, doc_der)
-    _load_and_compare(lambda: loader_instance.load_document(doc_der, 'test'), doc_cls, doc_der)
-    _load_and_compare(lambda: loader_instance.load_document_or_file(doc_b64, 'test'), doc_cls, doc_der)
-    _load_and_compare(lambda: loader_instance.load_document_or_file(doc_pem, 'test'), doc_cls, doc_der)
-    _load_and_compare(lambda: loader_instance.load_document_or_file(doc_der, 'test'), doc_cls, doc_der)
+    _load_and_compare(
+        lambda: loader_instance.load_b64_document(doc_b64, "test"), doc_cls, doc_der
+    )
+    _load_and_compare(
+        lambda: loader_instance.load_pem_document(doc_pem, "test"), doc_cls, doc_der
+    )
+    _load_and_compare(
+        lambda: loader_instance.load_der_document(doc_der, "test"), doc_cls, doc_der
+    )
+    _load_and_compare(
+        lambda: loader_instance.load_document(doc_b64, "test"), doc_cls, doc_der
+    )
+    _load_and_compare(
+        lambda: loader_instance.load_document(doc_pem, "test"), doc_cls, doc_der
+    )
+    _load_and_compare(
+        lambda: loader_instance.load_document(doc_der, "test"), doc_cls, doc_der
+    )
+    _load_and_compare(
+        lambda: loader_instance.load_document_or_file(doc_b64, "test"), doc_cls, doc_der
+    )
+    _load_and_compare(
+        lambda: loader_instance.load_document_or_file(doc_pem, "test"), doc_cls, doc_der
+    )
+    _load_and_compare(
+        lambda: loader_instance.load_document_or_file(doc_der, "test"), doc_cls, doc_der
+    )
 
     # format-specific file load
-    with tempfile.TemporaryFile('w+') as f:
+    with tempfile.TemporaryFile("w+") as f:
         f.write(doc_b64)
 
         f.flush()
         f.seek(0)
 
-        _load_and_compare(lambda: loader_instance.load_b64_file(f, 'test'), doc_cls, doc_der)
+        _load_and_compare(
+            lambda: loader_instance.load_b64_file(f, "test"), doc_cls, doc_der
+        )
 
-    with tempfile.TemporaryFile('w+b') as f:
+    with tempfile.TemporaryFile("w+b") as f:
         f.write(doc_b64.encode())
 
         f.flush()
         f.seek(0)
 
-        _load_and_compare(lambda: loader_instance.load_b64_file(f, 'test'), doc_cls, doc_der)
+        _load_and_compare(
+            lambda: loader_instance.load_b64_file(f, "test"), doc_cls, doc_der
+        )
 
-    with tempfile.TemporaryFile('w+') as f:
+    with tempfile.TemporaryFile("w+") as f:
         f.write(doc_pem)
 
         f.flush()
         f.seek(0)
 
-        _load_and_compare(lambda: loader_instance.load_pem_file(f, 'test'), doc_cls, doc_der)
+        _load_and_compare(
+            lambda: loader_instance.load_pem_file(f, "test"), doc_cls, doc_der
+        )
 
-    with tempfile.TemporaryFile('w+b') as f:
+    with tempfile.TemporaryFile("w+b") as f:
         f.write(doc_pem.encode())
 
         f.flush()
         f.seek(0)
 
-        _load_and_compare(lambda: loader_instance.load_pem_file(f, 'test'), doc_cls, doc_der)
+        _load_and_compare(
+            lambda: loader_instance.load_pem_file(f, "test"), doc_cls, doc_der
+        )
 
-    with tempfile.TemporaryFile('w+b') as f:
+    with tempfile.TemporaryFile("w+b") as f:
         f.write(doc_der)
 
         f.flush()
         f.seek(0)
 
-        _load_and_compare(lambda: loader_instance.load_der_file(f, 'test'), doc_cls, doc_der)
+        _load_and_compare(
+            lambda: loader_instance.load_der_file(f, "test"), doc_cls, doc_der
+        )
 
     # format-agnostic load
-    with tempfile.TemporaryFile('w+') as f:
+    with tempfile.TemporaryFile("w+") as f:
         f.write(doc_b64)
 
         f.flush()
         f.seek(0)
 
-        _load_and_compare(lambda: loader_instance.load_file(f, 'test'), doc_cls, doc_der)
+        _load_and_compare(
+            lambda: loader_instance.load_file(f, "test"), doc_cls, doc_der
+        )
 
-    with tempfile.TemporaryFile('w+b') as f:
+    with tempfile.TemporaryFile("w+b") as f:
         f.write(doc_b64.encode())
 
         f.flush()
         f.seek(0)
 
-        _load_and_compare(lambda: loader_instance.load_file(f, 'test'), doc_cls, doc_der)
+        _load_and_compare(
+            lambda: loader_instance.load_file(f, "test"), doc_cls, doc_der
+        )
 
-    with tempfile.TemporaryFile('w+') as f:
+    with tempfile.TemporaryFile("w+") as f:
         f.write(doc_pem)
 
         f.flush()
         f.seek(0)
 
-        _load_and_compare(lambda: loader_instance.load_file(f, 'test'), doc_cls, doc_der)
+        _load_and_compare(
+            lambda: loader_instance.load_file(f, "test"), doc_cls, doc_der
+        )
 
-    with tempfile.TemporaryFile('w+b') as f:
+    with tempfile.TemporaryFile("w+b") as f:
         f.write(doc_pem.encode())
 
         f.flush()
         f.seek(0)
 
-        _load_and_compare(lambda: loader_instance.load_file(f, 'test'), doc_cls, doc_der)
+        _load_and_compare(
+            lambda: loader_instance.load_file(f, "test"), doc_cls, doc_der
+        )
 
-    with tempfile.TemporaryFile('w+b') as f:
+    with tempfile.TemporaryFile("w+b") as f:
         f.write(doc_der)
 
         f.flush()
         f.seek(0)
 
-        _load_and_compare(lambda: loader_instance.load_file(f, 'test'), doc_cls, doc_der)
+        _load_and_compare(
+            lambda: loader_instance.load_file(f, "test"), doc_cls, doc_der
+        )
 
     # format-agnostic file or document load
-    with tempfile.TemporaryFile('w+') as f:
+    with tempfile.TemporaryFile("w+") as f:
         f.write(doc_b64)
 
         f.flush()
         f.seek(0)
 
-        _load_and_compare(lambda: loader_instance.load_document_or_file(f, 'test'), doc_cls, doc_der)
+        _load_and_compare(
+            lambda: loader_instance.load_document_or_file(f, "test"), doc_cls, doc_der
+        )
 
-    with tempfile.TemporaryFile('w+b') as f:
+    with tempfile.TemporaryFile("w+b") as f:
         f.write(doc_b64.encode())
 
         f.flush()
         f.seek(0)
 
-        _load_and_compare(lambda: loader_instance.load_document_or_file(f, 'test'), doc_cls, doc_der)
+        _load_and_compare(
+            lambda: loader_instance.load_document_or_file(f, "test"), doc_cls, doc_der
+        )
 
-    with tempfile.TemporaryFile('w+') as f:
+    with tempfile.TemporaryFile("w+") as f:
         f.write(doc_pem)
 
         f.flush()
         f.seek(0)
 
-        _load_and_compare(lambda: loader_instance.load_document_or_file(f, 'test'), doc_cls, doc_der)
+        _load_and_compare(
+            lambda: loader_instance.load_document_or_file(f, "test"), doc_cls, doc_der
+        )
 
-    with tempfile.TemporaryFile('w+b') as f:
+    with tempfile.TemporaryFile("w+b") as f:
         f.write(doc_pem.encode())
 
         f.flush()
         f.seek(0)
 
-        _load_and_compare(lambda: loader_instance.load_document_or_file(f, 'test'), doc_cls, doc_der)
+        _load_and_compare(
+            lambda: loader_instance.load_document_or_file(f, "test"), doc_cls, doc_der
+        )
 
-    with tempfile.TemporaryFile('w+b') as f:
+    with tempfile.TemporaryFile("w+b") as f:
         f.write(doc_der)
 
         f.flush()
         f.seek(0)
 
-        _load_and_compare(lambda: loader_instance.load_document_or_file(f, 'test'), doc_cls, doc_der)
+        _load_and_compare(
+            lambda: loader_instance.load_document_or_file(f, "test"), doc_cls, doc_der
+        )
 
 
 def test_certificate_loader():
@@ -276,4 +324,6 @@ def test_ocsp_response_loader():
 
 def test_load_cert_with_trailer():
     with pytest.raises(document.SubstrateDecodingFailedError):
-        loader.load_der_certificate(base64.b64decode(_CERT_WITH_TRAILER_B64), 'test', 'test')
+        loader.load_der_certificate(
+            base64.b64decode(_CERT_WITH_TRAILER_B64), "test", "test"
+        )

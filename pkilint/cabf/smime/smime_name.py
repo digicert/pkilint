@@ -107,140 +107,210 @@ _VALIDATION_LEVEL_TO_OTHER_ATTRIBUTE_ALLOWANCE = {
 }
 
 _REQUIRED_ONE_OF_N = {
-    (ValidationLevel.SPONSORED, Generation.LEGACY): {rfc5280.id_at_givenName, rfc5280.id_at_surname,
-                                                     rfc5280.id_at_pseudonym, rfc5280.id_at_commonName},
-    (ValidationLevel.INDIVIDUAL, Generation.LEGACY): {rfc5280.id_at_givenName, rfc5280.id_at_surname,
-                                                      rfc5280.id_at_pseudonym, rfc5280.id_at_commonName},
-    (ValidationLevel.SPONSORED, Generation.MULTIPURPOSE): {rfc5280.id_at_givenName, rfc5280.id_at_surname,
-                                                           rfc5280.id_at_pseudonym},
-    (ValidationLevel.INDIVIDUAL, Generation.MULTIPURPOSE): {rfc5280.id_at_givenName, rfc5280.id_at_surname,
-                                                            rfc5280.id_at_pseudonym},
-    (ValidationLevel.SPONSORED, Generation.STRICT): {rfc5280.id_at_givenName, rfc5280.id_at_surname,
-                                                     rfc5280.id_at_pseudonym},
-    (ValidationLevel.INDIVIDUAL, Generation.STRICT): {rfc5280.id_at_givenName, rfc5280.id_at_surname,
-                                                      rfc5280.id_at_pseudonym},
+    (ValidationLevel.SPONSORED, Generation.LEGACY): {
+        rfc5280.id_at_givenName,
+        rfc5280.id_at_surname,
+        rfc5280.id_at_pseudonym,
+        rfc5280.id_at_commonName,
+    },
+    (ValidationLevel.INDIVIDUAL, Generation.LEGACY): {
+        rfc5280.id_at_givenName,
+        rfc5280.id_at_surname,
+        rfc5280.id_at_pseudonym,
+        rfc5280.id_at_commonName,
+    },
+    (ValidationLevel.SPONSORED, Generation.MULTIPURPOSE): {
+        rfc5280.id_at_givenName,
+        rfc5280.id_at_surname,
+        rfc5280.id_at_pseudonym,
+    },
+    (ValidationLevel.INDIVIDUAL, Generation.MULTIPURPOSE): {
+        rfc5280.id_at_givenName,
+        rfc5280.id_at_surname,
+        rfc5280.id_at_pseudonym,
+    },
+    (ValidationLevel.SPONSORED, Generation.STRICT): {
+        rfc5280.id_at_givenName,
+        rfc5280.id_at_surname,
+        rfc5280.id_at_pseudonym,
+    },
+    (ValidationLevel.INDIVIDUAL, Generation.STRICT): {
+        rfc5280.id_at_givenName,
+        rfc5280.id_at_surname,
+        rfc5280.id_at_pseudonym,
+    },
 }
 
 
 class SubscriberSubjectValidator(validation.Validator):
     VALIDATION_MISSING_ATTRIBUTE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.smime.missing_required_attribute'
+        "cabf.smime.missing_required_attribute",
     )
 
     VALIDATION_PROHIBITED_ATTRIBUTE = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.smime.prohibited_attribute'
+        validation.ValidationFindingSeverity.ERROR, "cabf.smime.prohibited_attribute"
     )
 
     VALIDATION_MIXED_NAME_AND_PSEUDONYM_ATTRIBUTES = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.smime.mixed_name_and_pseudonym_attributes'
+        "cabf.smime.mixed_name_and_pseudonym_attributes",
     )
 
     def __init__(self, validation_level, generation):
-        super().__init__(validations=[
-            self.VALIDATION_PROHIBITED_ATTRIBUTE,
-            self.VALIDATION_MISSING_ATTRIBUTE,
-            self.VALIDATION_MIXED_NAME_AND_PSEUDONYM_ATTRIBUTES,
-        ],
+        super().__init__(
+            validations=[
+                self.VALIDATION_PROHIBITED_ATTRIBUTE,
+                self.VALIDATION_MISSING_ATTRIBUTE,
+                self.VALIDATION_MIXED_NAME_AND_PSEUDONYM_ATTRIBUTES,
+            ],
             pdu_class=rfc5280.RDNSequence,
-            predicate=lambda n: n.path != 'certificate.tbsCertificate.issuer.rdnSequence')
+            predicate=lambda n: n.path
+            != "certificate.tbsCertificate.issuer.rdnSequence",
+        )
 
         self._attribute_table = {
-            k: v[_GENERATION_INDEXES[generation]] for k, v in _VALIDATION_LEVEL_TO_TABLE[validation_level].items()
+            k: v[_GENERATION_INDEXES[generation]]
+            for k, v in _VALIDATION_LEVEL_TO_TABLE[validation_level].items()
         }
 
-        self._required_attributes = {k for k, v in self._attribute_table.items() if v == SHALL}
-        self._prohibited_attributes = {k for k, v, in self._attribute_table.items() if v == SHALL_NOT}
-        self._required_one_of_n_attributes = _REQUIRED_ONE_OF_N.get((validation_level, generation))
+        self._required_attributes = {
+            k for k, v in self._attribute_table.items() if v == SHALL
+        }
+        self._prohibited_attributes = {
+            k for k, v, in self._attribute_table.items() if v == SHALL_NOT
+        }
+        self._required_one_of_n_attributes = _REQUIRED_ONE_OF_N.get(
+            (validation_level, generation)
+        )
 
-        self._allow_other_oids = _VALIDATION_LEVEL_TO_OTHER_ATTRIBUTE_ALLOWANCE[validation_level][
-            _GENERATION_INDEXES[generation]]
+        self._allow_other_oids = _VALIDATION_LEVEL_TO_OTHER_ATTRIBUTE_ALLOWANCE[
+            validation_level
+        ][_GENERATION_INDEXES[generation]]
 
     def validate(self, node):
         findings = []
 
         attributes = set()
         for rdn in node.children.values():
-            attributes.update((atv.children['type'].pdu for atv in rdn.children.values()))
+            attributes.update(
+                (atv.children["type"].pdu for atv in rdn.children.values())
+            )
 
-        findings.extend((
-            validation.ValidationFindingDescription(self.VALIDATION_MISSING_ATTRIBUTE,
-                                                    f'Missing required attribute: {a}')
-            for a in self._required_attributes - attributes
-        ))
+        findings.extend(
+            (
+                validation.ValidationFindingDescription(
+                    self.VALIDATION_MISSING_ATTRIBUTE,
+                    f"Missing required attribute: {a}",
+                )
+                for a in self._required_attributes - attributes
+            )
+        )
 
-        if self._required_one_of_n_attributes and len(self._required_one_of_n_attributes.intersection(attributes)) == 0:
+        if (
+            self._required_one_of_n_attributes
+            and len(self._required_one_of_n_attributes.intersection(attributes)) == 0
+        ):
             oids = oid.format_oids(self._required_one_of_n_attributes)
 
-            findings.append(validation.ValidationFindingDescription(self.VALIDATION_MISSING_ATTRIBUTE,
-                                                                    f'Missing one of these required attributes: {oids}')
-                            )
+            findings.append(
+                validation.ValidationFindingDescription(
+                    self.VALIDATION_MISSING_ATTRIBUTE,
+                    f"Missing one of these required attributes: {oids}",
+                )
+            )
 
-        findings.extend((
-            validation.ValidationFindingDescription(self.VALIDATION_PROHIBITED_ATTRIBUTE,
-                                                    f'Prohibited attribute: {a}')
-            for a in self._prohibited_attributes.intersection(attributes)
-        ))
+        findings.extend(
+            (
+                validation.ValidationFindingDescription(
+                    self.VALIDATION_PROHIBITED_ATTRIBUTE, f"Prohibited attribute: {a}"
+                )
+                for a in self._prohibited_attributes.intersection(attributes)
+            )
+        )
 
         if rfc5280.id_at_pseudonym in attributes and (
-                any({rfc5280.id_at_givenName, rfc5280.id_at_surname}.intersection(attributes))):
+            any(
+                {rfc5280.id_at_givenName, rfc5280.id_at_surname}.intersection(
+                    attributes
+                )
+            )
+        ):
             findings.append(
-                validation.ValidationFindingDescription(self.VALIDATION_MIXED_NAME_AND_PSEUDONYM_ATTRIBUTES, None))
+                validation.ValidationFindingDescription(
+                    self.VALIDATION_MIXED_NAME_AND_PSEUDONYM_ATTRIBUTES, None
+                )
+            )
 
         if not self._allow_other_oids:
-            findings.extend((
-                validation.ValidationFindingDescription(self.VALIDATION_PROHIBITED_ATTRIBUTE,
-                                                        f'Prohibited other attribute: {a}')
-                for a in attributes - set(self._attribute_table.keys())
-            ))
+            findings.extend(
+                (
+                    validation.ValidationFindingDescription(
+                        self.VALIDATION_PROHIBITED_ATTRIBUTE,
+                        f"Prohibited other attribute: {a}",
+                    )
+                    for a in attributes - set(self._attribute_table.keys())
+                )
+            )
 
         return validation.ValidationResult(self, node, findings)
 
 
-class CabfSmimeOrganizationIdentifierAttributeValidator(CabfOrganizationIdentifierAttributeValidator):
-    _REFERENCE_PROHIBITED = (Rfc2119Word.MUST_NOT,
-                             'cabf.smime.prohibited_organization_identifier_reference_present_for_scheme')
+class CabfSmimeOrganizationIdentifierAttributeValidator(
+    CabfOrganizationIdentifierAttributeValidator
+):
+    _REFERENCE_PROHIBITED = (
+        Rfc2119Word.MUST_NOT,
+        "cabf.smime.prohibited_organization_identifier_reference_present_for_scheme",
+    )
 
     _LEI_SCHEME = organization_id.OrganizationIdentifierElementAllowance(
-        country_codes=({organization_id.COUNTRY_CODE_GLOBAL_SCHEME},
-                       CabfOrganizationIdentifierAttributeValidator.VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY),
+        country_codes=(
+            {organization_id.COUNTRY_CODE_GLOBAL_SCHEME},
+            CabfOrganizationIdentifierAttributeValidator.VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY,
+        ),
         state_province=CabfOrganizationIdentifierAttributeValidator.STATE_PROVINCE_PROHIBITED,
-        reference=CabfOrganizationIdentifierAttributeValidator.REFERENCE_REQUIRED
+        reference=CabfOrganizationIdentifierAttributeValidator.REFERENCE_REQUIRED,
     )
     _GOV_SCHEME = organization_id.OrganizationIdentifierElementAllowance(
-        country_codes=(organization_id.ISO3166_1_COUNTRY_CODES,
-                       CabfOrganizationIdentifierAttributeValidator.VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY),
+        country_codes=(
+            organization_id.ISO3166_1_COUNTRY_CODES,
+            CabfOrganizationIdentifierAttributeValidator.VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY,
+        ),
         state_province=(Rfc2119Word.MAY, None),
-        reference=_REFERENCE_PROHIBITED
+        reference=_REFERENCE_PROHIBITED,
     )
     _INT_SCHEME = organization_id.OrganizationIdentifierElementAllowance(
-        country_codes=({organization_id.COUNTRY_CODE_GLOBAL_SCHEME},
-                       CabfOrganizationIdentifierAttributeValidator.VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY),
+        country_codes=(
+            {organization_id.COUNTRY_CODE_GLOBAL_SCHEME},
+            CabfOrganizationIdentifierAttributeValidator.VALIDATION_ORGANIZATION_ID_INVALID_COUNTRY,
+        ),
         state_province=CabfOrganizationIdentifierAttributeValidator.STATE_PROVINCE_PROHIBITED,
-        reference=_REFERENCE_PROHIBITED
+        reference=_REFERENCE_PROHIBITED,
     )
 
     def __init__(self):
         super().__init__(
             {
-                'LEI': self._LEI_SCHEME,
-                'GOV': self._GOV_SCHEME,
-                'INT': self._INT_SCHEME,
+                "LEI": self._LEI_SCHEME,
+                "GOV": self._GOV_SCHEME,
+                "INT": self._INT_SCHEME,
             },
-            enforce_strict_state_province_format=False
+            enforce_strict_state_province_format=False,
         )
 
 
 class SubscriberAttributeDependencyValidator(validation.Validator):
     VALIDATION_MISSING_REQUIRED_ATTRIBUTE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.smime.required_attribute_missing_for_dependent_attribute'
+        "cabf.smime.required_attribute_missing_for_dependent_attribute",
     )
 
     _ATTRIBUTE_DEPENDENCIES = [
-        (x520_name.id_at_streetAddress, {rfc5280.id_at_localityName, rfc5280.id_at_stateOrProvinceName}),
+        (
+            x520_name.id_at_streetAddress,
+            {rfc5280.id_at_localityName, rfc5280.id_at_stateOrProvinceName},
+        ),
         (rfc5280.id_at_stateOrProvinceName, {rfc5280.id_at_countryName}),
         (rfc5280.id_at_localityName, {rfc5280.id_at_countryName}),
         (x520_name.id_at_postalCode, {rfc5280.id_at_countryName}),
@@ -250,13 +320,16 @@ class SubscriberAttributeDependencyValidator(validation.Validator):
         super().__init__(
             validations=[self.VALIDATION_MISSING_REQUIRED_ATTRIBUTE],
             pdu_class=rfc5280.RDNSequence,
-            predicate=lambda n: n.path != 'certificate.tbsCertificate.issuer.rdnSequence'
+            predicate=lambda n: n.path
+            != "certificate.tbsCertificate.issuer.rdnSequence",
         )
 
     def validate(self, node):
         attributes = set()
         for rdn in node.children.values():
-            attributes.update((atv.children['type'].pdu for atv in rdn.children.values()))
+            attributes.update(
+                (atv.children["type"].pdu for atv in rdn.children.values())
+            )
 
         for dependent_attribute, required_attributes in self._ATTRIBUTE_DEPENDENCIES:
             if dependent_attribute in attributes:
@@ -264,18 +337,18 @@ class SubscriberAttributeDependencyValidator(validation.Validator):
                     oids = oid.format_oids(required_attributes)
 
                     if len(required_attributes) > 1:
-                        message = f'one of {oids} is not present'
+                        message = f"one of {oids} is not present"
                     else:
-                        message = f'{oids} is not present'
+                        message = f"{oids} is not present"
 
                     raise validation.ValidationFindingEncountered(
                         self.VALIDATION_MISSING_REQUIRED_ATTRIBUTE,
-                        f'{dependent_attribute} is present but {message}'
+                        f"{dependent_attribute} is present but {message}",
                     )
 
 
 def create_subscriber_certificate_subject_validator_container(
-        validation_level, generation
+    validation_level, generation
 ):
     dn_validators = [
         SubscriberSubjectValidator(validation_level, generation),
@@ -292,22 +365,25 @@ def create_subscriber_certificate_subject_validator_container(
     ]
 
     return certificate.create_subject_validator_container(
-        dn_validators, pdu_class=rfc5280.Name,
-        predicate=lambda n: n.path != 'certificate.tbsCertificate.issuer'
+        dn_validators,
+        pdu_class=rfc5280.Name,
+        predicate=lambda n: n.path != "certificate.tbsCertificate.issuer",
     )
 
 
 class SubjectAlternativeNameContainsSubjectEmailAddressesValidator(
     validation.Validator
 ):
-    VALIDATION_EMAIL_ADDRESS_IN_ATTRIBUTE_MISSING_FROM_SAN = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.smime.email_address_in_attribute_not_in_san'
+    VALIDATION_EMAIL_ADDRESS_IN_ATTRIBUTE_MISSING_FROM_SAN = (
+        validation.ValidationFinding(
+            validation.ValidationFindingSeverity.ERROR,
+            "cabf.smime.email_address_in_attribute_not_in_san",
+        )
     )
 
     VALIDATION_UNPARSED_ATTRIBUTE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.NOTICE,
-        'cabf.smime.unparsed_attribute_value_encountered'
+        "cabf.smime.unparsed_attribute_value_encountered",
     )
 
     def __init__(self):
@@ -318,18 +394,18 @@ class SubjectAlternativeNameContainsSubjectEmailAddressesValidator(
             ],
             pdu_class=rfc5280.AttributeTypeAndValue,
             # emailAddress presence in SAN is checked by PKIX lint
-            predicate=lambda n: n.children['type'].pdu != rfc5280.id_emailAddress
+            predicate=lambda n: n.children["type"].pdu != rfc5280.id_emailAddress,
         )
 
     def validate(self, node):
-        oid = node.children['type'].pdu
+        oid = node.children["type"].pdu
 
         value_str = asn1_util.get_string_value_from_attribute_node(node)
 
         if value_str is None:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_UNPARSED_ATTRIBUTE,
-                f'Unparsed attribute {str(oid)} encountered'
+                f"Unparsed attribute {str(oid)} encountered",
             )
 
         if bool(validators.email(value_str)):
@@ -338,25 +414,28 @@ class SubjectAlternativeNameContainsSubjectEmailAddressesValidator(
             if value_str not in san_email_addresses:
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_EMAIL_ADDRESS_IN_ATTRIBUTE_MISSING_FROM_SAN,
-                    f'Attribute {str(oid)} with value "{value_str}" not found in SAN'
+                    f'Attribute {str(oid)} with value "{value_str}" not found in SAN',
                 )
 
 
 class CommonNameValidator(validation.Validator):
     VALIDATION_COMMON_NAME_UNKNOWN_VALUE_SOURCE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.smime.common_name_value_unknown_source'
+        "cabf.smime.common_name_value_unknown_source",
     )
 
     VALIDATION_UNPARSED_COMMON_NAME_VALUE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.NOTICE,
-        'cabf.smime.unparsed_common_name_value'
+        "cabf.smime.unparsed_common_name_value",
     )
 
     def __init__(self, validation_level, generation):
         super().__init__(
-            validations=[self.VALIDATION_COMMON_NAME_UNKNOWN_VALUE_SOURCE, self.VALIDATION_UNPARSED_COMMON_NAME_VALUE],
-            pdu_class=rfc5280.X520CommonName
+            validations=[
+                self.VALIDATION_COMMON_NAME_UNKNOWN_VALUE_SOURCE,
+                self.VALIDATION_UNPARSED_COMMON_NAME_VALUE,
+            ],
+            pdu_class=rfc5280.X520CommonName,
         )
 
         self._validation_level = validation_level
@@ -366,39 +445,67 @@ class CommonNameValidator(validation.Validator):
     def _is_value_in_dirstring_atvs(atvs, expected_value_node):
         expected_value_str = str(expected_value_node.pdu)
 
-        return any(expected_value_str == asn1_util.get_string_value_from_attribute_node(a) for a in atvs)
+        return any(
+            expected_value_str == asn1_util.get_string_value_from_attribute_node(a)
+            for a in atvs
+        )
 
     def validate(self, node):
         try:
             _, cn_value_node = node.child
         except ValueError:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_UNPARSED_COMMON_NAME_VALUE)
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_UNPARSED_COMMON_NAME_VALUE
+            )
 
-        parent_name_node = next((n for n in node.parents if isinstance(n.pdu, rfc5280.Name)))
+        parent_name_node = next(
+            (n for n in node.parents if isinstance(n.pdu, rfc5280.Name))
+        )
 
-        if self._validation_level in {ValidationLevel.SPONSORED, ValidationLevel.INDIVIDUAL}:
+        if self._validation_level in {
+            ValidationLevel.SPONSORED,
+            ValidationLevel.INDIVIDUAL,
+        }:
             # legacy sponsored and individual profiles allow the Personal Name in CN without being in other
             # subject attributes
             if self._generation == Generation.LEGACY:
                 return
 
             # we don't need the index
-            pseudonym_nodes = [t[0] for t in
-                               name.get_name_attributes_by_type(parent_name_node, rfc5280.id_at_pseudonym)]
+            pseudonym_nodes = [
+                t[0]
+                for t in name.get_name_attributes_by_type(
+                    parent_name_node, rfc5280.id_at_pseudonym
+                )
+            ]
 
-            if CommonNameValidator._is_value_in_dirstring_atvs(pseudonym_nodes, cn_value_node):
+            if CommonNameValidator._is_value_in_dirstring_atvs(
+                pseudonym_nodes, cn_value_node
+            ):
                 return
 
             # if there's a GN or SN, assume it's in the CN
-            if (
-                    any(name.get_name_attributes_by_type(parent_name_node, rfc5280.id_at_givenName)) or
-                    any(name.get_name_attributes_by_type(parent_name_node, rfc5280.id_at_surname))):
+            if any(
+                name.get_name_attributes_by_type(
+                    parent_name_node, rfc5280.id_at_givenName
+                )
+            ) or any(
+                name.get_name_attributes_by_type(
+                    parent_name_node, rfc5280.id_at_surname
+                )
+            ):
                 return
         elif self._validation_level == ValidationLevel.ORGANIZATION:
-            orgname_nodes = [t[0] for t in
-                             name.get_name_attributes_by_type(parent_name_node, rfc5280.id_at_organizationName)]
+            orgname_nodes = [
+                t[0]
+                for t in name.get_name_attributes_by_type(
+                    parent_name_node, rfc5280.id_at_organizationName
+                )
+            ]
 
-            if CommonNameValidator._is_value_in_dirstring_atvs(orgname_nodes, cn_value_node):
+            if CommonNameValidator._is_value_in_dirstring_atvs(
+                orgname_nodes, cn_value_node
+            ):
                 return
 
         email_addresses = get_email_addresses_from_san(node.document)
@@ -406,31 +513,37 @@ class CommonNameValidator(validation.Validator):
         if str(cn_value_node.pdu) not in email_addresses:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_COMMON_NAME_UNKNOWN_VALUE_SOURCE,
-                f'Unknown CN value source: "{str(cn_value_node.pdu)}"'
+                f'Unknown CN value source: "{str(cn_value_node.pdu)}"',
             )
 
 
 class OrganizationIdentifierCountryNameConsistentValidator(validation.Validator):
     VALIDATION_ORGID_COUNTRYNAME_INCONSISTENT = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.smime.org_identifier_and_country_name_attribute_inconsistent'
+        "cabf.smime.org_identifier_and_country_name_attribute_inconsistent",
     )
 
     def __init__(self):
-        super().__init__(validations=self.VALIDATION_ORGID_COUNTRYNAME_INCONSISTENT,
-                         pdu_class=rfc5280.X520countryName)
+        super().__init__(
+            validations=self.VALIDATION_ORGID_COUNTRYNAME_INCONSISTENT,
+            pdu_class=rfc5280.X520countryName,
+        )
 
     def validate(self, node):
         country_name_value = str(node.pdu)
 
-        for atv, _ in node.document.get_subject_attributes_by_type(x520_name.id_at_organizationIdentifier):
+        for atv, _ in node.document.get_subject_attributes_by_type(
+            x520_name.id_at_organizationIdentifier
+        ):
             x520_value_str = asn1_util.get_string_value_from_attribute_node(atv)
 
             if x520_value_str is None:
                 continue
 
             try:
-                parsed_org_id = organization_id.parse_organization_identifier(x520_value_str)
+                parsed_org_id = organization_id.parse_organization_identifier(
+                    x520_value_str
+                )
             except ValueError:
                 continue
 
@@ -444,7 +557,7 @@ class OrganizationIdentifierCountryNameConsistentValidator(validation.Validator)
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_ORGID_COUNTRYNAME_INCONSISTENT,
                     f'CountryName attribute value: "{country_name_value}", '
-                    f'OrganizationIdentifier attribute country name value: "{orgid_country_name}"'
+                    f'OrganizationIdentifier attribute country name value: "{orgid_country_name}"',
                 )
 
 
@@ -457,15 +570,15 @@ def get_email_addresses_from_san(cert_document):
     san_ext, _ = san_ext_and_idx
 
     email_addresses = []
-    for gn in san_ext.navigate('extnValue.subjectAltName').children.values():
+    for gn in san_ext.navigate("extnValue.subjectAltName").children.values():
         name, value = gn.child
 
         if name == general_name.GeneralNameTypeName.RFC822_NAME:
             email_addresses.append(value.pdu)
         elif (
-                name == general_name.GeneralNameTypeName.OTHER_NAME and
-                value.navigate('type-id').pdu == rfc8398.id_on_SmtpUTF8Mailbox
+            name == general_name.GeneralNameTypeName.OTHER_NAME
+            and value.navigate("type-id").pdu == rfc8398.id_on_SmtpUTF8Mailbox
         ):
-            email_addresses.append(value.navigate('value').child[1].pdu)
+            email_addresses.append(value.navigate("value").child[1].pdu)
 
     return email_addresses

@@ -8,7 +8,9 @@ from pkilint import finding_filter, report, validation, loader, document
 
 
 class Version(BaseModel):
-    version: Annotated[str, Field(description='The version of pkilint that this server is using')]
+    version: Annotated[
+        str, Field(description="The version of pkilint that this server is using")
+    ]
 
 
 _SEVERITY_DESCRIPTION = f'The severity of the finding ({", ".join(map(str, validation.ValidationFindingSeverity))})'
@@ -16,31 +18,50 @@ _SEVERITY_DESCRIPTION = f'The severity of the finding ({", ".join(map(str, valid
 
 class Validation(BaseModel):
     severity: Annotated[str, Field(description=_SEVERITY_DESCRIPTION)]
-    code: Annotated[str, Field(description='The code that identifies the type of validation')]
+    code: Annotated[
+        str, Field(description="The code that identifies the type of validation")
+    ]
 
 
 class FindingDescription(BaseModel):
     severity: Annotated[str, Field(description=_SEVERITY_DESCRIPTION)]
-    code: Annotated[str, Field(description='The code that identifies the type of finding')]
-    message: Annotated[Optional[str], Field(description='An optional message that provides further context for the '
-                                                        'finding')]
+    code: Annotated[
+        str, Field(description="The code that identifies the type of finding")
+    ]
+    message: Annotated[
+        Optional[str],
+        Field(
+            description="An optional message that provides further context for the "
+            "finding"
+        ),
+    ]
 
 
 class Result(BaseModel):
-    validator: Annotated[str, Field(description='The class name of the validator which returned this result')]
-    node_path: Annotated[str, Field(description='The path in the document (or set of documents) that was validated')]
+    validator: Annotated[
+        str,
+        Field(description="The class name of the validator which returned this result"),
+    ]
+    node_path: Annotated[
+        str,
+        Field(
+            description="The path in the document (or set of documents) that was validated"
+        ),
+    ]
     finding_descriptions: Annotated[
         List[FindingDescription],
-        Field(description='The list of findings returned by the validator')
+        Field(description="The list of findings returned by the validator"),
     ]
 
 
 class LintResultList(BaseModel):
-    results: Annotated[List[Result], Field(description='The list of results returned by the linter')]
+    results: Annotated[
+        List[Result], Field(description="The list of results returned by the linter")
+    ]
 
 
 class Linter(BaseModel):
-    name: Annotated[str, Field(description='The name of the linter')]
+    name: Annotated[str, Field(description="The name of the linter")]
 
     def __init__(self, validator, finding_filters=None, **kwargs):
         super().__init__(**kwargs)
@@ -61,37 +82,55 @@ class Linter(BaseModel):
         if self._finding_filters is not None:
             results, _ = finding_filter.filter_results(self._finding_filters, results)
 
-        report_gen = report.ReportGeneratorJson(results, validation.ValidationFindingSeverity.INFO)
+        report_gen = report.ReportGeneratorJson(
+            results, validation.ValidationFindingSeverity.INFO
+        )
         json_str = report_gen.generate()
 
         return LintResultList.model_validate_json(json_str)
 
 
 class LintResultListWithLinter(LintResultList):
-    linter: Annotated[Linter, Field(description='The linter that was used for linting the specified document')]
+    linter: Annotated[
+        Linter,
+        Field(
+            description="The linter that was used for linting the specified document"
+        ),
+    ]
 
 
 class LinterGroup(BaseModel):
-    name: Annotated[str, Field(description='The name of the linter group')]
-    linters: Annotated[List[Linter], Field(description='The set of linters in this group')]
+    name: Annotated[str, Field(description="The name of the linter group")]
+    linters: Annotated[
+        List[Linter], Field(description="The set of linters in this group")
+    ]
 
     def determine_linter(self, doc):
         pass
 
     def get_linter_by_name(self, name: str) -> Linter:
         try:
-            return next((l for l in self.linters if l.name.casefold() == name.casefold()))
+            return next(
+                (l for l in self.linters if l.name.casefold() == name.casefold())
+            )
         except StopIteration:
-            raise HTTPException(404, 'Linter with the specified name does not exist')
+            raise HTTPException(404, "Linter with the specified name does not exist")
 
 
 class DocumentModel(BaseModel):
-    pem: Annotated[Optional[str], Field(description='A PEM-encoded ASN.1 document')] = None
-    b64: Annotated[Optional[str], Field(description='A Base64-encoded DER representation of an ASN.1 document')] = None
+    pem: Annotated[Optional[str], Field(description="A PEM-encoded ASN.1 document")] = (
+        None
+    )
+    b64: Annotated[
+        Optional[str],
+        Field(description="A Base64-encoded DER representation of an ASN.1 document"),
+    ] = None
 
-    def _validate(self) -> 'DocumentModel':
+    def _validate(self) -> "DocumentModel":
         if self.pem and self.b64:
-            raise ValueError('Cannot set both "pem" and "b64" fields; exactly one must be specified')
+            raise ValueError(
+                'Cannot set both "pem" and "b64" fields; exactly one must be specified'
+            )
         elif not self.pem and not self.b64:
             raise ValueError('Must set exactly one of "pem" or "b64" fields')
         else:
@@ -104,20 +143,24 @@ class DocumentModel(BaseModel):
 class CertificateModel(DocumentModel):
     _parsed_document = None
 
-    @model_validator(mode='after')
-    def validate(self) -> 'CertificateModel':
+    @model_validator(mode="after")
+    def validate(self) -> "CertificateModel":
         super()._validate()
 
         if self.pem is not None:
             try:
-                self._parsed_document = loader.load_pem_certificate(self.pem, 'request', 'request')
+                self._parsed_document = loader.load_pem_certificate(
+                    self.pem, "request", "request"
+                )
             except ValueError as e:
-                raise ValueError('Invalid PEM text specified') from e
+                raise ValueError("Invalid PEM text specified") from e
         else:
             try:
-                self._parsed_document = loader.load_b64_certificate(self.b64, 'request', 'request')
+                self._parsed_document = loader.load_b64_certificate(
+                    self.b64, "request", "request"
+                )
             except ValueError as e:
-                raise ValueError('Invalid Base-64 encoding specified') from e
+                raise ValueError("Invalid Base-64 encoding specified") from e
 
         return self
 
@@ -129,20 +172,24 @@ class CertificateModel(DocumentModel):
 class OcspResponseModel(DocumentModel):
     _parsed_document = None
 
-    @model_validator(mode='after')
-    def validate(self) -> 'OcspResponseModel':
+    @model_validator(mode="after")
+    def validate(self) -> "OcspResponseModel":
         super()._validate()
 
         if self.pem is not None:
             try:
-                self._parsed_document = loader.load_pem_ocsp_response(self.pem, 'request', 'request')
+                self._parsed_document = loader.load_pem_ocsp_response(
+                    self.pem, "request", "request"
+                )
             except ValueError as e:
-                raise ValueError('Invalid PEM text specified') from e
+                raise ValueError("Invalid PEM text specified") from e
         else:
             try:
-                self._parsed_document = loader.load_b64_ocsp_response(self.b64, 'request', 'request')
+                self._parsed_document = loader.load_b64_ocsp_response(
+                    self.b64, "request", "request"
+                )
             except ValueError as e:
-                raise ValueError('Invalid Base-64 encoding specified') from e
+                raise ValueError("Invalid Base-64 encoding specified") from e
         return self
 
     @property
@@ -153,20 +200,24 @@ class OcspResponseModel(DocumentModel):
 class CrlModel(DocumentModel):
     _parsed_document = None
 
-    @model_validator(mode='after')
-    def validate(self) -> 'CrlModel':
+    @model_validator(mode="after")
+    def validate(self) -> "CrlModel":
         super()._validate()
 
         if self.pem is not None:
             try:
-                self._parsed_document = loader.load_pem_crl(self.pem, 'request', 'request')
+                self._parsed_document = loader.load_pem_crl(
+                    self.pem, "request", "request"
+                )
             except ValueError as e:
-                raise ValueError('Invalid PEM text specified') from e
+                raise ValueError("Invalid PEM text specified") from e
         else:
             try:
-                self._parsed_document = loader.load_b64_crl(self.b64, 'request', 'request')
+                self._parsed_document = loader.load_b64_crl(
+                    self.b64, "request", "request"
+                )
             except ValueError as e:
-                raise ValueError('Invalid Base-64 encoding specified') from e
+                raise ValueError("Invalid Base-64 encoding specified") from e
         return self
 
     @property
@@ -174,11 +225,13 @@ class CrlModel(DocumentModel):
         return self._parsed_document
 
 
-def create_unprocessable_entity_error_detail(message: str, error_type: str = 'value_error'):
+def create_unprocessable_entity_error_detail(
+    message: str, error_type: str = "value_error"
+):
     return [
         {
-            'loc': ['body'],
-            'type': error_type,
-            'msg': message,
+            "loc": ["body"],
+            "type": error_type,
+            "msg": message,
         }
     ]

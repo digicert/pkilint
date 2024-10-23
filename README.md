@@ -5,6 +5,7 @@
 [![Python Versions](https://img.shields.io/pypi/pyversions/pkilint)](https://pypi.org/project/pkilint/)
 [![Build status](https://github.com/digicert/pkilint/actions/workflows/build_and_publish.yml/badge.svg)](https://github.com/digicert/pkilint/actions/workflows/build_and_publish.yml)
 [![GitHub license](https://img.shields.io/pypi/l/pkilint)](https://raw.githubusercontent.com/digicert/pkilint/main/LICENSE)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 pkilint is a linting framework for documents that are encoded using ASN.1. pkilint is designed to
 be a highly extensible toolbox to quickly create linters for a variety of ASN.1 structure/"document" types to check for compliance with
@@ -180,7 +181,7 @@ This tool lints end-entity S/MIME certificates against the
 The `lint` sub-command requires that the user provide the certificate type/profile of the certificate so that the appropriate
 validations are performed. There are three options:
 
-1. Explicitly specify the type of S/MIME certificate using the `-t`/`--type` option. This may be useful when linting S/MIME certificates where the policy OIDs in the certificate do not map to a S/MIME validation level and generation.
+1. Explicitly specify the type of S/MIME certificate using the `-t`/`--type` option. This may be useful when linting S/MIME certificates where the policy OIDs in the certificate do not map to an S/MIME validation level and generation.
 2. Have the linter detect the type of certificate using the `-d`/`--detect` option. In this case, the linter will determine the validation level and generation using the policy OIDs included in the certificate. If a reserved CA/Browser Forum policy OID is found, then the corresponding validation level and generation are used. If no such reserved OIDs are found, then the optional mapping file (see below) is used. If no OIDs in the mapping file are found, then the tool exits with an error.
 3. Have the linter detect the type of certificate using the `-g`/`--guess` option. This option uses the same identification procedure as the `--detect` option, with one major difference. Instead of exiting with an error upon being unable to find an appropriate policy OID, this option instead directs the linter to use heuristics to determine the validation level and generation.
 
@@ -417,12 +418,15 @@ Once the REST API server has been started, documentation will be available on th
 
 ## Bugs?
 
-If you find a bug or other issue with pkilint, please create a Github issue.
+If you find a bug or other issue with pkilint, please create a GitHub issue.
 
 ## Contributing
 
 As we intend for this project to be an ecosystem resource, we welcome contributions. It is preferred that proposals for new
-features be filed as Github issues so that design decisions, etc. can be discussed prior to submitting a pull request.
+features be filed as GitHub issues so that design decisions, etc. can be discussed prior to submitting a pull request.
+
+This project uses [Black](https://github.com/psf/black) code formatter. The CI/CD pipeline checks for compliance with
+this format, so please ensure that any code contributions follow this format.
 
 ## Acknowledgements
 

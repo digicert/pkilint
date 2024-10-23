@@ -13,7 +13,7 @@ def _test_program_validations(name, args=None):
     if args is None:
         args = []
 
-    output = subprocess.check_output([name, 'validations'] + args).decode()
+    output = subprocess.check_output([name, "validations"] + args).decode()
 
     s = io.StringIO(output)
 
@@ -25,36 +25,38 @@ def _test_program_validations(name, args=None):
 
 def test_lint_cabf_serverauth_cert_validations():
     for cert_type in serverauth_constants.CertificateType:
-        _test_program_validations('lint_cabf_serverauth_cert', ['-t', cert_type.name.replace('_', '-')])
+        _test_program_validations(
+            "lint_cabf_serverauth_cert", ["-t", cert_type.name.replace("_", "-")]
+        )
 
 
 def test_lint_cabf_smime_cert_validations():
     for g in smime_constants.Generation:
         for v in smime_constants.ValidationLevel:
-            _test_program_validations('lint_cabf_smime_cert', ['-t', f'{v}-{g}'])
+            _test_program_validations("lint_cabf_smime_cert", ["-t", f"{v}-{g}"])
 
 
 def test_lint_crl_validations():
-    for p in ['BR', 'PKIX']:
-        for t in ['CRL', 'ARL']:
-            _test_program_validations('lint_crl', ['-p', p, '-t', t])
+    for p in ["BR", "PKIX"]:
+        for t in ["CRL", "ARL"]:
+            _test_program_validations("lint_crl", ["-p", p, "-t", t])
 
 
 def test_lint_ocsp_response_validations():
-    _test_program_validations('lint_ocsp_response')
+    _test_program_validations("lint_ocsp_response")
 
 
 def test_lint_pkix_cert_validations():
-    _test_program_validations('lint_pkix_cert')
+    _test_program_validations("lint_pkix_cert")
 
 
 def test_lint_pkix_signer_signee_cert_chain_validations():
-    _test_program_validations('lint_pkix_signer_signee_cert_chain')
+    _test_program_validations("lint_pkix_signer_signee_cert_chain")
 
 
 def test_lint_cabf_serverauth_cert_lint():
     ret = subprocess.run(
-        ['lint_cabf_serverauth_cert', 'lint', '-d', '-'],
+        ["lint_cabf_serverauth_cert", "lint", "-d", "-"],
         input=b"""-----BEGIN CERTIFICATE-----
 MIIFhzCCBG+gAwIBAgIKd3d3d3d3d3d3dzANBgkqhkiG9w0BAQsFADBFMQswCQYD
 VQQGEwJVUzETMBEGA1UEChMKQ2VydHMgUiBVczEhMB8GA1UEAxMYQ2VydHMgUiBV
@@ -86,7 +88,7 @@ LxSZYLrSKZ4ZVPg0hkXsjeaKCZ3z7yu5ozAOBp9Fk3CZtkP1LlbS/heHGcywnTZn
 pHbT2YPixrn8+qi+5aAZyPrhiNKynKI1C6hhCb/8TmXu7h2f31l0ZhDZ+AGZN8/q
 yYM8aZGzLp3gLspWvfO2/Cee63bdQmWL6CUOUpaGxF8eAxstXZCHr95HR6i9+Txu
 3XxCq8enw/MZWJ1jmEp6jXrehGQQhXvmTU6f
------END CERTIFICATE-----"""
+-----END CERTIFICATE-----""",
     )
 
     assert ret.returncode == 0
@@ -94,7 +96,7 @@ yYM8aZGzLp3gLspWvfO2/Cee63bdQmWL6CUOUpaGxF8eAxstXZCHr95HR6i9+Txu
 
 def test_lint_cabf_smime_cert_lint():
     ret = subprocess.run(
-        ['lint_cabf_smime_cert', 'lint', '-g', '-'],
+        ["lint_cabf_smime_cert", "lint", "-g", "-"],
         input=b"""-----BEGIN CERTIFICATE-----
 MIIGgDCCBWigAwIBAgIQNr2Tbdy6bU+VjrmujHpQNDANBgkqhkiG9w0BAQsFADBv
 MQswCQYDVQQGEwJVUzEXMBUGA1UEChMORGlnaUNlcnQsIEluYy4xRzBFBgNVBAMT
@@ -131,7 +133,7 @@ a7lofBAJW1ETVvDVECAoqcdkPHxQM22caTGlJGrd6QGAzMoOAFTDSDhqT3ceiKU4
 rdKbtaTErZf73ZWonFxFdz49cJ6AC46NVJPiZmAEAqQVc14q6W4/w9SpWIpxcj6d
 vx/vVMi1ilVWDucJYogvEic8X3uCfYBPHTwPHEKvvnXAoJMTTVnJM5CKxVrp09QS
 6vmg7EN5ZeFVnjID0GzhfxWBR5/scJCF/s3DGuI0uCCtAruW
------END CERTIFICATE-----"""
+-----END CERTIFICATE-----""",
     )
 
     assert ret.returncode == 5
@@ -139,7 +141,7 @@ vx/vVMi1ilVWDucJYogvEic8X3uCfYBPHTwPHEKvvnXAoJMTTVnJM5CKxVrp09QS
 
 def test_lint_pkix_cert_lint():
     ret = subprocess.run(
-        ['lint_pkix_cert', 'lint', '-'],
+        ["lint_pkix_cert", "lint", "-"],
         input=b"""-----BEGIN CERTIFICATE-----
 MIIGgDCCBWigAwIBAgIQNr2Tbdy6bU+VjrmujHpQNDANBgkqhkiG9w0BAQsFADBv
 MQswCQYDVQQGEwJVUzEXMBUGA1UEChMORGlnaUNlcnQsIEluYy4xRzBFBgNVBAMT
@@ -176,7 +178,7 @@ a7lofBAJW1ETVvDVECAoqcdkPHxQM22caTGlJGrd6QGAzMoOAFTDSDhqT3ceiKU4
 rdKbtaTErZf73ZWonFxFdz49cJ6AC46NVJPiZmAEAqQVc14q6W4/w9SpWIpxcj6d
 vx/vVMi1ilVWDucJYogvEic8X3uCfYBPHTwPHEKvvnXAoJMTTVnJM5CKxVrp09QS
 6vmg7EN5ZeFVnjID0GzhfxWBR5/scJCF/s3DGuI0uCCtAruW
------END CERTIFICATE-----"""
+-----END CERTIFICATE-----""",
     )
 
     assert ret.returncode == 3
@@ -184,7 +186,7 @@ vx/vVMi1ilVWDucJYogvEic8X3uCfYBPHTwPHEKvvnXAoJMTTVnJM5CKxVrp09QS
 
 def test_lint_crl_lint():
     ret = subprocess.run(
-        ['lint_crl', 'lint', '-t', 'crl', '-p', 'pkix', '-'],
+        ["lint_crl", "lint", "-t", "crl", "-p", "pkix", "-"],
         input=b"""-----BEGIN X509 CRL-----
 MIIBzTCBtgIBATANBgkqhkiG9w0BAQsFADAiMQswCQYDVQQGEwJYWDETMBEGA1UE
 CgwKQ1JMcyAnciBVcxcNMjQwMzI1MTg0NzAwWhcNMjQwNDAxMTg0NzAwWqBgMF4w
@@ -196,7 +198,7 @@ jYWmFkA3tkpqH5rBCQa3CBm1Cg8cbFBtwWgWr70NsVvfD6etjAEP9Ze+MSXnGV0p
 w9EeOV07HnSD/PGQwqCiaSn5DdIDVoH8eFSGmgNLw+b4SwUjmz8PqsZwvHxJvleV
 1D8cj7zdR4ywgRMjEfJZ8Bp+Tdu64Gv0doDS0iEJIshLHYkcW1okpq/tPm8kKAbD
 reparePNQwhScVcDiSL73eEBIPokgG3QhohiucP5MeF1
------END X509 CRL-----"""
+-----END X509 CRL-----""",
     )
 
     assert ret.returncode == 0
@@ -204,7 +206,7 @@ reparePNQwhScVcDiSL73eEBIPokgG3QhohiucP5MeF1
 
 def test_lint_ocsp_response_lint():
     ret = subprocess.run(
-        ['lint_ocsp_response', 'lint', '-'],
+        ["lint_ocsp_response", "lint", "-"],
         input=b"""MIIDnwoBAKCCA5gwggOUBgkrBgEFBQcwAQEEggOFMIIDgTCBsKIWBBQK46D+ndQl
 dpi163Lrygznvz318RgPMjAyNDA0MDIxMjM3NDdaMIGEMIGBMFkwDQYJYIZIAWUD
 BAIBBQAEIDqZRndWgHOnB7/eUBhjReTNYTTbCF66odEEJfA7bwjqBCBHSmyjAfI9
@@ -224,15 +226,16 @@ BAIwADAOBgNVHQ8BAf8EBAMCB4AwEwYDVR0lBAwwCgYIKwYBBQUHAwkwDwYJKwYB
 BQUHMAEFBAIFADAKBggqhkjOPQQDBAOBigAwgYYCQRQqjNYKbGXHdGXfEVvB//i+
 DiG02hraU9kGNKXeiQcPdZRajQsY/hdZPVyaykkAFVQGv29yWmTrEax+r4oZTtzG
 AkFJCwtJpi7m00Qx9r/ugNWsnCFSiKUdxuvj7mg9lJtz0hexRJZKFODWJG5dUh//
-Bc2w8vywgYYoduXu4QLcoP17CA=="""
+Bc2w8vywgYYoduXu4QLcoP17CA==""",
     )
 
     assert ret.returncode == 0
 
 
 def test_lint_pkix_signer_signee_cert_chain_lint():
-    issuer_f = tempfile.NamedTemporaryFile('w+', delete=False)
-    issuer_f.write("""-----BEGIN CERTIFICATE-----
+    issuer_f = tempfile.NamedTemporaryFile("w+", delete=False)
+    issuer_f.write(
+        """-----BEGIN CERTIFICATE-----
 MIIDFjCCAf6gAwIBAgIUF/hP3a/TkmHlfhYYUiFNw/H5lMwwDQYJKoZIhvcNAQEL
 BQAwIzELMAkGA1UEBhMCWFgxFDASBgNVBAoMC0NlcnRzICdyIFVzMB4XDTI0MDMy
 NTE4NDcwMFoXDTI1MDMyNTE4NDcwMFowIzELMAkGA1UEBhMCWFgxFDASBgNVBAoM
@@ -250,11 +253,13 @@ ju+K/Dndbrs1v7r4IB79hu4QtR7BVaEQ8UjqY+/I1VeYKtAd7scQGKpSNOPN3YVu
 +QY3fXy+nfDhj7drUeAHVj+Qz/6RZOIhmIPj7adsZhDQwvMG3cAkAfVGncP7n+cN
 nqZyYu8PPQp4g+QM42kXXBu5N8QwkCtcMe2nvKiQvEOZww70N3mTIK8CSxLla5pI
 635lNPBZubGF6m35P7EArB0JuU2KYNgUxis=
------END CERTIFICATE-----""")
+-----END CERTIFICATE-----"""
+    )
     issuer_f.flush()
 
-    subject_f = tempfile.NamedTemporaryFile('w+', delete=False)
-    subject_f.write("""-----BEGIN CERTIFICATE-----
+    subject_f = tempfile.NamedTemporaryFile("w+", delete=False)
+    subject_f.write(
+        """-----BEGIN CERTIFICATE-----
 MIIDjTCCAnWgAwIBAgIUW8wsCzJEg7WzpMvkUKyloeKqKLYwDQYJKoZIhvcNAQEL
 BQAwIzELMAkGA1UEBhMCWFgxFDASBgNVBAoMC0NlcnRzICdyIFVzMB4XDTI0MDMy
 NTE4NDcwMFoXDTI1MDMyNTE4NDcwMFowJTELMAkGA1UEBhMCWFgxFjAUBgNVBAoM
@@ -275,11 +280,12 @@ lxHaT6Y2IMZ6kVtHCmcOFaHWJyPAUZ4ymO03cb/1M73ioecf9jMgIf7YBaopty2p
 X2GVHaCE1m7u+2WU45b34PBRY/ZvhZvuJKi3TfuaLMJFPz6HY4XbHPnlBP4EwXpC
 5VaJvOMXWZPWh/yrCVEKMzFxesbwHV/vyOUls0P4kIY383/78MvzchHLhwR7h2fy
 Iw==
------END CERTIFICATE-----""")
+-----END CERTIFICATE-----"""
+    )
     subject_f.flush()
 
     ret = subprocess.run(
-        ['lint_pkix_signer_signee_cert_chain', 'lint', issuer_f.name, subject_f.name],
+        ["lint_pkix_signer_signee_cert_chain", "lint", issuer_f.name, subject_f.name],
     )
 
     assert ret.returncode == 0
@@ -293,7 +299,7 @@ Iw==
 
 def test_exit_code_multiple_256_findings():
     ret = subprocess.run(
-        ['lint_cabf_serverauth_cert', 'lint', '-d', '-f', 'csv', '-'],
+        ["lint_cabf_serverauth_cert", "lint", "-d", "-f", "csv", "-"],
         input=b"""-----BEGIN CERTIFICATE-----
 MIIjSTCCIjGgAwIBAgIKd3d3d3d3d3d3dzANBgkqhkiG9w0BAQsFADBFMQswCQYD
 VQQGEwJVUzETMBEGA1UEChMKQ2VydHMgUiBVczEhMB8GA1UEAxMYQ2VydHMgUiBV
@@ -485,7 +491,7 @@ Gcj64YjSspyiNQuoYQm//E5l7u4dn99ZdGYQ2fgBmTfP6smDPGmRsy6d4C7KVr3z
 tvwnnut23UJli+glDlKWhsRfHgMbLV2Qh6/eR0eovfk8bt18QqvHp8PzGVidY5hK
 eo163oRkEIV75k1Onw==
 -----END CERTIFICATE-----""",
-        capture_output=True
+        capture_output=True,
     )
 
     out_lines = [l for l in ret.stdout.decode().strip().splitlines() if l]
@@ -497,12 +503,12 @@ eo163oRkEIV75k1Onw==
 
 def test_lint_etsi_cert_validations():
     for cert_type in etsi_constants.CertificateType:
-        _test_program_validations('lint_etsi_cert', ['-t', cert_type.to_option_str])
+        _test_program_validations("lint_etsi_cert", ["-t", cert_type.to_option_str])
 
 
 def test_lint_pkix_der_only():
     ret = subprocess.run(
-        ['lint_pkix_cert', 'lint', '--document-format', 'der', '-'],
+        ["lint_pkix_cert", "lint", "--document-format", "der", "-"],
         input=b"""-----BEGIN CERTIFICATE-----
 MIIGgDCCBWigAwIBAgIQNr2Tbdy6bU+VjrmujHpQNDANBgkqhkiG9w0BAQsFADBv
 MQswCQYDVQQGEwJVUzEXMBUGA1UEChMORGlnaUNlcnQsIEluYy4xRzBFBgNVBAMT
@@ -539,7 +545,7 @@ a7lofBAJW1ETVvDVECAoqcdkPHxQM22caTGlJGrd6QGAzMoOAFTDSDhqT3ceiKU4
 rdKbtaTErZf73ZWonFxFdz49cJ6AC46NVJPiZmAEAqQVc14q6W4/w9SpWIpxcj6d
 vx/vVMi1ilVWDucJYogvEic8X3uCfYBPHTwPHEKvvnXAoJMTTVnJM5CKxVrp09QS
 6vmg7EN5ZeFVnjID0GzhfxWBR5/scJCF/s3DGuI0uCCtAruW
------END CERTIFICATE-----"""
+-----END CERTIFICATE-----""",
     )
 
     assert ret.returncode == 1

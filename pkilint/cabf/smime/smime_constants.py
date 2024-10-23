@@ -5,10 +5,10 @@ import sys
 from pyasn1.type.univ import ObjectIdentifier
 
 
-BR_VERSION = '1.0.6'
+BR_VERSION = "1.0.6"
 
 
-CABF_SMIME_OID_ARC = ObjectIdentifier('2.23.140.1.5')
+CABF_SMIME_OID_ARC = ObjectIdentifier("2.23.140.1.5")
 
 
 @enum.unique
@@ -25,8 +25,8 @@ class ValidationLevel(enum.IntEnum):
 [
     setattr(
         sys.modules[__name__],
-        f'CABF_SMIME_{v.name}_OID_ARC',
-        CABF_SMIME_OID_ARC + (int(math.log2(v)) + 1,)
+        f"CABF_SMIME_{v.name}_OID_ARC",
+        CABF_SMIME_OID_ARC + (int(math.log2(v)) + 1,),
     )
     for v in ValidationLevel
 ]
@@ -46,11 +46,12 @@ def _define_oids(validation_level):
     [
         setattr(
             sys.modules[__name__],
-            f'CABF_SMIME_{validation_level.name}_{g.name}_OID',
-            CABF_SMIME_OID_ARC + (
+            f"CABF_SMIME_{validation_level.name}_{g.name}_OID",
+            CABF_SMIME_OID_ARC
+            + (
                 int(math.log2(validation_level)) + 1,
                 int(math.log2(g >> 8)) + 1,
-            )
+            ),
         )
         for g in Generation
     ]

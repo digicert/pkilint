@@ -1,24 +1,41 @@
 from pyasn1.type import namedtype, constraint, char
 from pyasn1_alt_modules import rfc5280
 
-MAX = float('inf')
+MAX = float("inf")
 
 
 def _create_unbounded_directory_string_namedtypes():
     return namedtype.NamedTypes(
-        namedtype.NamedType('teletexString',
-                            char.TeletexString().subtype(
-                                subtypeSpec=constraint.ValueSizeConstraint(1, MAX))),
-        namedtype.NamedType('printableString',
-                            char.PrintableString().subtype(
-                                subtypeSpec=constraint.ValueSizeConstraint(1, MAX))),
-        namedtype.NamedType('universalString',
-                            char.UniversalString().subtype(
-                                subtypeSpec=constraint.ValueSizeConstraint(1, MAX))),
-        namedtype.NamedType('utf8String',
-                            char.UTF8String().subtype(subtypeSpec=constraint.ValueSizeConstraint(1, MAX))),
-        namedtype.NamedType('bmpString',
-                            char.BMPString().subtype(subtypeSpec=constraint.ValueSizeConstraint(1, MAX)))
+        namedtype.NamedType(
+            "teletexString",
+            char.TeletexString().subtype(
+                subtypeSpec=constraint.ValueSizeConstraint(1, MAX)
+            ),
+        ),
+        namedtype.NamedType(
+            "printableString",
+            char.PrintableString().subtype(
+                subtypeSpec=constraint.ValueSizeConstraint(1, MAX)
+            ),
+        ),
+        namedtype.NamedType(
+            "universalString",
+            char.UniversalString().subtype(
+                subtypeSpec=constraint.ValueSizeConstraint(1, MAX)
+            ),
+        ),
+        namedtype.NamedType(
+            "utf8String",
+            char.UTF8String().subtype(
+                subtypeSpec=constraint.ValueSizeConstraint(1, MAX)
+            ),
+        ),
+        namedtype.NamedType(
+            "bmpString",
+            char.BMPString().subtype(
+                subtypeSpec=constraint.ValueSizeConstraint(1, MAX)
+            ),
+        ),
     )
 
 

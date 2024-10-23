@@ -2,7 +2,7 @@ from pkilint.cabf import smime
 from pkilint import loader
 from pkilint.cabf.smime import smime_constants
 
-_TLS_PEM = '''-----BEGIN CERTIFICATE-----
+_TLS_PEM = """-----BEGIN CERTIFICATE-----
 MIIH4TCCBcmgAwIBAgIKFFugogAAAAAaXDANBgkqhkiG9w0BAQ0FADCBhjELMAkG
 A1UEBhMCVVMxCzAJBgNVBAgTAk1OMRQwEgYDVQQHEwtNaW5uZWFwb2xpczExMC8G
 A1UEChMoT3BlbiBBY2Nlc3MgVGVjaG5vbG9neSBJbnRlcm5hdGlvbmFsIEluYzEh
@@ -46,10 +46,10 @@ q/nUoY6kQ4OShPW7Q3iLNnlV4zCu1dfhYAb7yIgG8IGwpoXjXkfKt1VvhSZD7R1D
 RSNS1KTypShsoTkCurQ2/P9M4VS6SsuY61INsp35ZDtCeNhoy7EGM8qRLVi31YTJ
 uZVrfPbKYU/OkiGqzpmqj7WCBPgao0DQg2xRuUl2lhT7ar2QcvYh0TnumyU4hGKh
 MxHrgeQ=
------END CERTIFICATE-----'''
+-----END CERTIFICATE-----"""
 
 
-_ORGANIZATION_MULTIPURPOSE_PEM = '''
+_ORGANIZATION_MULTIPURPOSE_PEM = """
 -----BEGIN CERTIFICATE-----
 MIIGQzCCBCugAwIBAgIUT0nGRo909AMp7EmYVoILmgwKMsQwDQYJKoZIhvcNAQEL
 BQAwSDELMAkGA1UEBhMCVVMxHzAdBgNVBAoMFkZvbyBJbmR1c3RyaWVzIExpbWl0
@@ -86,7 +86,7 @@ koohmnIEidKmO4lhGqavh8bSVLy00PiebItEVoD4hgMtrcl3c8yM7C/cpXtmlRvk
 49RnJJiSPnSS+34I2DKmhS7ZCqHRPyUdE6ebULW+ZCNc3vG4yleapzJQiFdUbWgL
 m8XfBNHSAWs3NvdzV/MqQUERWI3VEdQ=
 -----END CERTIFICATE-----
-'''
+"""
 
 
 def test_tls_cert():
@@ -98,5 +98,7 @@ def test_tls_cert():
 def test_org_mp():
     cert = loader.load_pem_certificate(_ORGANIZATION_MULTIPURPOSE_PEM)
 
-    assert smime.determine_validation_level_and_generation(cert) == (smime_constants.ValidationLevel.ORGANIZATION,
-                                                                     smime_constants.Generation.MULTIPURPOSE)
+    assert smime.determine_validation_level_and_generation(cert) == (
+        smime_constants.ValidationLevel.ORGANIZATION,
+        smime_constants.Generation.MULTIPURPOSE,
+    )

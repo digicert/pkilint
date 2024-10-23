@@ -15,7 +15,7 @@ class SeverityThresholdAction(argparse.Action):
         super().__init__(*args, **kwargs)
 
     def __call__(self, parser, namespace, values, option_string=None):
-        if values == 'ALL':
+        if values == "ALL":
             severity = None
         elif values not in [s.name for s in validation.ValidationFindingSeverity]:
             raise argparse.ArgumentError(self, f'Invalid severity value: "{values}"')
@@ -26,13 +26,15 @@ class SeverityThresholdAction(argparse.Action):
 
 
 def add_severity_arg(parser):
-    parser.add_argument('-s', '--severity',
-                        type=str.upper,
-                        default=validation.ValidationFindingSeverity.INFO,
-                        help='The finding severity threshold; findings with a lesser severity will not be reported.',
-                        action=SeverityThresholdAction,
-                        choices=[s.name for s in validation.ValidationFindingSeverity] + ['ALL']
-                        )
+    parser.add_argument(
+        "-s",
+        "--severity",
+        type=str.upper,
+        default=validation.ValidationFindingSeverity.INFO,
+        help="The finding severity threshold; findings with a lesser severity will not be reported.",
+        action=SeverityThresholdAction,
+        choices=[s.name for s in validation.ValidationFindingSeverity] + ["ALL"],
+    )
 
 
 class ReportFormatAction(argparse.Action):
@@ -42,17 +44,23 @@ class ReportFormatAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         report_generator_cls = REPORT_FORMATS[values]
 
-        setattr(namespace, self.dest, functools.partial(report_wrapper, report_generator_cls))
+        setattr(
+            namespace,
+            self.dest,
+            functools.partial(report_wrapper, report_generator_cls),
+        )
 
 
 def add_report_format_arg(parser):
-    parser.add_argument('-f', '--format',
-                        type=str.upper,
-                        default=functools.partial(report_wrapper, report.ReportGeneratorPlaintext),
-                        help='The format in which results will be output.',
-                        choices=list(REPORT_FORMATS.keys()),
-                        action=ReportFormatAction
-                        )
+    parser.add_argument(
+        "-f",
+        "--format",
+        type=str.upper,
+        default=functools.partial(report_wrapper, report.ReportGeneratorPlaintext),
+        help="The format in which results will be output.",
+        choices=list(REPORT_FORMATS.keys()),
+        action=ReportFormatAction,
+    )
 
 
 class DocumentFormatAction(argparse.Action):
@@ -69,13 +77,14 @@ class DocumentFormatAction(argparse.Action):
 
 
 def add_document_format_arg(parser):
-    parser.add_argument('--document-format',
-                        type=str.upper,
-                        default=loader.DocumentFormat.DETECT,
-                        help='The format of the specified input document(s).',
-                        choices=[f.name for f in loader.DocumentFormat],
-                        action=DocumentFormatAction
-                        )
+    parser.add_argument(
+        "--document-format",
+        type=str.upper,
+        default=loader.DocumentFormat.DETECT,
+        help="The format of the specified input document(s).",
+        choices=[f.name for f in loader.DocumentFormat],
+        action=DocumentFormatAction,
+    )
 
 
 class ValidityPeriodStartAction(argparse.Action):
@@ -89,9 +98,9 @@ class ValidityPeriodStartAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         value_casefolded = values.casefold()
 
-        if value_casefolded == 'document'.casefold():
+        if value_casefolded == "document".casefold():
             retriever_instance = self.get_retriever_class()()
-        elif value_casefolded == 'now'.casefold():
+        elif value_casefolded == "now".casefold():
             retriever_instance = document.StaticValidityPeriodStartRetriever(
                 datetime.datetime.now(tz=datetime.timezone.utc)
             )
@@ -101,7 +110,9 @@ class ValidityPeriodStartAction(argparse.Action):
 
                 retriever_instance = document.StaticValidityPeriodStartRetriever(dt)
             except ValueError:
-                raise argparse.ArgumentError(self, f'Invalid value for validity period start: "{values}"')
+                raise argparse.ArgumentError(
+                    self, f'Invalid value for validity period start: "{values}"'
+                )
 
         setattr(namespace, self.dest, retriever_instance)
 
@@ -114,18 +125,17 @@ class CertificateValidityPeriodStartAction(ValidityPeriodStartAction):
 
 def add_validity_period_start_arg(action_cls: Type[ValidityPeriodStartAction], parser):
     parser.add_argument(
-        '--validity-period-start',
+        "--validity-period-start",
         action=action_cls,
         default=action_cls.get_retriever_class()(),
-        help='The start of the validity period that is compared to effective dates to determine applicability of '
+        help="The start of the validity period that is compared to effective dates to determine applicability of "
         'validations. Acceptable values are "DOCUMENT" (use the validity period indicated in the document being '
-        'validated, "NOW" (use the current time), or an ISO 8601-formatted date/time value.'
+        'validated, "NOW" (use the current time), or an ISO 8601-formatted date/time value.',
     )
 
 
 add_certificate_validity_period_start_arg = functools.partial(
-    add_validity_period_start_arg,
-    CertificateValidityPeriodStartAction
+    add_validity_period_start_arg, CertificateValidityPeriodStartAction
 )
 
 

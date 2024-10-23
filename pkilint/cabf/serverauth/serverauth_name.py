@@ -18,14 +18,14 @@ class ValidJurisdictionCountryValidator(ValidCountryCodeValidatorBase):
 
     VALIDATION_INVALID_COUNTRY_CODE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.invalid_jurisdiction_country_code'
+        "cabf.serverauth.invalid_jurisdiction_country_code",
     )
 
     def __init__(self):
         super().__init__(
             type_oid=ev_guidelines.id_evat_jurisdiction_countryName,
-            value_path='value.eVGJurisdictionCountryName',
-            checked_validation=self.VALIDATION_INVALID_COUNTRY_CODE
+            value_path="value.eVGJurisdictionCountryName",
+            checked_validation=self.VALIDATION_INVALID_COUNTRY_CODE,
         )
 
 
@@ -34,20 +34,20 @@ class ValidBusinessCategoryValidator(validation.Validator):
 
     VALIDATION_INVALID_BUSINESS_CATEGORY = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.ev_guidelines.invalid_business_category'
+        "cabf.ev_guidelines.invalid_business_category",
     )
 
     _ALLOWED_VALUES = {
-        'Private Organization',
-        'Government Entity',
-        'Business Entity',
-        'Non-Commercial Entity'
+        "Private Organization",
+        "Government Entity",
+        "Business Entity",
+        "Non-Commercial Entity",
     }
 
     def __init__(self):
         super().__init__(
             pdu_class=x520_name.X520BusinessCategory,
-            validations=[self.VALIDATION_INVALID_BUSINESS_CATEGORY]
+            validations=[self.VALIDATION_INVALID_BUSINESS_CATEGORY],
         )
 
     def validate(self, node):
@@ -57,7 +57,7 @@ class ValidBusinessCategoryValidator(validation.Validator):
         if business_category not in self._ALLOWED_VALUES:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_INVALID_BUSINESS_CATEGORY,
-                f'Invalid business category: "{business_category}"'
+                f'Invalid business category: "{business_category}"',
             )
 
 
@@ -66,13 +66,15 @@ class X520NameAttributeValueLengthValidator(validation.Validator):
 
     VALIDATION_NAME_VALUE_TOO_LONG = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.name_attribute_value_too_long'
+        "cabf.serverauth.name_attribute_value_too_long",
     )
 
     _MAX_NAME_LENGTH_CHARS = 64
 
     def __init__(self):
-        super().__init__(validations=self.VALIDATION_NAME_VALUE_TOO_LONG, pdu_class=rfc5280.X520name)
+        super().__init__(
+            validations=self.VALIDATION_NAME_VALUE_TOO_LONG, pdu_class=rfc5280.X520name
+        )
 
     def validate(self, node):
         _, value_node = node.child
@@ -82,7 +84,7 @@ class X520NameAttributeValueLengthValidator(validation.Validator):
         if len(value) > self._MAX_NAME_LENGTH_CHARS:
             raise validation.ValidationFindingEncountered(
                 self._validations[0],
-                f'Attribute value exceeds maximum length of {self._MAX_NAME_LENGTH_CHARS}: "{value}"'
+                f'Attribute value exceeds maximum length of {self._MAX_NAME_LENGTH_CHARS}: "{value}"',
             )
 
 
@@ -91,12 +93,14 @@ class DomainComponentAttributeValueLengthValidator(validation.Validator):
 
     VALIDATION_DC_ATTRIBUTE_VALUE_TOO_LONG = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.domain_component_attribute_value_length_too_long'
+        "cabf.serverauth.domain_component_attribute_value_length_too_long",
     )
 
     def __init__(self):
-        super().__init__(validations=self.VALIDATION_DC_ATTRIBUTE_VALUE_TOO_LONG,
-                         pdu_class=rfc5280.DomainComponent)
+        super().__init__(
+            validations=self.VALIDATION_DC_ATTRIBUTE_VALUE_TOO_LONG,
+            pdu_class=rfc5280.DomainComponent,
+        )
 
     def validate(self, node):
         value_str = str(node.pdu)
@@ -112,7 +116,7 @@ class AttributeValueDirectoryStringValidator(validation.Validator):
 
     VALIDATION_ATTRIBUTE_VALUE_INVALID_ENCODING = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.attribute_value_invalid_encoding_type'
+        "cabf.serverauth.attribute_value_invalid_encoding_type",
     )
 
     _ENFORCED_ATTRIBUTE_TYPE_OIDS = {
@@ -132,12 +136,15 @@ class AttributeValueDirectoryStringValidator(validation.Validator):
     }
 
     def __init__(self):
-        super().__init__(validations=self.VALIDATION_ATTRIBUTE_VALUE_INVALID_ENCODING,
-                         pdu_class=rfc5280.AttributeTypeAndValue,
-                         predicate=lambda n: n.navigate('type').pdu in self._ENFORCED_ATTRIBUTE_TYPE_OIDS)
+        super().__init__(
+            validations=self.VALIDATION_ATTRIBUTE_VALUE_INVALID_ENCODING,
+            pdu_class=rfc5280.AttributeTypeAndValue,
+            predicate=lambda n: n.navigate("type").pdu
+            in self._ENFORCED_ATTRIBUTE_TYPE_OIDS,
+        )
 
     def validate(self, node):
-        value_node = node.navigate('value')
+        value_node = node.navigate("value")
 
         if not any(value_node.children):
             # unparsed attribute
@@ -146,10 +153,10 @@ class AttributeValueDirectoryStringValidator(validation.Validator):
         _, parsed_attr = value_node.child
         directory_string_choice_name, _ = parsed_attr.child
 
-        if directory_string_choice_name not in {'utf8String', 'printableString'}:
+        if directory_string_choice_name not in {"utf8String", "printableString"}:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_ATTRIBUTE_VALUE_INVALID_ENCODING,
-                f'Invalid attribute value encoding: {directory_string_choice_name}'
+                f"Invalid attribute value encoding: {directory_string_choice_name}",
             )
 
 
@@ -157,8 +164,7 @@ class AttributeOrderEncodingValidator(validation.Validator):
     """Validates that the encoded order of subject attributes conforms to the list in BR 7.1.4.2."""
 
     VALIDATION_INVALID_RDN_ORDER = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.invalid_rdn_order'
+        validation.ValidationFindingSeverity.ERROR, "cabf.serverauth.invalid_rdn_order"
     )
 
     _ENFORCED_ATTRIBUTE_TYPE_OIDS = [
@@ -176,15 +182,17 @@ class AttributeOrderEncodingValidator(validation.Validator):
     ]
 
     def __init__(self):
-        super().__init__(validations=self.VALIDATION_INVALID_RDN_ORDER,
-                         path='certificate.tbsCertificate.subject.rdnSequence')
+        super().__init__(
+            validations=self.VALIDATION_INVALID_RDN_ORDER,
+            path="certificate.tbsCertificate.subject.rdnSequence",
+        )
 
     def validate(self, node):
         enforced_order_cursor_idx = None
 
         # assume each RDN has one ATV
         for rdn in node.children.values():
-            attr_oid = rdn.children['0'].children['type'].pdu
+            attr_oid = rdn.children["0"].children["type"].pdu
 
             try:
                 idx = self._ENFORCED_ATTRIBUTE_TYPE_OIDS.index(attr_oid)
@@ -195,32 +203,41 @@ class AttributeOrderEncodingValidator(validation.Validator):
                 enforced_order_cursor_idx = idx
             elif idx < enforced_order_cursor_idx:
                 current_rdn_oid = str(attr_oid)
-                enforced_order_oid = str(self._ENFORCED_ATTRIBUTE_TYPE_OIDS[enforced_order_cursor_idx])
+                enforced_order_oid = str(
+                    self._ENFORCED_ATTRIBUTE_TYPE_OIDS[enforced_order_cursor_idx]
+                )
 
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_INVALID_RDN_ORDER,
-                    f'Invalid RDN order: {current_rdn_oid} follows {enforced_order_oid}')
+                    f"Invalid RDN order: {current_rdn_oid} follows {enforced_order_oid}",
+                )
             else:
                 enforced_order_cursor_idx = idx
 
 
-class ServerauthRelativeDistinguishedNameContainsOneElementValidator(validation.Validator):
+class ServerauthRelativeDistinguishedNameContainsOneElementValidator(
+    validation.Validator
+):
     """Validates that each RelativeDistguishedName contains exactly one AttributeTypeAndValue, as per BR 7.1.4.2."""
 
     VALIDATION_RDN_CONTAINS_MULTIPLE_ATVS = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.rdn_contains_multiple_atvs'
+        "cabf.serverauth.rdn_contains_multiple_atvs",
     )
 
     def __init__(self):
-        super().__init__(validations=[self.VALIDATION_RDN_CONTAINS_MULTIPLE_ATVS],
-                         pdu_class=rfc5280.RelativeDistinguishedName)
+        super().__init__(
+            validations=[self.VALIDATION_RDN_CONTAINS_MULTIPLE_ATVS],
+            pdu_class=rfc5280.RelativeDistinguishedName,
+        )
 
     def validate(self, node):
         child_count = len(node.children)
 
         if child_count > 1:
-            raise validation.ValidationFindingEncountered(self.VALIDATION_RDN_CONTAINS_MULTIPLE_ATVS)
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_RDN_CONTAINS_MULTIPLE_ATVS
+            )
 
 
 class ServerauthDuplicateAttributeTypeValidator(name.DuplicateAttributeTypeValidator):
@@ -228,23 +245,27 @@ class ServerauthDuplicateAttributeTypeValidator(name.DuplicateAttributeTypeValid
 
     VALIDATION_DUPLICATE_ATTRIBUTE_TYPES = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.prohibited_duplicate_attribute_type'
+        "cabf.serverauth.prohibited_duplicate_attribute_type",
     )
 
     def __init__(self, certificate_type):
         allowed_oids = set()
 
-        if certificate_type in {serverauth_constants.CertificateType.OV_FINAL_CERTIFICATE,
-                                serverauth_constants.CertificateType.OV_PRE_CERTIFICATE}:
+        if certificate_type in {
+            serverauth_constants.CertificateType.OV_FINAL_CERTIFICATE,
+            serverauth_constants.CertificateType.OV_PRE_CERTIFICATE,
+        }:
             allowed_oids.add(rfc5280.id_domainComponent)
 
-        if certificate_type not in {serverauth_constants.CertificateType.DV_FINAL_CERTIFICATE,
-                                    serverauth_constants.CertificateType.DV_PRE_CERTIFICATE}:
+        if certificate_type not in {
+            serverauth_constants.CertificateType.DV_FINAL_CERTIFICATE,
+            serverauth_constants.CertificateType.DV_PRE_CERTIFICATE,
+        }:
             allowed_oids.add(x520_name.id_at_streetAddress)
 
         super().__init__(
             allowed_duplicate_oid_set=allowed_oids,
-            validation=self.VALIDATION_DUPLICATE_ATTRIBUTE_TYPES
+            validation=self.VALIDATION_DUPLICATE_ATTRIBUTE_TYPES,
         )
 
 
@@ -254,38 +275,41 @@ class DnsNameLdhLabelSyntaxValidator(validation.Validator):
 
     VALIDATION_INVALID_DNSNAME_SYNTAX = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.invalid_dnsname_syntax'
+        "cabf.serverauth.invalid_dnsname_syntax",
     )
 
     VALIDATION_PROHIBITED_RESERVED_LABEL = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.dnsname_contains_prohibited_reserved_label'
+        "cabf.serverauth.dnsname_contains_prohibited_reserved_label",
     )
 
     VALIDATION_INVALID_PLABEL = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.invalid_plabel_encoding'
+        "cabf.serverauth.invalid_plabel_encoding",
     )
 
-    _ACE_REGEX = re.compile(r'^(?P<tag>.{2})--(?P<ace>.+)$', re.RegexFlag.IGNORECASE)
-    _NON_LDH_CHAR_REGEX = re.compile(r'[^a-zA-Z0-9-]')
+    _ACE_REGEX = re.compile(r"^(?P<tag>.{2})--(?P<ace>.+)$", re.RegexFlag.IGNORECASE)
+    _NON_LDH_CHAR_REGEX = re.compile(r"[^a-zA-Z0-9-]")
 
     def __init__(self):
         super().__init__(
             validations=[
                 self.VALIDATION_INVALID_DNSNAME_SYNTAX,
                 self.VALIDATION_PROHIBITED_RESERVED_LABEL,
-                self.VALIDATION_INVALID_PLABEL],
-            predicate=general_name.create_generalname_type_predicate('dNSName')
-         )
+                self.VALIDATION_INVALID_PLABEL,
+            ],
+            predicate=general_name.create_generalname_type_predicate("dNSName"),
+        )
 
     def _is_valid_ldh_syntax(self, label):
         label_len = len(label)
 
-        return (0 < label_len <= 63 and
-                self._NON_LDH_CHAR_REGEX.search(label) is None and
-                not label.startswith('-') and not label.endswith('-')
-                )
+        return (
+            0 < label_len <= 63
+            and self._NON_LDH_CHAR_REGEX.search(label) is None
+            and not label.startswith("-")
+            and not label.endswith("-")
+        )
 
     def validate(self, node):
         value = str(node.pdu)
@@ -295,15 +319,15 @@ class DnsNameLdhLabelSyntaxValidator(validation.Validator):
         if in_nc and len(value) == 0:
             return
 
-        fqdn = value[2:] if not in_nc and value.startswith('*.') else value
+        fqdn = value[2:] if not in_nc and value.startswith("*.") else value
 
-        labels = fqdn.split('.')
+        labels = fqdn.split(".")
 
         for label in labels:
             if not self._is_valid_ldh_syntax(label):
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_INVALID_DNSNAME_SYNTAX,
-                    f'Non-LDH domain label "{label}" in domain name "{value}"'
+                    f'Non-LDH domain label "{label}" in domain name "{value}"',
                 )
 
             m = self._ACE_REGEX.search(label)
@@ -311,20 +335,20 @@ class DnsNameLdhLabelSyntaxValidator(validation.Validator):
             if m is None:
                 continue
 
-            tag = m.group('tag')
+            tag = m.group("tag")
 
-            if tag.casefold() != 'xn'.casefold():
+            if tag.casefold() != "xn".casefold():
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_PROHIBITED_RESERVED_LABEL,
-                    f'Invalid reserved label "{label}" with tag "{tag}" in domain name "{value}"'
+                    f'Invalid reserved label "{label}" with tag "{tag}" in domain name "{value}"',
                 )
 
             try:
-                _ = m.group('ace').encode().decode('punycode')
+                _ = m.group("ace").encode().decode("punycode")
             except UnicodeError:
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_INVALID_PLABEL,
-                    f'Invalid P-Label "{label}" in domain name "{value}"'
+                    f'Invalid P-Label "{label}" in domain name "{value}"',
                 )
 
 
@@ -333,30 +357,35 @@ class TorVersion3DomainNameValidator(validation.Validator):
 
     VALIDATION_INVALID_TOR_V3_NAME = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.invalid_tor_v3_domain_name'
+        "cabf.serverauth.invalid_tor_v3_domain_name",
     )
 
     VALIDATION_INVALID_TOR_VERSION = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.invalid_tor_version'
+        "cabf.serverauth.invalid_tor_version",
     )
 
     VALIDATION_INVALID_TOR_CHECKSUM = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        'cabf.serverauth.invalid_tor_checksum'
+        "cabf.serverauth.invalid_tor_checksum",
     )
 
-    _CHECKSUM = b'.onion checksum'
+    _CHECKSUM = b".onion checksum"
     _VERSION = 0x03
 
-    _ONION_V3_DOMAIN_NAME_REGEX = re.compile(r'^([^.]+\.)*(?P<descriptor>[a-z2-7]{56})(\.onion)?$', re.IGNORECASE)
+    _ONION_V3_DOMAIN_NAME_REGEX = re.compile(
+        r"^([^.]+\.)*(?P<descriptor>[a-z2-7]{56})(\.onion)?$", re.IGNORECASE
+    )
 
     def __init__(self):
-        super().__init__(validations=[
-                            self.VALIDATION_INVALID_TOR_V3_NAME,
-                            self.VALIDATION_INVALID_TOR_VERSION,
-                            self.VALIDATION_INVALID_TOR_CHECKSUM],
-                         predicate=general_name.create_generalname_type_predicate('dNSName'))
+        super().__init__(
+            validations=[
+                self.VALIDATION_INVALID_TOR_V3_NAME,
+                self.VALIDATION_INVALID_TOR_VERSION,
+                self.VALIDATION_INVALID_TOR_CHECKSUM,
+            ],
+            predicate=general_name.create_generalname_type_predicate("dNSName"),
+        )
 
     @staticmethod
     def _calculate_checksum(pubkey_octets):
@@ -374,7 +403,7 @@ class TorVersion3DomainNameValidator(validation.Validator):
     def validate(self, node):
         value = str(node.pdu)
 
-        if not value.lower().endswith('.onion'):
+        if not value.lower().endswith(".onion"):
             return
 
         m = self._ONION_V3_DOMAIN_NAME_REGEX.match(value)
@@ -382,15 +411,15 @@ class TorVersion3DomainNameValidator(validation.Validator):
         if m is None:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_INVALID_TOR_V3_NAME,
-                f'Invalid Tor v3 domain name: "{value}"'
+                f'Invalid Tor v3 domain name: "{value}"',
             )
 
         try:
-            decoded = base64.b32decode(m.group('descriptor').upper())
+            decoded = base64.b32decode(m.group("descriptor").upper())
         except binascii.Error:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_INVALID_TOR_V3_NAME,
-                f'Invalid Base-32 encoding for descriptor: "{value}"'
+                f'Invalid Base-32 encoding for descriptor: "{value}"',
             )
 
         version = decoded[-1]
@@ -398,16 +427,18 @@ class TorVersion3DomainNameValidator(validation.Validator):
         if version != self._VERSION:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_INVALID_TOR_VERSION,
-                f'Invalid Tor version {version} in domain name: "{value}"'
+                f'Invalid Tor version {version} in domain name: "{value}"',
             )
 
         actual_checksum = decoded[-3:-1]
         pubkey_octets = decoded[0:32]
 
-        expected_checksum = TorVersion3DomainNameValidator._calculate_checksum(pubkey_octets)
+        expected_checksum = TorVersion3DomainNameValidator._calculate_checksum(
+            pubkey_octets
+        )
 
         if actual_checksum != expected_checksum:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_INVALID_TOR_CHECKSUM,
-                f'Invalid Tor v3 checksum. Expected: {expected_checksum.hex()}, actual: {actual_checksum.hex()}'
+                f"Invalid Tor v3 checksum. Expected: {expected_checksum.hex()}, actual: {actual_checksum.hex()}",
             )

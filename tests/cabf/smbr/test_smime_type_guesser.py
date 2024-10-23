@@ -6,16 +6,19 @@ from pkilint.cabf.smime import smime_constants
 
 
 def _test_wrapper(pem, expected_validation_level, expected_generation, mapping=None):
-    cert = loader.load_pem_certificate(pem.strip(), 'test_cert')
+    cert = loader.load_pem_certificate(pem.strip(), "test_cert")
 
-    validation_level, generation = smime.guess_validation_level_and_generation(cert, mapping)
+    validation_level, generation = smime.guess_validation_level_and_generation(
+        cert, mapping
+    )
 
     assert validation_level == expected_validation_level
     assert generation == expected_generation
 
 
 def test_organization_cn_o_same():
-    _test_wrapper("""-----BEGIN CERTIFICATE-----
+    _test_wrapper(
+        """-----BEGIN CERTIFICATE-----
 MIIDvDCCAqSgAwIBAgITDy0lvRE5l0rOQlSHoe49NAaKtDANBgkqhkiG9w0BAQ0F
 ADBTMRcwFQYDVQQKEw5Gb28gSW5kdXN0cmllczEkMCIGA1UECxMbRGVwYXJ0bWVu
 dCBvZiBDZXJ0aWZpY2F0aW9uMRIwEAYDVQQDEwlSU0EgQ0EgRzMwHhcNMjIxMTIw
@@ -36,16 +39,22 @@ OQEP4YMS7y4q94RFFdmdzEbDLYx9sfUhvdTxDNOOoHz53PYDBh4zE4Nar2inC0D+
 VM6RGDy66K9l+D+bl8Wj9CyGUc1ppMNURexTg+z3web/eDOdu+F2MVtluLihne0B
 p1GUTkr0mJBolg6dSYal8Hw8/ANHpyExl56BJABb744gqoeuD9YSHjKK49+qYC9f
 aFmQ+mK80lh1M9RdNI7srjn0LKpuob6w06jaRzWdNeXzlEc2tUpAr4vRhZjVD6FY
------END CERTIFICATE-----""", smime_constants.ValidationLevel.ORGANIZATION, smime_constants.Generation.LEGACY)
+-----END CERTIFICATE-----""",
+        smime_constants.ValidationLevel.ORGANIZATION,
+        smime_constants.Generation.LEGACY,
+    )
 
 
 def test_mapping():
     mapping = {
-        univ.ObjectIdentifier('1.2.3.4.5.6'): (smime_constants.ValidationLevel.MAILBOX,
-                                               smime_constants.Generation.LEGACY)
+        univ.ObjectIdentifier("1.2.3.4.5.6"): (
+            smime_constants.ValidationLevel.MAILBOX,
+            smime_constants.Generation.LEGACY,
+        )
     }
 
-    _test_wrapper("""-----BEGIN CERTIFICATE-----
+    _test_wrapper(
+        """-----BEGIN CERTIFICATE-----
     MIIDvDCCAqSgAwIBAgITDy0lvRE5l0rOQlSHoe49NAaKtDANBgkqhkiG9w0BAQ0F
     ADBTMRcwFQYDVQQKEw5Gb28gSW5kdXN0cmllczEkMCIGA1UECxMbRGVwYXJ0bWVu
     dCBvZiBDZXJ0aWZpY2F0aW9uMRIwEAYDVQQDEwlSU0EgQ0EgRzMwHhcNMjIxMTIw
@@ -66,16 +75,23 @@ def test_mapping():
     VM6RGDy66K9l+D+bl8Wj9CyGUc1ppMNURexTg+z3web/eDOdu+F2MVtluLihne0B
     p1GUTkr0mJBolg6dSYal8Hw8/ANHpyExl56BJABb744gqoeuD9YSHjKK49+qYC9f
     aFmQ+mK80lh1M9RdNI7srjn0LKpuob6w06jaRzWdNeXzlEc2tUpAr4vRhZjVD6FY
-    -----END CERTIFICATE-----""", smime_constants.ValidationLevel.MAILBOX, smime_constants.Generation.LEGACY, mapping)
+    -----END CERTIFICATE-----""",
+        smime_constants.ValidationLevel.MAILBOX,
+        smime_constants.Generation.LEGACY,
+        mapping,
+    )
 
 
 def test_guess_with_reserved_oid():
     mapping = {
-        univ.ObjectIdentifier('1.2.3.4.5.6'): (smime_constants.ValidationLevel.MAILBOX,
-                                               smime_constants.Generation.LEGACY)
+        univ.ObjectIdentifier("1.2.3.4.5.6"): (
+            smime_constants.ValidationLevel.MAILBOX,
+            smime_constants.Generation.LEGACY,
+        )
     }
 
-    _test_wrapper("""-----BEGIN CERTIFICATE-----
+    _test_wrapper(
+        """-----BEGIN CERTIFICATE-----
 MIIDxzCCAq+gAwIBAgITDy0lvRE5l0rOQlSHoe49NAaKtDANBgkqhkiG9w0BAQ0F
 ADBTMRcwFQYDVQQKEw5Gb28gSW5kdXN0cmllczEkMCIGA1UECxMbRGVwYXJ0bWVu
 dCBvZiBDZXJ0aWZpY2F0aW9uMRIwEAYDVQQDEwlSU0EgQ0EgRzMwHhcNMjIxMTIw
@@ -97,12 +113,16 @@ HjMTg1qvaKcLQP5UzpEYPLror2X4P5uXxaP0LIZRzWmkw1RF7FOD7PfB5v94M527
 4XYxW2W4uKGd7QGnUZROSvSYkGiWDp1JhqXwfDz8A0enITGXnoEkAFvvjiCqh64P
 1hIeMorj36pgL19oWZD6YrzSWHUz1F00juyuOfQsqm6hvrDTqNpHNZ015fOURza1
 SkCvi9GFmNUPoVg=
------END CERTIFICATE-----""", smime_constants.ValidationLevel.ORGANIZATION, smime_constants.Generation.MULTIPURPOSE,
-                  mapping)
+-----END CERTIFICATE-----""",
+        smime_constants.ValidationLevel.ORGANIZATION,
+        smime_constants.Generation.MULTIPURPOSE,
+        mapping,
+    )
 
 
 def test_sponsored_cn_o_different():
-    _test_wrapper("""-----BEGIN CERTIFICATE-----
+    _test_wrapper(
+        """-----BEGIN CERTIFICATE-----
 MIIDzzCCAregAwIBAgITDy0lvRE5l0rOQlSHoe49NAaKtDANBgkqhkiG9w0BAQ0F
 ADBTMRcwFQYDVQQKEw5Gb28gSW5kdXN0cmllczEkMCIGA1UECxMbRGVwYXJ0bWVu
 dCBvZiBDZXJ0aWZpY2F0aW9uMRIwEAYDVQQDEwlSU0EgQ0EgRzMwHhcNMjIxMTIw
@@ -124,11 +144,15 @@ jqB8+dz2AwYeMxODWq9opwtA/lTOkRg8uuivZfg/m5fFo/QshlHNaaTDVEXsU4Ps
 98Hm/3gznbvhdjFbZbi4oZ3tAadRlE5K9JiQaJYOnUmGpfB8PPwDR6chMZeegSQA
 W++OIKqHrg/WEh4yiuPfqmAvX2hZkPpivNJYdTPUXTSO7K459CyqbqG+sNOo2kc1
 nTXl85RHNrVKQK+L0YWY1Q+hWA==
------END CERTIFICATE-----""", smime_constants.ValidationLevel.SPONSORED, smime_constants.Generation.LEGACY)
+-----END CERTIFICATE-----""",
+        smime_constants.ValidationLevel.SPONSORED,
+        smime_constants.Generation.LEGACY,
+    )
 
 
 def test_mailbox_empty_subject_dn():
-    _test_wrapper("""-----BEGIN CERTIFICATE-----
+    _test_wrapper(
+        """-----BEGIN CERTIFICATE-----
 MIIDizCCAnOgAwIBAgITDy0lvRE5l0rOQlSHoe49NAaKtDANBgkqhkiG9w0BAQ0F
 ADBTMRcwFQYDVQQKEw5Gb28gSW5kdXN0cmllczEkMCIGA1UECxMbRGVwYXJ0bWVu
 dCBvZiBDZXJ0aWZpY2F0aW9uMRIwEAYDVQQDEwlSU0EgQ0EgRzMwHhcNMjIxMTIw
@@ -148,11 +172,15 @@ AQ/hgxLvLir3hEUV2Z3MRsMtjH2x9SG91PEM046gfPnc9gMGHjMTg1qvaKcLQP5U
 zpEYPLror2X4P5uXxaP0LIZRzWmkw1RF7FOD7PfB5v94M5274XYxW2W4uKGd7QGn
 UZROSvSYkGiWDp1JhqXwfDz8A0enITGXnoEkAFvvjiCqh64P1hIeMorj36pgL19o
 WZD6YrzSWHUz1F00juyuOfQsqm6hvrDTqNpHNZ015fOURza1SkCvi9GFmNUPoVg=
------END CERTIFICATE-----""", smime_constants.ValidationLevel.MAILBOX, smime_constants.Generation.LEGACY)
+-----END CERTIFICATE-----""",
+        smime_constants.ValidationLevel.MAILBOX,
+        smime_constants.Generation.LEGACY,
+    )
 
 
 def test_individual_givenname():
-    _test_wrapper("""-----BEGIN CERTIFICATE-----
+    _test_wrapper(
+        """-----BEGIN CERTIFICATE-----
 MIIDmTCCAoGgAwIBAgITDy0lvRE5l0rOQlSHoe49NAaKtDANBgkqhkiG9w0BAQ0F
 ADBTMRcwFQYDVQQKEw5Gb28gSW5kdXN0cmllczEkMCIGA1UECxMbRGVwYXJ0bWVu
 dCBvZiBDZXJ0aWZpY2F0aW9uMRIwEAYDVQQDEwlSU0EgQ0EgRzMwHhcNMjIxMTIw
@@ -173,4 +201,7 @@ AwYeMxODWq9opwtA/lTOkRg8uuivZfg/m5fFo/QshlHNaaTDVEXsU4Ps98Hm/3gz
 nbvhdjFbZbi4oZ3tAadRlE5K9JiQaJYOnUmGpfB8PPwDR6chMZeegSQAW++OIKqH
 rg/WEh4yiuPfqmAvX2hZkPpivNJYdTPUXTSO7K459CyqbqG+sNOo2kc1nTXl85RH
 NrVKQK+L0YWY1Q+hWA==
------END CERTIFICATE-----""", smime_constants.ValidationLevel.INDIVIDUAL, smime_constants.Generation.LEGACY)
+-----END CERTIFICATE-----""",
+        smime_constants.ValidationLevel.INDIVIDUAL,
+        smime_constants.Generation.LEGACY,
+    )

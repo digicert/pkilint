@@ -1,7 +1,7 @@
 from pyasn1.type import univ
 
 
-_ARC = univ.ObjectIdentifier('0.4.0.2042.1.1')
+_ARC = univ.ObjectIdentifier("0.4.0.2042.1.1")
 
 id_ncp = _ARC + (1,)
 

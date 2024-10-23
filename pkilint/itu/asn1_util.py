@@ -6,7 +6,7 @@ from pkilint import document
 
 
 def get_string_value_from_attribute_node(node: document.PDUNode) -> Optional[str]:
-    node = node.children['value']
+    node = node.children["value"]
 
     try:
         _, node = node.child
