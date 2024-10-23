@@ -2,6 +2,12 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.12.3 - 2024-10-23
+
+### New features/enhancements
+
+- Reformat codebase to use [Black](https://github.com/psf/black) (#125)
+
 ## 0.12.2 - 2024-10-14
 
 ### Fixes
