@@ -3,7 +3,7 @@ from enum import auto
 
 from pyasn1.type.univ import ObjectIdentifier
 
-BR_VERSION = "2.0.3"
+BR_VERSION = "2.0.10"
 
 
 ID_POLICY_EV = ObjectIdentifier("2.23.140.1.1")
@@ -24,6 +24,8 @@ class CertificateType(enum.IntEnum):
     ROOT_CA = auto()
     INTERNAL_CROSS_CA = auto()
     EXTERNAL_CROSS_CA = auto()
+    INTERNAL_SUBSCRIBER_ISSUING_CROSS_CA = auto()
+    EXTERNAL_SUBSCRIBER_ISSUING_CROSS_CA = auto()
     NON_TLS_CA = auto()
     PRECERT_SIGNING_CA = auto()
     INTERNAL_UNCONSTRAINED_TLS_CA = auto()
@@ -56,23 +58,30 @@ class CertificateType(enum.IntEnum):
         return CertificateType[value]
 
 
-INTERMEDIATE_CERTIFICATE_TYPES = {
+INTERNAL_CROSS_CA_TYPES = {
     CertificateType.INTERNAL_CROSS_CA,
-    CertificateType.EXTERNAL_CROSS_CA,
-    CertificateType.NON_TLS_CA,
-    CertificateType.PRECERT_SIGNING_CA,
-    CertificateType.INTERNAL_UNCONSTRAINED_TLS_CA,
-    CertificateType.INTERNAL_CONSTRAINED_TLS_CA,
-    CertificateType.EXTERNAL_UNCONSTRAINED_TLS_CA,
-    CertificateType.EXTERNAL_UNCONSTRAINED_EV_TLS_CA,
-    CertificateType.EXTERNAL_CONSTRAINED_TLS_CA,
-    CertificateType.EXTERNAL_CONSTRAINED_EV_TLS_CA,
+    CertificateType.INTERNAL_SUBSCRIBER_ISSUING_CROSS_CA,
 }
 
-CROSS_CA_TYPES = {CertificateType.INTERNAL_CROSS_CA, CertificateType.EXTERNAL_CROSS_CA}
+
+EXTERNAL_CROSS_CA_TYPES = {
+    CertificateType.EXTERNAL_CROSS_CA,
+    CertificateType.EXTERNAL_SUBSCRIBER_ISSUING_CROSS_CA,
+}
+
+
+CROSS_CA_TYPES = INTERNAL_CROSS_CA_TYPES | EXTERNAL_CROSS_CA_TYPES
+
+
+ROOT_KEY_CROSS_CA_TYPES = {
+    CertificateType.INTERNAL_CROSS_CA,
+    CertificateType.EXTERNAL_CROSS_CA,
+}
+
 
 INTERNAL_CA_TYPES = {
     CertificateType.INTERNAL_CROSS_CA,
+    CertificateType.INTERNAL_SUBSCRIBER_ISSUING_CROSS_CA,
     CertificateType.INTERNAL_UNCONSTRAINED_TLS_CA,
     CertificateType.INTERNAL_CONSTRAINED_TLS_CA,
     CertificateType.NON_TLS_CA,
@@ -84,7 +93,12 @@ EXTERNAL_CA_TYPES = {
     CertificateType.EXTERNAL_UNCONSTRAINED_EV_TLS_CA,
     CertificateType.EXTERNAL_CONSTRAINED_TLS_CA,
     CertificateType.EXTERNAL_CROSS_CA,
+    CertificateType.EXTERNAL_SUBSCRIBER_ISSUING_CROSS_CA,
 }
+
+INTERMEDIATE_CERTIFICATE_TYPES = (
+    INTERNAL_CA_TYPES | EXTERNAL_CA_TYPES | {CertificateType.PRECERT_SIGNING_CA}
+)
 
 CONSTRAINED_TLS_CA_TYPES = {
     CertificateType.EXTERNAL_CONSTRAINED_EV_TLS_CA,
@@ -92,11 +106,14 @@ CONSTRAINED_TLS_CA_TYPES = {
     CertificateType.INTERNAL_CONSTRAINED_TLS_CA,
 }
 
-TLS_CA_TYPES = {
-    CertificateType.INTERNAL_CROSS_CA,
-    CertificateType.INTERNAL_UNCONSTRAINED_TLS_CA,
-    CertificateType.INTERNAL_CONSTRAINED_TLS_CA,
-} | EXTERNAL_CA_TYPES
+TLS_CA_TYPES = (
+    {
+        CertificateType.INTERNAL_UNCONSTRAINED_TLS_CA,
+        CertificateType.INTERNAL_CONSTRAINED_TLS_CA,
+    }
+    | EXTERNAL_CA_TYPES
+    | INTERNAL_CROSS_CA_TYPES
+)
 
 SUBSCRIBER_FINAL_CERTIFICATE_TYPES = {
     CertificateType.DV_FINAL_CERTIFICATE,

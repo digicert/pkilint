@@ -27,9 +27,9 @@ class CrossCertificateExtensionAllowanceValidator(
     def __init__(self, certificate_type):
         self._extension_allowances = self._EXTENSION_ALLOWANCES.copy()
 
-        if certificate_type == serverauth_constants.CertificateType.EXTERNAL_CROSS_CA:
+        if certificate_type in serverauth_constants.EXTERNAL_CROSS_CA_TYPES:
             eku_allowance_word = Rfc2119Word.MUST
-        elif certificate_type == serverauth_constants.CertificateType.INTERNAL_CROSS_CA:
+        elif certificate_type in serverauth_constants.INTERNAL_CROSS_CA_TYPES:
             eku_allowance_word = Rfc2119Word.SHOULD
         else:
             raise ValueError(f"Unsupported certificate type: {certificate_type}")
@@ -81,17 +81,11 @@ class CrossCertificateAllowedEkuValidator(common.ExtendedKeyUsageAllowanceValida
         ekus = {n.pdu for n in node.children.values()}
 
         if rfc5280.anyExtendedKeyUsage in ekus:
-            if (
-                self._certificate_type
-                == serverauth_constants.CertificateType.EXTERNAL_CROSS_CA
-            ):
+            if self._certificate_type in serverauth_constants.EXTERNAL_CROSS_CA_TYPES:
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_EXTERNAL_CROSS_CA_ANYEKU_PRESENT
                 )
-            elif (
-                self._certificate_type
-                == serverauth_constants.CertificateType.INTERNAL_CROSS_CA
-            ):
+            elif self._certificate_type in serverauth_constants.INTERNAL_CROSS_CA_TYPES:
                 if len(node.children) != 1:
                     raise validation.ValidationFindingEncountered(
                         self.VALIDATION_INTERNAL_CROSS_CA_ANYEKU_WITH_OTHER_EKU
