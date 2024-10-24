@@ -1,9 +1,7 @@
-import functools
 import glob
 import sys
 from os import path
 
-import tests.integration_test_common
 from pkilint.pkix import certificate, name, extension
 from tests.integration_certificate import register_test
 

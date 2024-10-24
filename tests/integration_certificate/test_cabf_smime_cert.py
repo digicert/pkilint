@@ -1,9 +1,7 @@
-import functools
 import glob
 import sys
 from os import path
 
-import tests.integration_test_common
 from pkilint.cabf import smime
 from pkilint.cabf.smime import smime_constants
 from pkilint.pkix import certificate

@@ -59,7 +59,7 @@ class CabfOrganizationIdentifierValidatorBase(
         "cabf.invalid_organization_identifier_country",
     )
 
-    # the attribute name for this finding is prefixed with an underscore so it's not flagged by the "validation report"
+    # the attribute name for this finding is prefixed with an underscore, so it's not flagged by the "validation report"
     # test
     _VALIDATION_ORGANIZATION_ID_INVALID_SP_FORMAT = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
@@ -191,12 +191,18 @@ class CabfOrganizationIdentifierAttributeValidator(
             typing.Mapping[str, organization_id.OrganizationIdentifierElementAllowance]
         ] = None,
         enforce_strict_state_province_format=True,
+        additional_validations: typing.Optional[
+            typing.List[validation.ValidationFinding]
+        ] = None,
     ):
+        if additional_validations is None:
+            additional_validations = []
+
         super().__init__(
             self.VALIDATION_ORGANIZATION_ID_INVALID_FORMAT,
             additional_schemes,
             enforce_strict_state_province_format,
-            [self.VALIDATION_ORGANIZATION_ID_INVALID_ENCODING],
+            [self.VALIDATION_ORGANIZATION_ID_INVALID_ENCODING] + additional_validations,
             pdu_class=x520_name.X520OrganizationIdentifier,
         )
 

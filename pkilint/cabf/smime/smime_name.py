@@ -264,6 +264,17 @@ class CabfSmimeOrganizationIdentifierAttributeValidator(
         "cabf.smime.prohibited_organization_identifier_reference_present_for_scheme",
     )
 
+    """
+    From SMBR 7.1.4.2.2 (d):
+    
+    For the NTR Registration Scheme, where the Legal Entity is registered within a European country, the NTR
+    Registration Scheme SHALL be assigned at the country level.
+    """
+    VALIDATION_ORG_ID_NTR_WITH_EU_COUNTRY_AND_STATE_PROVINCE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "cabf.smime.organization_id_has_ntr_scheme_with_eu_country_code_and_state_province",
+    )
+
     _LEI_SCHEME = organization_id.OrganizationIdentifierElementAllowance(
         country_codes=(
             {organization_id.COUNTRY_CODE_GLOBAL_SCHEME},
@@ -289,6 +300,37 @@ class CabfSmimeOrganizationIdentifierAttributeValidator(
         reference=_REFERENCE_PROHIBITED,
     )
 
+    _EU_MEMBER_STATE_COUNTRY_CODES = {
+        "AT",  # Austria
+        "BE",  # Belgium
+        "BG",  # Bulgaria
+        "HR",  # Croatia
+        "CY",  # Cyprus
+        "CZ",  # Czech Republic
+        "DE",  # Germany
+        "DK",  # Denmark
+        "EE",  # Estonia
+        "ES",  # Spain
+        "FI",  # Finland
+        "FR",  # France
+        "GR",  # Greece
+        "HR",  # Croatia
+        "HU",  # Hungary
+        "IE",  # Ireland
+        "IT",  # Italy
+        "LT",  # Lithuania
+        "LU",  # Luxembourg
+        "LV",  # Latvia
+        "MT",  # Malta
+        "NL",  # Netherlands
+        "PL",  # Poland
+        "PT",  # Portugal
+        "RO",  # Romania
+        "SK",  # Slovakia
+        "SI",  # Slovenia
+        "SE",  # Sweden
+    }
+
     def __init__(self):
         super().__init__(
             {
@@ -297,7 +339,27 @@ class CabfSmimeOrganizationIdentifierAttributeValidator(
                 "INT": self._INT_SCHEME,
             },
             enforce_strict_state_province_format=False,
+            additional_validations=[
+                self.VALIDATION_ORG_ID_NTR_WITH_EU_COUNTRY_AND_STATE_PROVINCE
+            ],
         )
+
+    def validate_with_parsed_value(self, node, parsed):
+        result = super().validate_with_parsed_value(node, parsed)
+
+        if any(result.finding_descriptions):
+            return validation.ValidationResult(self, node, result.finding_descriptions)
+
+        if (
+            parsed.scheme == "NTR"
+            and parsed.country in self._EU_MEMBER_STATE_COUNTRY_CODES
+            and parsed.state_province
+        ):
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_ORG_ID_NTR_WITH_EU_COUNTRY_AND_STATE_PROVINCE,
+                f'Organization identifier has NTR scheme with EU member state "{parsed.country}" and '
+                f'state/province "{parsed.state_province}": "{parsed.raw}"',
+            )
 
 
 class SubscriberAttributeDependencyValidator(validation.Validator):
