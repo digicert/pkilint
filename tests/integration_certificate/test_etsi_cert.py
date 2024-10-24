@@ -1,9 +1,7 @@
-import functools
 import glob
 import sys
 from os import path
 
-import tests.integration_test_common
 from pkilint import etsi
 from pkilint.etsi import etsi_constants
 from pkilint.pkix import certificate
