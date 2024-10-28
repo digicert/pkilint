@@ -4,7 +4,7 @@ from pkilint.etsi.asn1 import en_319_412_5
 from iso3166 import countries_by_alpha2
 from iso4217 import Currency
 from urllib.parse import urlparse
-from pyasn1_alt_modules import rfc3739
+from pyasn1_alt_modules import rfc3739, rfc5280
 from pkilint.pkix import extension, Rfc2119Word
 import iso639
 
@@ -306,6 +306,24 @@ class QcStatementsExtensionCriticalityValidator(
             type_oid=rfc3739.id_pe_qcStatements,
             is_critical=False,
             validation=self.VALIDATION_QCSTATEMENTS_EXTENSION_CRITICAL,
+        )
+
+
+class QcStatementPresenceValidator(extension.ExtensionPresenceValidator):
+    """
+    QCS-5-01: EU qualified certificates shall include QCStatements in accordance with table 2
+    """
+
+    VALIDATION_QC_STATEMENTS_MISSING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "etsi.en_319_412_5.qcs-5.01",
+    )
+
+    def __init__(self):
+        super().__init__(
+            extension_oid=rfc3739.id_pe_qcStatements,
+            validation=self.VALIDATION_QC_STATEMENTS_MISSING,
+            pdu_class=rfc5280.Extensions,
         )
 
 

@@ -292,6 +292,9 @@ def create_validators(
     if additional_top_level_validators:
         top_level_validators.extend(additional_top_level_validators)
 
+    if certificate_type in etsi_constants.EU:
+        extension_validators.append(en_319_412_5.QcStatementPresenceValidator())
+
     if (
         certificate_type in etsi_constants.LEGAL_PERSON_CERTIFICATE_TYPES
         and certificate_type not in etsi_constants.CABF_CERTIFICATE_TYPES

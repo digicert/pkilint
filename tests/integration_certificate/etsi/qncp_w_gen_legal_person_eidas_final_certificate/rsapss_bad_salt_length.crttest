@@ -35,3 +35,4 @@ certificate.tbsCertificate.extensions.4.extnValue.subjectKeyIdentifier,SubjectKe
 certificate.tbsCertificate.extensions,NaturalPersonExtensionIdentifierAllowanceValidator,ERROR,etsi.en_319_412_2.qc_statements_extension_absent,
 certificate.tbsCertificate.extensions,NcpWSubjectAltNamePresenceValidator,ERROR,etsi.en_319_412_4.web-4.1.3-4.san_missing,
 certificate.tbsCertificate.subject.rdnSequence.3.0.value.x520CommonName,NcpWCommonNameValidator,ERROR,etsi.en_319_412_4.web-4.1.3-4.common_name_unknown_source,"Unknown source for value of common name: ""sct"""
+certificate.tbsCertificate.extensions,QcStatementPresenceValidator,ERROR,etsi.en_319_412_5.qcs-5.01,
