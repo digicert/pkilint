@@ -245,6 +245,8 @@ def create_validators(
     if additional_name_validators:
         subject_validators.extend(additional_name_validators)
 
+    issuer_validators = []
+
     qc_statement_validators = [
         ts_119_495.RolesOfPspValidator(),
         ts_119_495.NCANameLatinCharactersValidator(),
@@ -314,6 +316,16 @@ def create_validators(
         subject_validators.append(
             en_319_412_2.NaturalPersonSubjectAttributeAllowanceValidator()
         )
+
+        if certificate_type in etsi_constants.EU:
+            issuer_validators.extend(
+                [
+                    en_319_412_2.LegalPersonIssuerCountryCodeValidator(),
+                    en_319_412_2.LegalPersonIssuerOrganizationAttributesEqualityValidator(),
+                    en_319_412_2.LegalPersonIssuerDuplicateAttributeAllowanceValidator(),
+                    en_319_412_2.LegalPersonIssuerAttributeAllowanceValidator(),
+                ]
+            )
 
     if certificate_type not in etsi_constants.CABF_CERTIFICATE_TYPES:
         extension_validators.extend(
@@ -409,7 +421,7 @@ def create_validators(
         )
 
         return [
-            certificate.create_issuer_validator_container([]),
+            certificate.create_issuer_validator_container(issuer_validators),
             certificate.create_validity_validator_container(
                 additional_validity_validators
             ),

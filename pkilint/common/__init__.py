@@ -320,6 +320,7 @@ class AttributeIdentifierAllowanceValidator(ElementIdentifierAllowanceValidator)
         attribute_allowances,
         finding_code_classifier: str,
         unknown_attribute_allowance: Rfc2119Word,
+        path: str = "certificate.tbsCertificate.subject.rdnSequence",
     ):
         unexpected_attribute_finding = (
             None
@@ -339,5 +340,5 @@ class AttributeIdentifierAllowanceValidator(ElementIdentifierAllowanceValidator)
             finding_code_classifier + ".{oid}_attribute_present",
             finding_code_classifier + ".{oid}_attribute_absent",
             unexpected_attribute_finding,
-            path="certificate.tbsCertificate.subject.rdnSequence",
+            path=path,
         )

@@ -3,10 +3,10 @@ import typing
 from pyasn1.type import univ
 from pyasn1_alt_modules import rfc5280, rfc3739
 
-import pkilint.etsi.asn1.en_319_411_2
+import pkilint.etsi.en_319_412_3
 from pkilint import validation, oid, document, common
-from pkilint.etsi import asn1 as etsi_asn1, etsi_shared
 from pkilint.etsi import etsi_constants
+from pkilint.etsi import etsi_shared
 from pkilint.etsi.asn1 import en_319_411_2
 from pkilint.pkix import extension, name, Rfc2119Word
 from pkilint.pkix.general_name import GeneralNameTypeName
@@ -565,3 +565,62 @@ class ExtensionsPresenceValidator(common.ExtensionsPresenceValidator):
 
     def __init__(self):
         super().__init__(self.VALIDATION_EXTENSIONS_FIELD_ABSENT)
+
+
+_LEGAL_PERSON_REQUIRED_ATTRIBUTES = {
+    rfc5280.id_at_countryName,
+    rfc5280.id_at_organizationName,
+    rfc5280.id_at_commonName,
+}
+
+
+class LegalPersonIssuerAttributeAllowanceValidator(
+    etsi_shared.LegalPersonAttributeAllowanceValidator
+):
+    _CODE_CLASSIFIER = "etsi.en_319_412_2.gen-4.2.3.1-2"
+
+    def __init__(self):
+        super().__init__(
+            self._CODE_CLASSIFIER,
+            _LEGAL_PERSON_REQUIRED_ATTRIBUTES,
+            "certificate.tbsCertificate.issuer.rdnSequence",
+        )
+
+
+class LegalPersonIssuerDuplicateAttributeAllowanceValidator(
+    etsi_shared.LegalPersonDuplicateAttributeAllowanceValidator
+):
+    VALIDATION_PROHIBITED_DUPLICATE_ATTRIBUTE_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "etsi.en_319_412_2.gen-4.2.3.1-5.prohibited_duplicate_attribute_present",
+    )
+
+    def __init__(self):
+        super().__init__(
+            self.VALIDATION_PROHIBITED_DUPLICATE_ATTRIBUTE_PRESENT,
+            _LEGAL_PERSON_REQUIRED_ATTRIBUTES,
+        )
+
+
+class LegalPersonIssuerOrganizationAttributesEqualityValidator(
+    etsi_shared.LegalPersonOrganizationAttributesEqualityValidator
+):
+    VALIDATION_ORGID_ORGNAME_ATTRIBUTE_VALUES_EQUAL = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "etsi.en_319_412_2.gen-4.2.3.1-3.organization_id_and_organization_name_attribute_values_equal",
+    )
+
+    def __init__(self):
+        super().__init__(self.VALIDATION_ORGID_ORGNAME_ATTRIBUTE_VALUES_EQUAL)
+
+
+class LegalPersonIssuerCountryCodeValidator(
+    etsi_shared.LegalPersonCountryCodeValidator
+):
+    VALIDATION_UNKNOWN_COUNTRY_CODE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.NOTICE,
+        "etsi.en_319_412_2.gen-4.2.3.1-6.unknown_country_code",
+    )
+
+    def __init__(self):
+        super().__init__(self.VALIDATION_UNKNOWN_COUNTRY_CODE)

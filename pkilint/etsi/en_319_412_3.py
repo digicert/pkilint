@@ -1,13 +1,10 @@
 from pyasn1_alt_modules import rfc5280
 
-from pkilint import common
 from pkilint import validation
-from pkilint.common import organization_id
 from pkilint.etsi import etsi_shared
-from pkilint.itu import x520_name, asn1_util
-from pkilint.pkix import Rfc2119Word, name
+from pkilint.itu import x520_name
 
-_REQUIRED_ATTRIBUTES = {
+_LEGAL_PERSON_REQUIRED_ATTRIBUTES = {
     rfc5280.id_at_countryName,
     rfc5280.id_at_organizationName,
     x520_name.id_at_organizationIdentifier,
@@ -16,7 +13,7 @@ _REQUIRED_ATTRIBUTES = {
 
 
 class LegalPersonSubjectAttributeAllowanceValidator(
-    common.AttributeIdentifierAllowanceValidator
+    etsi_shared.LegalPersonAttributeAllowanceValidator
 ):
     """
     LEG-4.2.1-2: The subject field shall include at least the following attributes as specified in Recommendation
@@ -25,15 +22,17 @@ class LegalPersonSubjectAttributeAllowanceValidator(
 
     _CODE_CLASSIFIER = "etsi.en_319_412_3.leg-4.2.1-2"
 
-    _ATTRIBUTE_ALLOWANCES = {a: Rfc2119Word.MUST for a in _REQUIRED_ATTRIBUTES}
-
     def __init__(self):
         super().__init__(
-            self._ATTRIBUTE_ALLOWANCES, self._CODE_CLASSIFIER, Rfc2119Word.MAY
+            self._CODE_CLASSIFIER,
+            _LEGAL_PERSON_REQUIRED_ATTRIBUTES,
+            "certificate.tbsCertificate.subject.rdnSequence",
         )
 
 
-class LegalPersonDuplicateAttributeAllowanceValidator(validation.Validator):
+class LegalPersonDuplicateAttributeAllowanceValidator(
+    etsi_shared.LegalPersonDuplicateAttributeAllowanceValidator
+):
     """
     LEG-4.2.1-3: Only one instance of each of these attributes shall be present.
     """
@@ -45,22 +44,14 @@ class LegalPersonDuplicateAttributeAllowanceValidator(validation.Validator):
 
     def __init__(self):
         super().__init__(
-            validations=[self.VALIDATION_PROHIBITED_DUPLICATE_ATTRIBUTE_PRESENT],
-            pdu_class=rfc5280.Name,
+            self.VALIDATION_PROHIBITED_DUPLICATE_ATTRIBUTE_PRESENT,
+            _LEGAL_PERSON_REQUIRED_ATTRIBUTES,
         )
 
-    def validate(self, node):
-        attr_counts = name.get_name_attribute_counts(node)
 
-        for a in _REQUIRED_ATTRIBUTES:
-            if attr_counts[a] > 1:
-                raise validation.ValidationFindingEncountered(
-                    self.VALIDATION_PROHIBITED_DUPLICATE_ATTRIBUTE_PRESENT,
-                    f"Prohibited duplicate attribute present: {a}",
-                )
-
-
-class LegalPersonOrganizationAttributesEqualityValidator(validation.Validator):
+class LegalPersonOrganizationAttributesEqualityValidator(
+    etsi_shared.LegalPersonOrganizationAttributesEqualityValidator
+):
     """
     LEG-4.2.1-6: The organizationIdentifier attribute shall contain an identification of the subject organization
     different from the organization name.
@@ -72,44 +63,7 @@ class LegalPersonOrganizationAttributesEqualityValidator(validation.Validator):
     )
 
     def __init__(self):
-        super().__init__(
-            validations=[self.VALIDATION_ORGID_ORGNAME_ATTRIBUTE_VALUES_EQUAL],
-            pdu_class=rfc5280.Name,
-        )
-
-    def validate(self, node):
-        # only get the first instance of the attributes
-        orgname_attr_and_idx = next(
-            iter(
-                name.get_name_attributes_by_type(node, rfc5280.id_at_organizationName)
-            ),
-            None,
-        )
-        orgid_attr_and_idx = next(
-            iter(
-                name.get_name_attributes_by_type(
-                    node, x520_name.id_at_organizationIdentifier
-                )
-            ),
-            None,
-        )
-
-        if orgname_attr_and_idx and orgid_attr_and_idx:
-            orgname_attr, _ = orgname_attr_and_idx
-            orgid_attr, _ = orgid_attr_and_idx
-
-            orgname = asn1_util.get_string_value_from_attribute_node(orgname_attr)
-            orgid = asn1_util.get_string_value_from_attribute_node(orgid_attr)
-
-            # if any of the attributes were not decoded, then return early
-            if orgname is None or orgid is None:
-                return
-
-            if orgname.casefold() == orgid.casefold():
-                raise validation.ValidationFindingEncountered(
-                    self.VALIDATION_ORGID_ORGNAME_ATTRIBUTE_VALUES_EQUAL,
-                    f'Organization name and identifier attribute values are equal: "{orgname}"',
-                )
+        super().__init__(self.VALIDATION_ORGID_ORGNAME_ATTRIBUTE_VALUES_EQUAL)
 
 
 class LegalPersonKeyUsageValidator(etsi_shared.KeyUsageValidator):
@@ -139,7 +93,7 @@ class LegalPersonKeyUsageValidator(etsi_shared.KeyUsageValidator):
         )
 
 
-class LegalPersonCountryCodeValidator(validation.Validator):
+class LegalPersonCountryCodeValidator(etsi_shared.LegalPersonCountryCodeValidator):
     """
     LEG-4.2.1-4: The countryName attribute shall specify the country in which the subject (legal person) is established.
     """
@@ -150,16 +104,4 @@ class LegalPersonCountryCodeValidator(validation.Validator):
     )
 
     def __init__(self):
-        super().__init__(
-            validations=[self.VALIDATION_UNKNOWN_COUNTRY_CODE],
-            pdu_class=rfc5280.X520countryName,
-        )
-
-    def validate(self, node):
-        value_str = str(node.pdu)
-
-        if value_str not in organization_id.ISO3166_1_COUNTRY_CODES:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_UNKNOWN_COUNTRY_CODE,
-                f'Unknown country code: "{value_str}"',
-            )
+        super().__init__(self.VALIDATION_UNKNOWN_COUNTRY_CODE)
