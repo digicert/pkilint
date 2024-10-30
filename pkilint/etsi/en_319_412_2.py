@@ -463,6 +463,10 @@ class QualifiedCertificatePoliciesValidator(validation.Validator):
             etsi_constants.QNCP_W_GEN_NP_EIDAS_CERTIFICATE_TYPES,
             en_319_411_2.id_qncp_web_gen,
         ),
+        (
+            etsi_constants.QCP_N_QSCD_CERTIFICATE_TYPES,
+            en_319_411_2.id_qcp_natural_qscd,
+        ),
     ]
 
     def __init__(self, certificate_type: etsi_constants.CertificateType):
