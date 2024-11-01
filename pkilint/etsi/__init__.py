@@ -364,11 +364,18 @@ def create_validators(
                 )
             )
         elif certificate_type in etsi_constants.NATURAL_PERSON_CERTIFICATE_TYPES:
-            extension_validators.append(
-                en_319_412_2.NaturalPersonKeyUsageValidator(
-                    is_content_commitment_type=None
+            if certificate_type in etsi_constants.QCP_N_CERTIFICATE_TYPES:
+                extension_validators.append(
+                    en_319_412_2.NaturalPersonKeyUsageValidator(
+                        is_content_commitment_type=True
+                    )
                 )
-            )
+            else:
+                extension_validators.append(
+                    en_319_412_2.NaturalPersonKeyUsageValidator(
+                        is_content_commitment_type=None
+                    )
+                )
 
     if certificate_type in etsi_constants.QEVCP_W_PSD2_EIDAS_CERTIFICATE_TYPES:
         qc_statement_validators.append(ts_119_495.PresenceofQCEUPDSStatementValidator())
