@@ -30,7 +30,6 @@ vKQS8+ldLKjUv7UYmsnOjK714QmWtIfEzw==
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.extensions.6.extnValue.authorityInfoAccessSyntax,CaCertificateAuthorityInformationAccessAccessMethodPresenceValidator,WARNING,cabf.serverauth.ca.ocsp_aia_access_method_absent,
 certificate.tbsCertificate.subject.rdnSequence,CaRequiredSubjectAttributesValidator,ERROR,cabf.serverauth.ca.common_name_attribute_absent,
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies,CaCertificatePoliciesValidator,ERROR,cabf.serverauth.ca_missing_reserved_policy_oid,
 certificate.tbsCertificate.extensions.1.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,

@@ -17,6 +17,5 @@ ZftJooiIjmMh425+
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.extensions.6.extnValue.authorityInfoAccessSyntax,CaCertificateAuthorityInformationAccessAccessMethodPresenceValidator,WARNING,cabf.serverauth.ca.ocsp_aia_access_method_absent,
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 certificate.tbsCertificate.extensions.7.extnValue.certificatePolicies,CaCertificatePoliciesValidator,ERROR,cabf.serverauth.ca_missing_reserved_policy_oid,

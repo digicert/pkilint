@@ -1,3 +1,4 @@
+import datetime
 import operator
 from datetime import timedelta
 
@@ -5,6 +6,7 @@ from pyasn1_alt_modules import rfc5280, rfc6962, rfc5480
 
 import pkilint.common
 from pkilint import validation, document, oid, common
+from pkilint.pkix import certificate
 from pkilint.cabf import cabf_name
 from pkilint.cabf.asn1 import ev_guidelines
 from pkilint.cabf.serverauth import serverauth_constants
@@ -645,12 +647,12 @@ class EvWildcardAllowanceValidator(validation.Validator):
 class SubscriberAuthorityInformationAccessAccessMethodPresenceValidator(
     common.AuthorityInformationAccessAccessMethodPresenceValidator
 ):
-    """Validates that AIA access methods conform to BR 7.1.2.10.3."""
+    """Validates that AIA access methods conform to BR 7.1.2.7.7."""
 
     _CODE_CLASSIFIER = "cabf.serverauth.subscriber"
 
     _ACCESS_METHOD_ALLOWANCES = {
-        rfc5280.id_ad_ocsp: Rfc2119Word.MUST,
+        rfc5280.id_ad_ocsp: Rfc2119Word.MAY,
         rfc5280.id_ad_caIssuers: Rfc2119Word.SHOULD,
     }
 
@@ -721,4 +723,104 @@ class OrganizationIdentifierConsistentSubjectAndExtensionValidator(
         except ValueError as e:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_CABF_ORG_ID_MISMATCHED_VALUE, str(e)
+            )
+
+
+class SubscriberRevocationInformationPresenceValidator(validation.Validator):
+    """
+    TLS BR 7.1.2.11.2:
+
+    The CRL Distribution Points extension MUST be present in:
+    ...
+    • Subscriber Certificates that 1) do not qualify as “Short‐lived Subscriber Certificates” and 2) do
+        not include an Authority Information Access extension with an id‐ad‐ocsp accessMethod.
+    """
+
+    VALIDATION_REVOCATION_INFORMATION_ABSENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "cabf.serverauth.subscriber.revocation_information_absent",
+    )
+
+    _SHORT_LIVED_CERTIFICATE_10_DAYS_START_DATETIME = datetime.datetime(
+        2024, 3, 15, 0, 0, 0, tzinfo=datetime.timezone.utc
+    )
+    _10_DAYS = datetime.timedelta(days=10)
+
+    _SHORT_LIVED_CERTIFICATE_7_DAYS_START_DATETIME = datetime.datetime(
+        2026, 3, 15, 0, 0, 0, tzinfo=datetime.timezone.utc
+    )
+    _7_DAYS = datetime.timedelta(days=7)
+
+    def __init__(
+        self, validity_period_start_retriever: document.ValidityPeriodStartRetriever
+    ):
+        super().__init__(
+            validations=[self.VALIDATION_REVOCATION_INFORMATION_ABSENT],
+            pdu_class=rfc5280.Extensions,
+        )
+
+        self._validity_period_start_retriever = validity_period_start_retriever
+
+    @classmethod
+    def _has_ocsp_access_method(cls, cert: certificate.RFC5280Certificate):
+        aia_ext_and_idx = cert.get_extension_by_oid(rfc5280.id_pe_authorityInfoAccess)
+
+        if aia_ext_and_idx is None:
+            return False
+
+        aia_ext, _ = aia_ext_and_idx
+
+        # ensure that the decoded value is present
+        try:
+            aia_ext_value = aia_ext.navigate("extnValue.authorityInfoAccessSyntax")
+        except document.PDUNavigationFailedError:
+            return False
+
+        return any(
+            (
+                ad.children["accessMethod"].pdu == rfc5280.id_ad_ocsp
+                for ad in aia_ext_value.children.values()
+            )
+        )
+
+    @classmethod
+    def _is_short_lived_certificate(
+        cls,
+        cert: certificate.RFC5280Certificate,
+        validity_period_start_retriever: document.ValidityPeriodStartRetriever,
+    ) -> bool:
+        doc_validity_start = validity_period_start_retriever(cert)
+
+        if doc_validity_start < cls._SHORT_LIVED_CERTIFICATE_10_DAYS_START_DATETIME:
+            return False
+
+        validity_period = cert.validity_period
+
+        if validity_period <= cls._7_DAYS:
+            return True
+        elif (
+            validity_period <= cls._10_DAYS
+            and doc_validity_start < cls._SHORT_LIVED_CERTIFICATE_7_DAYS_START_DATETIME
+        ):
+            return True
+        else:
+            return False
+
+    def validate(self, node):
+        cert_doc = node.document
+
+        if self._is_short_lived_certificate(
+            cert_doc, self._validity_period_start_retriever
+        ):
+            return
+
+        has_aia_ocsp = self._has_ocsp_access_method(cert_doc)
+        has_crldp = (
+            cert_doc.get_extension_by_oid(rfc5280.id_ce_cRLDistributionPoints)
+            is not None
+        )
+
+        if not has_aia_ocsp and not has_crldp:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_REVOCATION_INFORMATION_ABSENT
             )

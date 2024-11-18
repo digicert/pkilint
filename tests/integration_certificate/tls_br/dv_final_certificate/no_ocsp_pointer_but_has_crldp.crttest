@@ -31,4 +31,3 @@ h6/eR0eovfk8bt18QqvHp8PzGVidY5hKeo163oRkEIV75k1Onw==
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.extensions.6.extnValue.authorityInfoAccessSyntax,SubscriberAuthorityInformationAccessAccessMethodPresenceValidator,ERROR,cabf.serverauth.subscriber.ocsp_aia_access_method_absent,
