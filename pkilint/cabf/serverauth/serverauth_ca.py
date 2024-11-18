@@ -323,7 +323,7 @@ class CaCertificateAuthorityInformationAccessAccessMethodPresenceValidator(
     _CODE_CLASSIFIER = "cabf.serverauth.ca"
 
     _ACCESS_METHOD_ALLOWANCES = {
-        rfc5280.id_ad_ocsp: Rfc2119Word.SHOULD,
+        rfc5280.id_ad_ocsp: Rfc2119Word.MAY,
         rfc5280.id_ad_caIssuers: Rfc2119Word.MAY,
     }
 

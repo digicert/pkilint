@@ -1,3 +1,4 @@
+import datetime
 import functools
 import logging
 from typing import Set, Optional
@@ -61,6 +62,10 @@ class RFC5280Certificate(Document):
             )
         except ValueError:
             return pkix.MAXIMUM_TIME_DATETIME
+
+    @property
+    def validity_period(self) -> datetime.timedelta:
+        return (self.not_after - self.not_before) + datetime.timedelta(seconds=1)
 
     def _decode_and_append_extension(
         self, ext_oid: univ.ObjectIdentifier, ext_asn1_spec: Asn1Type

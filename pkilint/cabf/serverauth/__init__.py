@@ -22,6 +22,7 @@ from pkilint.cabf.serverauth import (
     serverauth_finding_filter,
 )
 from pkilint.common import alternative_name
+from pkilint.msft import msft_extension
 from pkilint.pkix import name, certificate
 from pkilint.pkix.certificate import certificate_validity
 
@@ -358,6 +359,10 @@ def create_subscriber_extension_validator_container(
             serverauth_subscriber.SubscriberKeyUsageValidator(),
             serverauth_subscriber.SubscriberBasicConstraintsValidator(),
             serverauth_subscriber.SubscriberPoliciesValidator(certificate_type),
+            serverauth_subscriber.SubscriberRevocationInformationPresenceValidator(
+                validity_period_start_retriever
+            ),
+            msft_extension.EndEntityRevocationInformationPresenceValidator(),
         ]
     )
 
