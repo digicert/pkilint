@@ -1,7 +1,7 @@
 from pyasn1_alt_modules import rfc3279, rfc5480, rfc5280
 
+from pkilint.pkix import key
 from pkilint import validation
-from pkilint.pkix.certificate import certificate_key
 
 
 class RsaKeyValidator(validation.Validator):
@@ -238,7 +238,7 @@ class EcdsaKeyValidator(validation.Validator):
 
     def validate(self, node):
         try:
-            key_obj = certificate_key.convert_spki_to_object(node)
+            key_obj = key.convert_spki_to_object(node)
 
             if key_obj is None:
                 raise validation.ValidationFindingEncountered(
