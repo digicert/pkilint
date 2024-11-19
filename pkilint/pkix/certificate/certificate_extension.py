@@ -628,19 +628,46 @@ class AuthorityKeyIdentifierPresenceValidator(validation.Validator):
         "pkix.authority_key_identifier_extension_absent",
     )
 
+    VALIDATION_UNSUPPORTED_PUBLIC_KEY_ALGORITHM = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.NOTICE,
+        "pkix.aki_absent_self_issued_and_unsupported_public_key_algorithm",
+    )
+
     def __init__(self):
         super().__init__(
-            validations=[self.VALIDATION_AKI_EXTENSION_NOT_PRESENT],
+            validations=[
+                self.VALIDATION_AKI_EXTENSION_NOT_PRESENT,
+                self.VALIDATION_UNSUPPORTED_PUBLIC_KEY_ALGORITHM,
+            ],
             pdu_class=rfc5280.Certificate,
         )
 
     def validate(self, node):
-        ext = node.document.get_extension_by_oid(rfc5280.id_ce_authorityKeyIdentifier)
+        cert_doc = node.document
 
-        if ext is None and not node.document.is_self_signed:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_AKI_EXTENSION_NOT_PRESENT
-            )
+        ext = cert_doc.get_extension_by_oid(rfc5280.id_ce_authorityKeyIdentifier)
+
+        if ext is not None:
+            return
+
+        if not node.document.is_self_signed:
+            # check if certificate is not considered self-signed merely due to unsupported key algorithm
+            if node.document.is_self_issued and cert_doc.public_key_object is None:
+                key_oid = str(
+                    node.navigate(
+                        "tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm"
+                    ).pdu
+                )
+
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_UNSUPPORTED_PUBLIC_KEY_ALGORITHM,
+                    f"Self-issued certificate certifies a public key of unsupported algorithm: {key_oid}",
+                )
+            # if the cert is not self-issued and/or certifies a supported key type, then report the PKIX error
+            else:
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_AKI_EXTENSION_NOT_PRESENT
+                )
 
 
 class AuthorityInformationAccessCriticalityValidator(ExtensionCriticalityValidator):

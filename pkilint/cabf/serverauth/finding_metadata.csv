@@ -303,6 +303,7 @@ WARNING,pkix.san_extension_is_critical_non_empty_subject,"RFC 5280 4.2.1.6: "" W
 NOTICE,cabf.ca_certificate_no_digital_signature_bit,CA certificates with no digitalSignature bit asserted imply that the CA Private Key cannot sign OCSP responses
 NOTICE,cabf.serverauth.unparsed_common_name_encountered,Validates that the content of the commonName attribute conforms to BR 7.1.4.3.
 NOTICE,cabf.serverauth.unparsed_san_extension_encountered,Validates that the content of the commonName attribute conforms to BR 7.1.4.3.
+NOTICE,pkix.aki_absent_self_issued_and_unsupported_public_key_algorithm,Authority Key Identifier extension is absent is a self-issued certificate and the certificate certifies a public key of an unsupported algorithm.
 NOTICE,pkix.certificate_policies_policy_has_qualifier,"RFC 5280 4.2.1.4: ""To promote interoperability, this profile RECOMMENDS that policy information terms consist of only an OID. Where an OID alone is insufficient, this profile strongly recommends that the use of qualifiers be limited to those identified in this section"""
 NOTICE,pkix.ldap_uri_not_validated,": Notice that the linter encountered a LDAP URI but did not validate the correctness of the URI, as support for LDAP validation has not (yet) been implemented. This NOTICE should probably be of a lower severity or supressed entirely."
 NOTICE,pkix.unknown_subject_key_identifier_calculation_method,RFC 5280 4.2.1.2: The Subject key identifier was not calculated using one of the algorithms defined in RFC 5280
