@@ -2,8 +2,9 @@ import binascii
 
 from cryptography.hazmat.primitives import hashes
 from pyasn1.codec.der.encoder import encode
+from pyasn1.error import PyAsn1Error
 from pyasn1.type import univ
-from pyasn1_alt_modules import rfc5280, rfc5480
+from pyasn1_alt_modules import rfc5280
 
 from pkilint import validation, util, document
 from pkilint.pkix.key import verify_signature
@@ -17,14 +18,22 @@ class SubjectPublicKeyDecoder(document.ValueDecoder):
             type_mappings=type_mappings,
         )
 
-    def filter_value(self, node, type_node, value_node, pdu_type):
-        if isinstance(pdu_type, rfc5480.ECPoint):
-            # wrap the BIT STRING in an OCTET STRING
-            octet_str = univ.OctetString(value_node.pdu.asOctets())
+    def decode_value(self, node, type_node, value_node, pdu_type):
+        if isinstance(pdu_type, univ.OctetString):
+            # map the BIT STRING into an OCTET STRING
+            try:
+                pdu = pdu_type.clone(value=value_node.pdu.asOctets())
+            except PyAsn1Error as e:
+                # bubble up any constraint violations
+                raise document.SubstrateDecodingFailedError(
+                    value_node.document, pdu_type, value_node, str(e)
+                )
 
-            return encode(octet_str)
+            return document.create_and_append_node_from_pdu(
+                value_node.document, pdu, value_node
+            )
         else:
-            return super().filter_value(node, type_node, value_node, pdu_type)
+            return super().decode_value(node, type_node, value_node, pdu_type)
 
 
 class SubjectPublicKeyDecodingValidator(validation.DecodingValidator):

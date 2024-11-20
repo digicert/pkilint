@@ -18,6 +18,10 @@ SUBJECT_PUBLIC_KEY_ALGORITHM_IDENTIFIER_MAPPINGS = {
     rfc5480.id_ecPublicKey: rfc5480.ECPoint(),
     rfc5480.id_ecDH: rfc5480.ECPoint(),
     rfc5480.id_ecMQV: rfc5480.ECPoint(),
+    rfc8410.id_Ed448: univ.OctetString(),
+    rfc8410.id_Ed25519: univ.OctetString(),
+    rfc8410.id_X448: univ.OctetString(),
+    rfc8410.id_X25519: univ.OctetString(),
 }
 
 SUBJECT_KEY_PARAMETER_ALGORITHM_IDENTIFIER_MAPPINGS = {
@@ -65,6 +69,14 @@ def convert_spki_to_object(spki_node: PDUNode):
             return ec.EllipticCurvePublicKey.from_encoded_point(
                 curve, spki_node.navigate("subjectPublicKey").pdu.asOctets()
             )
+    elif key_type == rfc8410.id_Ed448:
+        return ed448.Ed448PublicKey.from_public_bytes(
+            spki_node.navigate("subjectPublicKey").pdu.asOctets()
+        )
+    elif key_type == rfc8410.id_Ed25519:
+        return ed25519.Ed25519PublicKey.from_public_bytes(
+            spki_node.navigate("subjectPublicKey").pdu.asOctets()
+        )
 
     # TODO: others
     return None
