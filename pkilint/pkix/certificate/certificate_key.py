@@ -1,5 +1,6 @@
 import binascii
 
+from cryptography import exceptions
 from cryptography.hazmat.primitives import hashes
 from pyasn1.codec.der.encoder import encode
 from pyasn1.error import PyAsn1Error
@@ -169,16 +170,16 @@ class SubjectSignatureVerificationValidator(validation.Validator):
         validation.ValidationFindingSeverity.ERROR, "pkix.signature_verification_failed"
     )
 
-    VALIDATION_UNSUPPORTED_PUBLIC_KEY_ALGORITHM = validation.ValidationFinding(
+    VALIDATION_UNSUPPORTED_ALGORITHM = validation.ValidationFinding(
         validation.ValidationFindingSeverity.NOTICE,
-        "pkix.unsupported_public_key_algorithm",
+        "pkix.unsupported_algorithm",
     )
 
     def __init__(self, *, tbs_node_retriever, **kwargs):
         super().__init__(
             validations=[
                 self.VALIDATION_SIGNATURE_MISMATCH,
-                self.VALIDATION_UNSUPPORTED_PUBLIC_KEY_ALGORITHM,
+                self.VALIDATION_UNSUPPORTED_ALGORITHM,
             ],
             **kwargs,
         )
@@ -191,21 +192,26 @@ class SubjectSignatureVerificationValidator(validation.Validator):
         public_key = issuer_cert_doc.public_key_object
         if public_key is None:
             raise validation.ValidationFindingEncountered(
-                self.VALIDATION_UNSUPPORTED_PUBLIC_KEY_ALGORITHM
+                self.VALIDATION_UNSUPPORTED_ALGORITHM
             )
 
         subject_crypto_doc = node.document.cryptography_object
 
         tbs_octets = encode(self._tbs_node_retriever(node).pdu)
 
-        if not verify_signature(
-            public_key,
-            tbs_octets,
-            node.pdu.asOctets(),
-            subject_crypto_doc.signature_hash_algorithm,
-        ):
+        try:
+            if not verify_signature(
+                public_key,
+                tbs_octets,
+                node.pdu.asOctets(),
+                subject_crypto_doc.signature_hash_algorithm,
+            ):
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_SIGNATURE_MISMATCH
+                )
+        except exceptions.UnsupportedAlgorithm:
             raise validation.ValidationFindingEncountered(
-                self.VALIDATION_SIGNATURE_MISMATCH
+                self.VALIDATION_UNSUPPORTED_ALGORITHM
             )
 
 

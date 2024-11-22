@@ -3,7 +3,7 @@ import functools
 import logging
 from typing import Set, Optional
 
-from cryptography import x509
+from cryptography import x509, exceptions
 from pyasn1.codec.der.encoder import encode
 from pyasn1.type import univ
 from pyasn1.type.base import Asn1Type
@@ -128,6 +128,15 @@ class RFC5280Certificate(Document):
             self.root.navigate("tbsCertificate.subjectPublicKeyInfo")
         )
 
+    def is_signed_with_key(self, public_key):
+        tbs_octets = self.cryptography_object.tbs_certificate_bytes
+        signature_hash_alg = self.cryptography_object.signature_hash_algorithm
+        signature_octets = self.cryptography_object.signature
+
+        return key.verify_signature(
+            public_key, tbs_octets, signature_octets, signature_hash_alg
+        )
+
     @functools.cached_property
     def is_self_signed(self):
         if not self.is_self_issued:
@@ -139,13 +148,12 @@ class RFC5280Certificate(Document):
         if public_key is None:
             return False
 
-        tbs_octets = self.cryptography_object.tbs_certificate_bytes
-        signature_hash_alg = self.cryptography_object.signature_hash_algorithm
-        signature_octets = self.cryptography_object.signature
+        try:
+            self.is_signed_with_key(public_key)
 
-        return key.verify_signature(
-            public_key, tbs_octets, signature_octets, signature_hash_alg
-        )
+        # gracefully handle unsupported signature algorithms
+        except exceptions.UnsupportedAlgorithm:
+            return False
 
     def get_extension_by_oid(self, oid):
         tbs_cert = self.root.children["tbsCertificate"]
