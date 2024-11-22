@@ -97,6 +97,11 @@ ERROR,pkix.ip_address_name_constraint_invalid_cidr,RFC 5280 4.1.2.10,"""For IPv4
 ERROR,pkix.ip_address_name_constraint_wrong_length,RFC 5280 4.1.2.10,"""For IPv4 addresses, the iPAddress field of GeneralName MUST contain eight (8) octets, encoded in the style of RFC 4632 (CIDR) to represent an address range [RFC4632]. For IPv6 addresses, the iPAddress field MUST contain 32 octets similarly encoded."""
 ERROR,pkix.ip_address_wrong_length,RFC 5280 4.1.2.6,"""For IP version 4, as specified in [RFC791], the octet string MUST contain exactly four octets. For IP version 6, as specified in [RFC2460], the octet string MUST contain exactly sixteen octets."""
 ERROR,pkix.issuer_unique_id_present,RFC 5280 4.1.2.8,"""CAs conforming to this profile MUST NOT generate certificates with unique identifiers"""
+ERROR,pkix.key_usage_value_prohibited_for_ec,RFC 8813 3,"If the keyUsage extension is present in a certificate that indicates id-ecPublicKey in SubjectPublicKeyInfo, then the following values MUST NOT be present..."
+ERROR,pkix.key_usage_value_prohibited_for_edwards_curve,RFC 9295 3,"... and any of the following MUST NOT be present..."
+ERROR,pkix.key_usage_value_required_but_missing_for_edwards_curve,RFC 9295 3,"If the keyUsage extension is present in a certificate that indicates id-X25519 or id-X448 in SubjectPublicKeyInfo, then the following MUST be present..."
+ERROR,pkix.key_usage_value_prohibited_for_rsa,RFC 3279 2.3.1,"If the keyUsage extension is present in an end entity/CRL issuer/CA certificate which conveys an RSA public key, any combination of the following values MAY be present..."
+ERROR,pkix.key_usage_value_prohibited_for_signature_algorithm,,"Various RFCs specify the allowed keyUsage values for signature algorithms"
 ERROR,pkix.name_constraints_in_ee_certificate,RFC 5280 4.2.1.10,"""The name constraints extension, which MUST be used only in a CA certificate�"""
 ERROR,pkix.name_constraints_maximum_specified,RFC 5280 4.2.1.10,"""Within this profile, the minimum and maximum fields are not used with any name forms, thus, the minimum MUST be zero, and maximum MUST be absent"""
 ERROR,pkix.name_constraints_no_subtrees,RFC 5280 4.2.1.10,"""Conforming CAs MUST NOT issue certificates where name constraints is an empty sequence."""
@@ -146,6 +151,7 @@ NOTICE,googl.gmail.authority_info_access_ca_issuers_missing,https://support.goog
 NOTICE,googl.prohibited_rsa_modulus_length,https://support.google.com/a/answer/7300887?hl=en&ref_topic=9061730&sjid=12609481378327192584-NA,"""rsaEncryption with an RSA modulus of 2048, 3072, or 4096"""
 NOTICE,pkix.aki_absent_self_issued_and_unsupported_public_key_algorithm,,Authority Key Identifier extension is absent is a self-issued certificate and the certificate certifies a public key of an unsupported algorithm.
 NOTICE,pkix.certificate_policies_policy_has_qualifier,RFC 5280 4.2.1.4,"""To promote interoperability, this profile RECOMMENDS that policy information terms consist of only an OID. Where an OID alone is insufficient, this profile strongly recommends that the use of qualifiers be limited to those identified in this section"""
+NOTICE,pkix.public_key_algorithm_unsupported,,"The algorithm of the certified public key is not supported"
 NOTICE,pkix.ldap_uri_not_validated,,"Notice that the linter encountered a LDAP URI but did not validate the correctness of the URI, as support for LDAP validation has not (yet) been implemented. This NOTICE should probably be of a lower severity or supressed entirely."
 NOTICE,pkix.unknown_subject_key_identifier_calculation_method,RFC 5280 4.2.1.2,The Subject key identifier was not calculated using one of the algorithms defined in RFC 5280
 INFO,pkix.subject_key_identifier_method_1_identified,RFC 5280 4.2.1.2,The Subject key identifier was calculated using the first algorithm defined in RFC 5280

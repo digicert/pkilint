@@ -24,6 +24,7 @@ dO/vCa5iFV9STu9T/leyoJoOjupGsidCjwWVuA4pbSJqAjTinUpVD7uhUObrvbRh
 bSvB2wsr/1F4LfQ9YGsZqzGEouB2mo/hkofrsfMmZ0efKzwl/ujrFWC0UgQ1IZNw
 VfoxrTkgOp+eSMsOOXw3yh4=
 -----END CERTIFICATE-----
+
 node_path,validator,severity,code,message
 certificate.tbsCertificate.validity.notBefore,ValidityPeriodThresholdsValidator,ERROR,cabf.smime.certificate_validity_period_exceeds_1185_days,"Validity period of 1188 days, 0:00:01 exceeds maximum value of relativedelta(days=+1185)"
 certificate.tbsCertificate.subject.rdnSequence,SubscriberSubjectValidator,ERROR,cabf.smime.prohibited_attribute,Prohibited other attribute: 2.5.4.13
@@ -31,4 +32,4 @@ certificate.tbsCertificate.extensions.0.extnValue.keyUsage,AllowedKeyUsageValida
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 certificate.tbsCertificate.extensions.9.extnValue.certificatePolicies,RequiredPolicyIdentifierValidator,ERROR,cabf.smime.no_required_reserved_policy_oid,Required policy OID 2.23.140.1.5.1.1 is missing
 certificate.tbsCertificate.extensions.9.extnValue.certificatePolicies.0,CertificatePolicyQualifierValidator,NOTICE,pkix.certificate_policies_policy_has_qualifier,
-
+certificate.tbsCertificate.extensions.0.extnValue.keyUsage,SpkiKeyUsageConsistencyValidator,ERROR,pkix.key_usage_value_prohibited_for_ec,Prohibited key usage value(s) present: keyEncipherment

@@ -29,7 +29,8 @@ x6NMd5NzKaQBkxac7ZOe63+BXaDRpHr7TFoOqOQyOgkfLs8+XOtcHvAre+D2G05Z
 qgCUv3f4g2LbLJBywkhfzP27/MEmiVJZJT2CohNraBqsIM/e5Fm0ZyQGXqN9XZE1
 +gZVoI9M9UZPJosgeY5TAeU=
 -----END CERTIFICATE-----
+
 node_path,validator,severity,code,message
 certificate.tbsCertificate.extensions.1.extnValue.keyUsage,AllowedKeyUsageValidator,ERROR,cabf.smime.prohibited_ku_present,"Prohibited KUs present: dataEncipherment, keyEncipherment"
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
-
+certificate.tbsCertificate.extensions.1.extnValue.keyUsage,SpkiKeyUsageConsistencyValidator,ERROR,pkix.key_usage_value_prohibited_for_ec,"Prohibited key usage value(s) present: dataEncipherment, keyEncipherment"

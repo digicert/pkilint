@@ -306,6 +306,7 @@ def create_extensions_validator_container(additional_validators=None):
             certificate_extension.SubjectKeyIdentifierCriticalityValidator(),
             certificate_extension.KeyUsageCriticalityValidator(),
             certificate_extension.KeyUsageValidator(),
+            certificate_key.SpkiKeyUsageConsistencyValidator(),
             general_name.UriSyntaxValidator(pdu_class=rfc5280.CPSuri),
             general_name.GeneralNameValidatorContainer(),
             certificate_extension.DuplicatePolicyValidator(),
