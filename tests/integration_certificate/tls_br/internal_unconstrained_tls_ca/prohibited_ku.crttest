@@ -29,3 +29,4 @@ BgEFBQcDAjAKBggqhkjOPQQDAgNIADBFAiEA0ogNLOEzJ/xpj2nk3+Mn9ywywdWa
 node_path,validator,severity,code,message
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 certificate.tbsCertificate.extensions.1.extnValue.keyUsage,CaKeyUsageValidator,ERROR,cabf.ca_certificate_prohibited_ku_present,Prohibited KUs present: keyAgreement
+certificate.tbsCertificate.extensions.1.extnValue.keyUsage,SpkiKeyUsageConsistencyValidator,ERROR,pkix.key_usage_value_prohibited_for_rsa,Prohibited key usage value(s) present: keyAgreement

@@ -26,3 +26,4 @@ node_path,validator,severity,code,message
 certificate.tbsCertificate.signature,AlgorithmIdentifierDecodingValidator,FATAL,itu.invalid_asn1_syntax,"Value node is present, but type OID 1.2.840.10045.4.3.3 specifies that it must be absent"
 certificate.tbsCertificate.extensions.7.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 certificate.signatureAlgorithm,SignatureAlgorithmMatchValidator,ERROR,pkix.certificate_signature_algorithm_mismatch,DER encoding of certificate.signatureAlgorithm and certificate.tbsCertificate.signature are not equal
+certificate.tbsCertificate.extensions.8.extnValue.keyUsage,SpkiKeyUsageConsistencyValidator,ERROR,pkix.key_usage_value_prohibited_for_ec,Prohibited key usage value(s) present: keyEncipherment
