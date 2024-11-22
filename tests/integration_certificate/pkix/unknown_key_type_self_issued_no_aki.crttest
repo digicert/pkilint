@@ -25,6 +25,6 @@ AiAMA1aqNACzlZdAvhHk1o2fjCYYodSWbLbAd5cNAzPftw==
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate,AuthorityKeyIdentifierPresenceValidator,NOTICE,pkix.aki_absent_self_issued_and_unsupported_public_key_algorithm,Self-issued certificate certifies a public key of unsupported algorithm: 1.2.840.113549.1.1.1.999
 certificate.tbsCertificate.extensions.1.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
+certificate,AuthorityKeyIdentifierPresenceValidator,NOTICE,pkix.aki_absent_self_issued_and_unsupported_algorithm,Self-issued certificate uses unsupported public key algorithm: 1.2.840.113549.1.1.1.999
 certificate.tbsCertificate.extensions,KeyUsagePresenceValidator,ERROR,pkix.ca_certificate_no_ku_extension,

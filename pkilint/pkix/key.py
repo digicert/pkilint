@@ -98,6 +98,12 @@ def verify_signature(public_key, message, signature, signature_hash_algorithm=No
             public_key.verify(signature, message)
         elif isinstance(public_key, ed448.Ed448PublicKey):
             public_key.verify(signature, message)
+        else:
+            type_name = type(public_key).__name__
+
+            raise exceptions.UnsupportedAlgorithm(
+                f'Unsupported public key type "{type_name}"'
+            )
     except exceptions.InvalidSignature:
         return False
 
