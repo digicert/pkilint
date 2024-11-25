@@ -2,11 +2,19 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
-## 0.12.4 - 2024-11-XX
+## 0.12.4 - 2024-11-25
 
 ### New features/enhancements
 
-- Add support for TLS BR ballot SC-79 (#XXX)
+- Add support for short-lived TLS BR certificates (#133)
+- Add support for TLS BR ballot SC-79 (#127)
+- Add support for S/MIME BR ballot SMC-09 (#128)
+- Add public key algorithm and key usage value consistency validation (#139)
+
+### Fixes
+
+- Gracefully handle unsupported public key algorithms (#134)
+- Gracefully handle unsupported signature algorithms (#140 - found by @jon-oracle)
 
 ## 0.12.3 - 2024-10-23
 
