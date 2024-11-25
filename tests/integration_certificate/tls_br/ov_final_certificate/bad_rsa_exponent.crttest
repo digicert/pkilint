@@ -58,3 +58,4 @@ certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARN
 certificate.tbsCertificate.extensions.6.extnValue.certificatePolicies.1.policyQualifiers.1.qualifier.userNotice,CertificatePoliciesUserNoticeValidator,ERROR,pkix.rfc5280_certificate_policies_invalid_explicit_text_encoding,Invalid encoding: visibleString
 certificate.tbsCertificate.extensions.1,SubscriberExtensionCriticalityValidator,ERROR,cabf.serverauth.subscriber.non_critical_key_usage_extension,
 certificate.tbsCertificate.subject.rdnSequence,OvSubscriberAttributeAllowanceValidator,WARNING,cabf.serverauth.ov.unknown_attribute_present,Unknown attribute present: 1.2.840.113549.1.9.1
+certificate.tbsCertificate.extensions.1.extnValue.keyUsage,SpkiKeyUsageConsistencyValidator,ERROR,pkix.key_usage_value_prohibited_for_rsa,Prohibited key usage value(s) present: keyAgreement

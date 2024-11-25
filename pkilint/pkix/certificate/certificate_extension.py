@@ -1,6 +1,7 @@
 from typing import NamedTuple, Set
 
 import unicodedata
+from cryptography import exceptions
 from pyasn1.type.univ import ObjectIdentifier
 from pyasn1_alt_modules import rfc5280, rfc4262, rfc6962, rfc3739
 
@@ -628,19 +629,61 @@ class AuthorityKeyIdentifierPresenceValidator(validation.Validator):
         "pkix.authority_key_identifier_extension_absent",
     )
 
+    VALIDATION_UNSUPPORTED_ALGORITHM = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.NOTICE,
+        "pkix.aki_absent_self_issued_and_unsupported_algorithm",
+    )
+
     def __init__(self):
         super().__init__(
-            validations=[self.VALIDATION_AKI_EXTENSION_NOT_PRESENT],
+            validations=[
+                self.VALIDATION_AKI_EXTENSION_NOT_PRESENT,
+                self.VALIDATION_UNSUPPORTED_ALGORITHM,
+            ],
             pdu_class=rfc5280.Certificate,
         )
 
     def validate(self, node):
-        ext = node.document.get_extension_by_oid(rfc5280.id_ce_authorityKeyIdentifier)
+        cert_doc = node.document
 
-        if ext is None and not node.document.is_self_signed:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_AKI_EXTENSION_NOT_PRESENT
-            )
+        ext = cert_doc.get_extension_by_oid(rfc5280.id_ce_authorityKeyIdentifier)
+
+        if ext is not None:
+            return
+
+        if cert_doc.is_self_issued:
+            public_key = cert_doc.public_key_object
+
+            if public_key is None:
+                key_oid = str(
+                    node.navigate(
+                        ":certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm"
+                    ).pdu
+                )
+
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_UNSUPPORTED_ALGORITHM,
+                    f"Self-issued certificate uses unsupported public key algorithm: {key_oid}",
+                )
+
+            try:
+                is_self_signed = cert_doc.is_signed_with_key(public_key)
+
+                if is_self_signed:
+                    return
+            except exceptions.UnsupportedAlgorithm:
+                sig_oid = str(
+                    node.navigate(":certificate.signatureAlgorithm.algorithm").pdu
+                )
+
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_UNSUPPORTED_ALGORITHM,
+                    f"Self-issued certificate uses unsupported signature algorithm: {sig_oid}",
+                )
+
+        raise validation.ValidationFindingEncountered(
+            self.VALIDATION_AKI_EXTENSION_NOT_PRESENT
+        )
 
 
 class AuthorityInformationAccessCriticalityValidator(ExtensionCriticalityValidator):

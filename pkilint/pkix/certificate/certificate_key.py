@@ -1,66 +1,16 @@
 import binascii
 
-from cryptography.exceptions import InvalidSignature
+from cryptography import exceptions
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import padding, rsa, ec
 from pyasn1.codec.der.encoder import encode
+from pyasn1.error import PyAsn1Error
 from pyasn1.type import univ
-from pyasn1_alt_modules import rfc5280, rfc3279, rfc5480, rfc8410
+from pyasn1_alt_modules import rfc5280, rfc8410, rfc3279, rfc5480
 
 from pkilint import validation, util, document
-from pkilint.document import PDUNode
-
-SUBJECT_PUBLIC_KEY_ALGORITHM_IDENTIFIER_MAPPINGS = {
-    rfc3279.rsaEncryption: rfc5480.RSAPublicKey(),
-    rfc5480.id_ecPublicKey: rfc5480.ECPoint(),
-    rfc5480.id_ecDH: rfc5480.ECPoint(),
-    rfc5480.id_ecMQV: rfc5480.ECPoint(),
-}
-
-SUBJECT_KEY_PARAMETER_ALGORITHM_IDENTIFIER_MAPPINGS = {
-    rfc3279.rsaEncryption: univ.Null(),
-    rfc5480.id_ecPublicKey: rfc5480.ECParameters(),
-    rfc5480.id_ecDH: rfc5480.ECParameters(),
-    rfc5480.id_ecMQV: rfc5480.ECParameters(),
-    **{
-        o: document.ValueDecoder.VALUE_NODE_ABSENT
-        for o in (
-            rfc8410.id_Ed448,
-            rfc8410.id_Ed25519,
-            rfc8410.id_X448,
-            rfc8410.id_X25519,
-        )
-    },
-}
-
-EC_CURVE_OID_TO_OBJECT_MAPPINGS = {
-    rfc5480.secp256r1: ec.SECP256R1(),
-    rfc5480.secp384r1: ec.SECP384R1(),
-    rfc5480.secp521r1: ec.SECP521R1(),
-}
-
-
-def convert_spki_to_object(spki_node: PDUNode):
-    key_type = spki_node.navigate("algorithm.algorithm").pdu
-
-    if key_type == rfc3279.rsaEncryption:
-        modulus = spki_node.navigate("subjectPublicKey.rSAPublicKey.modulus").pdu
-        exponent = spki_node.navigate("subjectPublicKey.rSAPublicKey.exponent").pdu
-
-        return rsa.RSAPublicNumbers(int(modulus), int(exponent)).public_key()
-    elif key_type in {rfc5480.id_ecPublicKey, rfc5480.id_ecDH, rfc5480.id_ecMQV}:
-        curve_oid = spki_node.navigate(
-            "algorithm.parameters.eCParameters.namedCurve"
-        ).pdu
-
-        curve = EC_CURVE_OID_TO_OBJECT_MAPPINGS.get(curve_oid)
-        if curve is not None:
-            return ec.EllipticCurvePublicKey.from_encoded_point(
-                curve, spki_node.navigate("subjectPublicKey").pdu.asOctets()
-            )
-
-    # TODO: DSA
-    return None
+from pkilint.itu import bitstring
+from pkilint.pkix.certificate.certificate_extension import KeyUsageBitName
+from pkilint.pkix.key import verify_signature
 
 
 class SubjectPublicKeyDecoder(document.ValueDecoder):
@@ -71,14 +21,22 @@ class SubjectPublicKeyDecoder(document.ValueDecoder):
             type_mappings=type_mappings,
         )
 
-    def filter_value(self, node, type_node, value_node, pdu_type):
-        if isinstance(pdu_type, rfc5480.ECPoint):
-            # wrap the BIT STRING in an OCTET STRING
-            octet_str = univ.OctetString(value_node.pdu.asOctets())
+    def decode_value(self, node, type_node, value_node, pdu_type):
+        if isinstance(pdu_type, univ.OctetString):
+            # map the BIT STRING into an OCTET STRING
+            try:
+                pdu = pdu_type.clone(value=value_node.pdu.asOctets())
+            except PyAsn1Error as e:
+                # bubble up any constraint violations
+                raise document.SubstrateDecodingFailedError(
+                    value_node.document, pdu_type, value_node, str(e)
+                )
 
-            return encode(octet_str)
+            return document.create_and_append_node_from_pdu(
+                value_node.document, pdu, value_node
+            )
         else:
-            return super().filter_value(node, type_node, value_node, pdu_type)
+            return super().decode_value(node, type_node, value_node, pdu_type)
 
 
 class SubjectPublicKeyDecodingValidator(validation.DecodingValidator):
@@ -207,47 +165,53 @@ class SubjectKeyIdentifierValidator(validation.Validator):
         raise validation.ValidationFindingEncountered(finding)
 
 
-def _verify_signature(public_key, message, signature, signature_algorithm):
-    try:
-        if isinstance(public_key, rsa.RSAPublicKey):
-            public_key.verify(
-                signature, message, padding.PKCS1v15(), signature_algorithm
-            )
-        else:
-            public_key.verify(signature, message, ec.ECDSA(signature_algorithm))
-
-        return True
-    except InvalidSignature:
-        return False
-
-
 class SubjectSignatureVerificationValidator(validation.Validator):
     VALIDATION_SIGNATURE_MISMATCH = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR, "pkix.signature_verification_failed"
     )
 
+    VALIDATION_UNSUPPORTED_ALGORITHM = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.NOTICE,
+        "pkix.unsupported_algorithm",
+    )
+
     def __init__(self, *, tbs_node_retriever, **kwargs):
-        super().__init__(validations=[self.VALIDATION_SIGNATURE_MISMATCH], **kwargs)
+        super().__init__(
+            validations=[
+                self.VALIDATION_SIGNATURE_MISMATCH,
+                self.VALIDATION_UNSUPPORTED_ALGORITHM,
+            ],
+            **kwargs,
+        )
 
         self._tbs_node_retriever = tbs_node_retriever
 
     def validate(self, node):
         issuer_cert_doc = document.get_document_by_name(node, "issuer")
 
-        issuer_crypto_cert = issuer_cert_doc.cryptography_object
+        public_key = issuer_cert_doc.public_key_object
+        if public_key is None:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_UNSUPPORTED_ALGORITHM
+            )
+
         subject_crypto_doc = node.document.cryptography_object
-        public_key = issuer_crypto_cert.public_key()
 
         tbs_octets = encode(self._tbs_node_retriever(node).pdu)
 
-        if not _verify_signature(
-            public_key,
-            tbs_octets,
-            node.pdu.asOctets(),
-            subject_crypto_doc.signature_hash_algorithm,
-        ):
+        try:
+            if not verify_signature(
+                public_key,
+                tbs_octets,
+                node.pdu.asOctets(),
+                subject_crypto_doc.signature_hash_algorithm,
+            ):
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_SIGNATURE_MISMATCH
+                )
+        except exceptions.UnsupportedAlgorithm:
             raise validation.ValidationFindingEncountered(
-                self.VALIDATION_SIGNATURE_MISMATCH
+                self.VALIDATION_UNSUPPORTED_ALGORITHM
             )
 
 
@@ -266,3 +230,178 @@ class AllowedPublicKeyAlgorithmEncodingValidator(validation.Validator):
             raise validation.ValidationFindingEncountered(
                 self._validations[0], f"Prohibited encoding: {encoded_str}"
             )
+
+
+class SpkiKeyUsageConsistencyValidator(validation.Validator):
+    # all bits are allowed except for keyAgreement, see RFC 4055 section 1.2
+    _RSA_ALLOWED_KEY_USAGES = {
+        KeyUsageBitName.DIGITAL_SIGNATURE,
+        KeyUsageBitName.NON_REPUDIATION,
+        KeyUsageBitName.KEY_CERT_SIGN,
+        KeyUsageBitName.CRL_SIGN,
+        KeyUsageBitName.KEY_ENCIPHERMENT,
+        KeyUsageBitName.DATA_ENCIPHERMENT,
+        KeyUsageBitName.DECIPHER_ONLY,
+        KeyUsageBitName.ENCIPHER_ONLY,
+    }
+    VALIDATION_RSA_PROHIBITED_KEY_USAGE_VALUE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "pkix.key_usage_value_prohibited_for_rsa",
+    )
+
+    # all bits are allowed except for keyEncipherment and dataEncipherment, see RFC 8813 section 3
+    _EC_ALLOWED_KEY_USAGES = {
+        KeyUsageBitName.DIGITAL_SIGNATURE,
+        KeyUsageBitName.NON_REPUDIATION,
+        KeyUsageBitName.KEY_CERT_SIGN,
+        KeyUsageBitName.CRL_SIGN,
+        KeyUsageBitName.KEY_AGREEMENT,
+        KeyUsageBitName.DECIPHER_ONLY,
+        KeyUsageBitName.ENCIPHER_ONLY,
+    }
+    VALIDATION_EC_PROHIBITED_KEY_USAGE_VALUE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "pkix.key_usage_value_prohibited_for_ec",
+    )
+
+    # see RFC 9295, section 3
+    _X448_AND_X25519_REQUIRED_KEY_USAGES = {
+        KeyUsageBitName.KEY_AGREEMENT,
+    }
+    VALIDATION_EDWARDS_MISSING_REQUIRED_KEY_USAGE_VALUE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "pkix.key_usage_value_required_but_missing_for_edwards_curve",
+    )
+
+    _X448_AND_X25519_ALLOWED_KEY_USAGES = {
+        KeyUsageBitName.KEY_AGREEMENT,
+        KeyUsageBitName.DECIPHER_ONLY,
+        KeyUsageBitName.ENCIPHER_ONLY,
+    }
+    VALIDATION_EDWARDS_PROHIBITED_KEY_USAGE_VALUE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "pkix.key_usage_value_prohibited_for_edwards_curve",
+    )
+
+    _SIGNATURE_ALGORITHM_ALLOWED_KEY_USAGES = {
+        KeyUsageBitName.DIGITAL_SIGNATURE,
+        KeyUsageBitName.NON_REPUDIATION,
+        KeyUsageBitName.KEY_CERT_SIGN,
+        KeyUsageBitName.CRL_SIGN,
+    }
+    VALIDATION_SIGNATURE_ALGORITHM_PROHIBITED_KEY_USAGE_VALUE = (
+        validation.ValidationFinding(
+            validation.ValidationFindingSeverity.ERROR,
+            "pkix.key_usage_value_prohibited_for_signature_algorithm",
+        )
+    )
+
+    # _KEM_ALLOWED_KEY_USAGES = {KeyUsageBitName.KEY_ENCIPHERMENT}
+    # VALIDATION_KEM_PROHIBITED_KEY_USAGE_VALUE = validation.ValidationFinding(
+    #    validation.ValidationFindingSeverity.ERROR,
+    #    "pkix.prohibited_key_usage_value_kem",
+    # )
+
+    VALIDATION_UNSUPPORTED_PUBLIC_KEY_ALGORITHM = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.NOTICE,
+        "pkix.public_key_algorithm_unsupported",
+    )
+
+    _KEY_USAGE_VALUE_ALLOWANCES = {
+        rfc3279.rsaEncryption: (
+            (_RSA_ALLOWED_KEY_USAGES, VALIDATION_RSA_PROHIBITED_KEY_USAGE_VALUE),
+            None,
+        ),
+        rfc5480.id_ecPublicKey: (
+            (_EC_ALLOWED_KEY_USAGES, VALIDATION_EC_PROHIBITED_KEY_USAGE_VALUE),
+            None,
+        ),
+        rfc8410.id_X448: (
+            (
+                _X448_AND_X25519_ALLOWED_KEY_USAGES,
+                VALIDATION_EDWARDS_PROHIBITED_KEY_USAGE_VALUE,
+            ),
+            (
+                _X448_AND_X25519_REQUIRED_KEY_USAGES,
+                VALIDATION_EDWARDS_MISSING_REQUIRED_KEY_USAGE_VALUE,
+            ),
+        ),
+        rfc8410.id_X25519: (
+            (
+                _X448_AND_X25519_ALLOWED_KEY_USAGES,
+                VALIDATION_EDWARDS_PROHIBITED_KEY_USAGE_VALUE,
+            ),
+            (
+                _X448_AND_X25519_REQUIRED_KEY_USAGES,
+                VALIDATION_EDWARDS_MISSING_REQUIRED_KEY_USAGE_VALUE,
+            ),
+        ),
+        rfc8410.id_Ed448: (
+            (
+                _SIGNATURE_ALGORITHM_ALLOWED_KEY_USAGES,
+                VALIDATION_SIGNATURE_ALGORITHM_PROHIBITED_KEY_USAGE_VALUE,
+            ),
+            None,
+        ),
+        rfc8410.id_Ed25519: (
+            (
+                _SIGNATURE_ALGORITHM_ALLOWED_KEY_USAGES,
+                VALIDATION_SIGNATURE_ALGORITHM_PROHIBITED_KEY_USAGE_VALUE,
+            ),
+            None,
+        ),
+    }
+
+    def __init__(self):
+        super().__init__(
+            validations=[
+                self.VALIDATION_UNSUPPORTED_PUBLIC_KEY_ALGORITHM,
+                self.VALIDATION_EC_PROHIBITED_KEY_USAGE_VALUE,
+                self.VALIDATION_EDWARDS_PROHIBITED_KEY_USAGE_VALUE,
+                self.VALIDATION_EDWARDS_MISSING_REQUIRED_KEY_USAGE_VALUE,
+                self.VALIDATION_RSA_PROHIBITED_KEY_USAGE_VALUE,
+                self.VALIDATION_SIGNATURE_ALGORITHM_PROHIBITED_KEY_USAGE_VALUE,
+            ],
+            pdu_class=rfc5280.KeyUsage,
+        )
+
+    def validate(self, node):
+        spki_alg_oid = node.navigate(
+            ":certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm"
+        ).pdu
+
+        allowances = self._KEY_USAGE_VALUE_ALLOWANCES.get(spki_alg_oid)
+
+        if allowances is None:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_UNSUPPORTED_PUBLIC_KEY_ALGORITHM,
+                f"Unsupported public key algorithm: {str(spki_alg_oid)}",
+            )
+
+        allowed_values_and_finding, required_values_and_finding = allowances
+        allowed_values, prohibited_finding = allowed_values_and_finding
+
+        bit_set = bitstring.get_asserted_bit_set(node)
+
+        prohibited_bits = bit_set - allowed_values
+
+        if any(prohibited_bits):
+            prohibited_ku_names = ", ".join(sorted(prohibited_bits))
+
+            raise validation.ValidationFindingEncountered(
+                prohibited_finding,
+                f"Prohibited key usage value(s) present: {prohibited_ku_names}",
+            )
+
+        if required_values_and_finding is not None:
+            required_values, missing_finding = required_values_and_finding
+
+            missing_kus = required_values - bit_set
+
+            if any(missing_kus):
+                missing_ku_names = ", ".join(sorted(missing_kus))
+
+                raise validation.ValidationFindingEncountered(
+                    missing_finding,
+                    f"Required key usage value(s) missing: {missing_ku_names}",
+                )

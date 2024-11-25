@@ -13,8 +13,6 @@ from typing import (
     NamedTuple,
 )
 
-from pyasn1.codec.der.decoder import decode
-from pyasn1.codec.der.encoder import encode
 from pyasn1.error import PyAsn1Error
 from pyasn1.type.base import Asn1Type
 from pyasn1.type.univ import (
@@ -302,6 +300,22 @@ class SubstrateDecodingFailedError(ValueError):
         return message
 
 
+def create_and_append_node_from_pdu(
+    source_document: Document,
+    pdu: Asn1Type,
+    parent_node: Optional[PDUNode] = None,
+):
+    child_node_name = get_node_name_for_pdu(pdu)
+
+    node = PDUNode(source_document, child_node_name, pdu, parent_node)
+
+    if parent_node is not None:
+        parent_node.children[child_node_name] = node
+        logger.debug("Appended %s node to %s", node.name, parent_node.path)
+
+    return node
+
+
 def decode_substrate(
     source_document: Document,
     substrate: bytes,
@@ -319,15 +333,7 @@ def decode_substrate(
             source_document, pdu_instance, parent_node, str(e)
         ) from e
 
-    decoded_pdu_name = get_node_name_for_pdu(decoded)
-
-    node = PDUNode(source_document, decoded_pdu_name, decoded, parent_node)
-
-    if parent_node is not None:
-        parent_node.children[decoded_pdu_name] = node
-        logger.debug("Appended %s node to %s", node.name, parent_node.path)
-
-    return node
+    return create_and_append_node_from_pdu(source_document, decoded, parent_node)
 
 
 class OptionalAsn1TypeWrapper(NamedTuple):
@@ -335,8 +341,6 @@ class OptionalAsn1TypeWrapper(NamedTuple):
 
 
 class ValueDecoder:
-    _BITSTRING_SCHEMA_OBJ = BitString()
-
     VALUE_NODE_ABSENT = object()
 
     def __init__(
@@ -352,11 +356,16 @@ class ValueDecoder:
         self.type_mappings = type_mappings.copy()
         self.default = default
 
-    def filter_value(self, node, type_node, value_node, pdu_type):
-        if self._BITSTRING_SCHEMA_OBJ.isSuperTypeOf(value_node.pdu):
+    def retrieve_substrate(self, value_node):
+        if isinstance(value_node.pdu, BitString):
             return value_node.pdu.asOctets()
         else:
             return value_node.pdu
+
+    def decode_value(self, node, type_node, value_node, pdu_type):
+        substrate = self.retrieve_substrate(value_node)
+
+        return decode_substrate(value_node.document, substrate, pdu_type, value_node)
 
     def __call__(self, node):
         type_node = node.navigate(self.type_path)
@@ -400,10 +409,8 @@ class ValueDecoder:
         if pdu_type is self.VALUE_NODE_ABSENT or pdu_type is None:
             return
 
-        value_octets = self.filter_value(node, type_node, value_node, pdu_type)
-
         try:
-            decode_substrate(value_node.document, value_octets, pdu_type, value_node)
+            self.decode_value(node, type_node, value_node, pdu_type)
         except SubstrateDecodingFailedError as e:
             schema_name = pdu_type.__class__.__name__
 

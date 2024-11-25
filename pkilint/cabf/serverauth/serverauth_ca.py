@@ -86,7 +86,7 @@ class CaCertificatePoliciesValidator(validation.Validator):
 
                     raise validation.ValidationFindingEncountered(
                         self.VALIDATION_NON_TLS_CA_HAS_SERVERAUTH_OID,
-                        f"Non-TLS CA has reserved policy OIDs: {oids}",
+                        f"Non-TLS CA has reserved policy OID(s): {oids}",
                     )
             else:
                 if not any(reserved_oids):
@@ -94,7 +94,11 @@ class CaCertificatePoliciesValidator(validation.Validator):
                         self.VALIDATION_NO_RESERVED_OID
                     )
 
-            if len(reserved_oids) > 1:
+            if (
+                len(reserved_oids) > 1
+                and self._certificate_type
+                not in serverauth_constants.ROOT_KEY_CROSS_CA_TYPES
+            ):
                 oids_str = oid.format_oids(reserved_oids)
 
                 raise validation.ValidationFindingEncountered(
@@ -319,7 +323,7 @@ class CaCertificateAuthorityInformationAccessAccessMethodPresenceValidator(
     _CODE_CLASSIFIER = "cabf.serverauth.ca"
 
     _ACCESS_METHOD_ALLOWANCES = {
-        rfc5280.id_ad_ocsp: Rfc2119Word.SHOULD,
+        rfc5280.id_ad_ocsp: Rfc2119Word.MAY,
         rfc5280.id_ad_caIssuers: Rfc2119Word.MAY,
     }
 

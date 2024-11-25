@@ -1,16 +1,9 @@
+import datetime
 import functools
 import logging
 from typing import Set, Optional
 
 from cryptography import x509, exceptions
-from cryptography.hazmat.primitives.asymmetric import (
-    padding,
-    rsa,
-    dsa,
-    ec,
-    ed25519,
-    ed448,
-)
 from pyasn1.codec.der.encoder import encode
 from pyasn1.type import univ
 from pyasn1.type.base import Asn1Type
@@ -25,6 +18,7 @@ from pkilint.pkix import (
     create_name_validator_container,
     general_name,
     algorithm,
+    key,
 )
 from pkilint.pkix.certificate import (
     certificate_validity,
@@ -61,6 +55,10 @@ class RFC5280Certificate(Document):
             )
         except ValueError:
             return pkix.MAXIMUM_TIME_DATETIME
+
+    @property
+    def validity_period(self) -> datetime.timedelta:
+        return (self.not_after - self.not_before) + datetime.timedelta(seconds=1)
 
     def _decode_and_append_extension(
         self, ext_oid: univ.ObjectIdentifier, ext_asn1_spec: Asn1Type
@@ -125,32 +123,37 @@ class RFC5280Certificate(Document):
         return encode(issuer_node.pdu) == encode(subject_node.pdu)
 
     @functools.cached_property
+    def public_key_object(self):
+        return key.convert_spki_to_object(
+            self.root.navigate("tbsCertificate.subjectPublicKeyInfo")
+        )
+
+    def is_signed_with_key(self, public_key):
+        tbs_octets = self.cryptography_object.tbs_certificate_bytes
+        signature_hash_alg = self.cryptography_object.signature_hash_algorithm
+        signature_octets = self.cryptography_object.signature
+
+        return key.verify_signature(
+            public_key, tbs_octets, signature_octets, signature_hash_alg
+        )
+
+    @functools.cached_property
     def is_self_signed(self):
         if not self.is_self_issued:
             return False
 
-        public_key = self.cryptography_object.public_key()
-        tbs_octets = self.cryptography_object.tbs_certificate_bytes
-        hash_alg = self.cryptography_object.signature_hash_algorithm
-        signature_octets = self.cryptography_object.signature
+        public_key = self.public_key_object
 
-        try:
-            if isinstance(public_key, rsa.RSAPublicKey):
-                public_key.verify(
-                    signature_octets, tbs_octets, padding.PKCS1v15(), hash_alg
-                )
-            elif isinstance(public_key, dsa.DSAPublicKey):
-                public_key.verify(signature_octets, tbs_octets, hash_alg)
-            elif isinstance(public_key, ec.EllipticCurvePublicKey):
-                public_key.verify(signature_octets, tbs_octets, ec.ECDSA(hash_alg))
-            elif isinstance(public_key, ed25519.Ed25519PublicKey):
-                public_key.verify(signature_octets, tbs_octets)
-            elif isinstance(public_key, ed448.Ed448PublicKey):
-                public_key.verify(signature_octets, tbs_octets)
-        except exceptions.InvalidSignature:
+        # return False if the certificate certifies an unsupported public key type
+        if public_key is None:
             return False
 
-        return True
+        try:
+            self.is_signed_with_key(public_key)
+
+        # gracefully handle unsupported signature algorithms
+        except exceptions.UnsupportedAlgorithm:
+            return False
 
     def get_extension_by_oid(self, oid):
         tbs_cert = self.root.children["tbsCertificate"]
@@ -311,6 +314,7 @@ def create_extensions_validator_container(additional_validators=None):
             certificate_extension.SubjectKeyIdentifierCriticalityValidator(),
             certificate_extension.KeyUsageCriticalityValidator(),
             certificate_extension.KeyUsageValidator(),
+            certificate_key.SpkiKeyUsageConsistencyValidator(),
             general_name.UriSyntaxValidator(pdu_class=rfc5280.CPSuri),
             general_name.GeneralNameValidatorContainer(),
             certificate_extension.DuplicatePolicyValidator(),
@@ -378,8 +382,8 @@ def create_decoding_validators(
             path="certificate.tbsCertificate.signature",
         ),
         create_spki_decoder(
-            certificate_key.SUBJECT_PUBLIC_KEY_ALGORITHM_IDENTIFIER_MAPPINGS,
-            certificate_key.SUBJECT_KEY_PARAMETER_ALGORITHM_IDENTIFIER_MAPPINGS,
+            key.SUBJECT_PUBLIC_KEY_ALGORITHM_IDENTIFIER_MAPPINGS,
+            key.SUBJECT_KEY_PARAMETER_ALGORITHM_IDENTIFIER_MAPPINGS,
         ),
         create_policy_qualifier_decoder(
             certificate_extension.CERTIFICATE_POLICY_QUALIFIER_MAPPINGS

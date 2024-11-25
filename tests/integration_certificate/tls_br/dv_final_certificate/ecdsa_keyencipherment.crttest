@@ -38,3 +38,4 @@ certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARN
 certificate.tbsCertificate.subject.rdnSequence,DvSubcriberAttributeAllowanceValidator,WARNING,cabf.serverauth.dv.common_name_attribute_present,
 certificate.tbsCertificate.extensions.7.extnValue.keyUsage,SubscriberKeyUsageValidator,ERROR,cabf.serverauth.subscriber_prohibited_ku_present,Prohibited KU present: keyEncipherment
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies.0.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
+certificate.tbsCertificate.extensions.7.extnValue.keyUsage,SpkiKeyUsageConsistencyValidator,ERROR,pkix.key_usage_value_prohibited_for_ec,Prohibited key usage value(s) present: keyEncipherment

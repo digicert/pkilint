@@ -6,7 +6,7 @@ import sys
 from pyasn1_alt_modules import rfc5280
 
 from pkilint import loader, document, cli_util, validation, pkix, report
-from pkilint.pkix import certificate, name, extension, algorithm
+from pkilint.pkix import certificate, name, extension, algorithm, key
 from pkilint.pkix.certificate import certificate_extension, certificate_key
 
 
@@ -19,8 +19,8 @@ def create_decoder_validation_container():
             path="certificate.tbsCertificate.signature",
         ),
         certificate.create_spki_decoder(
-            certificate_key.SUBJECT_PUBLIC_KEY_ALGORITHM_IDENTIFIER_MAPPINGS,
-            certificate_key.SUBJECT_KEY_PARAMETER_ALGORITHM_IDENTIFIER_MAPPINGS,
+            key.SUBJECT_PUBLIC_KEY_ALGORITHM_IDENTIFIER_MAPPINGS,
+            key.SUBJECT_KEY_PARAMETER_ALGORITHM_IDENTIFIER_MAPPINGS,
         ),
     ]
 

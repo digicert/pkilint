@@ -33,3 +33,4 @@ certificate.tbsCertificate.signature,ServerauthAllowedSignatureAlgorithmEncoding
 certificate,SubjectKeyIdentifierPresenceValidator,WARNING,pkix.certificate_skid_end_entity_missing,
 certificate.tbsCertificate.subject.rdnSequence.3.0.value.emailAddress,SubjectEmailAddressInSanValidator,ERROR,pkix.subject_email_address_not_in_san,Certificate does not have SAN extension
 certificate.tbsCertificate.subject.rdnSequence,CaRequiredSubjectAttributesValidator,WARNING,cabf.serverauth.ca.unknown_attribute_present,Unknown attribute present: 1.2.840.113549.1.9.1
+certificate.tbsCertificate.extensions.0.extnValue.keyUsage,SpkiKeyUsageConsistencyValidator,ERROR,pkix.key_usage_value_prohibited_for_rsa,Prohibited key usage value(s) present: keyAgreement
