@@ -2,6 +2,12 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.12.5 - 2024-11-27
+
+### Fixes
+
+- Fix S/MIME BR version number (#142)
+
 ## 0.12.4 - 2024-11-25
 
 ### New features/enhancements
