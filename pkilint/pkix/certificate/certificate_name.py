@@ -1,6 +1,7 @@
 from pyasn1_alt_modules import rfc5280
 
 from pkilint import validation
+from pkilint.pkix import general_name
 
 
 class SubjectEmailAddressInSanValidator(validation.Validator):
@@ -28,14 +29,13 @@ class SubjectEmailAddressInSanValidator(validation.Validator):
 
         email_address = str(node.pdu)
 
-        for gn in ext.navigate("extnValue.subjectAltName").children.values():
-            value_node = gn.children.get("rfc822Name")
-            if value_node is None:
-                continue
-            if str(value_node.pdu) == email_address:
-                return
-
-        raise validation.ValidationFindingEncountered(
-            self.VALIDATION_SUBJECT_EMAIL_NOT_IN_SAN,
-            f'Subject DN e-mail address "{email_address}" not found in SAN',
-        )
+        if not any(
+            str(rfc822name_node.pdu) == email_address
+            for rfc822name_node in node.document.get_san_general_names_by_type(
+                general_name.GeneralNameTypeName.RFC822_NAME
+            )
+        ):
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_SUBJECT_EMAIL_NOT_IN_SAN,
+                f'Subject DN e-mail address "{email_address}" not found in SAN',
+            )
