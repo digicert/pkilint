@@ -16,4 +16,4 @@ AA9WjQKZ7aKQRUzkuxCkPfAyAw7xzvjoyVGM5mKf5p/AfbdynMk2OmufTqj/ZA1k
 node_path,validator,severity,code,message
 certificate,SubjectKeyIdentifierPresenceValidator,WARNING,pkix.certificate_skid_end_entity_missing,
 certificate.tbsCertificate.version,CorrectVersionValidator,ERROR,pkix.certificate_version_is_not_v3,"Expected=""2"", actual=""v1"""
-certificate,AuthorityKeyIdentifierPresenceValidator,NOTICE,pkix.aki_absent_self_issued_and_unsupported_algorithm,Self-issued certificate uses unsupported signature algorithm: 1.2.840.113549.1.1.2
+certificate,AuthorityKeyIdentifierPresenceValidator,ERROR,pkix.authority_key_identifier_extension_absent,

@@ -318,6 +318,20 @@ def create_validity_validator_container(additional_validators=None):
     )
 
 
+def create_spki_validator_container(additional_validators=None):
+    if additional_validators is None:
+        additional_validators = []
+
+    return validation.ValidatorContainer(
+        validators=[
+            certificate_key.CaPrehashPublicKeyValidator(),
+            certificate_key.ObsoletePublicKeyAlgorithmValidator(),
+        ]
+        + additional_validators,
+        path="certificate.tbsCertificate.subjectPublicKeyInfo",
+    )
+
+
 def create_extensions_validator_container(additional_validators=None):
     if additional_validators is None:
         additional_validators = []

@@ -1,4 +1,5 @@
 import binascii
+from typing import NamedTuple, Set, Optional
 
 from cryptography import exceptions
 from cryptography.hazmat.primitives import hashes
@@ -9,6 +10,7 @@ from pyasn1_alt_modules import rfc5280, rfc8410, rfc3279, rfc5480
 
 from pkilint import validation, util, document
 from pkilint.itu import bitstring
+from pkilint.nist.asn1 import csor
 from pkilint.pkix.certificate.certificate_extension import KeyUsageBitName
 from pkilint.pkix.key import verify_signature
 
@@ -233,135 +235,212 @@ class AllowedPublicKeyAlgorithmEncodingValidator(validation.Validator):
 
 
 class SpkiKeyUsageConsistencyValidator(validation.Validator):
-    # all bits are allowed except for keyAgreement, see RFC 4055 section 1.2
-    _RSA_ALLOWED_KEY_USAGES = {
-        KeyUsageBitName.DIGITAL_SIGNATURE,
-        KeyUsageBitName.NON_REPUDIATION,
-        KeyUsageBitName.KEY_CERT_SIGN,
-        KeyUsageBitName.CRL_SIGN,
-        KeyUsageBitName.KEY_ENCIPHERMENT,
-        KeyUsageBitName.DATA_ENCIPHERMENT,
-        KeyUsageBitName.DECIPHER_ONLY,
-        KeyUsageBitName.ENCIPHER_ONLY,
-    }
+    class KeyUsageBitsAndValidationFindingPair(NamedTuple):
+        key_usage_bits: Set[str]
+        validation_finding: validation.ValidationFinding
+
+    class AlgorithmKeyUsageRequirement(NamedTuple):
+        allowed: "SpkiKeyUsageConsistencyValidator.KeyUsageBitsAndValidationFindingPair"
+        required: Optional[
+            "SpkiKeyUsageConsistencyValidator.KeyUsageBitsAndValidationFindingPair"
+        ]
+
     VALIDATION_RSA_PROHIBITED_KEY_USAGE_VALUE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
         "pkix.key_usage_value_prohibited_for_rsa",
     )
 
-    # all bits are allowed except for keyEncipherment and dataEncipherment, see RFC 8813 section 3
-    _EC_ALLOWED_KEY_USAGES = {
-        KeyUsageBitName.DIGITAL_SIGNATURE,
-        KeyUsageBitName.NON_REPUDIATION,
-        KeyUsageBitName.KEY_CERT_SIGN,
-        KeyUsageBitName.CRL_SIGN,
-        KeyUsageBitName.KEY_AGREEMENT,
-        KeyUsageBitName.DECIPHER_ONLY,
-        KeyUsageBitName.ENCIPHER_ONLY,
-    }
     VALIDATION_EC_PROHIBITED_KEY_USAGE_VALUE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
         "pkix.key_usage_value_prohibited_for_ec",
     )
 
-    # see RFC 9295, section 3
-    _X448_AND_X25519_REQUIRED_KEY_USAGES = {
-        KeyUsageBitName.KEY_AGREEMENT,
-    }
     VALIDATION_EDWARDS_MISSING_REQUIRED_KEY_USAGE_VALUE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
         "pkix.key_usage_value_required_but_missing_for_edwards_curve",
     )
 
-    _X448_AND_X25519_ALLOWED_KEY_USAGES = {
-        KeyUsageBitName.KEY_AGREEMENT,
-        KeyUsageBitName.DECIPHER_ONLY,
-        KeyUsageBitName.ENCIPHER_ONLY,
-    }
     VALIDATION_EDWARDS_PROHIBITED_KEY_USAGE_VALUE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
         "pkix.key_usage_value_prohibited_for_edwards_curve",
     )
 
-    _SIGNATURE_ALGORITHM_ALLOWED_KEY_USAGES = {
-        KeyUsageBitName.DIGITAL_SIGNATURE,
-        KeyUsageBitName.NON_REPUDIATION,
-        KeyUsageBitName.KEY_CERT_SIGN,
-        KeyUsageBitName.CRL_SIGN,
-    }
-    VALIDATION_SIGNATURE_ALGORITHM_PROHIBITED_KEY_USAGE_VALUE = (
-        validation.ValidationFinding(
-            validation.ValidationFindingSeverity.ERROR,
-            "pkix.key_usage_value_prohibited_for_signature_algorithm",
-        )
+    VALIDATION_MLDSA_PROHIBITED_KEY_USAGE_VALUE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "pkix.key_usage_value_prohibited_for_mldsa",
     )
 
-    # _KEM_ALLOWED_KEY_USAGES = {KeyUsageBitName.KEY_ENCIPHERMENT}
-    # VALIDATION_KEM_PROHIBITED_KEY_USAGE_VALUE = validation.ValidationFinding(
-    #    validation.ValidationFindingSeverity.ERROR,
-    #    "pkix.prohibited_key_usage_value_kem",
-    # )
+    VALIDATION_HASH_MLDSA_PROHIBITED_KEY_USAGE_VALUE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "pkix.key_usage_value_prohibited_for_hash_mldsa",
+    )
+
+    VALIDATION_SLHDSA_PROHIBITED_KEY_USAGE_VALUE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "pkix.key_usage_value_prohibited_for_slhdsa",
+    )
+
+    VALIDATION_HASH_SLHDSA_PROHIBITED_KEY_USAGE_VALUE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "pkix.key_usage_value_prohibited_for_hash_slhdsa",
+    )
+
+    VALIDATION_MLKEM_PROHIBITED_KEY_USAGE_VALUE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "pkix.key_usage_value_prohibited_for_mlkem",
+    )
 
     VALIDATION_UNSUPPORTED_PUBLIC_KEY_ALGORITHM = validation.ValidationFinding(
         validation.ValidationFindingSeverity.NOTICE,
         "pkix.public_key_algorithm_unsupported",
     )
 
-    _KEY_USAGE_VALUE_ALLOWANCES = {
-        rfc3279.rsaEncryption: (
-            (_RSA_ALLOWED_KEY_USAGES, VALIDATION_RSA_PROHIBITED_KEY_USAGE_VALUE),
-            None,
+    _RSA = AlgorithmKeyUsageRequirement(
+        allowed=KeyUsageBitsAndValidationFindingPair(
+            # all bits are allowed except for keyAgreement, see RFC 4055 section 1.2
+            key_usage_bits=KeyUsageBitName.all_bits() - {KeyUsageBitName.KEY_AGREEMENT},
+            validation_finding=VALIDATION_RSA_PROHIBITED_KEY_USAGE_VALUE,
         ),
-        rfc5480.id_ecPublicKey: (
-            (_EC_ALLOWED_KEY_USAGES, VALIDATION_EC_PROHIBITED_KEY_USAGE_VALUE),
-            None,
+        required=None,
+    )
+
+    _EC = AlgorithmKeyUsageRequirement(
+        allowed=KeyUsageBitsAndValidationFindingPair(
+            # all bits are allowed except for keyEncipherment and dataEncipherment, see RFC 8813 section 3
+            key_usage_bits=KeyUsageBitName.all_bits()
+            - {KeyUsageBitName.KEY_ENCIPHERMENT, KeyUsageBitName.DATA_ENCIPHERMENT},
+            validation_finding=VALIDATION_EC_PROHIBITED_KEY_USAGE_VALUE,
         ),
-        rfc8410.id_X448: (
-            (
-                _X448_AND_X25519_ALLOWED_KEY_USAGES,
-                VALIDATION_EDWARDS_PROHIBITED_KEY_USAGE_VALUE,
-            ),
-            (
-                _X448_AND_X25519_REQUIRED_KEY_USAGES,
-                VALIDATION_EDWARDS_MISSING_REQUIRED_KEY_USAGE_VALUE,
-            ),
+        required=None,
+    )
+
+    _EDWARDS_KEY_AGREEMENT = AlgorithmKeyUsageRequirement(
+        allowed=KeyUsageBitsAndValidationFindingPair(
+            # see RFC 9295, section 3
+            key_usage_bits={
+                KeyUsageBitName.KEY_AGREEMENT,
+                KeyUsageBitName.DECIPHER_ONLY,
+                KeyUsageBitName.ENCIPHER_ONLY,
+            },
+            validation_finding=VALIDATION_EDWARDS_PROHIBITED_KEY_USAGE_VALUE,
         ),
-        rfc8410.id_X25519: (
-            (
-                _X448_AND_X25519_ALLOWED_KEY_USAGES,
-                VALIDATION_EDWARDS_PROHIBITED_KEY_USAGE_VALUE,
-            ),
-            (
-                _X448_AND_X25519_REQUIRED_KEY_USAGES,
-                VALIDATION_EDWARDS_MISSING_REQUIRED_KEY_USAGE_VALUE,
-            ),
+        required=KeyUsageBitsAndValidationFindingPair(
+            # see RFC 9295, section 3
+            key_usage_bits={
+                KeyUsageBitName.KEY_AGREEMENT,
+            },
+            validation_finding=VALIDATION_EDWARDS_MISSING_REQUIRED_KEY_USAGE_VALUE,
         ),
-        rfc8410.id_Ed448: (
-            (
-                _SIGNATURE_ALGORITHM_ALLOWED_KEY_USAGES,
-                VALIDATION_SIGNATURE_ALGORITHM_PROHIBITED_KEY_USAGE_VALUE,
-            ),
-            None,
-        ),
-        rfc8410.id_Ed25519: (
-            (
-                _SIGNATURE_ALGORITHM_ALLOWED_KEY_USAGES,
-                VALIDATION_SIGNATURE_ALGORITHM_PROHIBITED_KEY_USAGE_VALUE,
-            ),
-            None,
-        ),
+    )
+
+    _DIGITAL_SIGNATURE_ALGORITHM_BITS = {
+        KeyUsageBitName.DIGITAL_SIGNATURE,
+        KeyUsageBitName.NON_REPUDIATION,
+        KeyUsageBitName.KEY_CERT_SIGN,
+        KeyUsageBitName.CRL_SIGN,
     }
 
+    _EDWARDS_DIGITAL_SIGNATURE = AlgorithmKeyUsageRequirement(
+        allowed=KeyUsageBitsAndValidationFindingPair(
+            # see RFC 9295, section 3
+            key_usage_bits=_DIGITAL_SIGNATURE_ALGORITHM_BITS,
+            validation_finding=VALIDATION_EDWARDS_PROHIBITED_KEY_USAGE_VALUE,
+        ),
+        required=None,
+    )
+
+    _MLDSA = AlgorithmKeyUsageRequirement(
+        allowed=KeyUsageBitsAndValidationFindingPair(
+            # see
+            # https://www.ietf.org/archive/id/draft-ietf-lamps-dilithium-certificates-05.html#name-key-usage-bits
+            key_usage_bits=_DIGITAL_SIGNATURE_ALGORITHM_BITS,
+            validation_finding=VALIDATION_MLDSA_PROHIBITED_KEY_USAGE_VALUE,
+        ),
+        required=None,
+    )
+
+    _HASH_MLDSA = AlgorithmKeyUsageRequirement(
+        allowed=KeyUsageBitsAndValidationFindingPair(
+            # see
+            # https://www.ietf.org/archive/id/draft-ietf-lamps-dilithium-certificates-05.html#name-key-usage-bits
+            key_usage_bits={
+                KeyUsageBitName.DIGITAL_SIGNATURE,
+                KeyUsageBitName.NON_REPUDIATION,
+            },
+            validation_finding=VALIDATION_HASH_MLDSA_PROHIBITED_KEY_USAGE_VALUE,
+        ),
+        required=None,
+    )
+
+    _SLHDSA = AlgorithmKeyUsageRequirement(
+        allowed=KeyUsageBitsAndValidationFindingPair(
+            # see https://www.ietf.org/archive/id/draft-ietf-lamps-x509-slhdsa-03.html#name-key-usage-bits
+            key_usage_bits=_DIGITAL_SIGNATURE_ALGORITHM_BITS,
+            validation_finding=VALIDATION_SLHDSA_PROHIBITED_KEY_USAGE_VALUE,
+        ),
+        required=None,
+    )
+
+    _HASH_SLHDSA = AlgorithmKeyUsageRequirement(
+        allowed=KeyUsageBitsAndValidationFindingPair(
+            # see https://www.ietf.org/archive/id/draft-ietf-lamps-x509-slhdsa-03.html#name-key-usage-bits
+            key_usage_bits={
+                KeyUsageBitName.DIGITAL_SIGNATURE,
+                KeyUsageBitName.NON_REPUDIATION,
+            },
+            validation_finding=VALIDATION_HASH_SLHDSA_PROHIBITED_KEY_USAGE_VALUE,
+        ),
+        required=None,
+    )
+
+    _MLKEM = AlgorithmKeyUsageRequirement(
+        allowed=KeyUsageBitsAndValidationFindingPair(
+            # see https://datatracker.ietf.org/doc/html/draft-ietf-lamps-kyber-certificates-07#section-3
+            key_usage_bits={KeyUsageBitName.KEY_ENCIPHERMENT},
+            validation_finding=VALIDATION_MLKEM_PROHIBITED_KEY_USAGE_VALUE,
+        ),
+        required=None,
+    )
+
+    _KEY_USAGE_VALUE_ALLOWANCES = {}
+
     def __init__(self):
+        validations = {self.VALIDATION_UNSUPPORTED_PUBLIC_KEY_ALGORITHM}
+
+        for alg_allowance in self._KEY_USAGE_VALUE_ALLOWANCES.values():
+            validations.add(alg_allowance.allowed.validation_finding)
+
+            if alg_allowance.required:
+                validations.add(alg_allowance.required.validation_finding)
+
+        self._KEY_USAGE_VALUE_ALLOWANCES.update(
+            {
+                rfc3279.rsaEncryption: self._RSA,
+                rfc5480.id_ecPublicKey: self._EC,
+                **{
+                    k: self._EDWARDS_KEY_AGREEMENT
+                    for k in (
+                        rfc8410.id_X448,
+                        rfc8410.id_X25519,
+                    )
+                },
+                **{
+                    k: self._EDWARDS_DIGITAL_SIGNATURE
+                    for k in (
+                        rfc8410.id_Ed448,
+                        rfc8410.id_Ed25519,
+                    )
+                },
+                **{k: self._MLDSA for k in csor.MLDSA_OIDS},
+                **{k: self._HASH_MLDSA for k in csor.HASH_MLDSA_OIDS},
+                **{k: self._SLHDSA for k in csor.SLHDSA_OIDS},
+                **{k: self._HASH_SLHDSA for k in csor.HASH_SLHDSA_OIDS},
+                **{k: self._MLKEM for k in csor.MLKEM_OIDS},
+            }
+        )
+
         super().__init__(
-            validations=[
-                self.VALIDATION_UNSUPPORTED_PUBLIC_KEY_ALGORITHM,
-                self.VALIDATION_EC_PROHIBITED_KEY_USAGE_VALUE,
-                self.VALIDATION_EDWARDS_PROHIBITED_KEY_USAGE_VALUE,
-                self.VALIDATION_EDWARDS_MISSING_REQUIRED_KEY_USAGE_VALUE,
-                self.VALIDATION_RSA_PROHIBITED_KEY_USAGE_VALUE,
-                self.VALIDATION_SIGNATURE_ALGORITHM_PROHIBITED_KEY_USAGE_VALUE,
-            ],
+            validations=list(validations),
             pdu_class=rfc5280.KeyUsage,
         )
 
@@ -370,15 +449,15 @@ class SpkiKeyUsageConsistencyValidator(validation.Validator):
             ":certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm"
         ).pdu
 
-        allowances = self._KEY_USAGE_VALUE_ALLOWANCES.get(spki_alg_oid)
+        alg_allowances = self._KEY_USAGE_VALUE_ALLOWANCES.get(spki_alg_oid)
 
-        if allowances is None:
+        if alg_allowances is None:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_UNSUPPORTED_PUBLIC_KEY_ALGORITHM,
                 f"Unsupported public key algorithm: {str(spki_alg_oid)}",
             )
 
-        allowed_values_and_finding, required_values_and_finding = allowances
+        allowed_values_and_finding, required_values_and_finding = alg_allowances
         allowed_values, prohibited_finding = allowed_values_and_finding
 
         bit_set = bitstring.get_asserted_bit_set(node)
@@ -405,3 +484,132 @@ class SpkiKeyUsageConsistencyValidator(validation.Validator):
                     missing_finding,
                     f"Required key usage value(s) missing: {missing_ku_names}",
                 )
+
+
+class CaPrehashPublicKeyValidator(validation.Validator):
+    VALIDATION_HASH_MLDSA_PROHIBITED_IN_CA_CERTIFICATE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR, "pkix.hash_mldsa_ca_key_prohibited"
+    )
+
+    VALIDATION_HASH_SLHDSA_PROHIBITED_IN_CA_CERTIFICATE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR, "pkix.hash_slhdsa_ca_key_prohibited"
+    )
+
+    _PROHIBITED_ALG_OID_TO_FINDING_MAPPINGS = {}
+
+    def __init__(self):
+        self._PROHIBITED_ALG_OID_TO_FINDING_MAPPINGS.update(
+            {
+                **{
+                    k: self.VALIDATION_HASH_MLDSA_PROHIBITED_IN_CA_CERTIFICATE
+                    for k in csor.HASH_MLDSA_OIDS
+                },
+                **{
+                    k: self.VALIDATION_HASH_SLHDSA_PROHIBITED_IN_CA_CERTIFICATE
+                    for k in csor.HASH_SLHDSA_OIDS
+                },
+            }
+        )
+
+        super().__init__(
+            validations=[
+                self.VALIDATION_HASH_MLDSA_PROHIBITED_IN_CA_CERTIFICATE,
+                self.VALIDATION_HASH_SLHDSA_PROHIBITED_IN_CA_CERTIFICATE,
+            ],
+            pdu_class=rfc5280.SubjectPublicKeyInfo,
+            predicate=lambda n: n.document.is_ca,
+        )
+
+    def validate(self, node):
+        spki_alg_oid = node.navigate("algorithm.algorithm").pdu
+
+        finding = self._PROHIBITED_ALG_OID_TO_FINDING_MAPPINGS.get(spki_alg_oid)
+
+        if finding:
+            raise validation.ValidationFindingEncountered(
+                finding,
+                f"Prohibited public key algorithm in CA certificate: {str(spki_alg_oid)}",
+            )
+
+
+class ObsoletePublicKeyAlgorithmValidator(validation.Validator):
+    VALIDATION_IPD_ALGORITHM_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "pkix.public_key_nist_ipd_algorithm_present",
+    )
+
+    VALIDATION_ROUND3_ALGORITHM_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "pkix.public_key_nist_round3_algorithm_present",
+    )
+
+    _IPD_ALG_OIDS = {
+        univ.ObjectIdentifier("1.3.6.1.4.1.2.267.12.4.4"),  # ML-DSA-44-ipd
+        univ.ObjectIdentifier("1.1.4.1.2.267.12.6.5"),  # ML-DSA-65-ipd
+        univ.ObjectIdentifier("1.1.4.1.2.267.12.8.7"),  # ML-DSA-87-ipd
+        univ.ObjectIdentifier("1.3.9999.6.4.16"),  # SLH-DSA-SHA2-128s-ipd
+        univ.ObjectIdentifier("1.3.9999.6.7.16"),  # SLH-DSA-SHAKE-128s-ipd
+        univ.ObjectIdentifier("1.3.9999.6.4.13"),  # SLH-DSA-SHA2-128f-ipd
+        univ.ObjectIdentifier("1.3.9999.6.7.13"),  # SLH-DSA-SHAKE-128f-ipd
+        univ.ObjectIdentifier("1.3.9999.6.5.12"),  # SLH-DSA-SHA2-192s-ipd
+        univ.ObjectIdentifier("1.3.9999.6.8.12"),  # SLH-DSA-SHAKE-192s-ipd
+        univ.ObjectIdentifier("1.3.9999.6.5.10"),  # SLH-DSA-SHA2-192f-ipd
+        univ.ObjectIdentifier("1.3.9999.6.8.10"),  # SLH-DSA-SHAKE-192f-ipd
+        univ.ObjectIdentifier("1.3.9999.6.6.12"),  # SLH-DSA-SHA2-256s-ipd
+        univ.ObjectIdentifier("1.3.9999.6.9.12"),  # SLH-DSA-SHAKE-256s-ipd
+        univ.ObjectIdentifier("1.3.9999.6.6.10"),  # SLH-DSA-SHA2-256f-ipd
+        univ.ObjectIdentifier("1.3.9999.6.9.10"),  # SLH-DSA-SHAKE-256f-ipd
+        univ.ObjectIdentifier("1.3.6.1.4.1.22554.5.6.1"),  # ML-KEM-512-ipd
+        univ.ObjectIdentifier("1.3.6.1.4.1.22554.5.6.2"),  # ML-KEM-768-ipd
+        univ.ObjectIdentifier("1.3.6.1.4.1.22554.5.6.3"),  # ML-KEM-1024-ipd
+    }
+
+    _ROUND3_ALG_OIDS = {
+        univ.ObjectIdentifier("1.3.6.1.4.1.2.267.7.4.4"),  # Dilithium2
+        univ.ObjectIdentifier("1.3.6.1.4.1.2.267.7.6.5"),  # Dilithium3
+        univ.ObjectIdentifier("1.3.6.1.4.1.2.267.7.8.7"),  # Dilithium5
+        univ.ObjectIdentifier("1.3.6.1.4.1.2.267.11.4.4"),  # DilithiumAES2
+        univ.ObjectIdentifier("1.3.6.1.4.1.2.267.11.6.5"),  # DilithiumAES3
+        univ.ObjectIdentifier("1.3.6.1.4.1.2.267.11.8.7"),  # DilithiumAES5
+        univ.ObjectIdentifier("1.3.9999.3.1"),  # Falcon-512
+        univ.ObjectIdentifier("1.3.9999.3.4"),  # Falcon-1024
+        univ.ObjectIdentifier("1.3.9999.6.4.1"),  # SPHINCS+-SHA256-128f-robust
+        univ.ObjectIdentifier("1.3.9999.6.4.4"),  # SPHINCS+-SHA256-128f-simple
+        univ.ObjectIdentifier("1.3.9999.6.4.7"),  # SPHINCS+-SHA256-128s-robust
+        univ.ObjectIdentifier("1.3.9999.6.4.10"),  # SPHINCS+-SHA256-128s-simple
+        univ.ObjectIdentifier("1.3.9999.6.5.1"),  # SPHINCS+-SHA256-192f-robust
+        univ.ObjectIdentifier("1.3.9999.6.5.3"),  # SPHINCS+-SHA256-192f-simple
+        univ.ObjectIdentifier("1.3.9999.6.5.5"),  # SPHINCS+-SHA256-192s-robust
+        univ.ObjectIdentifier("1.3.9999.6.5.7"),  # SPHINCS+-SHA256-192s-simple
+        univ.ObjectIdentifier("1.3.9999.6.6.1"),  # SPHINCS+-SHA256-256f-robust
+        univ.ObjectIdentifier("1.3.9999.6.6.3"),  # SPHINCS+-SHA256-256f-simple
+        univ.ObjectIdentifier("1.3.9999.6.6.5"),  # SPHINCS+-SHA256-256s-robust
+        univ.ObjectIdentifier("1.3.9999.6.6.7"),  # SPHINCS+-SHA256-256s-simple
+        univ.ObjectIdentifier("1.3.6.1.4.1.22554.5.6.4"),  # kyber512_aes
+        univ.ObjectIdentifier("1.3.6.1.4.1.22554.5.6.5"),  # kyber768_aes
+        univ.ObjectIdentifier("1.3.6.1.4.1.22554.5.6.6"),  # kyber1024_aes
+    }
+
+    def __init__(self):
+        super().__init__(
+            validations=[
+                self.VALIDATION_IPD_ALGORITHM_PRESENT,
+                self.VALIDATION_ROUND3_ALGORITHM_PRESENT,
+            ],
+            pdu_class=rfc5280.SubjectPublicKeyInfo,
+        )
+
+    def validate(self, node):
+        spki_alg_oid = node.navigate("algorithm.algorithm").pdu
+
+        if spki_alg_oid in self._IPD_ALG_OIDS:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_IPD_ALGORITHM_PRESENT,
+                f"Obsolete NIST IPD public key algorithm: {str(spki_alg_oid)}",
+            )
+
+        if spki_alg_oid in self._ROUND3_ALG_OIDS:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_ROUND3_ALGORITHM_PRESENT,
+                f"Obsolete NIST Round 3 public key algorithm: {str(spki_alg_oid)}",
+            )
