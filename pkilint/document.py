@@ -13,7 +13,7 @@ from typing import (
     NamedTuple,
 )
 
-from pyasn1.error import PyAsn1Error
+from pyasn1.error import PyAsn1Error, PyAsn1UnicodeDecodeError
 from pyasn1.type.base import Asn1Type
 from pyasn1.type.univ import (
     ObjectIdentifier,
@@ -328,6 +328,13 @@ def decode_substrate(
 
     try:
         decoded, _ = decode_der(substrate, asn1Spec=pdu_instance)
+    except PyAsn1UnicodeDecodeError as e:
+        # hack to obtain the error string for string type decoding failures
+        underlying_error = UnicodeDecodeError(*e.args)
+
+        raise SubstrateDecodingFailedError(
+            source_document, pdu_instance, parent_node, str(underlying_error)
+        ) from e
     except (ValueError, PyAsn1Error) as e:
         raise SubstrateDecodingFailedError(
             source_document, pdu_instance, parent_node, str(e)

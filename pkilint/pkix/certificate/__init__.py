@@ -1,7 +1,7 @@
 import datetime
 import functools
 import logging
-from typing import Set, Optional
+from typing import Set, Optional, List
 
 from cryptography import x509, exceptions
 from pyasn1.codec.der.encoder import encode
@@ -193,6 +193,23 @@ class RFC5280Certificate(Document):
             {pi.children["policyIdentifier"].pdu for pi in decoded.children.values()}
             if decoded
             else set()
+        )
+
+    def get_san_general_names_by_type(
+        self, general_name_type: general_name.GeneralNameTypeName
+    ) -> List[document.PDUNode]:
+        decoded = self._decode_and_append_extension(
+            rfc5280.id_ce_subjectAltName, rfc5280.SubjectAltName()
+        )
+
+        return (
+            []
+            if decoded is None
+            else [
+                gn.children[general_name_type]
+                for gn in decoded.children.values()
+                if general_name_type in gn.children
+            ]
         )
 
 
