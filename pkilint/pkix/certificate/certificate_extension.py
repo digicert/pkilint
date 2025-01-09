@@ -1,4 +1,4 @@
-from typing import NamedTuple, Set, List
+from typing import NamedTuple, Set
 
 import unicodedata
 from cryptography import exceptions
