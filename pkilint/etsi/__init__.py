@@ -384,9 +384,8 @@ def create_validators(
             additional_spki_validators=spki_validators,
         )
     else:
-        spki_validator_container = validation.ValidatorContainer(
-            validators=spki_validators,
-            path="certificate.tbsCertificate.subjectPublicKeyInfo",
+        spki_validator_container = certificate.create_spki_validator_container(
+            spki_validators
         )
 
         top_level_container = validation.ValidatorContainer(

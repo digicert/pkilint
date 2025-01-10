@@ -162,16 +162,15 @@ def create_spki_validator_container(additional_validators=None):
     if additional_validators is None:
         additional_validators = []
 
-    return validation.ValidatorContainer(
-        validators=[
+    return certificate.create_spki_validator_container(
+        [
             serverauth_key.ServerauthAllowedPublicKeyAlgorithmEncodingValidator(
                 path="certificate.tbsCertificate.subjectPublicKeyInfo.algorithm"
             ),
             cabf_key.RsaKeyValidator(),
             cabf_key.EcdsaKeyValidator(),
         ]
-        + additional_validators,
-        path="certificate.tbsCertificate.subjectPublicKeyInfo",
+        + additional_validators
     )
 
 

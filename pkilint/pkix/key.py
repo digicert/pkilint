@@ -12,6 +12,7 @@ from pyasn1_alt_modules import rfc3279, rfc5480, rfc8410
 
 from pkilint import document
 from pkilint.document import PDUNode
+from pkilint.nist.asn1 import fips_203, fips_204, fips_205
 
 SUBJECT_PUBLIC_KEY_ALGORITHM_IDENTIFIER_MAPPINGS = {
     rfc3279.rsaEncryption: rfc5480.RSAPublicKey(),
@@ -22,6 +23,9 @@ SUBJECT_PUBLIC_KEY_ALGORITHM_IDENTIFIER_MAPPINGS = {
     rfc8410.id_Ed25519: univ.OctetString(),
     rfc8410.id_X448: univ.OctetString(),
     rfc8410.id_X25519: univ.OctetString(),
+    **fips_203.ALGORITHM_OID_TO_KEY_MAPPINGS,
+    **fips_204.ALGORITHM_OID_TO_KEY_MAPPINGS,
+    **fips_205.ALGORITHM_OID_TO_KEY_MAPPINGS,
 }
 
 SUBJECT_KEY_PARAMETER_ALGORITHM_IDENTIFIER_MAPPINGS = {
@@ -38,6 +42,9 @@ SUBJECT_KEY_PARAMETER_ALGORITHM_IDENTIFIER_MAPPINGS = {
             rfc8410.id_X25519,
         )
     },
+    **fips_203.ALGORITHM_OID_TO_PARAMETER_MAPPINGS,
+    **fips_204.ALGORITHM_OID_TO_PARAMETER_MAPPINGS,
+    **fips_205.ALGORITHM_OID_TO_PARAMETER_MAPPINGS,
 }
 
 EC_CURVE_OID_TO_OBJECT_MAPPINGS = {

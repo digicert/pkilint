@@ -34,6 +34,7 @@ def main(cli_args=None) -> int:
             certificate.create_validity_validator_container(),
             certificate.create_subject_validator_container([]),
             certificate.create_extensions_validator_container([]),
+            certificate.create_spki_validator_container([]),
         ],
     )
 

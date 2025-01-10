@@ -565,6 +565,22 @@ class KeyUsageBitName:
     ENCIPHER_ONLY = "encipherOnly"
     DECIPHER_ONLY = "decipherOnly"
 
+    _ALL_BITS = {
+        DIGITAL_SIGNATURE,
+        NON_REPUDIATION,
+        KEY_ENCIPHERMENT,
+        DATA_ENCIPHERMENT,
+        KEY_AGREEMENT,
+        KEY_CERT_SIGN,
+        CRL_SIGN,
+        ENCIPHER_ONLY,
+        DECIPHER_ONLY,
+    }
+
+    @staticmethod
+    def all_bits() -> Set[str]:
+        return KeyUsageBitName._ALL_BITS
+
 
 class KeyUsageValidator(validation.Validator):
     VALIDATION_NO_BITS_SET = validation.ValidationFinding(
@@ -651,7 +667,7 @@ class AuthorityKeyIdentifierPresenceValidator(validation.Validator):
         if ext is not None:
             return
 
-        if cert_doc.is_self_issued:
+        if cert_doc.is_ca and cert_doc.is_self_issued:
             public_key = cert_doc.public_key_object
 
             if public_key is None:
@@ -663,7 +679,7 @@ class AuthorityKeyIdentifierPresenceValidator(validation.Validator):
 
                 raise validation.ValidationFindingEncountered(
                     self.VALIDATION_UNSUPPORTED_ALGORITHM,
-                    f"Self-issued certificate uses unsupported public key algorithm: {key_oid}",
+                    f"Self-issued CA certificate uses unsupported public key algorithm: {key_oid}",
                 )
 
             try:

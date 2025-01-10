@@ -85,6 +85,5 @@ YNuixctKaeFUW6J1qIEi7SQ0n3wR0KM44FcCQ3LaZEYG7U/zVgI552D9+kJJENEB
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate,AuthorityKeyIdentifierPresenceValidator,NOTICE,pkix.aki_absent_self_issued_and_unsupported_algorithm,Self-issued certificate uses unsupported public key algorithm: 2.16.840.1.101.3.4.3.17
+certificate,AuthorityKeyIdentifierPresenceValidator,NOTICE,pkix.aki_absent_self_issued_and_unsupported_algorithm,Self-issued CA certificate uses unsupported public key algorithm: 2.16.840.1.101.3.4.3.17
 certificate.tbsCertificate.extensions.0.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
-certificate.tbsCertificate.extensions.2.extnValue.keyUsage,SpkiKeyUsageConsistencyValidator,NOTICE,pkix.public_key_algorithm_unsupported,Unsupported public key algorithm: 2.16.840.1.101.3.4.3.17

@@ -146,16 +146,15 @@ def create_decoding_validators():
 
 
 def create_spki_validation_container():
-    return validation.ValidatorContainer(
-        validators=[
+    return certificate.create_spki_validator_container(
+        [
             smime_key.SmimeAllowedPublicKeyAlgorithmEncodingValidator(
                 path="certificate.tbsCertificate.subjectPublicKeyInfo.algorithm"
             ),
             cabf_key.RsaKeyValidator(),
             cabf_key.EcdsaKeyValidator(),
             smime_key.GmailAllowedModulusLengthValidator(),
-        ],
-        path="certificate.tbsCertificate.subjectPublicKeyInfo",
+        ]
     )
 
 
