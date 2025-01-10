@@ -4,13 +4,13 @@ All notable changes to this project from version 0.9.3 onwards are documented in
 
 ## 0.12.6 - 2025-01-13
 
-### Fixes
-
-- Gracefully handle SAN decoding errors when subject emailAddress attribute is present (#143)
-
 ### New features/enhancements
 
 - Support for ML-DSA, SLH-DSA, and ML-KEM algorithms (#145)
+
+### Fixes
+
+- Gracefully handle SAN decoding errors when subject emailAddress attribute is present (#143)
 
 ## 0.12.5 - 2024-11-27
 
