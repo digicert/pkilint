@@ -6,7 +6,7 @@ All notable changes to this project from version 0.9.3 onwards are documented in
 
 ### New features/enhancements
 
-- Add support for ML-DSA, SLH-DSA, and ML-KEM algorithms (#145)
+- Add support for ML-DSA, SLH-DSA, and ML-KEM algorithms (#132)
 
 ### Fixes
 
