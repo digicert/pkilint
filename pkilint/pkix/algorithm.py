@@ -5,7 +5,7 @@ from pyasn1.type import univ
 from pyasn1_alt_modules import rfc4055, rfc5280, rfc5480, rfc8410
 
 from pkilint import validation, document
-from pkilint.nist.asn1 import fips_203, fips_204, fips_205
+from pkilint.nist.asn1 import fips_204, fips_205
 
 SIGNATURE_ALGORITHM_IDENTIFIER_MAPPINGS = {
     **{
@@ -37,7 +37,6 @@ SIGNATURE_ALGORITHM_IDENTIFIER_MAPPINGS = {
             rfc4055.sha512WithRSAEncryption,
         )
     },
-    **fips_203.ALGORITHM_OID_TO_PARAMETER_MAPPINGS,
     **fips_204.ALGORITHM_OID_TO_PARAMETER_MAPPINGS,
     **fips_205.ALGORITHM_OID_TO_PARAMETER_MAPPINGS,
     rfc4055.id_RSASSA_PSS: rfc4055.RSASSA_PSS_params(),
