@@ -4,7 +4,7 @@ from pkilint.etsi.asn1 import en_319_412_5
 from iso3166 import countries_by_alpha2
 from iso4217 import Currency
 from urllib.parse import urlparse
-from pyasn1_alt_modules import rfc3739
+from pyasn1_alt_modules import rfc3739, rfc5280
 from pkilint.pkix import extension, Rfc2119Word
 import iso639
 
@@ -160,6 +160,8 @@ class QcTypeValidator(validation.Validator):
 
         if certificate_type in etsi_constants.WEB_AUTHENTICATION_CERTIFICATE_TYPES:
             self._expected_qc_type = en_319_412_5.id_etsi_qct_web
+        elif certificate_type in etsi_constants.QCP_N_CERTIFICATE_TYPES:
+            self._expected_qc_type = en_319_412_5.id_etsi_qct_esign
         else:
             self._expected_qc_type = None
 
@@ -307,6 +309,24 @@ class QcStatementsExtensionCriticalityValidator(
         )
 
 
+class QcStatementPresenceValidator(extension.ExtensionPresenceValidator):
+    """
+    QCS-5-01: EU qualified certificates shall include QCStatements in accordance with table 2
+    """
+
+    VALIDATION_QC_STATEMENTS_MISSING = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "etsi.en_319_412_5.qcs-5.01",
+    )
+
+    def __init__(self):
+        super().__init__(
+            extension_oid=rfc3739.id_pe_qcStatements,
+            validation=self.VALIDATION_QC_STATEMENTS_MISSING,
+            pdu_class=rfc5280.Extensions,
+        )
+
+
 class QcStatementIdentifierAllowanceValidator(
     common.ElementIdentifierAllowanceValidator
 ):
@@ -332,16 +352,27 @@ class QcStatementIdentifierAllowanceValidator(
     def __init__(self, certificate_type: etsi_constants.CertificateType):
         allowances = {}
 
-        if certificate_type in etsi_constants.EU_QWAC_TYPES:
+        if certificate_type in etsi_constants.EU:
+            # Table 2: 4.2.1
             allowances[en_319_412_5.id_etsi_qcs_QcCompliance] = Rfc2119Word.MUST
+            # Table 2: 4.2.4
             allowances[en_319_412_5.id_etsi_qcs_QcCClegislation] = Rfc2119Word.MUST_NOT
-            allowances[en_319_412_5.id_etsi_qcs_QcType] = Rfc2119Word.MUST
-        elif certificate_type in etsi_constants.NON_EU_QWAC_TYPES:
-            allowances[en_319_412_5.id_etsi_qcs_QcCompliance] = Rfc2119Word.MUST
-            allowances[en_319_412_5.id_etsi_qcs_QcCClegislation] = Rfc2119Word.MUST
+            # Table 2: 4.2.2
+            if certificate_type in etsi_constants.EU_SSCD:
+                allowances[en_319_412_5.id_etsi_qcs_QcSSCD] = Rfc2119Word.MUST
 
-        if certificate_type in etsi_constants.QWAC_TYPES:
-            allowances[en_319_412_5.id_etsi_qcs_QcSSCD] = Rfc2119Word.MUST_NOT
+            if (certificate_type in etsi_constants.EU_QWAC_TYPES) or (
+                certificate_type in etsi_constants.QCP_N_CERTIFICATE_TYPES
+            ):
+                # Table 2: 4.2.3 (QWAC is Annex IV, signatures is Annex I)
+                allowances[en_319_412_5.id_etsi_qcs_QcType] = Rfc2119Word.MUST
+            if certificate_type in etsi_constants.EU_QWAC_TYPES:
+                # PR Question: Table 2, 4.2.2 only defines MUST, is the MUST_NOT also from 412-5 somewhere?
+                allowances[en_319_412_5.id_etsi_qcs_QcSSCD] = Rfc2119Word.MUST_NOT
+
+        elif certificate_type in etsi_constants.NON_EU_QWAC_TYPES:
+            # PR Question: Is this from 415_5.qcs-4.2? Needs different classifier?
+            allowances[en_319_412_5.id_etsi_qcs_QcCClegislation] = Rfc2119Word.MUST
 
         super().__init__(
             "qualified statement",
