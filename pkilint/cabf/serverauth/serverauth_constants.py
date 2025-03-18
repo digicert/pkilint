@@ -3,7 +3,7 @@ from enum import auto
 
 from pyasn1.type.univ import ObjectIdentifier
 
-BR_VERSION = "2.1.1"
+BR_VERSION = "2.1.4"
 
 
 ID_POLICY_EV = ObjectIdentifier("2.23.140.1.1")
