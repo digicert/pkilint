@@ -2,6 +2,12 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.12.7 - 2025-03-XX
+
+### New features/enhancements
+
+- Bump Docker image to use Python 3.13 (#148)
+
 ## 0.12.6 - 2025-01-13
 
 ### New features/enhancements
