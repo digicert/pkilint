@@ -11,11 +11,11 @@ id_lcp = _ARC + (3,)
 
 id_evcp = _ARC + (4,)
 
-id_dvcp = _ARC + (5,)
+id_dvcp = _ARC + (6,)
 
-id_ovcp = _ARC + (6,)
+id_ovcp = _ARC + (7,)
 
-id_ivcp = _ARC + (7,)
+id_ivcp = _ARC + (8,)
 
 POLICY_OIDS = {
     id_ncp,
