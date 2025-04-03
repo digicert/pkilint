@@ -54,6 +54,7 @@ certificate.tbsCertificate.extensions.1.extnValue.subjectKeyIdentifier,SubjectKe
 certificate.tbsCertificate.extensions.2.extnValue.keyUsage,SubscriberKeyUsageValidator,WARNING,cabf.serverauth.subscriber_discouraged_ku_present,Discouraged KU present: dataEncipherment
 certificate.tbsCertificate.extensions.2.extnValue.keyUsage,SubscriberKeyUsageValidator,WARNING,cabf.serverauth.subscriber_rsa_digitalsignature_and_keyencipherment_present,
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies,QualifiedCertificatePoliciesValidator,WARNING,etsi.en_319_412_2.qcs-5.2-1.recommended_certificate_type_policy_identifier_missing,"Missing recommended certificate type policy identifier ""0.4.0.194112.1.5"""
+certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies,CertificatePoliciesValidator,ERROR,etsi.en_319_411_1.gen-6.3.3-12.prohibited_reserved_policy_oid_present,Prohibited reserved certificate policy OID present: 0.4.0.2042.1.7
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies.2.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies.2.policyQualifiers.1,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies.2.policyQualifiers.1,CertificatePolicyQualifierValidator,ERROR,cabf.serverauth.prohibited_certificate_policy_qualifier_type,Prohibited qualifier type: 1.3.6.1.5.5.7.2.2
