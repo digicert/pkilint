@@ -2,6 +2,12 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.12.8 - 2025-04-XX
+
+### Fixes
+
+- Remove extraneous ".1" component from policy OID arc in the ASN.1 module for EN 319 411-1 (#151)
+
 ## 0.12.7 - 2025-03-18
 
 ### New features/enhancements
