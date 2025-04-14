@@ -38,6 +38,5 @@ TzaEHXzh7lUf94Uzx5TnfNS9Mn2G5UNcoiGrVic8i2QX
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.subject.rdnSequence.7.0.value.x520CommonName,CommonNameValidator,ERROR,cabf.smime.common_name_value_unknown_source,"Unknown CN value source: ""pseudo: some-pseudonym"""
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 certificate.tbsCertificate.extensions.6.extnValue.certificatePolicies.0,CertificatePolicyQualifierValidator,NOTICE,pkix.certificate_policies_policy_has_qualifier,
