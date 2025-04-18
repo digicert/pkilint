@@ -2,6 +2,12 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.12.9 - 2025-04-XX
+
+### Fixes
+
+- Remove "tests" package from distribution (#157 - found and fixed by @DanielArndt)
+
 ## 0.12.8 - 2025-04-07
 
 ### Fixes
