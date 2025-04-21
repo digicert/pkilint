@@ -42,7 +42,7 @@ VrqKXSf6zxE7vNQTtG4lTID10qjTmj+SD2RvXp8mXklo+kHa1URrKhDOAuX3RWw=
 
 node_path,validator,severity,code,message
 certificate.tbsCertificate.extensions.9.extnValue.qCStatements.2,DecodingValidator,FATAL,itu.invalid_asn1_syntax,"Value node is absent, but type OID 0.4.0.1862.1.6 specifies that a ""QcType"" value must be present"
-certificate.tbsCertificate.validity.notBefore,SubscriberValidityPeriodValidator,ERROR,cabf.certificate_validity_period_exceeds_398_days,"Validity period of 736 days, 11:24:32 exceeds maximum value of 398 days, 0:00:00"
+certificate.tbsCertificate.validity.notBefore,SubscriberValidityPeriodValidator,ERROR,cabf.serverauth.certificate_validity_period_exceeds_398_days,"Validity period of 736 days, 11:24:32 exceeds maximum value of 398 days, 0:00:00"
 certificate.tbsCertificate.subject.rdnSequence,EvSubscriberAttributeAllowanceValidator,WARNING,cabf.ev_guidelines.common_name_attribute_present,
 certificate.tbsCertificate.subject.rdnSequence,EvSubscriberAttributeAllowanceValidator,ERROR,cabf.ev_guidelines.unknown_attribute_present,Unknown attribute present: 2.5.4.11
 certificate.tbsCertificate.extensions.1.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
