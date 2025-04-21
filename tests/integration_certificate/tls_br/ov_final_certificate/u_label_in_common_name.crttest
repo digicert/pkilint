@@ -49,7 +49,7 @@ m1O2CpD9yA==
 node_path,validator,severity,code,message
 certificate.tbsCertificate.extensions.0.extnValue.certificatePolicies.1.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
 certificate.tbsCertificate.extensions.0.extnValue.certificatePolicies.0.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
-certificate.tbsCertificate.validity.notBefore,SubscriberValidityPeriodValidator,ERROR,cabf.certificate_validity_period_exceeds_398_days,"Validity period of 730 days, 0:00:01 exceeds maximum value of 398 days, 0:00:00"
+certificate.tbsCertificate.validity.notBefore,SubscriberValidityPeriodValidator,ERROR,cabf.serverauth.certificate_validity_period_exceeds_398_days,"Validity period of 730 days, 0:00:01 exceeds maximum value of 398 days, 0:00:00"
 certificate.tbsCertificate.extensions.0.extnValue.certificatePolicies.0.policyQualifiers.0.qualifier.cPSuri,UriInternalDomainNameValidator,ERROR,cabf.internal_domain_name,"Internal domain name: """""
 certificate.tbsCertificate.extensions.0.extnValue.certificatePolicies.1.policyQualifiers.0.qualifier.cPSuri,UriSyntaxValidator,ERROR,pkix.invalid_uri_syntax,"Invalid URI syntax: ""www.eCert.gov.hk"""
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.subject_key_identifier_extension_present,
