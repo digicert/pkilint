@@ -33,3 +33,4 @@ yYM8aZGzLp3gLspWvfO2/Cee63bdQmWL6CUOUpaGxF8eAxstXZCHr95HR6i9+Txu
 
 node_path,validator,severity,code,message
 certificate.tbsCertificate.validity.notBefore,SubscriberValidityPeriodValidator,ERROR,cabf.serverauth.certificate_validity_period_exceeds_47_days,"Validity period of 366 days, 0:00:00 exceeds maximum value of 47 days, 0:00:00"
+``
