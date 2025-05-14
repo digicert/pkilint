@@ -2,6 +2,12 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.12.10 - 2025-05-14
+
+### New features/enhancements
+
+- Add support for S/MIME BR ballot SMC-11 (#161)
+
 ## 0.12.9 - 2025-04-18
 
 ### Fixes
