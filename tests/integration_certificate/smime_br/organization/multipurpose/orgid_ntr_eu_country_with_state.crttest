@@ -38,4 +38,3 @@ EdQ=
 
 node_path,validator,severity,code,message
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
-certificate.tbsCertificate.subject.rdnSequence.0.0.value.x520OrganizationIdentifier,CabfSmimeOrganizationIdentifierAttributeValidator,ERROR,cabf.smime.organization_id_has_ntr_scheme_with_eu_country_code_and_state_province,"Organization identifier has NTR scheme with EU member state ""FR"" and state/province ""PAR"": ""NTRFR+PAR-AEYE00EKXESVZUUEBP67"""

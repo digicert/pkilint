@@ -1,3 +1,5 @@
+import re
+
 import validators
 from pyasn1_alt_modules import rfc5280, rfc8398
 
@@ -266,13 +268,13 @@ class CabfSmimeOrganizationIdentifierAttributeValidator(
 
     """
     From SMBR 7.1.4.2.2 (d):
-    
-    For the NTR Registration Scheme, where the Legal Entity is registered within a European country, the NTR
-    Registration Scheme SHALL be assigned at the country level.
+   
+    When the Organization or Legal Entity is registered in Germany, the Registration Reference SHOULD use the EUID
+    identifier.
     """
-    VALIDATION_ORG_ID_NTR_WITH_EU_COUNTRY_AND_STATE_PROVINCE = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        "cabf.smime.organization_id_has_ntr_scheme_with_eu_country_code_and_state_province",
+    VALIDATION_GERMAN_NTR_REFERENCE_NOT_EUID = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.WARNING,
+        "cabf.smime.german_ntr_registration_reference_not_euid",
     )
 
     _LEI_SCHEME = organization_id.OrganizationIdentifierElementAllowance(
@@ -300,36 +302,9 @@ class CabfSmimeOrganizationIdentifierAttributeValidator(
         reference=_REFERENCE_PROHIBITED,
     )
 
-    _EU_MEMBER_STATE_COUNTRY_CODES = {
-        "AT",  # Austria
-        "BE",  # Belgium
-        "BG",  # Bulgaria
-        "HR",  # Croatia
-        "CY",  # Cyprus
-        "CZ",  # Czech Republic
-        "DE",  # Germany
-        "DK",  # Denmark
-        "EE",  # Estonia
-        "ES",  # Spain
-        "FI",  # Finland
-        "FR",  # France
-        "GR",  # Greece
-        "HR",  # Croatia
-        "HU",  # Hungary
-        "IE",  # Ireland
-        "IT",  # Italy
-        "LT",  # Lithuania
-        "LU",  # Luxembourg
-        "LV",  # Latvia
-        "MT",  # Malta
-        "NL",  # Netherlands
-        "PL",  # Poland
-        "PT",  # Portugal
-        "RO",  # Romania
-        "SK",  # Slovakia
-        "SI",  # Slovenia
-        "SE",  # Sweden
-    }
+    _EUID_SYNTAX = re.compile(
+        r"^(?P<country>[A-Z]{2})(?P<register>.+)\.(?P<reference>.+)$"
+    )
 
     def __init__(self):
         super().__init__(
@@ -339,9 +314,7 @@ class CabfSmimeOrganizationIdentifierAttributeValidator(
                 "INT": self._INT_SCHEME,
             },
             enforce_strict_state_province_format=False,
-            additional_validations=[
-                self.VALIDATION_ORG_ID_NTR_WITH_EU_COUNTRY_AND_STATE_PROVINCE
-            ],
+            additional_validations=[self.VALIDATION_GERMAN_NTR_REFERENCE_NOT_EUID],
         )
 
     def validate_with_parsed_value(self, node, parsed):
@@ -350,16 +323,26 @@ class CabfSmimeOrganizationIdentifierAttributeValidator(
         if any(result.finding_descriptions):
             return validation.ValidationResult(self, node, result.finding_descriptions)
 
-        if (
-            parsed.scheme == "NTR"
-            and parsed.country in self._EU_MEMBER_STATE_COUNTRY_CODES
-            and parsed.state_province
-        ):
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_ORG_ID_NTR_WITH_EU_COUNTRY_AND_STATE_PROVINCE,
-                f'Organization identifier has NTR scheme with EU member state "{parsed.country}" and '
-                f'state/province "{parsed.state_province}": "{parsed.raw}"',
-            )
+        if parsed.scheme == "NTR" and parsed.country == "DE":
+            if parsed.state_province is not None:
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_GERMAN_NTR_REFERENCE_NOT_EUID,
+                    f'Organization identifier contains state/province: "{parsed.raw}"',
+                )
+
+            m = self._EUID_SYNTAX.match(parsed.reference)
+
+            if m is None:
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_GERMAN_NTR_REFERENCE_NOT_EUID,
+                    f'Registration Reference is not in EUID format: "{parsed.reference}"',
+                )
+
+            if m["country"] != parsed.country:
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_GERMAN_NTR_REFERENCE_NOT_EUID,
+                    f'EUID Registration Reference has mismatched country code: "{parsed.raw}"',
+                )
 
 
 class SubscriberAttributeDependencyValidator(validation.Validator):

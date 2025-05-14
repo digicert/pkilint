@@ -35,11 +35,12 @@ ERROR,cabf.smime.crldp_fullname_prohibited_uri_scheme,SMBR 7.1.2.3 (b),"Legacy: 
 ERROR,cabf.smime.email_address_in_attribute_not_in_san,SMBR 7.1.4.2.1,"""All Mailbox Addresses in the subject field or entries of type dirName of this extension SHALL be repeated as rfc822Name or otherName values of type id-on-SmtpUTF8Mailbox in this extension"""
 ERROR,cabf.smime.emailprotection_eku_missing,SMBR 7.1.2.3 (f),"""id-kp-emailProtection SHALL be present"""
 ERROR,cabf.smime.extended_key_usage_extension_missing,SMBR 7.1.2.3 (f),"""SHALL be present"""
+ERROR,cabf.smime.german_ntr_registration_reference_not_euid,SMBR 7.1.4.2.2 (d),"When the Organization or Legal Entity is registered in Germany, the Registration Reference SHOULD use the EUID identifier."
 ERROR,cabf.smime.invalid_lei_scheme_format,SMBR 7.1.4.2.2 (d) and SMBR 7.1.2.3 (l),LEI value does not conform to standard LEI format (20 alphanumeric characters)
 ERROR,cabf.smime.is_ca_certificate,SMBR 7.1.2.3 (d),"""The cA field SHALL NOT be true"""
 ERROR,cabf.smime.key_usage_extension_missing,SMBR 7.1.2.3 (e),"""SHALL be present"""
 ERROR,cabf.smime.legacy_generation_certificate_issued_after_prohibition,SMBR 7.1.6.1,"Effective July 15, 2025 S/MIME Subscriber Certificates SHALL NOT be issued using the Legacy Generation profiles 2.23.140.1.5.1.1, 2.23.140.1.5.2.1, 2.23.140.1.5.3.1, or 2.23.140.1.5.4.1."
-ERROR,cabf.smime.lei_extension_critical,SMBR 7.1.2.3 (l),""" SHALL NOT be marked critical"""
+ERROR,cabf.smime.lei_extension_critical,SMBR 7.1.2.3 (l),"""SHALL NOT be marked critical"""
 ERROR,cabf.smime.lei_extension_prohibited,SMBR 7.1.2.3 (l),Mailbox- and individual-validated: Prohibited
 ERROR,cabf.smime.lei_role_extension_critical,SMBR 7.1.2.3 (l),"""SHALL NOT be marked critical"""
 ERROR,cabf.smime.lei_role_extension_prohibited,SMBR 7.1.2.3 (l),Mailbox- and individual-validated: Prohibited
@@ -47,7 +48,6 @@ ERROR,cabf.smime.missing_required_attribute,"SMBR 7.1.4.2.3, 7.1.4.2.4, 7.1.4.2.
 ERROR,cabf.smime.mixed_name_and_pseudonym_attributes,SMBR 7.1.4.2.2 (e),"""The subject:givenName and/or subject:surname SHALL NOT be present if the subject:pseudonym is present"""
 ERROR,cabf.smime.multiple_reserved_policy_oids,SMBR 7.1.2.3 (a),"""It SHALL include exactly one of the reserved policyIdentifiers listed in Section 7.1.6."""
 ERROR,cabf.smime.no_required_reserved_policy_oid,SMBR 7.1.2.3 (a),"""It SHALL include exactly one of the reserved policyIdentifiers listed in Section 7.1.6."""
-ERROR,cabf.smime.organization_id_has_ntr_scheme_with_eu_country_code_and_state_province,SMBR 7.1.4.2.2 (d),"""For the NTR Registration Scheme, where the Legal Entity is registered within a European country, the NTR Registration Scheme SHALL be assigned at the country level."""
 ERROR,cabf.smime.org_identifier_and_country_name_attribute_inconsistent, SMBR Appendix A,"""The country code used in the Registration Scheme identifier SHALL match that of the subject:countryName in the Certificate as specified in Section 7.1.4.2.2."""
 ERROR,cabf.smime.prohibited_attribute,"SMBR 7.1.4.2.3, 7.1.4.2.4, 7.1.4.2.5, 7.1.4.2.6",A SHALL NOT-level attribute is included in the DN
 ERROR,cabf.smime.prohibited_eku_present,SMBR 7.1.2.3 (f),"Strict: ""Other values SHALL NOT be present"""
