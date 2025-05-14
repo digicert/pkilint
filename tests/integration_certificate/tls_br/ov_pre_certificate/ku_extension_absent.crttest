@@ -54,5 +54,5 @@ certificate.tbsCertificate.subject.rdnSequence,OvSubscriberAttributeAllowanceVal
 certificate.tbsCertificate.subject.rdnSequence.0.0.value.emailAddress,SubjectEmailAddressInSanValidator,ERROR,pkix.subject_email_address_not_in_san,"Subject DN e-mail address ""NWMTTeam@oati.net"" not found in SAN"
 certificate.tbsCertificate.extensions.6.extnValue.certificatePolicies.0.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.unknown_extension_present,Unknown extension present: 1.2.840.113549.1.9.15
-certificate.tbsCertificate.validity.notBefore,SubscriberValidityPeriodValidator,WARNING,cabf.certificate_validity_period_exceeds_397_days,"Validity period of 397 days, 0:10:01 exceeds maximum value of 397 days, 0:00:00"
+certificate.tbsCertificate.validity.notBefore,SubscriberValidityPeriodValidator,WARNING,cabf.serverauth.certificate_validity_period_exceeds_397_days,"Validity period of 397 days, 0:10:01 exceeds maximum value of 397 days, 0:00:00"
 certificate.tbsCertificate.subject.rdnSequence,OvSubscriberAttributeAllowanceValidator,WARNING,cabf.serverauth.ov.unknown_attribute_present,Unknown attribute present: 1.2.840.113549.1.9.1
