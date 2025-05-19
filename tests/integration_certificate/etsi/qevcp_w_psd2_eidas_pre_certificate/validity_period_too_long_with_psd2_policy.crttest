@@ -44,7 +44,7 @@ lENmzJkp2kaGXGo3HbSqR2FjP9/adqJv2m6z+KV4
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.validity.notBefore,SubscriberValidityPeriodValidator,ERROR,cabf.certificate_validity_period_exceeds_398_days,"Validity period of 751 days, 10:01:21 exceeds maximum value of 398 days, 0:00:00"
+certificate.tbsCertificate.validity.notBefore,SubscriberValidityPeriodValidator,ERROR,cabf.serverauth.certificate_validity_period_exceeds_398_days,"Validity period of 751 days, 10:01:21 exceeds maximum value of 398 days, 0:00:00"
 certificate.tbsCertificate.subject.rdnSequence,EvSubscriberAttributeAllowanceValidator,WARNING,cabf.ev_guidelines.common_name_attribute_present,
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies,SubscriberPoliciesValidator,WARNING,cabf.serverauth.subscriber_first_policy_oid_not_reserved,
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies.3.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,

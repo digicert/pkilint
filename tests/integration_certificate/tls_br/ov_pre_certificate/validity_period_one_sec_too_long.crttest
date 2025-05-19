@@ -42,7 +42,7 @@ certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARN
 certificate.tbsCertificate.extensions.0.extnValue.keyUsage,SubscriberKeyUsageValidator,WARNING,cabf.serverauth.subscriber_rsa_digitalsignature_and_keyencipherment_present,
 certificate.tbsCertificate.subject.rdnSequence,OvSubscriberAttributeAllowanceValidator,WARNING,cabf.serverauth.ov.common_name_attribute_present,
 certificate.tbsCertificate.subject.rdnSequence,AttributeOrderEncodingValidator,ERROR,cabf.serverauth.invalid_rdn_order,Invalid RDN order: 2.5.4.10 follows 2.5.4.3
-certificate.tbsCertificate.validity.notBefore,SubscriberValidityPeriodValidator,ERROR,cabf.certificate_validity_period_exceeds_398_days,"Validity period of 398 days, 0:00:01 exceeds maximum value of 398 days, 0:00:00"
+certificate.tbsCertificate.validity.notBefore,SubscriberValidityPeriodValidator,ERROR,cabf.serverauth.certificate_validity_period_exceeds_398_days,"Validity period of 398 days, 0:00:01 exceeds maximum value of 398 days, 0:00:00"
 certificate.tbsCertificate.extensions.6.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies.1.policyQualifiers.1,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies.1.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,

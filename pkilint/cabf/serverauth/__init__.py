@@ -403,7 +403,9 @@ def create_ocsp_extension_validator_container(additional_validators=None):
     )
 
 
-def create_validity_validator_container(certificate_type, additional_validators=None):
+def create_validity_validator_container(
+    certificate_type, validity_period_start_retriever, additional_validators=None
+):
     if additional_validators is None:
         additional_validators = []
 
@@ -412,7 +414,11 @@ def create_validity_validator_container(certificate_type, additional_validators=
     if certificate_type == serverauth_constants.CertificateType.ROOT_CA:
         validators.append(serverauth_root.RootValidityPeriodValidator())
     elif certificate_type in serverauth_constants.SUBSCRIBER_CERTIFICATE_TYPES:
-        validators.append(serverauth_subscriber.SubscriberValidityPeriodValidator())
+        validators.append(
+            serverauth_subscriber.SubscriberValidityPeriodValidator(
+                validity_period_start_retriever
+            )
+        )
 
     return certificate.create_validity_validator_container(
         validators + additional_validators
@@ -483,7 +489,9 @@ def create_subscriber_validators(
 ):
     return [
         create_validity_validator_container(
-            certificate_type, additional_validity_validators
+            certificate_type,
+            validity_period_start_retriever,
+            additional_validity_validators,
         ),
         create_spki_validator_container(additional_spki_validators),
         create_subscriber_name_validator_container(

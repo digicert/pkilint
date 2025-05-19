@@ -46,7 +46,7 @@ xUWSzYeNejYOncdpRsoC81z0NbQoGbdAgY0/i8B25GMA7OZoTjmwWVwLdxgg
 
 node_path,validator,severity,code,message
 certificate.tbsCertificate.extensions.3.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
-certificate.tbsCertificate.validity.notBefore,SubscriberValidityPeriodValidator,ERROR,cabf.certificate_validity_period_exceeds_398_days,"Validity period of 730 days, 0:00:01 exceeds maximum value of 398 days, 0:00:00"
+certificate.tbsCertificate.validity.notBefore,SubscriberValidityPeriodValidator,ERROR,cabf.serverauth.certificate_validity_period_exceeds_398_days,"Validity period of 730 days, 0:00:01 exceeds maximum value of 398 days, 0:00:00"
 certificate.tbsCertificate.extensions.9.extnValue.certificatePolicies.0.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
 certificate.tbsCertificate.extensions.6.extnValue.authorityKeyIdentifier,CabfAuthorityKeyIdentifierValidator,ERROR,cabf.authority_key_identifier_has_issuer_cert,
 certificate.tbsCertificate.extensions,SubscriberExtensionAllowanceValidator,WARNING,cabf.serverauth.subscriber.subject_key_identifier_extension_present,

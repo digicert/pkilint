@@ -447,31 +447,102 @@ class EvSanGeneralNameTypeValidator(validation.Validator):
             )
 
 
-class SubscriberValidityPeriodValidator(time.ValidityPeriodThresholdsValidator):
+class SubscriberValidityPeriodValidator(validation.Validator):
     """Validates that the validity period conforms to BR 7.1.2.7."""
 
-    VALIDATION_VALIDITY_PERIOD_EXCEEDS_398_DAYS = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        "cabf.certificate_validity_period_exceeds_398_days",
+    _FINDING_CODE_FORMAT = (
+        "cabf.serverauth.certificate_validity_period_exceeds_{days}_days"
     )
 
+    # this validation is explicitly declared solely for the ETSI finding filter
     VALIDATION_VALIDITY_PERIOD_EXCEEDS_397_DAYS = validation.ValidationFinding(
         validation.ValidationFindingSeverity.WARNING,
-        "cabf.certificate_validity_period_exceeds_397_days",
+        _FINDING_CODE_FORMAT.format(days=397),
     )
 
-    _THRESHOLDS = [
-        (operator.le, timedelta(days=398), VALIDATION_VALIDITY_PERIOD_EXCEEDS_398_DAYS),
-        (operator.le, timedelta(days=397), VALIDATION_VALIDITY_PERIOD_EXCEEDS_397_DAYS),
-    ]
+    # this validation is explicitly declared solely for the ETSI finding filter
+    VALIDATION_VALIDITY_PERIOD_EXCEEDS_398_DAYS = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        _FINDING_CODE_FORMAT.format(days=398),
+    )
 
-    def __init__(self):
-        super().__init__(
+    @classmethod
+    def _create_validator(cls, must_not_threshold_days):
+        should_not_threshold_days = must_not_threshold_days - 1
+
+        thresholds = [
+            (
+                operator.le,
+                timedelta(days=must_not_threshold_days),
+                validation.ValidationFinding(
+                    validation.ValidationFindingSeverity.ERROR,
+                    cls._FINDING_CODE_FORMAT.format(days=must_not_threshold_days),
+                ),
+            ),
+            (
+                operator.le,
+                timedelta(days=should_not_threshold_days),
+                validation.ValidationFinding(
+                    validation.ValidationFindingSeverity.WARNING,
+                    cls._FINDING_CODE_FORMAT.format(days=should_not_threshold_days),
+                ),
+            ),
+        ]
+
+        return time.ValidityPeriodThresholdsValidator(
             end_validity_node_retriever=lambda n: n.navigate("^.notAfter"),
             inclusive_second=True,
-            validity_period_thresholds=self._THRESHOLDS,
+            validity_period_thresholds=thresholds,
+        )
+
+    _DATETIME_2026_03_15_MIDNIGHT_UTC = datetime.datetime(
+        2026, 3, 15, 0, 0, 0, tzinfo=datetime.timezone.utc
+    )
+    _DATETIME_2027_03_15_MIDNIGHT_UTC = datetime.datetime(
+        2027, 3, 15, 0, 0, 0, tzinfo=datetime.timezone.utc
+    )
+    _DATETIME_2029_03_15_MIDNIGHT_UTC = datetime.datetime(
+        2029, 3, 15, 0, 0, 0, tzinfo=datetime.timezone.utc
+    )
+
+    def __init__(self, validity_period_start_retriever):
+        self._PRE_2026_03_15_VALIDATOR = self._create_validator(398)
+        self._PRE_2027_03_15_VALIDATOR = self._create_validator(200)
+        self._PRE_2029_03_15_VALIDATOR = self._create_validator(100)
+        self._ON_OR_AFTER_2029_03_15_VALIDATOR = self._create_validator(47)
+
+        validations = set()
+        for v in (
+            self._PRE_2026_03_15_VALIDATOR,
+            self._PRE_2027_03_15_VALIDATOR,
+            self._PRE_2029_03_15_VALIDATOR,
+            self._ON_OR_AFTER_2029_03_15_VALIDATOR,
+        ):
+            validations.update(v.validations)
+
+        super().__init__(
+            validations=list(validations),
             path="certificate.tbsCertificate.validity.notBefore",
         )
+
+        self._validity_period_start_retriever = validity_period_start_retriever
+
+    def validate(self, node):
+        validity_start = self._validity_period_start_retriever(node.document)
+
+        if validity_start < self._DATETIME_2026_03_15_MIDNIGHT_UTC:
+            validator = self._PRE_2026_03_15_VALIDATOR
+        elif validity_start < self._DATETIME_2027_03_15_MIDNIGHT_UTC:
+            validator = self._PRE_2027_03_15_VALIDATOR
+        elif validity_start < self._DATETIME_2029_03_15_MIDNIGHT_UTC:
+            validator = self._PRE_2029_03_15_VALIDATOR
+        else:
+            validator = self._ON_OR_AFTER_2029_03_15_VALIDATOR
+
+        result = validator.validate(node)
+        if result is not None:
+            # re-package any returned results as originating from this Validator instance
+            return validation.ValidationResult(self, node, result.finding_descriptions)
 
 
 class SubscriberCommonNameValidator(common_name.CommonNameValidator):
