@@ -1,6 +1,7 @@
 import re
 
 import validators
+import re
 from pyasn1_alt_modules import rfc5280, rfc8398
 
 from pkilint import validation, pkix, oid
@@ -495,6 +496,15 @@ class CommonNameValidator(validation.Validator):
             for a in atvs
         )
 
+    @staticmethod
+    def _is_pseudo_value_in_dirstring_atvs(atvs, expected_value_node):
+        value_str = str(expected_value_node.pdu)
+        expected_pseudo_str = re.sub(r"^[pP]seudo:\s?", "", value_str)
+        return any(
+            expected_pseudo_str == asn1_util.get_string_value_from_attribute_node(a)
+            for a in atvs
+        )
+
     def validate(self, node):
         try:
             _, cn_value_node = node.child
@@ -524,7 +534,7 @@ class CommonNameValidator(validation.Validator):
                 )
             ]
 
-            if CommonNameValidator._is_value_in_dirstring_atvs(
+            if CommonNameValidator._is_pseudo_value_in_dirstring_atvs(
                 pseudonym_nodes, cn_value_node
             ):
                 return
