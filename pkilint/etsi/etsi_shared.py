@@ -166,10 +166,6 @@ class LegalPersonAttributeAllowanceValidator(
 
 
 class LegalPersonDuplicateAttributeAllowanceValidator(validation.Validator):
-    """
-    412-3 LEG-4.2.1-3 and 412-2 GEN-4.2.3.1-5: Only one instance of each of these attributes shall be present.
-    """
-
     def __init__(self, finding, required_attributes):
         self._finding = finding
         self._required_attributes = required_attributes

@@ -450,7 +450,7 @@ class QualifiedCertificatePoliciesValidator(validation.Validator):
         "etsi.en_319_412_2.qcs-5.2-2.mismatched_policy_identifier_for_certificate_type",
     )
 
-    # TODO: add EU qualified non-website types
+    # TODO: add EU qualified non-qscd/legal person types
     _CERTIFICATE_TYPE_SET_TO_POLICY_IDENTIFIER_MAPPINGS = [
         (etsi_constants.QEVCP_W_EIDAS_CERTIFICATE_TYPES, en_319_411_2.id_qcp_web),
         (etsi_constants.QNCP_W_OV_EIDAS_CERTIFICATE_TYPES, en_319_411_2.id_qncp_web),
@@ -590,6 +590,10 @@ class LegalPersonIssuerAttributeAllowanceValidator(
 class LegalPersonIssuerDuplicateAttributeAllowanceValidator(
     etsi_shared.LegalPersonDuplicateAttributeAllowanceValidator
 ):
+    """
+    412-3 LEG-4.2.1-3 and 412-2 GEN-4.2.3.1-5: Only one instance of each of these attributes shall be present.
+    """
+
     VALIDATION_PROHIBITED_DUPLICATE_ATTRIBUTE_PRESENT = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
         "etsi.en_319_412_2.gen-4.2.3.1-5.prohibited_duplicate_attribute_present",
