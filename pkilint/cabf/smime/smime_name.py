@@ -511,11 +511,6 @@ class CommonNameValidator(validation.Validator):
             ValidationLevel.SPONSORED,
             ValidationLevel.INDIVIDUAL,
         }:
-            # legacy sponsored and individual profiles allow the Personal Name in CN without being in other
-            # subject attributes
-            if self._generation == Generation.LEGACY:
-                return
-
             # we don't need the index
             pseudonym_nodes = [
                 t[0]
@@ -523,6 +518,12 @@ class CommonNameValidator(validation.Validator):
                     parent_name_node, rfc5280.id_at_pseudonym
                 )
             ]
+
+            # Legacy sponsored and individual profiles allow the Personal Name in CN without being in other
+            # subject attributes. However, if any pseudonym attributes are present, the CN must not contain a Personal
+            # Name.
+            if self._generation == Generation.LEGACY and not pseudonym_nodes:
+                return
 
             if CommonNameValidator._is_value_in_dirstring_atvs(
                 pseudonym_nodes, cn_value_node
