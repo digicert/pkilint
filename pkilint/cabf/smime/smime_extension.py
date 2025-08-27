@@ -1,3 +1,4 @@
+import typing
 from urllib.parse import urlparse
 
 from pyasn1_alt_modules import rfc5280, rfc3279, rfc5480, rfc8398, rfc8410, rfc3739
@@ -9,6 +10,7 @@ from pkilint.cabf.smime.smime_constants import Generation, ValidationLevel
 from pkilint.cabf.smime.smime_name import get_email_addresses_from_san
 from pkilint.iso import lei
 from pkilint.itu import bitstring
+from pkilint.nist.asn1 import csor
 from pkilint.pkix import extension
 from pkilint.pkix.certificate.certificate_extension import KeyUsageBitName
 
@@ -288,44 +290,170 @@ class AllowedExtendedKeyUsageValidator(validation.Validator):
         return validation.ValidationResult(self, node, findings)
 
 
-class AllowedKeyUsageValidator(validation.Validator):
+class KeyUsageAllowance(typing.NamedTuple):
+    required_bit_names: typing.Set[str]
+    optional_bit_names: typing.Set[str]
+    allowed_bit_names: typing.Set[str]
+
+    @staticmethod
+    def from_bit_names(
+        required_bit_names: typing.Set[str], optional_bit_names: typing.Set[str]
+    ):
+        return KeyUsageAllowance(
+            required_bit_names=required_bit_names,
+            optional_bit_names=optional_bit_names,
+            allowed_bit_names=required_bit_names | optional_bit_names,
+        )
+
+
+class AlgorithmKeyUsageAllowances:
     VALIDATION_UNKNOWN_CERT_TYPE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
         "cabf.smime.unknown_certificate_key_usage_type",
-    )
-
-    VALIDATION_REQUIRED_KU_MISSING = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR, "cabf.smime.required_ku_missing"
     )
 
     VALIDATION_PROHIBITED_KU_PRESENT = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR, "cabf.smime.prohibited_ku_present"
     )
 
+    def __init__(
+        self,
+        signing_cert_allowance: typing.Optional[KeyUsageAllowance],
+        key_mgmt_cert_allowance: typing.Optional[KeyUsageAllowance],
+    ):
+        self._signing_cert_allowance = signing_cert_allowance
+        self._key_mgmt_cert_allowance = key_mgmt_cert_allowance
+
+    def validate_asserted_bits(
+        self, asserted_bit_names
+    ) -> typing.Optional[validation.ValidationFindingDescription]:
+        is_signing_cert = (
+            self._signing_cert_allowance
+            and asserted_bit_names & self._signing_cert_allowance.required_bit_names
+        )
+        is_key_mgmt_cert = (
+            self._key_mgmt_cert_allowance
+            and asserted_bit_names & self._key_mgmt_cert_allowance.required_bit_names
+        )
+
+        if not is_signing_cert and not is_key_mgmt_cert:
+            return validation.ValidationFindingDescription(
+                self.VALIDATION_UNKNOWN_CERT_TYPE, None
+            )
+
+        allowed_bit_names = set()
+        if is_signing_cert:
+            allowed_bit_names.update(self._signing_cert_allowance.allowed_bit_names)
+        if is_key_mgmt_cert:
+            allowed_bit_names.update(self._key_mgmt_cert_allowance.allowed_bit_names)
+
+        prohibited_bit_names = asserted_bit_names - allowed_bit_names
+
+        if prohibited_bit_names:
+            ku_str = ", ".join(sorted(prohibited_bit_names))
+
+            return validation.ValidationFindingDescription(
+                self.VALIDATION_PROHIBITED_KU_PRESENT,
+                f"Prohibited KUs present: {ku_str}",
+            )
+
+        return None
+
+
+_DIGITAL_SIGNATURE_ALLOWANCES = KeyUsageAllowance.from_bit_names(
+    {KeyUsageBitName.DIGITAL_SIGNATURE}, {KeyUsageBitName.NON_REPUDIATION}
+)
+
+
+class RsaKeyUsageAllowances(AlgorithmKeyUsageAllowances):
+    def __init__(self, generation: Generation):
+        optional_key_mgmt_bits = (
+            set()
+            if generation == Generation.STRICT
+            else {KeyUsageBitName.DATA_ENCIPHERMENT}
+        )
+
+        super().__init__(
+            _DIGITAL_SIGNATURE_ALLOWANCES,
+            KeyUsageAllowance.from_bit_names(
+                {KeyUsageBitName.KEY_ENCIPHERMENT}, optional_key_mgmt_bits
+            ),
+        )
+
+
+class EcKeyUsageAllowances(AlgorithmKeyUsageAllowances):
+    def __init__(self):
+        super().__init__(
+            _DIGITAL_SIGNATURE_ALLOWANCES,
+            KeyUsageAllowance.from_bit_names(
+                {KeyUsageBitName.KEY_AGREEMENT},
+                {KeyUsageBitName.ENCIPHER_ONLY, KeyUsageBitName.DECIPHER_ONLY},
+            ),
+        )
+
+
+class SingleUseDigitalSignatureAlgorithmAllowances(AlgorithmKeyUsageAllowances):
+    def __init__(self):
+        super().__init__(_DIGITAL_SIGNATURE_ALLOWANCES, None)
+
+
+class MlkemKeyUsageAllowances(AlgorithmKeyUsageAllowances):
+    def __init__(self):
+        super().__init__(
+            None,
+            KeyUsageAllowance.from_bit_names({KeyUsageBitName.KEY_ENCIPHERMENT}, set()),
+        )
+
+
+class AllowedKeyUsageValidator(validation.Validator):
     VALIDATION_UNSUPPORTED_PUBKEY_TYPE = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
         "cabf.smime.unsupported_public_key_type",
     )
 
-    _ALL_KUS = {str(n) for n in rfc5280.KeyUsage.namedValues}
+    _EDWARDS_CURVE_IDS = {
+        rfc8410.id_Ed448,
+        rfc8410.id_Ed25519,
+    }
+
+    _MLKEM_IDS = {
+        csor.id_alg_ml_kem_512,
+        csor.id_alg_ml_kem_768,
+        csor.id_alg_ml_kem_1024,
+    }
+
+    _MLDSA_IDS = {
+        csor.id_ml_dsa_44,
+        csor.id_ml_dsa_65,
+        csor.id_ml_dsa_87,
+    }
+
+    _ALL_BIT_NAMES = {str(n) for n in rfc5280.KeyUsage.namedValues}
 
     def __init__(self, generation):
         super().__init__(
             validations=[
-                self.VALIDATION_REQUIRED_KU_MISSING,
-                self.VALIDATION_PROHIBITED_KU_PRESENT,
-                self.VALIDATION_UNKNOWN_CERT_TYPE,
+                AlgorithmKeyUsageAllowances.VALIDATION_PROHIBITED_KU_PRESENT,
+                AlgorithmKeyUsageAllowances.VALIDATION_UNKNOWN_CERT_TYPE,
                 self.VALIDATION_UNSUPPORTED_PUBKEY_TYPE,
             ],
             pdu_class=rfc5280.KeyUsage,
         )
 
-        self._generation = generation
+        single_use_digital_signature_alg_allowances = (
+            SingleUseDigitalSignatureAlgorithmAllowances()
+        )
+        mlkem_allowances = MlkemKeyUsageAllowances()
 
-    @classmethod
-    def _get_prohibited_kus(cls, node, allowed_kus):
-        return {
-            pk for pk in cls._ALL_KUS - allowed_kus if bitstring.has_named_bit(node, pk)
+        self._allowances = {
+            rfc3279.rsaEncryption: RsaKeyUsageAllowances(generation),
+            rfc5480.id_ecPublicKey: EcKeyUsageAllowances(),
+            **{
+                o: single_use_digital_signature_alg_allowances
+                for o in self._EDWARDS_CURVE_IDS
+            },
+            **{o: single_use_digital_signature_alg_allowances for o in self._MLDSA_IDS},
+            **{o: mlkem_allowances for o in self._MLKEM_IDS},
         }
 
     def validate(self, node):
@@ -333,57 +461,20 @@ class AllowedKeyUsageValidator(validation.Validator):
             ":certificate.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm"
         ).pdu
 
-        allowed_kus = {KeyUsageBitName.DIGITAL_SIGNATURE}
-        is_signing_cert = bitstring.has_named_bit(
-            node, KeyUsageBitName.DIGITAL_SIGNATURE
-        )
-
-        if is_signing_cert:
-            allowed_kus.add(KeyUsageBitName.NON_REPUDIATION)
-
-        if spki_alg_oid == rfc3279.rsaEncryption:
-            allowed_kus.add(KeyUsageBitName.KEY_ENCIPHERMENT)
-
-            is_key_mgmt_cert = bitstring.has_named_bit(
-                node, KeyUsageBitName.KEY_ENCIPHERMENT
-            )
-
-            if is_key_mgmt_cert and self._generation != Generation.STRICT:
-                allowed_kus.add(KeyUsageBitName.DATA_ENCIPHERMENT)
-        elif spki_alg_oid == rfc5480.id_ecPublicKey:
-            is_key_mgmt_cert = bitstring.has_named_bit(
-                node, KeyUsageBitName.KEY_AGREEMENT
-            )
-
-            if is_key_mgmt_cert:
-                allowed_kus.update(
-                    {
-                        KeyUsageBitName.ENCIPHER_ONLY,
-                        KeyUsageBitName.DECIPHER_ONLY,
-                        KeyUsageBitName.KEY_AGREEMENT,
-                    }
-                )
-        elif spki_alg_oid in {rfc8410.id_Ed448, rfc8410.id_Ed25519}:
-            is_key_mgmt_cert = False
-        else:
+        alg_allowances = self._allowances.get(spki_alg_oid)
+        if alg_allowances is None:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_UNSUPPORTED_PUBKEY_TYPE
             )
 
-        if not is_signing_cert and not is_key_mgmt_cert:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_UNKNOWN_CERT_TYPE
-            )
+        asserted_bit_names = {
+            n for n in self._ALL_BIT_NAMES if bitstring.has_named_bit(node, n)
+        }
 
-        prohibited_kus = self._get_prohibited_kus(node, allowed_kus)
+        finding_desc = alg_allowances.validate_asserted_bits(asserted_bit_names)
+        finding_descs = [finding_desc] if finding_desc else []
 
-        if len(prohibited_kus) > 0:
-            ku_str = ", ".join(sorted(prohibited_kus))
-
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_PROHIBITED_KU_PRESENT,
-                f"Prohibited KUs present: {ku_str}",
-            )
+        return validation.ValidationResult(self, node, finding_descs)
 
 
 class EndEntityValidator(validation.Validator):
