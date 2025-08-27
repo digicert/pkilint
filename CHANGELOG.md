@@ -7,6 +7,7 @@ All notable changes to this project from version 0.9.3 onwards are documented in
 ## New features/enhancements
 
 - Add support for S/MIME BR ballot SMC-13 (#165)
+- Flag non-critical EKU with timestamping KP per RFC 3161 (#167)
 
 ## 0.12.12 - 2025-07-14
 
