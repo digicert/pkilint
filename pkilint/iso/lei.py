@@ -39,11 +39,14 @@ VALIDATION_INVALID_LEI_CHECKSUM = validation.ValidationFinding(
 )
 
 
-def _calculate_checksum(value):
-    subs = {chr(l): str(10 + l - ord("A")) for l in range(ord("A"), ord("Z") + 1)}
+_LEI_SUBSTITUTIONS = {
+    chr(l): str(10 + l - ord("A")) for l in range(ord("A"), ord("Z") + 1)
+}
 
-    for l, n in subs.items():
-        value = value.replace(l, n)
+
+def _calculate_checksum(value):
+    for letter, number in _LEI_SUBSTITUTIONS.items():
+        value = value.replace(letter, number)
 
     value += "00"
 
