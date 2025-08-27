@@ -950,3 +950,32 @@ class IssuerAlternativeNameCriticalityValidator(ExtensionCriticalityValidator):
             is_critical=False,
             validation=self.VALIDATION_ISSUER_ALT_NAME_CRITICAL,
         )
+
+
+class ExtendedKeyUsageCriticalityValidator(validation.Validator):
+    VALIDATION_EXTENDED_KEY_USAGE_EXTENSION_WITH_TIMESTAMPING_NOT_CRITICAL = (
+        validation.ValidationFinding(
+            validation.ValidationFindingSeverity.ERROR,
+            "pkix.extended_key_usage_extension_with_timestamping_not_critical",
+        )
+    )
+
+    def __init__(self):
+        super().__init__(
+            validations=[
+                self.VALIDATION_EXTENDED_KEY_USAGE_EXTENSION_WITH_TIMESTAMPING_NOT_CRITICAL
+            ],
+            pdu_class=rfc5280.ExtKeyUsageSyntax,
+        )
+
+    def match(self, node):
+        return super().match(node) and not node.document.is_ca
+
+    def validate(self, node):
+        if rfc5280.id_kp_timeStamping in node.document.extended_key_usages:
+            is_critical = get_criticality_from_decoded_node(node)
+
+            if not is_critical:
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_EXTENDED_KEY_USAGE_EXTENSION_WITH_TIMESTAMPING_NOT_CRITICAL
+                )
