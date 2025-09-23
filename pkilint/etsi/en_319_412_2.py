@@ -210,7 +210,7 @@ class NaturalPersonExtensionIdentifierAllowanceValidator(
     def __init__(self, certificate_type: etsi_constants.CertificateType):
         allowances = self._ALLOWANCES.copy()
 
-        if certificate_type in etsi_constants.EU_QWAC_TYPES:
+        if certificate_type in etsi_constants.EU_TYPES:
             allowances[rfc3739.id_pe_qcStatements] = Rfc2119Word.MUST
         else:
             allowances[rfc3739.id_pe_qcStatements] = Rfc2119Word.MAY

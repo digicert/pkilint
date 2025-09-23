@@ -309,24 +309,6 @@ class QcStatementsExtensionCriticalityValidator(
         )
 
 
-class QcStatementPresenceValidator(extension.ExtensionPresenceValidator):
-    """
-    QCS-5-01: EU qualified certificates shall include QCStatements in accordance with table 2
-    """
-
-    VALIDATION_QC_STATEMENTS_MISSING = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        "etsi.en_319_412_5.qcs-5.01",
-    )
-
-    def __init__(self):
-        super().__init__(
-            extension_oid=rfc3739.id_pe_qcStatements,
-            validation=self.VALIDATION_QC_STATEMENTS_MISSING,
-            pdu_class=rfc5280.Extensions,
-        )
-
-
 class QcStatementIdentifierAllowanceValidator(
     common.ElementIdentifierAllowanceValidator
 ):

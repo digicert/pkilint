@@ -25,5 +25,5 @@ FP1uHAm3LiCIkHaxzkmOOtFpdbHBCwQIwFwwh22GF4F7FQ/hZODQPMhzcDY=
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.extensions,QcStatementPresenceValidator,ERROR,etsi.en_319_412_5.qcs-5.01,
 certificate.tbsCertificate.extensions.1.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
+certificate.tbsCertificate.extensions,NaturalPersonExtensionIdentifierAllowanceValidator,ERROR,etsi.en_319_412_2.qc_statements_extension_absent,
