@@ -19,7 +19,7 @@ class CabfServerauthLinterGroup(model.LinterGroup):
             message = f"Parsing error occurred: {e}"
 
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail=model.create_unprocessable_entity_error_detail(message),
             )
 
