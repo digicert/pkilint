@@ -245,6 +245,13 @@ def create_validators(
     if additional_name_validators:
         subject_validators.extend(additional_name_validators)
 
+    issuer_validators = [
+        en_319_412_2.LegalPersonIssuerCountryCodeValidator(),
+        en_319_412_2.LegalPersonIssuerOrganizationAttributesEqualityValidator(),
+        en_319_412_2.LegalPersonIssuerDuplicateAttributeAllowanceValidator(),
+        en_319_412_2.LegalPersonIssuerAttributeAllowanceValidator(),
+    ]
+
     qc_statement_validators = [
         ts_119_495.RolesOfPspValidator(),
         ts_119_495.NCANameLatinCharactersValidator(),
@@ -349,11 +356,18 @@ def create_validators(
                 )
             )
         elif certificate_type in etsi_constants.NATURAL_PERSON_CERTIFICATE_TYPES:
-            extension_validators.append(
-                en_319_412_2.NaturalPersonKeyUsageValidator(
-                    is_content_commitment_type=None
+            if certificate_type in etsi_constants.QCP_N_CERTIFICATE_TYPES:
+                extension_validators.append(
+                    en_319_412_2.NaturalPersonKeyUsageValidator(
+                        is_content_commitment_type=True
+                    )
                 )
-            )
+            else:
+                extension_validators.append(
+                    en_319_412_2.NaturalPersonKeyUsageValidator(
+                        is_content_commitment_type=None
+                    )
+                )
 
     if certificate_type in etsi_constants.QEVCP_W_PSD2_EIDAS_CERTIFICATE_TYPES:
         qc_statement_validators.append(ts_119_495.PresenceofQCEUPDSStatementValidator())
@@ -406,7 +420,7 @@ def create_validators(
         )
 
         return [
-            certificate.create_issuer_validator_container([]),
+            certificate.create_issuer_validator_container(issuer_validators),
             certificate.create_validity_validator_container(
                 additional_validity_validators
             ),
