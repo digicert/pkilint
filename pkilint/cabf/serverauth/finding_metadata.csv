@@ -60,6 +60,7 @@ ERROR,cabf.serverauth.ca.non_critical_key_usage_extension,Validates that the cri
 ERROR,cabf.serverauth.ca.ocspsigning_eku_present,Validates that the content of the extended key usage extension complies with BR 7.1.2.10.6.: A prohibited element is present
 ERROR,cabf.serverauth.ca.organization_name_attribute_absent,Validates that the subject contains attributes in accordance with BR 7.1.2.10.2.: A required element is absent
 ERROR,cabf.serverauth.ca.organizational_unit_name_attribute_present,Validates that the subject contains attributes in accordance with BR 7.1.2.10.2.: A prohibited element is present
+ERROR,cabf.serverauth.ca.precertificate_signing_ca_issued_after_prohibition,"Validates that Precertificate Signing CAs are not issued on or after 2026-03-15, as defined in BR 7.1.2.4"
 ERROR,cabf.serverauth.ca.precertsigning_eku_present,Validates that the content of the extended key usage extension complies with BR 7.1.2.10.6.: A prohibited element is present
 ERROR,cabf.serverauth.ca.serverauth_eku_absent,Validates that the content of the extended key usage extension complies with BR 7.1.2.10.6.: A required element is absent
 ERROR,cabf.serverauth.ca.subject_key_identifier_extension_absent,"Validates that the included extensions conform with BR 7.1.2.4.1, 7.1.2.5.1, or 7.1.2.6.1 (depending on certificate type): A required element is absent"
