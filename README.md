@@ -17,7 +17,7 @@ There are several ready-to-use command-line tools bundled with pkilint, or the P
 
 ### Installing locally
 
-1. Python 3.9 or newer must be installed. Python can be downloaded and installed from https://www.python.org/downloads/, or
+1. Python 3.10 or newer must be installed. Python can be downloaded and installed from https://www.python.org/downloads/, or
 use your operating system's package manager.
 
 2. To ensure that package dependencies for pkilint do not conflict with globally installed packages on your machine, it is
