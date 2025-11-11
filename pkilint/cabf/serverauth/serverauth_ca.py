@@ -1,3 +1,5 @@
+import datetime
+
 from pyasn1_alt_modules import rfc5280, rfc6962
 
 import pkilint.common
@@ -425,4 +427,36 @@ class TlsCaTechnicallyConstrainedValidator(validation.Validator):
         else:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_INCOMPLETE_NAME_CONSTRAINTS
+            )
+
+
+class PrecertSigningCaSunsetValidator(validation.Validator):
+    VALIDATION_PRECERT_SIGNING_CA_ISSUED_AFTER_PROHIBITION = (
+        validation.ValidationFinding(
+            validation.ValidationFindingSeverity.ERROR,
+            "cabf.serverauth.ca.precertificate_signing_ca_issued_after_prohibition",
+        )
+    )
+
+    _PRECERT_SIGNING_CA_SUNSET_DATE = datetime.datetime(
+        2026, 3, 15, 0, 0, 0, tzinfo=datetime.timezone.utc
+    )
+
+    def __init__(
+        self, validity_period_start_retriever: document.ValidityPeriodStartRetriever
+    ):
+        super().__init__(
+            validations=[self.VALIDATION_PRECERT_SIGNING_CA_ISSUED_AFTER_PROHIBITION],
+            pdu_class=rfc5280.Validity,
+        )
+
+        self._validity_period_start_retriever = validity_period_start_retriever
+
+    def validate(self, node):
+        if (
+            self._validity_period_start_retriever(node.document)
+            >= self._PRECERT_SIGNING_CA_SUNSET_DATE
+        ):
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_PRECERT_SIGNING_CA_ISSUED_AFTER_PROHIBITION
             )

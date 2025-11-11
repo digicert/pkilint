@@ -460,6 +460,16 @@ def create_intermediate_ca_validators(
     additional_extension_validators=None,
     additional_top_level_validators=None,
 ):
+    if certificate_type == serverauth_constants.CertificateType.PRECERT_SIGNING_CA:
+        validator = serverauth_ca.PrecertSigningCaSunsetValidator(
+            validity_period_start_retriever
+        )
+
+        if additional_top_level_validators is None:
+            additional_top_level_validators = [validator]
+        else:
+            additional_top_level_validators.append(validator)
+
     return [
         create_validity_validator_container(
             certificate_type, additional_validity_validators
