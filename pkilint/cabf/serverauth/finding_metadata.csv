@@ -106,6 +106,7 @@ ERROR,cabf.serverauth.invalid_rdn_order,Validates that the encoded order of subj
 ERROR,cabf.serverauth.invalid_tor_checksum,Validates that each Onion Domain Name conforms to the Tor v3 specification.
 ERROR,cabf.serverauth.invalid_tor_v3_domain_name,Validates that each Onion Domain Name conforms to the Tor v3 specification.
 ERROR,cabf.serverauth.invalid_tor_version,Validates that each Onion Domain Name conforms to the Tor v3 specification.
+ERROR,cabf.serverauth.ip_reverse_zone_domain_name_present,"Validates that domain names that are suffixed with a reverse zone (e.g., "".in-addr.arpa"") are not present after the sunset date specified in BR 4.2.2"
 ERROR,cabf.serverauth.iv.country_attribute_absent,Validates that the content of the subject field conforms with BR 7.1.7.3.: A required element is absent
 ERROR,cabf.serverauth.iv.given_name_attribute_absent,Validates that the content of the subject field conforms with BR 7.1.7.3.: A required element is absent
 ERROR,cabf.serverauth.iv.organizational_unit_name_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.3.: A prohibited element is present
