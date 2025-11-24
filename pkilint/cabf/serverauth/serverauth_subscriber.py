@@ -6,7 +6,6 @@ from pyasn1_alt_modules import rfc5280, rfc6962, rfc5480
 
 import pkilint.common
 from pkilint import validation, document, oid, common
-from pkilint.pkix import certificate
 from pkilint.cabf import cabf_name
 from pkilint.cabf.asn1 import ev_guidelines
 from pkilint.cabf.serverauth import serverauth_constants
@@ -14,7 +13,9 @@ from pkilint.common import organization_id, common_name
 from pkilint.common.organization_id import ParsedOrganizationIdentifier
 from pkilint.itu import x520_name, bitstring
 from pkilint.pkix import Rfc2119Word, general_name, time
+from pkilint.pkix import certificate
 from pkilint.pkix.certificate.certificate_extension import KeyUsageBitName
+from pkilint.pkix.general_name import GeneralNameTypeName
 
 
 def _parse_organization_identifier_extension(
@@ -403,6 +404,8 @@ class SubscriberSanGeneralNameTypeValidator(validation.Validator):
         "cabf.serverauth.prohibited_san_type",
     )
 
+    _ALLOWED_NAME_FORMS = {GeneralNameTypeName.DNS_NAME, GeneralNameTypeName.IP_ADDRESS}
+
     def __init__(self):
         super().__init__(
             validations=self.VALIDATION_PROHIBITED_SAN_TYPE,
@@ -414,7 +417,7 @@ class SubscriberSanGeneralNameTypeValidator(validation.Validator):
     def validate(self, node):
         gn_type, _ = node.child
 
-        if gn_type not in {"dNSName", "iPAddress"}:
+        if gn_type not in self._ALLOWED_NAME_FORMS:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_PROHIBITED_SAN_TYPE,
                 f"Prohibited SAN GeneralName type: {gn_type}",
@@ -440,7 +443,7 @@ class EvSanGeneralNameTypeValidator(validation.Validator):
     def validate(self, node):
         gn_type, _ = node.child
 
-        if gn_type != "dNSName":
+        if gn_type != GeneralNameTypeName.DNS_NAME:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_PROHIBITED_SAN_TYPE,
                 f"Prohibited SAN GeneralName type: {gn_type}",
@@ -895,3 +898,49 @@ class SubscriberRevocationInformationPresenceValidator(validation.Validator):
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_REVOCATION_INFORMATION_ABSENT
             )
+
+
+class IpReverseZoneSuffixValidator(validation.Validator):
+    """Validates that domain names that are suffixed with an IP Reverse Zone are not included in Certificates"""
+
+    VALIDATION_IP_REVERSE_ZONE_DOMAIN_NAME_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "cabf.serverauth.ip_reverse_zone_domain_name_present",
+    )
+
+    _IP_REVERSE_ZONE_SUNSET_DATE = datetime.datetime(
+        2026, 3, 15, 0, 0, 0, tzinfo=datetime.timezone.utc
+    )
+
+    _IP_REVERSE_ZONE_SUFFIXES = [
+        "in-addr.arpa",
+        "ip6.arpa",
+    ]
+
+    def __init__(
+        self, validity_period_start_retriever: document.ValidityPeriodStartRetriever
+    ):
+        super().__init__(
+            predicate=general_name.create_generalname_type_predicate(
+                GeneralNameTypeName.DNS_NAME
+            ),
+            validations=[self.VALIDATION_IP_REVERSE_ZONE_DOMAIN_NAME_PRESENT],
+        )
+
+        self._validity_period_start_retriever = validity_period_start_retriever
+
+    def validate(self, node):
+        if (
+            self._validity_period_start_retriever(node.document)
+            >= self._IP_REVERSE_ZONE_SUNSET_DATE
+        ):
+            domain_name = str(node.pdu).lower()
+
+            if any(
+                domain_name.endswith(suffix)
+                for suffix in self._IP_REVERSE_ZONE_SUFFIXES
+            ):
+                raise validation.ValidationFindingEncountered(
+                    self.VALIDATION_IP_REVERSE_ZONE_DOMAIN_NAME_PRESENT,
+                    f'Domain name suffixed with an IP Reverse Zone present: "{domain_name}"',
+                )
