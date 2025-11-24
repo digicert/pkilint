@@ -45,6 +45,7 @@ def determine_certificate_type(cert: certificate.RFC5280Certificate) -> Certific
     )
     is_precert = cert.get_extension_by_oid(rfc6962.id_ce_criticalPoison) is not None
     is_webauth = rfc5280.id_kp_serverAuth in cert.extended_key_usages
+    is_qscd = en_319_412_5_asn1.id_etsi_qcs_QcSSCD in qualified_statement_ids
 
     if serverauth_constants.ID_POLICY_EV in policy_oids:
         is_psd2 = ts_119_495_asn1.id_etsi_psd2_qcStatement in qualified_statement_ids
@@ -146,6 +147,11 @@ def determine_certificate_type(cert: certificate.RFC5280Certificate) -> Certific
                         if is_precert
                         else CertificateType.NCP_W_NATURAL_PERSON_FINAL_CERTIFICATE
                     )
+            elif is_qscd:
+                if is_eidas_qualified:
+                    return CertificateType.QCP_N_QSCD_EIDAS_FINAL_CERTIFICATE
+                else:
+                    return CertificateType.QCP_N_QSCD_NON_EIDAS_FINAL_CERTIFICATE
 
             return CertificateType.NCP_NATURAL_PERSON_CERTIFICATE
         else:
@@ -348,7 +354,6 @@ def create_validators(
                 ]
             )
 
-        # TODO: fix commitment types when adding support for eSeal and eSignature
         if certificate_type in etsi_constants.LEGAL_PERSON_CERTIFICATE_TYPES:
             extension_validators.append(
                 en_319_412_3.LegalPersonKeyUsageValidator(

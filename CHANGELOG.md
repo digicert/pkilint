@@ -6,7 +6,7 @@ All notable changes to this project from version 0.9.3 onwards are documented in
 
 ## New features/enhancements
 
-- Add support for linting Qualified eSeal certificates (#129 - implemented by @breynders-cb)
+- Add support for linting Qualified natural person electronic signature certificates (#129 - implemented by @breynders-cb)
 - Add support for Python 3.14 (#171)
 - Drop support for Python 3.9 (#171)
 - Add support for TLS BR ballot SC-92 (#173)
