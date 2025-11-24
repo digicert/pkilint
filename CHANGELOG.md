@@ -2,7 +2,7 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
-## 0.13.0 - 2025-11-YY
+## 0.13.0 - 2025-12-05
 
 ## New features/enhancements
 
@@ -10,6 +10,10 @@ All notable changes to this project from version 0.9.3 onwards are documented in
 - Add support for Python 3.14 (#171)
 - Drop support for Python 3.9 (#171)
 - Add support for TLS BR ballot SC-92 (#173)
+
+### Fixes
+
+- Gracefully handle bad encoding in country name fields (#175 - found by @robstradling)
 
 ## 0.12.13 - 2025-09-05
 

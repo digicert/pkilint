@@ -27,5 +27,5 @@ DdNOVaGs+AoirZoY+kP2K8sKvZkvi3QKtzEJ/sa9SaveMA5TtSud9/pctGz3w0s=
 -----END CERTIFICATE-----
 
 node_path,validator,severity,code,message
-certificate.tbsCertificate.extensions.0.extnValue.qCStatements.2.statementInfo.qcType,QcTypeValidator,ERROR,etsi.en_319_412_5.gen-4.2.3.qc_type_mismatch,"Certificate type is ""QCP-N-QSCD-FINAL-CERTIFICATE"" but QcType qualified statement contains ""0.4.0.1862.1.6.2"""
+certificate.tbsCertificate.extensions.0.extnValue.qCStatements.2.statementInfo.qcType,QcTypeValidator,ERROR,etsi.en_319_412_5.gen-4.2.3.qc_type_mismatch,"Certificate type is ""QCP-N-QSCD-EIDAS-FINAL-CERTIFICATE"" but QcType qualified statement contains ""0.4.0.1862.1.6.2"""
 certificate.tbsCertificate.extensions.2.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
