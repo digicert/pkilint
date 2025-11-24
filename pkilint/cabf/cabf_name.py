@@ -38,7 +38,7 @@ class ValidCountryCodeValidatorBase(validation.Validator):
             return
         elif country_code not in countries_by_alpha2:
             raise validation.ValidationFindingEncountered(
-                self.validations[0], f'Invalid country code: "{country_code}"'
+                self._checked_validation, f'Invalid country code: "{country_code}"'
             )
 
 
