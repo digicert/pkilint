@@ -1,7 +1,7 @@
+import html
 import typing
 
 import unicodedata
-import html
 from iso3166 import countries_by_alpha2
 from pyasn1_alt_modules import rfc5280
 
@@ -12,24 +12,33 @@ from pkilint.itu import x520_name, asn1_util
 from pkilint.pkix import Rfc2119Word
 
 
-class ValidCountryCodeValidatorBase(validation.TypeMatchingValidator):
-    def __init__(self, type_oid, value_path, checked_validation):
+class ValidCountryCodeValidatorBase(validation.Validator):
+    def __init__(self, type_oid, checked_validation):
         super().__init__(
-            type_path="type",
-            type_oid=type_oid,
-            value_path=value_path,
             pdu_class=rfc5280.AttributeTypeAndValue,
             validations=[checked_validation],
         )
 
-    def validate_with_value(self, node, value_node):
-        country_code = str(value_node.pdu)
+        self._type_oid = type_oid
+        self._checked_validation = checked_validation
+
+    def match(self, node):
+        return super().match(node) and node.children["type"].pdu == self._type_oid
+
+    def validate(self, node):
+        try:
+            _, country_code_node = node.children["value"].child
+        except ValueError:
+            # the decoded node does not exist, let the decoding validator report
+            return
+
+        country_code = str(country_code_node.pdu)
 
         if country_code == "XX":
             return
         elif country_code not in countries_by_alpha2:
             raise validation.ValidationFindingEncountered(
-                self.validations[0], f'Invalid country code: "{country_code}"'
+                self._checked_validation, f'Invalid country code: "{country_code}"'
             )
 
 
@@ -41,7 +50,6 @@ class ValidCountryValidator(ValidCountryCodeValidatorBase):
     def __init__(self):
         super().__init__(
             type_oid=rfc5280.id_at_countryName,
-            value_path="value.x520countryName",
             checked_validation=self.VALIDATION_INVALID_COUNTRY_CODE,
         )
 

@@ -24,7 +24,6 @@ class ValidJurisdictionCountryValidator(ValidCountryCodeValidatorBase):
     def __init__(self):
         super().__init__(
             type_oid=ev_guidelines.id_evat_jurisdiction_countryName,
-            value_path="value.eVGJurisdictionCountryName",
             checked_validation=self.VALIDATION_INVALID_COUNTRY_CODE,
         )
 
