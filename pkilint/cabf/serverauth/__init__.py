@@ -362,6 +362,9 @@ def create_subscriber_extension_validator_container(
                 validity_period_start_retriever
             ),
             msft_extension.EndEntityRevocationInformationPresenceValidator(),
+            serverauth_subscriber.IpReverseZoneSuffixValidator(
+                validity_period_start_retriever
+            ),
         ]
     )
 
