@@ -1,12 +1,14 @@
+from urllib.parse import urlparse
+
+import iso639
+from iso3166 import countries_by_alpha2
+from iso4217 import Currency
+from pyasn1_alt_modules import rfc3739
+
 from pkilint import validation, common
 from pkilint.etsi import etsi_constants
 from pkilint.etsi.asn1 import en_319_412_5
-from iso3166 import countries_by_alpha2
-from iso4217 import Currency
-from urllib.parse import urlparse
-from pyasn1_alt_modules import rfc3739, rfc5280
 from pkilint.pkix import extension, Rfc2119Word
-import iso639
 
 
 class QcCCLegislationCountryCodeValidator(validation.Validator):

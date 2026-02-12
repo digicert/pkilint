@@ -4,7 +4,6 @@ from pyasn1.type.constraint import ValueSizeConstraint
 from pkilint import document
 from pkilint.nist.asn1 import csor
 
-
 ML_KEM_512_PublicKeySize = 800
 ML_KEM_768_PublicKeySize = 1184
 ML_KEM_1024_PublicKeySize = 1568

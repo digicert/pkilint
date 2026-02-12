@@ -12,7 +12,8 @@ All notable changes to this project from version 0.9.3 onwards are documented in
 
 ## New features/enhancements
 
-- Add support for linting Qualified natural person electronic signature certificates (#129 - implemented by @breynders-cb)
+- Add support for linting Qualified natural person electronic signature certificates (#129 - implemented by
+  @breynders-cb)
 - Add support for Python 3.14 (#171)
 - Drop support for Python 3.9 (#171)
 - Add support for TLS BR ballot SC-92 (#173)
@@ -39,7 +40,7 @@ All notable changes to this project from version 0.9.3 onwards are documented in
 ### New features/enhancements
 
 - Add support for TLS BR ballot SC-81 (#160)
- 
+
 ## 0.12.10 - 2025-05-14
 
 ### New features/enhancements
@@ -126,7 +127,8 @@ All notable changes to this project from version 0.9.3 onwards are documented in
 
 - Remove duplicate registration of GeneralNameIpAddressSyntaxValidator in CRL linter (#103 - found by @zzzsz)
 - Amend finding code for CRL reason code validator (#104 - found by @zzzsz)
-- Remove duplicate registration of CRL validity period validator, fix positive validity period validator (#106 - found by @zzzsz)
+- Remove duplicate registration of CRL validity period validator, fix positive validity period validator (#106 - found
+  by @zzzsz)
 
 ## 0.11.4 - 2024-08-29
 
@@ -139,7 +141,8 @@ All notable changes to this project from version 0.9.3 onwards are documented in
 
 ### Fixes
 
-- NCP-w legal person and natural person final certificates are incorrectly detected as pre-certificates (#92 - fixed by @robstradling)
+- NCP-w legal person and natural person final certificates are incorrectly detected as pre-certificates (#92 - fixed by
+  @robstradling)
 
 ## 0.11.2 - 2024-07-16
 
@@ -226,7 +229,8 @@ All notable changes to this project from version 0.9.3 onwards are documented in
 
 ### Fixes
 
-- cabf.smime.common_name_value_unknown_source finding is incorrectly reported when SmtpUtf8Mailbox SAN values appear in the subject CN (#52 - reported and fixed by @hablutzel1)
+- cabf.smime.common_name_value_unknown_source finding is incorrectly reported when SmtpUtf8Mailbox SAN values appear in
+  the subject CN (#52 - reported and fixed by @hablutzel1)
 
 ## 0.9.6 - 2023-10-25
 

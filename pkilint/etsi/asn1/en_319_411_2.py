@@ -1,6 +1,5 @@
 from pyasn1.type.univ import ObjectIdentifier
 
-
 _ARC = ObjectIdentifier("0.4.0.194112.1")
 
 

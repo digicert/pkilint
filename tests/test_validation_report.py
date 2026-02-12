@@ -1,9 +1,9 @@
-from pkilint import validation, etsi
-from pkilint.etsi import etsi_constants
-from pkilint.pkix import certificate
-from pkilint.cabf import serverauth, smime
 import re
 
+from pkilint import validation, etsi
+from pkilint.cabf import serverauth, smime
+from pkilint.etsi import etsi_constants
+from pkilint.pkix import certificate
 
 _FINDING_CODE_REGEX = re.compile(r"^[.a-z0-9\-_]+$")
 

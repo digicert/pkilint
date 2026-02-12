@@ -1,6 +1,5 @@
 from pyasn1.type.univ import ObjectIdentifier
 
-
 # top-level OID arcs
 
 nistAlgorithms = ObjectIdentifier("2.16.840.1.101.3.4")
