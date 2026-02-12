@@ -3,8 +3,8 @@
 import argparse
 import sys
 
-from pkilint import pkix
 from pkilint import cli_util, loader, report
+from pkilint import pkix
 from pkilint.pkix import extension, name, ocsp
 
 

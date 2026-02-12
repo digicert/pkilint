@@ -7,7 +7,6 @@ import pkilint.common
 from pkilint import validation, document
 from pkilint.pkix import time, Rfc2119Word
 
-
 _CODE_CLASSIFIER = "cabf.serverauth.root"
 
 

@@ -234,8 +234,7 @@ Bc2w8vywgYYoduXu4QLcoP17CA==""",
 
 def test_lint_pkix_signer_signee_cert_chain_lint():
     issuer_f = tempfile.NamedTemporaryFile("w+", delete=False)
-    issuer_f.write(
-        """-----BEGIN CERTIFICATE-----
+    issuer_f.write("""-----BEGIN CERTIFICATE-----
 MIIDFjCCAf6gAwIBAgIUF/hP3a/TkmHlfhYYUiFNw/H5lMwwDQYJKoZIhvcNAQEL
 BQAwIzELMAkGA1UEBhMCWFgxFDASBgNVBAoMC0NlcnRzICdyIFVzMB4XDTI0MDMy
 NTE4NDcwMFoXDTI1MDMyNTE4NDcwMFowIzELMAkGA1UEBhMCWFgxFDASBgNVBAoM
@@ -253,13 +252,11 @@ ju+K/Dndbrs1v7r4IB79hu4QtR7BVaEQ8UjqY+/I1VeYKtAd7scQGKpSNOPN3YVu
 +QY3fXy+nfDhj7drUeAHVj+Qz/6RZOIhmIPj7adsZhDQwvMG3cAkAfVGncP7n+cN
 nqZyYu8PPQp4g+QM42kXXBu5N8QwkCtcMe2nvKiQvEOZww70N3mTIK8CSxLla5pI
 635lNPBZubGF6m35P7EArB0JuU2KYNgUxis=
------END CERTIFICATE-----"""
-    )
+-----END CERTIFICATE-----""")
     issuer_f.flush()
 
     subject_f = tempfile.NamedTemporaryFile("w+", delete=False)
-    subject_f.write(
-        """-----BEGIN CERTIFICATE-----
+    subject_f.write("""-----BEGIN CERTIFICATE-----
 MIIDjTCCAnWgAwIBAgIUW8wsCzJEg7WzpMvkUKyloeKqKLYwDQYJKoZIhvcNAQEL
 BQAwIzELMAkGA1UEBhMCWFgxFDASBgNVBAoMC0NlcnRzICdyIFVzMB4XDTI0MDMy
 NTE4NDcwMFoXDTI1MDMyNTE4NDcwMFowJTELMAkGA1UEBhMCWFgxFjAUBgNVBAoM
@@ -280,8 +277,7 @@ lxHaT6Y2IMZ6kVtHCmcOFaHWJyPAUZ4ymO03cb/1M73ioecf9jMgIf7YBaopty2p
 X2GVHaCE1m7u+2WU45b34PBRY/ZvhZvuJKi3TfuaLMJFPz6HY4XbHPnlBP4EwXpC
 5VaJvOMXWZPWh/yrCVEKMzFxesbwHV/vyOUls0P4kIY383/78MvzchHLhwR7h2fy
 Iw==
------END CERTIFICATE-----"""
-    )
+-----END CERTIFICATE-----""")
     subject_f.flush()
 
     ret = subprocess.run(

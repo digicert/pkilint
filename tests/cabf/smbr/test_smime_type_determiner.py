@@ -1,5 +1,5 @@
-from pkilint.cabf import smime
 from pkilint import loader
+from pkilint.cabf import smime
 from pkilint.cabf.smime import smime_constants
 
 _TLS_PEM = """-----BEGIN CERTIFICATE-----

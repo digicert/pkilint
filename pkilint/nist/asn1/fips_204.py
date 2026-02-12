@@ -4,7 +4,6 @@ from pyasn1.type.constraint import ValueSizeConstraint
 from pkilint import document
 from pkilint.nist.asn1 import csor
 
-
 ML_DSA_44_PublicKeySize = 1312
 ML_DSA_65_PublicKeySize = 1952
 ML_DSA_87_PublicKeySize = 2592
