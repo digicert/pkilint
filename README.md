@@ -1,6 +1,5 @@
 # pkilint
 
-
 [![PyPI](https://img.shields.io/pypi/v/pkilint)](https://pypi.org/project/pkilint)
 [![Python Versions](https://img.shields.io/pypi/pyversions/pkilint)](https://pypi.org/project/pkilint/)
 [![Build status](https://github.com/digicert/pkilint/actions/workflows/build_and_publish.yml/badge.svg)](https://github.com/digicert/pkilint/actions/workflows/build_and_publish.yml)
@@ -8,21 +7,26 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 pkilint is a linting framework for documents that are encoded using ASN.1. pkilint is designed to
-be a highly extensible toolbox to quickly create linters for a variety of ASN.1 structure/"document" types to check for compliance with
+be a highly extensible toolbox to quickly create linters for a variety of ASN.1 structure/"document" types to check for
+compliance with
 various standards and policies.
 
-There are several ready-to-use command-line tools bundled with pkilint, or the Python API can be used to create new linters.
+There are several ready-to-use command-line tools bundled with pkilint, or the Python API can be used to create new
+linters.
 
 ## Installation
 
 ### Installing locally
 
-1. Python 3.10 or newer must be installed. Python can be downloaded and installed from https://www.python.org/downloads/, or
-use your operating system's package manager.
+1. Python 3.10 or newer must be installed. Python can be downloaded and installed
+   from https://www.python.org/downloads/, or
+   use your operating system's package manager.
 
-2. To ensure that package dependencies for pkilint do not conflict with globally installed packages on your machine, it is
-recommended that you use [pipx](https://pypa.github.io/pipx/) to create a separate Python environment for pkilint. Follow
-the instructions on the [pipx homepage](https://pypa.github.io/pipx/) to install pipx.
+2. To ensure that package dependencies for pkilint do not conflict with globally installed packages on your machine, it
+   is
+   recommended that you use [pipx](https://pypa.github.io/pipx/) to create a separate Python environment for pkilint.
+   Follow
+   the instructions on the [pipx homepage](https://pypa.github.io/pipx/) to install pipx.
 
 3. Use pipx to install pkilint:
 
@@ -30,7 +34,8 @@ the instructions on the [pipx homepage](https://pypa.github.io/pipx/) to install
     pipx install pkilint
     ```
 
-Once installed, the bundled command line applications (listed below) and the Python API will be available on your machine.
+Once installed, the bundled command line applications (listed below) and the Python API will be available on your
+machine.
 
 #### Upgrading
 
@@ -55,8 +60,10 @@ pipx inject pkilint --include-apps uvicorn
 
 ### Docker
 
-Starting with v0.9.4, Docker images are provided with each release. In addition to the pkilint Python package, the image includes
-[Uvicorn](https://www.uvicorn.org/) and [Gunicorn](https://gunicorn.org/). These additional packages allow the Docker image to be
+Starting with v0.9.4, Docker images are provided with each release. In addition to the pkilint Python package, the image
+includes
+[Uvicorn](https://www.uvicorn.org/) and [Gunicorn](https://gunicorn.org/). These additional packages allow the Docker
+image to be
 readily used to run a server that provides the pkilint REST API.
 
 To pull the latest version of the Docker image, execute the following command:
@@ -65,7 +72,8 @@ To pull the latest version of the Docker image, execute the following command:
 docker pull ghcr.io/digicert/pkilint
 ```
 
-After the Docker image has been pulled, all command-line linters are available, as well as the Uvicorn and Gunicorn commands to start the
+After the Docker image has been pulled, all command-line linters are available, as well as the Uvicorn and Gunicorn
+commands to start the
 REST API server.
 
 A few examples demonstrating use of the Docker image are provided below.
@@ -126,8 +134,10 @@ $
 
 #### Sigstore signature verification
 
-Docker images are signed using [Sigstore](https://www.sigstore.dev/)'s [cosign](https://docs.sigstore.dev/signing/quickstart/) tool.
-To verify the signature on a Docker image, [install the cosign utility](https://docs.sigstore.dev/system_config/installation/) and execute the following
+Docker images are signed using [Sigstore](https://www.sigstore.dev/)'
+s [cosign](https://docs.sigstore.dev/signing/quickstart/) tool.
+To verify the signature on a Docker
+image, [install the cosign utility](https://docs.sigstore.dev/system_config/installation/) and execute the following
 command:
 
 ```shell
@@ -149,7 +159,6 @@ The list of command line linters bundled with pkilint:
 * [lint_ocsp_response](#lintocspresponse)
 * [lint_pkix_signer_signee_cert_chain](#lintpkixsignersigneecertchain)
 
-
 Each of the linters share common command line parameters:
 
 | Parameter           | Default value | Description                                                                                                                                                                                      |
@@ -158,11 +167,14 @@ Each of the linters share common command line parameters:
 | `-f`/`--format`     | TEXT          | Sets the format in which results will be reported. Current options are TEXT, CSV, or JSON.                                                                                                       |
 | `--document-format` | DETECT        | Sets the expected format of documents. If a document is not in the specified format, then an error is reported and the linter exits. Current options are BASE64, DER, PEM, and DETECT (default). |
 
-Additionally, each linter has ability to lint document (certificate, CRL, OCSP response, etc.) files as well as output the set of validations
-which are performed by each linter. When the `validations` sub-command is specified, the set of validations that are performed by the linter
+Additionally, each linter has ability to lint document (certificate, CRL, OCSP response, etc.) files as well as output
+the set of validations
+which are performed by each linter. When the `validations` sub-command is specified, the set of validations that are
+performed by the linter
 is output to standard output in CSV format.
 
-When the `lint` sub-command is specified for each linter, a file which contains the document to lint must be specified. The document
+When the `lint` sub-command is specified for each linter, a file which contains the document to lint must be specified.
+The document
 may be either DER- or PEM-encoded.
 
 Each of the command line tools wrap various linter Python APIs available within pkilint.
@@ -176,28 +188,43 @@ This is the "base" X.509 certificate linter that lints specified certificates ag
 ### lint_cabf_smime_cert
 
 This tool lints end-entity S/MIME certificates against the
-[CA/Browser Forum S/MIME Baseline Requirements](https://cabforum.org/smime-br/). 
+[CA/Browser Forum S/MIME Baseline Requirements](https://cabforum.org/smime-br/).
 
-The `lint` sub-command requires that the user provide the certificate type/profile of the certificate so that the appropriate
+The `lint` sub-command requires that the user provide the certificate type/profile of the certificate so that the
+appropriate
 validations are performed. There are three options:
 
-1. Explicitly specify the type of S/MIME certificate using the `-t`/`--type` option. This may be useful when linting S/MIME certificates where the policy OIDs in the certificate do not map to an S/MIME validation level and generation.
-2. Have the linter detect the type of certificate using the `-d`/`--detect` option. In this case, the linter will determine the validation level and generation using the policy OIDs included in the certificate. If a reserved CA/Browser Forum policy OID is found, then the corresponding validation level and generation are used. If no such reserved OIDs are found, then the optional mapping file (see below) is used. If no OIDs in the mapping file are found, then the tool exits with an error.
-3. Have the linter detect the type of certificate using the `-g`/`--guess` option. This option uses the same identification procedure as the `--detect` option, with one major difference. Instead of exiting with an error upon being unable to find an appropriate policy OID, this option instead directs the linter to use heuristics to determine the validation level and generation.
+1. Explicitly specify the type of S/MIME certificate using the `-t`/`--type` option. This may be useful when linting
+   S/MIME certificates where the policy OIDs in the certificate do not map to an S/MIME validation level and generation.
+2. Have the linter detect the type of certificate using the `-d`/`--detect` option. In this case, the linter will
+   determine the validation level and generation using the policy OIDs included in the certificate. If a reserved
+   CA/Browser Forum policy OID is found, then the corresponding validation level and generation are used. If no such
+   reserved OIDs are found, then the optional mapping file (see below) is used. If no OIDs in the mapping file are
+   found, then the tool exits with an error.
+3. Have the linter detect the type of certificate using the `-g`/`--guess` option. This option uses the same
+   identification procedure as the `--detect` option, with one major difference. Instead of exiting with an error upon
+   being unable to find an appropriate policy OID, this option instead directs the linter to use heuristics to determine
+   the validation level and generation.
 
-Options 2 and 3 allow for the use of an optional mapping file, specified using the `-m`/`--mapping` option. This file contains one or more mappings from policy OIDs to the corresponding validation level and generation.
+Options 2 and 3 allow for the use of an optional mapping file, specified using the `-m`/`--mapping` option. This file
+contains one or more mappings from policy OIDs to the corresponding validation level and generation.
 
-For example, the following mapping file is used to map policy OID `1.2.3.4.5.6` to the `MAILBOX-LEGACY` validation level and generation and `1.2.3.4.5.7` to the `SPONSORED-LEGACY` validation level and generation:
+For example, the following mapping file is used to map policy OID `1.2.3.4.5.6` to the `MAILBOX-LEGACY` validation level
+and generation and `1.2.3.4.5.7` to the `SPONSORED-LEGACY` validation level and generation:
 
 ~~~
 1.2.3.4.5.6=MAILBOX-LEGACY
 1.2.3.4.5.7=SPONSORED-LEGACY
 ~~~
 
-The `-o`/`--output` option is used to specify that the validation level and generation used by the linter is written to standard error. This is useful when using the `--guess` option to see which validation level and generation was determined by the heuristics logic.
+The `-o`/`--output` option is used to specify that the validation level and generation used by the linter is written to
+standard error. This is useful when using the `--guess` option to see which validation level and generation was
+determined by the heuristics logic.
 
-The `--validity-period-start` option is used to override how the issuance date/time of a certificate is determined. Many requirements are applicable based on the date/time of issuance of certificates, so this option is useful
-to evaluate whether a certificate complies with an upcoming requirement. There are three possible types of values for this option:
+The `--validity-period-start` option is used to override how the issuance date/time of a certificate is determined. Many
+requirements are applicable based on the date/time of issuance of certificates, so this option is useful
+to evaluate whether a certificate complies with an upcoming requirement. There are three possible types of values for
+this option:
 
 1. `DOCUMENT`: Use the value of the `notBefore` field to determine the issuance date/time. This is the default value.
 2. `NOW`: Use the current date/time to override the issuance date/time.
@@ -248,24 +275,34 @@ $
 
 ### lint_cabf_serverauth_cert
 
-This tool lints TLS server authentication certificates (both final and pre-certificates), Intermediate CA certificates, Root CA certificates,
+This tool lints TLS server authentication certificates (both final and pre-certificates), Intermediate CA certificates,
+Root CA certificates,
 and OCSP delegated responder certificates against the
 [CA/Browser Forum TLS Baseline Requirements](https://cabforum.org/baseline-requirements-documents/), notably with
-support for linting against the profile for certificates specified in ballot [SC-62](https://cabforum.org/2023/03/17/ballot-sc62v2-certificate-profiles-update/).
+support for linting against the profile for certificates specified in
+ballot [SC-62](https://cabforum.org/2023/03/17/ballot-sc62v2-certificate-profiles-update/).
 
-The `lint` sub-command requires that the user provide the certificate type/profile of the certificate so that the appropriate
+The `lint` sub-command requires that the user provide the certificate type/profile of the certificate so that the
+appropriate
 validations are performed. There are two options:
 
 1. Explicitly specify the type of certificate using the `-t`/`--type` option.
-2. Have the linter detect the type of certificate using the `-d`/`--detect` option. In this case, the linter will determine the certificate type using the values of various extensions and fields included in the certificate. The detection procedure may not always be accurate, so it is recommended to use the `--type` option for the best results.
+2. Have the linter detect the type of certificate using the `-d`/`--detect` option. In this case, the linter will
+   determine the certificate type using the values of various extensions and fields included in the certificate. The
+   detection procedure may not always be accurate, so it is recommended to use the `--type` option for the best results.
 
-Several parts of the TLS Baseline Requirements supersede requirements specified in RFC 5280. For example, RFC 5280 specifies that the `nameConstraints` extension MUST be critical, but the TLS Baseline Requirements allows this extension to be non-critical. By default, findings related to the PKIX standards that are superseded by the
+Several parts of the TLS Baseline Requirements supersede requirements specified in RFC 5280. For example, RFC 5280
+specifies that the `nameConstraints` extension MUST be critical, but the TLS Baseline Requirements allows this extension
+to be non-critical. By default, findings related to the PKIX standards that are superseded by the
 TLS Baseline Requirements are not reported. To report superseded findings, specify the `--report-all` option.
 
-The `-o`/`--output` option is used to specify that the certificate type used by the linter is written to standard error. This is useful when using the `--detect` option to see which certificate type was determined by the heuristics logic.
+The `-o`/`--output` option is used to specify that the certificate type used by the linter is written to standard error.
+This is useful when using the `--detect` option to see which certificate type was determined by the heuristics logic.
 
-The `--validity-period-start` option is used to override how the issuance date/time of a certificate is determined. Many requirements are applicable based on the date/time of issuance of certificates, so this option is useful
-to evaluate whether a certificate complies with an upcoming requirement. There are three possible types of values for this option:
+The `--validity-period-start` option is used to override how the issuance date/time of a certificate is determined. Many
+requirements are applicable based on the date/time of issuance of certificates, so this option is useful
+to evaluate whether a certificate complies with an upcoming requirement. There are three possible types of values for
+this option:
 
 1. `DOCUMENT`: Use the value of the `notBefore` field to determine the issuance date/time. This is the default value.
 2. `NOW`: Use the current date/time to override the issuance date/time.
@@ -317,19 +354,26 @@ $
 For further information on this linter, see [the Wiki page](https://github.com/digicert/pkilint/wiki/lint_etsi_cert).
 
 This tool lints certificates against the profiles specified in ETSI EN 319 412 and TS 119 495. Currently, the tool
-has the most comprehensive support for website authentication certificates, but support for electronic signature,
-electronic seal, and timestamping certificates is planned.
+has the most comprehensive support for website authentication and electronic signature certificates, but support for
+electronic seal and timestamping certificates is planned.
 
-The `lint` sub-command requires that the user provide the certificate type/profile of the certificate so that the appropriate
+The `lint` sub-command requires that the user provide the certificate type/profile of the certificate so that the
+appropriate
 validations are performed. There are two options:
 
 1. Explicitly specify the type of certificate using the `-t`/`--type` option.
-2. Have the linter detect the type of certificate using the `-d`/`--detect` option. In this case, the linter will determine the certificate type using the values of various extensions and fields included in the certificate. The detection procedure may not always be accurate, so it is recommended to use the `--type` option for the best results.
+2. Have the linter detect the type of certificate using the `-d`/`--detect` option. In this case, the linter will
+   determine the certificate type using the values of various extensions and fields included in the certificate. The
+   detection procedure may not always be accurate, so it is recommended to use the `--type` option for the best results.
 
-Several parts of EN 319 412 and TS 119 495 supersede requirements specified in the TLS Baseline Requirements and RFC 5280. For example, the TLS Baseline Requirements requires that certificate validity periods be 398 days or less. However, this requirement need not be followed for PSD2 website authentication certificates that are not trusted
-by browsers. By default, such findings are not reported. To report superseded findings, specify the `--report-all` option.
+Several parts of EN 319 412 and TS 119 495 supersede requirements specified in the TLS Baseline Requirements and RFC
+5280. For example, the TLS Baseline Requirements requires that certificate validity periods be 398 days or less.
+However, this requirement need not be followed for PSD2 website authentication certificates that are not trusted
+by browsers. By default, such findings are not reported. To report superseded findings, specify the `--report-all`
+option.
 
-The `-o`/`--output` option is used to specify that the certificate type used by the linter is written to standard error. This is useful when using the `--detect` option to see which certificate type was determined by the heuristics logic.
+The `-o`/`--output` option is used to specify that the certificate type used by the linter is written to standard error.
+This is useful when using the `--detect` option to see which certificate type was determined by the heuristics logic.
 
 #### Example command execution
 
@@ -385,8 +429,10 @@ $
 
 ### lint_crl
 
-This tool lints CRLs against the RFC 5280 as well as against the CA/Browser Forum profile for CRLs. It is anticipated that this
-linter will be expanded to encompass the profile for CRLs specified in ballot [SC-63](https://cabforum.org/2023/07/14/ballot-sc-063-v4make-ocsp-optional-require-crls-and-incentivize-automation/).
+This tool lints CRLs against the RFC 5280 as well as against the CA/Browser Forum profile for CRLs. It is anticipated
+that this
+linter will be expanded to encompass the profile for CRLs specified in
+ballot [SC-63](https://cabforum.org/2023/07/14/ballot-sc-063-v4make-ocsp-optional-require-crls-and-incentivize-automation/).
 
 ### lint_ocsp_response
 
@@ -394,14 +440,19 @@ This tool lints OCSP responses against the RFC 6960 profile.
 
 ### lint_pkix_signer_signee_cert_chain
 
-This tool lints subject/issuer certificate pairs to ensure consistency of fields and extension values across certificates.
+This tool lints subject/issuer certificate pairs to ensure consistency of fields and extension values across
+certificates.
 
 ### REST API Usage
 
-The REST API is implemented as an ASGI application using the [FastAPI](https://fastapi.tiangolo.com) framework. Notably, FastAPI
-does not come bundled with a server component, so one will need to be installed separately. If you ran the `pipx` commands
-in the [REST API Installation](#rest-api-installation) section above, then [Uvicorn](https://www.uvicorn.org/) has been installed. Otherwise, you can
-make your choice of server by reviewing the documentation for [deploying FastAPI](https://fastapi.tiangolo.com/deployment/manually/).
+The REST API is implemented as an ASGI application using the [FastAPI](https://fastapi.tiangolo.com) framework. Notably,
+FastAPI
+does not come bundled with a server component, so one will need to be installed separately. If you ran the `pipx`
+commands
+in the [REST API Installation](#rest-api-installation) section above, then [Uvicorn](https://www.uvicorn.org/) has been
+installed. Otherwise, you can
+make your choice of server by reviewing the documentation
+for [deploying FastAPI](https://fastapi.tiangolo.com/deployment/manually/).
 
 Assuming that Uvicorn has been installed via pipx, the REST API server can be started with the following command:
 
@@ -409,7 +460,8 @@ Assuming that Uvicorn has been installed via pipx, the REST API server can be st
 uvicorn pkilint.rest:app
 ```
 
-This command will start the REST API server and listen for incoming requests on TCP/IP port 8000 of the loopback interface.
+This command will start the REST API server and listen for incoming requests on TCP/IP port 8000 of the loopback
+interface.
 Once the REST API server has been started, documentation will be available on the following endpoints:
 
 * [Swagger UI](http://127.0.0.1:8000/docs)
@@ -422,7 +474,8 @@ If you find a bug or other issue with pkilint, please create a GitHub issue.
 
 ## Contributing
 
-As we intend for this project to be an ecosystem resource, we welcome contributions. It is preferred that proposals for new
+As we intend for this project to be an ecosystem resource, we welcome contributions. It is preferred that proposals for
+new
 features be filed as GitHub issues so that design decisions, etc. can be discussed prior to submitting a pull request.
 
 This project uses [Black](https://github.com/psf/black) code formatter. The CI/CD pipeline checks for compliance with

@@ -4,7 +4,6 @@ from pyasn1.type.constraint import ValueSizeConstraint
 from pkilint import document
 from pkilint.nist.asn1 import csor
 
-
 SlhDsaShaTwo128sPublicKeySize = 32
 SlhDsaShaTwo128fPublicKeySize = 32
 

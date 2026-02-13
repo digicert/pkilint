@@ -1,7 +1,7 @@
 from pyasn1_alt_modules import rfc3279, rfc5480, rfc5280
 
-from pkilint.pkix import key
 from pkilint import validation
+from pkilint.pkix import key
 
 
 class RsaKeyValidator(validation.Validator):
