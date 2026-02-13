@@ -132,9 +132,18 @@ class RFC5280Certificate(Document):
         tbs_octets = self.cryptography_object.tbs_certificate_bytes
         signature_hash_alg = self.cryptography_object.signature_hash_algorithm
         signature_octets = self.cryptography_object.signature
+        signature_algorithm = self.cryptography_object.signature_algorithm_oid
+        signature_algorithm_parameters = (
+            self.cryptography_object.signature_algorithm_parameters
+        )
 
         return key.verify_signature(
-            public_key, tbs_octets, signature_octets, signature_hash_alg
+            public_key,
+            tbs_octets,
+            signature_octets,
+            signature_hash_alg,
+            signature_algorithm,
+            signature_algorithm_parameters,
         )
 
     @functools.cached_property
