@@ -8,7 +8,7 @@ from cryptography.hazmat.primitives.asymmetric import (
     ed448,
 )
 from pyasn1.type import univ
-from pyasn1_alt_modules import rfc3279, rfc5480, rfc8410
+from pyasn1_alt_modules import rfc3279, rfc5480, rfc8410, rfc4055
 
 from pkilint import document
 from pkilint.document import PDUNode
@@ -89,14 +89,33 @@ def convert_spki_to_object(spki_node: PDUNode):
     return None
 
 
-def verify_signature(public_key, message, signature, signature_hash_algorithm=None):
+def verify_signature(
+    public_key,
+    message,
+    signature,
+    signature_hash_algorithm=None,
+    signature_algorithm=None,
+    signature_algorithm_parameters=None,
+):
     try:
-        # TODO: add support for RSASSA-PSS
-
         if isinstance(public_key, rsa.RSAPublicKey):
-            public_key.verify(
-                signature, message, padding.PKCS1v15(), signature_hash_algorithm
-            )
+            if signature_algorithm == rfc4055.id_RSASSA_PSS:
+                salt_length = int(
+                    signature_algorithm_parameters.navigate(
+                        "rSASSA_PSS_params.saltLength"
+                    ).pdu
+                )
+                pss_padding = padding.PSS(
+                    mgf=padding.MGF1(signature_hash_algorithm),
+                    salt_length=salt_length,
+                )
+                public_key.verify(
+                    signature, message, pss_padding, signature_hash_algorithm
+                )
+            else:
+                public_key.verify(
+                    signature, message, padding.PKCS1v15(), signature_hash_algorithm
+                )
         elif isinstance(public_key, dsa.DSAPublicKey):
             public_key.verify(signature, message, signature_hash_algorithm)
         elif isinstance(public_key, ec.EllipticCurvePublicKey):

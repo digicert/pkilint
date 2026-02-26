@@ -10,7 +10,7 @@ from pyasn1.type.base import Asn1Type
 from pyasn1_alt_modules import rfc5280, rfc3739
 
 from pkilint import validation, pkix, document
-from pkilint.document import Document, ValueDecoder
+from pkilint.document import Document, ValueDecoder, PDUNavigationFailedError
 from pkilint.pkix import (
     extension,
     time,
@@ -132,9 +132,24 @@ class RFC5280Certificate(Document):
         tbs_octets = self.cryptography_object.tbs_certificate_bytes
         signature_hash_alg = self.cryptography_object.signature_hash_algorithm
         signature_octets = self.cryptography_object.signature
+        signature_algorithm = self.root.navigate(
+            "tbsCertificate.signature.algorithm"
+        ).pdu
+
+        try:
+            signature_algorithm_parameters = self.root.navigate(
+                "tbsCertificate.signature.parameters"
+            )
+        except PDUNavigationFailedError:
+            signature_algorithm_parameters = None
 
         return key.verify_signature(
-            public_key, tbs_octets, signature_octets, signature_hash_alg
+            public_key,
+            tbs_octets,
+            signature_octets,
+            signature_hash_alg,
+            signature_algorithm,
+            signature_algorithm_parameters,
         )
 
     @functools.cached_property
