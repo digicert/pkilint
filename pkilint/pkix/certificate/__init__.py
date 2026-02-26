@@ -132,7 +132,9 @@ class RFC5280Certificate(Document):
         tbs_octets = self.cryptography_object.tbs_certificate_bytes
         signature_hash_alg = self.cryptography_object.signature_hash_algorithm
         signature_octets = self.cryptography_object.signature
-        signature_algorithm = self.cryptography_object.signature_algorithm_oid
+        signature_algorithm = self.root.navigate(
+            "tbsCertificate.signature.algorithm"
+        ).pdu
 
         try:
             signature_algorithm_parameters = self.root.navigate(
