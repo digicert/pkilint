@@ -99,13 +99,12 @@ def verify_signature(
 ):
     try:
         if isinstance(public_key, rsa.RSAPublicKey):
-            if signature_algorithm and signature_algorithm.dotted_string == str(
-                rfc4055.id_RSASSA_PSS
-            ):
-                salt_length = getattr(
-                    signature_algorithm_parameters, "_salt_length", 20
+            if signature_algorithm == rfc4055.id_RSASSA_PSS:
+                salt_length = int(
+                    signature_algorithm_parameters.navigate(
+                        "rSASSA_PSS_params.saltLength"
+                    ).pdu
                 )
-
                 pss_padding = padding.PSS(
                     mgf=padding.MGF1(signature_hash_algorithm),
                     salt_length=salt_length,
