@@ -2,7 +2,9 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
-## 0.13.2 - 2026-03-YY
+## 0.13.2 - 2026-03-03
+
+## New features/enhancements
 
 - Add support for RSASSA-PSS signature validation (#183 - implemented by @Pearmint)
 
