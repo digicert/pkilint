@@ -101,25 +101,61 @@ class QcType(univ.SequenceOf):
 
 
 QcType.componentType = univ.ObjectIdentifier()
+QcType.subtypeSpec = constraint.ValueSizeConstraint(1, 1)
+
+
+class QcIdentMethod(univ.SequenceOf):
+    pass
+
+
+QcIdentMethod.componentType = univ.ObjectIdentifier()
+QcIdentMethod.subtypeSpec = constraint.ValueSizeConstraint(1, 1)
+
+
+class QcQSCDlegislation(univ.SequenceOf):
+    pass
+
+
+QcQSCDlegislation.componentType = CountryName()
+QcQSCDlegislation.subtypeSpec = constraint.ValueSizeConstraint(1, MAX)
+
 
 id_etsi_qcs = _OID(0, 4, 0, 1862, 1)
 
-id_etsi_qcs_QcCClegislation = _OID(id_etsi_qcs, 7)
+# statement OIDs
 
 id_etsi_qcs_QcCompliance = _OID(id_etsi_qcs, 1)
 
 id_etsi_qcs_QcLimitValue = _OID(id_etsi_qcs, 2)
 
-id_etsi_qcs_QcPDS = _OID(id_etsi_qcs, 5)
-
 id_etsi_qcs_QcRetentionPeriod = _OID(id_etsi_qcs, 3)
 
 id_etsi_qcs_QcSSCD = _OID(id_etsi_qcs, 4)
 
+id_etsi_qcs_QcPDS = _OID(id_etsi_qcs, 5)
+
 id_etsi_qcs_QcType = _OID(id_etsi_qcs, 6)
 
-id_etsi_qct_eseal = _OID(id_etsi_qcs_QcType, 2)
+id_etsi_qcs_QcCClegislation = _OID(id_etsi_qcs, 7)
+
+id_etsi_qcs_QcIdentMethod = _OID(id_etsi_qcs, 8)
+
+id_etsi_qcs_QcQSCDlegislation = _OID(id_etsi_qcs, 9)
+
+# QcType OIDs
 
 id_etsi_qct_esign = _OID(id_etsi_qcs_QcType, 1)
 
+id_etsi_qct_eseal = _OID(id_etsi_qcs_QcType, 2)
+
 id_etsi_qct_web = _OID(id_etsi_qcs_QcType, 3)
+
+# Identification method OIDs
+
+id_etsi_qct_eIDAS1_ab = _OID(id_etsi_qcs_QcIdentMethod, 1)
+
+id_etsi_qct_eIDAS1_cd = _OID(id_etsi_qcs_QcIdentMethod, 2)
+
+id_etsi_qct_eIDAS2_acd = _OID(id_etsi_qcs_QcIdentMethod, 3)
+
+id_etsi_qct_eIDAS2_b = _OID(id_etsi_qcs_QcIdentMethod, 4)

@@ -11,6 +11,8 @@ ETSI_QC_STATEMENTS_MAPPINGS = {
     en_319_412_5.id_etsi_qcs_QcPDS: en_319_412_5.QcEuPDS(),
     en_319_412_5.id_etsi_qcs_QcType: en_319_412_5.QcType(),
     en_319_412_5.id_etsi_qcs_QcCClegislation: en_319_412_5.QcCClegislation(),
+    en_319_412_5.id_etsi_qcs_QcIdentMethod: en_319_412_5.QcIdentMethod(),
+    en_319_412_5.id_etsi_qcs_QcQSCDlegislation: en_319_412_5.QcQSCDlegislation(),
     ts_119_495.id_etsi_psd2_qcStatement: ts_119_495.PSD2QcType(),
     rfc3739.id_qcs_pkixQCSyntax_v1: document.OptionalAsn1TypeWrapper(
         rfc3739.SemanticsInformation()
