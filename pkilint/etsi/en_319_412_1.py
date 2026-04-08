@@ -239,17 +239,17 @@ class NaturalPersonIdentifierValidator(validation.Validator):
 
     VALIDATION_INVALID_NATURAL_PERSON_ID_SCHEME = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        "etsi.en_319_412_2.nat-5.1.3.invalid_identifier_scheme",
+        "etsi.en_319_412_1.nat-5.1.3.invalid_identifier_scheme",
     )
 
     VALIDATION_DEPRECATED_NATURAL_PERSON_ID_SCHEME = validation.ValidationFinding(
         validation.ValidationFindingSeverity.WARNING,
-        "etsi.en_319_412_3.nat-5.1.3.deprecated_identifier_scheme",
+        "etsi.en_319_412_1.nat-5.1.3.deprecated_identifier_scheme",
     )
 
     VALIDATION_INVALID_NATURAL_PERSON_ID_COUNTRY = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        "etsi.en_419_412_4.nat-5.1.3.invalid_identifier_country",
+        "etsi.en_319_412_1.nat-5.1.3.invalid_identifier_country",
     )
 
     _KNOWN_SCHEMES = {
@@ -470,7 +470,7 @@ class NaturalPersonIdentifierNameRegistrationAuthoritiesValidator(
     """
     VALIDATION_NAME_REGISTRATION_AUTHORITIES_URI_MISSING = validation.ValidationFinding(
         validation.ValidationFindingSeverity.ERROR,
-        "etsi.en_319_412_1.nat-5.1.3-05.national_id_scheme_name_registration_authorities_uri_missing",
+        "etsi.en_319_412_1.nat-5.1.3-06.national_id_scheme_name_registration_authorities_uri_missing",
     )
 
     def __init__(self):
