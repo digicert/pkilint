@@ -138,22 +138,10 @@ class QcTypeValidator(validation.Validator):
         "etsi.en_319_412_5.gen-4.2.3.qc_type_mismatch",
     )
 
-    VALIDATION_MULTIPLE_QC_TYPE_VALUES_PRESENT = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        "etsi.en_319_412_5.gen-4.2.3.multiple_qc_type_values_present",
-    )
-
-    VALIDATION_QC_TYPE_LIST_EMPTY = validation.ValidationFinding(
-        validation.ValidationFindingSeverity.ERROR,
-        "etsi.en_319_412_5.gen-4.2.3.qc_type_list_empty",
-    )
-
     def __init__(self, certificate_type):
         super().__init__(
             validations=[
                 self.VALIDATION_QC_TYPE_MISMATCH,
-                self.VALIDATION_QC_TYPE_LIST_EMPTY,
-                self.VALIDATION_MULTIPLE_QC_TYPE_VALUES_PRESENT,
             ],
             pdu_class=en_319_412_5.QcType,
         )
@@ -168,16 +156,6 @@ class QcTypeValidator(validation.Validator):
             self._expected_qc_type = None
 
     def validate(self, node):
-        if not node.children.values():
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_QC_TYPE_LIST_EMPTY
-            )
-
-        if len(node.children.values()) != 1:
-            raise validation.ValidationFindingEncountered(
-                self.VALIDATION_MULTIPLE_QC_TYPE_VALUES_PRESENT
-            )
-
         if self._expected_qc_type:
             _, qctype_value = node.child
 
