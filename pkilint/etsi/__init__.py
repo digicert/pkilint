@@ -215,9 +215,9 @@ def create_decoding_validators(
         )
 
         if certificate_type not in etsi_constants.WEB_AUTHENTICATION_CERTIFICATE_TYPES:
-            name_attribute_mappings[
-                rfc5280.id_at_commonName
-            ]: x520_name_unbounded.X520CommonNameUnbounded()
+            name_attribute_mappings[rfc5280.id_at_commonName] = (
+                x520_name_unbounded.X520CommonNameUnbounded()
+            )
 
         additional_validators = [
             certificate.create_qc_statements_decoder(asn1.ETSI_QC_STATEMENTS_MAPPINGS)
