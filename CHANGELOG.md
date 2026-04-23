@@ -4,7 +4,7 @@ All notable changes to this project from version 0.9.3 onwards are documented in
 
 ## 0.13.3 - 2026-04-23
 
-## New features/enhancements
+### New features/enhancements
 
 - Align ASN.1 module for EN 319 412-5 with 2025-06 version (#194)
 
@@ -15,7 +15,7 @@ All notable changes to this project from version 0.9.3 onwards are documented in
 
 ## 0.13.2 - 2026-03-03
 
-## New features/enhancements
+### New features/enhancements
 
 - Add support for RSASSA-PSS signature validation (#183 - implemented by @Pearmint)
 
@@ -27,7 +27,7 @@ All notable changes to this project from version 0.9.3 onwards are documented in
 
 ## 0.13.0 - 2025-12-05
 
-## New features/enhancements
+### New features/enhancements
 
 - Add support for linting Qualified natural person electronic signature certificates (#129 - implemented by
   @breynders-cb)
@@ -41,7 +41,7 @@ All notable changes to this project from version 0.9.3 onwards are documented in
 
 ## 0.12.13 - 2025-09-05
 
-## New features/enhancements
+### New features/enhancements
 
 - Add support for S/MIME BR ballot SMC-13 (#165)
 - Flag non-critical EKU with timestamping KP per RFC 3161 (#167)
