@@ -2,6 +2,17 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
+## 0.13.3 - 2026-04-23
+
+## New features/enhancements
+
+- Align ASN.1 module for EN 319 412-5 with 2025-06 version (#194)
+
+### Fixes
+
+- Fix ETSI citations for several validation finding codes (#192)
+- X520CommonNameUnbounded not being applied to non-WebAuth certificate types (#196)
+
 ## 0.13.2 - 2026-03-03
 
 ## New features/enhancements
