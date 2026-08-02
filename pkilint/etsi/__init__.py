@@ -289,6 +289,7 @@ def create_validators(
 
     spki_validators = [
         ts_119_312.RsaKeyValidator(),
+        ts_119_312.RsaKeySunsetValidator(),
         ts_119_312.AllowedPublicKeyTypeValidator(),
     ]
 
