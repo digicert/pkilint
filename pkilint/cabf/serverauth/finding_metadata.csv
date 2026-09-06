@@ -14,6 +14,10 @@ ERROR,cabf.ev_guidelines.ev_wildcard_san_present,Validates that wildcard dNSName
 ERROR,cabf.ev_guidelines.invalid_business_category,Validates that the businessCategory value conforms to EVG 9.2.3.
 ERROR,cabf.ev_guidelines.jurisdiction_country_attribute_absent,Validates that the content of the subject conforms to EVG 9.2.: A required element is absent
 ERROR,cabf.ev_guidelines.jurisdiction_locality_present_stateprovince_missing,"Validates that jurisdictionStateOrProvinceName is present when jurisdictionLocalityName is present, as per EVG 9.2.4."
+ERROR,cabf.ev_guidelines.organization_identifier_and_jurisdiction_country_inconsistent,"The ISO 3166 country code in the organizationIdentifier attribute Registration Scheme does not match the jurisdictionCountryName attribute value, as required by EVG 7.1.4.2.4 and 7.1.4.2.8."
+ERROR,cabf.ev_guidelines.organization_identifier_subdivision_absent_jurisdiction_locality_present,"The organizationIdentifier attribute conveys an NTR registration administered at the country level, but jurisdictionLocalityName is present, contrary to EVG 7.1.4.2.4 and 7.1.4.2.8."
+ERROR,cabf.ev_guidelines.organization_identifier_subdivision_absent_jurisdiction_stateprovince_present,"The organizationIdentifier attribute conveys an NTR registration administered at the country level, but jurisdictionStateOrProvinceName is present, contrary to EVG 7.1.4.2.4 and 7.1.4.2.8."
+ERROR,cabf.ev_guidelines.organization_identifier_subdivision_present_jurisdiction_stateprovince_absent,"The organizationIdentifier attribute conveys an NTR registration administered at the subdivision level, but jurisdictionStateOrProvinceName is absent, contrary to EVG 7.1.4.2.4 and 7.1.4.2.8."
 ERROR,cabf.ev_guidelines.organization_name_attribute_absent,Validates that the content of the subject conforms to EVG 9.2.: A required element is absent
 ERROR,cabf.ev_guidelines.prohibited_san_type,Validates that the types of GeneralNames included in the SAN extension conform to EVG 9.8.1.
 ERROR,cabf.ev_guidelines.serial_number_attribute_absent,Validates that the content of the subject conforms to EVG 9.2.: A required element is absent
