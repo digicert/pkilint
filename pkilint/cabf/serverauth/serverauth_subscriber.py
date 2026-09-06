@@ -6,6 +6,7 @@ from pyasn1_alt_modules import rfc5280, rfc6962, rfc5480
 
 import pkilint.common
 from pkilint import validation, document, oid, common
+from pkilint.itu import asn1_util
 from pkilint.cabf import cabf_name
 from pkilint.cabf.asn1 import ev_guidelines
 from pkilint.cabf.serverauth import serverauth_constants
