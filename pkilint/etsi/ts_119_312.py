@@ -1,3 +1,4 @@
+import datetime
 from typing import Optional
 
 from pyasn1.codec.der.encoder import encode
@@ -65,6 +66,80 @@ class RsaKeyValidator(validation.Validator):
             )
 
         return validation.ValidationResult(self, node, findings)
+
+
+class RsaKeySunsetValidator(validation.Validator):
+    """
+    TS 119 312, clause 8.4:
+
+    RSA keys with a length of at least 1 900 bits and less than 3 000 bits shall not be used to issue new
+    certificates after 2026-12-31. Certificates based on such keys that were issued on or before 2026-12-31 shall
+    have a validity period ending no later than 2028-12-31. ... After 2026-12-31, only RSA keys with a length of at
+    least 3 000 bits or signature schemes marked as Recommended (R) in the present document shall be used for newly
+    issued certificates.
+
+    Note: the requirement that the same key pair shall not be used to obtain a new certificate after expiry is not
+    checked by this validator, as doing so requires knowledge of other certificates that is not available when
+    linting a single certificate in isolation.
+    """
+
+    VALIDATION_RSA_KEY_SIZE_PROHIBITED_AFTER_SUNSET_DATE = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "ts_119_312.8.4.rsa_key_size_prohibited_after_sunset_date",
+    )
+
+    # Certificates based on such keys that were issued on or before 2026-12-31 shall have a validity period ending no
+    # later than 2028-12-31.
+    VALIDATION_RSA_LEGACY_KEY_VALIDITY_PERIOD_EXCEEDS_END_DATE = (
+        validation.ValidationFinding(
+            validation.ValidationFindingSeverity.ERROR,
+            "ts_119_312.8.4.rsa_legacy_key_validity_period_exceeds_end_date",
+        )
+    )
+
+    _MIN_RECOMMENDED_MODULUS_LENGTH = 3000
+    _LEGACY_MODULUS_LENGTH_LOWER_BOUND = 1900
+    _SUNSET_DATETIME = datetime.datetime(2027, 1, 1, tzinfo=datetime.timezone.utc)
+    _MAXIMUM_VALIDITY_END_DATETIME = datetime.datetime(
+        2029, 1, 1, tzinfo=datetime.timezone.utc
+    )
+
+    def __init__(self):
+        super().__init__(
+            validations=[
+                self.VALIDATION_RSA_KEY_SIZE_PROHIBITED_AFTER_SUNSET_DATE,
+                self.VALIDATION_RSA_LEGACY_KEY_VALIDITY_PERIOD_EXCEEDS_END_DATE,
+            ],
+            pdu_class=rfc3279.RSAPublicKey,
+        )
+
+    def validate(self, node):
+        modulus_len = int(node.children["modulus"].pdu).bit_length()
+
+        if modulus_len >= self._MIN_RECOMMENDED_MODULUS_LENGTH:
+            return
+
+        cert = node.document
+
+        if cert.not_before >= self._SUNSET_DATETIME:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_RSA_KEY_SIZE_PROHIBITED_AFTER_SUNSET_DATE,
+                f"Certificate was issued with a {modulus_len}-bit RSA public key, which is less than the "
+                f"{self._MIN_RECOMMENDED_MODULUS_LENGTH}-bit minimum required for certificates issued "
+                "after 2026-12-31",
+            )
+
+        # certificate was issued on or before the sunset date; if it uses a "legacy" band key (>= 1900 bits),
+        # then its validity period may not extend beyond the 2028-12-31 cap
+        if (
+            modulus_len >= self._LEGACY_MODULUS_LENGTH_LOWER_BOUND
+            and cert.not_after >= self._MAXIMUM_VALIDITY_END_DATETIME
+        ):
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_RSA_LEGACY_KEY_VALIDITY_PERIOD_EXCEEDS_END_DATE,
+                f"Certificate uses a {modulus_len}-bit RSA public key and was issued on or before 2026-12-31, "
+                "so its validity period is required to end no later than 2028-12-31",
+            )
 
 
 def _create_alg_id_der(
