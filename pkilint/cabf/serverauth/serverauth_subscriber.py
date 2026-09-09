@@ -6,6 +6,7 @@ from pyasn1_alt_modules import rfc5280, rfc6962, rfc5480
 
 import pkilint.common
 from pkilint import validation, document, oid, common
+from pkilint.itu import asn1_util
 from pkilint.cabf import cabf_name
 from pkilint.cabf.asn1 import ev_guidelines
 from pkilint.cabf.serverauth import serverauth_constants
@@ -216,6 +217,173 @@ class EvSubscriberJurisdictionPresenceValidator(validation.Validator):
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_JURIS_STP_ABSENT_LOCALITY_PRESENT
             )
+
+
+class EvSubscriberOrganizationIdentifierJurisdictionConsistencyValidator(
+    validation.Validator
+):
+    """Validates that the Registration Scheme location information conveyed in the organizationIdentifier subject
+    attribute is consistent with the jurisdiction of registration conveyed in the jurisdiction subject attributes,
+    as per EVG 7.1.4.2.4 and 7.1.4.2.8.
+
+    For ETSI QWACs, EN 319 411-2 OVR-5.1-03 [QEVCP-w] makes the EV Guidelines requirements applicable, and
+    EN 319 412-1 LEG-5.1.4-02, LEG-5.1.4-07, and LEG-5.1.4-08 specify the same country and subdivision semantics.
+    """
+
+    VALIDATION_ORG_ID_JURISDICTION_COUNTRY_MISMATCH = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "cabf.ev_guidelines.organization_identifier_and_jurisdiction_country_inconsistent",
+    )
+
+    VALIDATION_ORG_ID_SUBDIVISION_ABSENT_JURISDICTION_STP_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "cabf.ev_guidelines.organization_identifier_subdivision_absent_jurisdiction_stateprovince_present",
+    )
+
+    VALIDATION_ORG_ID_SUBDIVISION_ABSENT_JURISDICTION_LOCALITY_PRESENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "cabf.ev_guidelines.organization_identifier_subdivision_absent_jurisdiction_locality_present",
+    )
+
+    VALIDATION_ORG_ID_SUBDIVISION_PRESENT_JURISDICTION_STP_ABSENT = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.ERROR,
+        "cabf.ev_guidelines.organization_identifier_subdivision_present_jurisdiction_stateprovince_absent",
+    )
+
+    _NTR_SCHEME = "NTR"
+    _VAT_SCHEME = "VAT"
+
+    # country codes that convey no single ISO 3166-1 jurisdiction of registration
+    _JURISDICTION_AGNOSTIC_COUNTRY_CODES = {
+        organization_id.COUNTRY_CODE_GLOBAL_SCHEME
+    } | organization_id.TRANSNATIONAL_COUNTRY_CODES
+
+    # alternative country codes permitted for the VAT scheme by ETSI EN 319 412-1 LEG-5.1.4-04
+    _VAT_ALTERNATIVE_COUNTRY_CODE_MAPPINGS = {
+        organization_id.COUNTRY_CODE_GREECE_TRADITIONAL: "GR",
+        organization_id.COUNTRY_CODE_NORTHERN_IRELAND: "GB",
+    }
+
+    def __init__(self):
+        super().__init__(
+            validations=[
+                self.VALIDATION_ORG_ID_JURISDICTION_COUNTRY_MISMATCH,
+                self.VALIDATION_ORG_ID_SUBDIVISION_ABSENT_JURISDICTION_STP_PRESENT,
+                self.VALIDATION_ORG_ID_SUBDIVISION_ABSENT_JURISDICTION_LOCALITY_PRESENT,
+                self.VALIDATION_ORG_ID_SUBDIVISION_PRESENT_JURISDICTION_STP_ABSENT,
+            ],
+            path="certificate.tbsCertificate.subject",
+        )
+
+    @classmethod
+    def _normalize_country_code(
+        cls, parsed: organization_id.ParsedOrganizationIdentifier
+    ) -> str:
+        country_code = parsed.country.upper()
+
+        if parsed.scheme == cls._VAT_SCHEME:
+            country_code = cls._VAT_ALTERNATIVE_COUNTRY_CODE_MAPPINGS.get(
+                country_code, country_code
+            )
+
+        return country_code
+
+    def validate(self, node):
+        findings = []
+
+        juris_country_attr = next(
+            iter(
+                node.document.get_subject_attributes_by_type(
+                    ev_guidelines.id_evat_jurisdiction_countryName
+                )
+            ),
+            None,
+        )
+
+        # the attribute allowance validator reports the absence of jurisdictionCountryName
+        if juris_country_attr is None:
+            return
+
+        juris_country_value = asn1_util.get_string_value_from_attribute_node(
+            juris_country_attr[0]
+        )
+
+        has_juris_stp = any(
+            node.document.get_subject_attributes_by_type(
+                ev_guidelines.id_evat_jurisdiction_stateOrProvinceName
+            )
+        )
+        has_juris_locality = any(
+            node.document.get_subject_attributes_by_type(
+                ev_guidelines.id_evat_jurisdiction_localityName
+            )
+        )
+
+        for org_id_attr, _ in node.document.get_subject_attributes_by_type(
+            x520_name.id_at_organizationIdentifier
+        ):
+            org_id_value = asn1_util.get_string_value_from_attribute_node(org_id_attr)
+
+            if org_id_value is None:
+                continue
+
+            try:
+                parsed = organization_id.parse_organization_identifier(org_id_value)
+            except ValueError:
+                # let the format validator report this error
+                continue
+
+            org_id_country = self._normalize_country_code(parsed)
+
+            # skip the country comparison for multi-national schemes and for country codes that are not valid
+            # ISO 3166-1 codes, as the latter are reported by the organizationIdentifier syntax validator
+            if (
+                juris_country_value is not None
+                and org_id_country not in self._JURISDICTION_AGNOSTIC_COUNTRY_CODES
+                and org_id_country in organization_id.ISO3166_1_COUNTRY_CODES
+                and org_id_country != juris_country_value.upper()
+            ):
+                findings.append(
+                    validation.ValidationFindingDescription(
+                        self.VALIDATION_ORG_ID_JURISDICTION_COUNTRY_MISMATCH,
+                        f'jurisdictionCountryName attribute value: "{juris_country_value}", '
+                        f'organizationIdentifier attribute country value: "{parsed.country}"',
+                    )
+                )
+
+            # only the NTR Registration Scheme identifier conveys a subdivision component, so the scope of the
+            # jurisdiction of registration can only be determined for that scheme
+            if parsed.scheme != self._NTR_SCHEME or parsed.is_national_scheme:
+                continue
+
+            if parsed.state_province is None:
+                if has_juris_stp:
+                    findings.append(
+                        validation.ValidationFindingDescription(
+                            self.VALIDATION_ORG_ID_SUBDIVISION_ABSENT_JURISDICTION_STP_PRESENT,
+                            f'organizationIdentifier attribute value "{org_id_value}" conveys a country-level '
+                            "jurisdiction of registration, but jurisdictionStateOrProvinceName is present",
+                        )
+                    )
+
+                if has_juris_locality:
+                    findings.append(
+                        validation.ValidationFindingDescription(
+                            self.VALIDATION_ORG_ID_SUBDIVISION_ABSENT_JURISDICTION_LOCALITY_PRESENT,
+                            f'organizationIdentifier attribute value "{org_id_value}" conveys a country-level '
+                            "jurisdiction of registration, but jurisdictionLocalityName is present",
+                        )
+                    )
+            elif not has_juris_stp:
+                findings.append(
+                    validation.ValidationFindingDescription(
+                        self.VALIDATION_ORG_ID_SUBDIVISION_PRESENT_JURISDICTION_STP_ABSENT,
+                        f'organizationIdentifier attribute value "{org_id_value}" conveys a subdivision-level '
+                        "jurisdiction of registration, but jurisdictionStateOrProvinceName is absent",
+                    )
+                )
+
+        return validation.ValidationResult(self, node, findings)
 
 
 class SubscriberExtensionAllowanceValidator(

@@ -101,6 +101,10 @@ ERROR,cabf.serverauth.domain_component_attribute_value_length_too_long,Validates
 ERROR,cabf.serverauth.dv.unknown_attribute_present,Validates that the content of the subject field conforms with BR 7.1.7.2.: A prohibited element is present
 ERROR,cabf.serverauth.invalid_dnsname_syntax,Validates that each dNSName conforms to the syntax in BR 7.1.2.7.12.
 ERROR,cabf.serverauth.invalid_jurisdiction_country_code,Validates that the jurisdictionCountryName value conforms to EVG 9.2.4.
+ERROR,cabf.ev_guidelines.organization_identifier_and_jurisdiction_country_inconsistent,"The ISO 3166 country code in the organizationIdentifier attribute Registration Scheme does not match the jurisdictionCountryName attribute value, as required by EVG 7.1.4.2.4 and 7.1.4.2.8."
+ERROR,cabf.ev_guidelines.organization_identifier_subdivision_absent_jurisdiction_locality_present,"The organizationIdentifier attribute conveys an NTR registration administered at the country level, but jurisdictionLocalityName is present, contrary to EVG 7.1.4.2.4 and 7.1.4.2.8."
+ERROR,cabf.ev_guidelines.organization_identifier_subdivision_absent_jurisdiction_stateprovince_present,"The organizationIdentifier attribute conveys an NTR registration administered at the country level, but jurisdictionStateOrProvinceName is present, contrary to EVG 7.1.4.2.4 and 7.1.4.2.8."
+ERROR,cabf.ev_guidelines.organization_identifier_subdivision_present_jurisdiction_stateprovince_absent,"The organizationIdentifier attribute conveys an NTR registration administered at the subdivision level, but jurisdictionStateOrProvinceName is absent, contrary to EVG 7.1.4.2.4 and 7.1.4.2.8."
 ERROR,cabf.serverauth.invalid_plabel_encoding,Validates that each dNSName conforms to the syntax in BR 7.1.2.7.12.
 ERROR,cabf.serverauth.invalid_rdn_order,Validates that the encoded order of subject attributes conforms to the list in BR 7.1.4.2.
 ERROR,cabf.serverauth.invalid_tor_checksum,Validates that each Onion Domain Name conforms to the Tor v3 specification.
