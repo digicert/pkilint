@@ -229,6 +229,7 @@ def create_subscriber_name_validator_container(
             [
                 serverauth_subscriber.EvSubscriberAttributeAllowanceValidator(),
                 serverauth_subscriber.EvSubscriberJurisdictionPresenceValidator(),
+                serverauth_subscriber.EvSubscriberOrganizationIdentifierJurisdictionConsistencyValidator(),
                 pkilint.cabf.serverauth.serverauth_subscriber.OrganizationIdentifierConsistentSubjectAndExtensionValidator(),
             ]
         )
