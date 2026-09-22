@@ -83,13 +83,25 @@ id_psd2_role_psp_ai = _OID(0, 4, 0, 19495, 1, 3)
 id_psd2_role_psp_as = _OID(0, 4, 0, 19495, 1, 1)
 
 
+id_psd2_role_psp_cb = _OID(0, 4, 0, 19495, 1, 5)
+
+
 id_psd2_role_psp_ic = _OID(0, 4, 0, 19495, 1, 4)
+
+
+id_psd2_role_psp_pa = _OID(0, 4, 0, 19495, 1, 6)
 
 
 id_psd2_role_psp_pi = _OID(0, 4, 0, 19495, 1, 2)
 
 
 id_psd2_role_psp_unspecified = _OID(0, 4, 0, 19495, 1, 0)
+
+
+id_psd2_role_vop_rs = _OID(0, 4, 0, 19495, 1, 51)
+
+
+id_psd2_role_vop_vs = _OID(0, 4, 0, 19495, 1, 52)
 
 
 qcp_web_psd2 = _OID(0, 4, 0, 19495, 3, 1)
