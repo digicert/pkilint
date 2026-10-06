@@ -29,6 +29,8 @@ ALLOWED_SIGNATURE_ALGORITHM_ENCODINGS = set(
             "300a06082a8648ce3d040302",
             # ECDSA with SHA‐384
             "300a06082a8648ce3d040303",
+            # ECDSA with SHA‐512
+            "300a06082a8648ce3d040304",
             # Ed25519
             "300506032b6570",
             # Ed448
@@ -53,6 +55,8 @@ ALLOWED_SPKI_ENCODINGS = set(
             "301306072a8648ce3d020106082a8648ce3d030107",
             # ECDSA P-384
             "301006072a8648ce3d020106052b81040022",
+            # ECDSA P-521
+            "301006072a8648ce3d020106052b81040023",
             # Ed25519
             "300506032b6570",
             # Ed448
