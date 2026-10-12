@@ -55,3 +55,4 @@ certificate.tbsCertificate.extensions.5.extnValue.authorityInfoAccessSyntax,Ocsp
 certificate.tbsCertificate.subject.rdnSequence,CaRequiredSubjectAttributesValidator,WARNING,cabf.serverauth.ca.unknown_attribute_present,Unknown attribute present: 2.5.4.97
 certificate.tbsCertificate.subject.rdnSequence,CaRequiredSubjectAttributesValidator,WARNING,cabf.serverauth.ca.unknown_attribute_present,Unknown attribute present: 2.5.4.5
 certificate.tbsCertificate.extensions.1.extnValue.keyUsage,OcspResponderKeyUsageValidator,ERROR,cabf.serverauth.ocsp_responder.prohibited_ku_present,Prohibited KUs present: nonRepudiation
+certificate.tbsCertificate.extensions.0,OcspExtensionCriticalityValidator,ERROR,cabf.serverauth.ocsp_responder.non_critical_basic_constraints_extension,

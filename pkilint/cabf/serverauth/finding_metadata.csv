@@ -123,11 +123,20 @@ ERROR,cabf.serverauth.non_tls_ca.serverauth_eku_present,: A prohibited element i
 ERROR,cabf.serverauth.ocsp_responder.authority_key_identifier_extension_absent,Validates that the included extensions conform with BR 7.1.2.8.2.: A required element is absent
 ERROR,cabf.serverauth.ocsp_responder.basic_constraints_ca_bit_set,Validates that the basic constraints extension value conforms to BR 7.1.2.8.4.
 ERROR,cabf.serverauth.ocsp_responder.certificate_policies_extension_present,Validates that the included extensions conform with BR 7.1.2.8.2.: A prohibited element is present
+ERROR,cabf.serverauth.ocsp_responder.critical_authority_info_access_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.8.2.
+ERROR,cabf.serverauth.ocsp_responder.critical_authority_key_identifier_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.8.2.
+ERROR,cabf.serverauth.ocsp_responder.critical_certificate_policies_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.8.2.
+ERROR,cabf.serverauth.ocsp_responder.critical_crl_distribution_points_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.8.2.
+ERROR,cabf.serverauth.ocsp_responder.critical_ocsp_nocheck_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.8.2.
+ERROR,cabf.serverauth.ocsp_responder.critical_sct_list_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.8.2.
+ERROR,cabf.serverauth.ocsp_responder.critical_subject_key_identifier_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.8.2.
 ERROR,cabf.serverauth.ocsp_responder.crl_distribution_points_extension_present,Validates that the included extensions conform with BR 7.1.2.8.2.: A prohibited element is present
 ERROR,cabf.serverauth.ocsp_responder.digitalsignature_bit_missing,Validates that the content of the key usage extension conforms with BR 7.1.2.8.7.
 ERROR,cabf.serverauth.ocsp_responder.extended_key_usage_extension_absent,Validates that the included extensions conform with BR 7.1.2.8.2.: A required element is absent
 ERROR,cabf.serverauth.ocsp_responder.key_usage_extension_absent,Validates that the included extensions conform with BR 7.1.2.8.2.: A required element is absent
 ERROR,cabf.serverauth.ocsp_responder.name_constraints_extension_present,Validates that the included extensions conform with BR 7.1.2.8.2.: A prohibited element is present
+ERROR,cabf.serverauth.ocsp_responder.non_critical_basic_constraints_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.8.2.
+ERROR,cabf.serverauth.ocsp_responder.non_critical_key_usage_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.8.2.
 ERROR,cabf.serverauth.ocsp_responder.ocsp_nocheck_extension_absent,Validates that the included extensions conform with BR 7.1.2.8.2.: A required element is absent
 ERROR,cabf.serverauth.ocsp_responder.ocspsigning_eku_absent,Validates that the extended key usage value conforms to BR 7.1.2.8.5.: A required element is absent
 ERROR,cabf.serverauth.ocsp_responder.prohibited_ku_present,Validates that the content of the key usage extension conforms with BR 7.1.2.8.7.
