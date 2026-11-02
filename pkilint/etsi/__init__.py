@@ -46,10 +46,9 @@ def determine_certificate_type(cert: certificate.RFC5280Certificate) -> Certific
     is_precert = cert.get_extension_by_oid(rfc6962.id_ce_criticalPoison) is not None
     is_webauth = rfc5280.id_kp_serverAuth in cert.extended_key_usages
     is_qscd = en_319_412_5_asn1.id_etsi_qcs_QcSSCD in qualified_statement_ids
+    is_psd2 = ts_119_495_asn1.id_etsi_psd2_qcStatement in qualified_statement_ids
 
     if serverauth_constants.ID_POLICY_EV in policy_oids:
-        is_psd2 = ts_119_495_asn1.id_etsi_psd2_qcStatement in qualified_statement_ids
-
         if is_psd2:
             return (
                 CertificateType.QEVCP_W_PSD2_EIDAS_PRE_CERTIFICATE
@@ -156,7 +155,13 @@ def determine_certificate_type(cert: certificate.RFC5280Certificate) -> Certific
             return CertificateType.NCP_NATURAL_PERSON_CERTIFICATE
         else:
             if is_webauth:
-                if is_eidas_qualified:
+                if is_psd2 and is_eidas_qualified:
+                    return (
+                        CertificateType.QNCP_W_GEN_LEGAL_PERSON_PSD2_EIDAS_PRE_CERTIFICATE
+                        if is_precert
+                        else CertificateType.QNCP_W_GEN_LEGAL_PERSON_PSD2_EIDAS_FINAL_CERTIFICATE
+                    )
+                elif is_eidas_qualified:
                     return (
                         CertificateType.QNCP_W_GEN_LEGAL_PERSON_EIDAS_PRE_CERTIFICATE
                         if is_precert
@@ -262,6 +267,7 @@ def create_validators(
         ts_119_495.RolesOfPspValidator(),
         ts_119_495.NCANameLatinCharactersValidator(),
         ts_119_495.NCAIdValidator(),
+        ts_119_495.NcaNaValueValidator(),
         en_319_412_5.QcCCLegislationCountryCodeValidator(),
         en_319_412_5.QcEuRetentionPeriodValidator(),
         en_319_412_5.QcTypeValidator(certificate_type),
@@ -375,7 +381,7 @@ def create_validators(
                     )
                 )
 
-    if certificate_type in etsi_constants.QEVCP_W_PSD2_EIDAS_CERTIFICATE_TYPES:
+    if certificate_type in etsi_constants.PSD2_EIDAS_CERTIFICATE_TYPES:
         qc_statement_validators.append(ts_119_495.PresenceofQCEUPDSStatementValidator())
 
         subject_validators.append(ts_119_495.PsdOrganizationIdentifierFormatValidator())
