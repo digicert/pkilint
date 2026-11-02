@@ -399,6 +399,7 @@ def create_ocsp_extension_validator_container(additional_validators=None):
             serverauth_ocsp.OcspAuthorityInformationAccessAccessMethodPresenceValidator(),
             serverauth_ocsp.OcspResponderKeyUsageValidator(),
             serverauth_ocsp.OcspBasicConstraintsValidator(),
+            serverauth_ocsp.OcspExtensionCriticalityValidator(),
         ]
     )
 

@@ -95,6 +95,30 @@ class OcspExtensionAllowanceValidator(
         )
 
 
+class OcspExtensionCriticalityValidator(common.ExtensionCriticalityValidator):
+    """Validates that the criticality of all extensions conforms with BR 7.1.2.8.2."""
+
+    _CRITICALITY_MAPPING = {
+        rfc5280.id_ce_authorityKeyIdentifier: False,
+        rfc6960.id_pkix_ocsp_nocheck: False,
+        rfc5280.id_ce_keyUsage: True,
+        rfc5280.id_ce_basicConstraints: True,
+        rfc5280.id_ce_subjectKeyIdentifier: False,
+        rfc5280.id_pe_authorityInfoAccess: False,
+        rfc5280.id_ce_certificatePolicies: False,
+        rfc5280.id_ce_cRLDistributionPoints: False,
+        rfc6962.id_ce_embeddedSCT: False,
+    }
+
+    def __init__(self):
+        super().__init__(
+            self._CRITICALITY_MAPPING,
+            _CODE_CLASSIFIER,
+            Rfc2119Word.MUST,
+            Rfc2119Word.MUST,
+        )
+
+
 class OcspEkuAllowanceValidator(pkilint.common.ExtendedKeyUsageAllowanceValidator):
     """Validates that the extended key usage value conforms to BR 7.1.2.8.5."""
 
