@@ -121,6 +121,10 @@ jobs:
           SM_CLIENT_CERT_FILE_B64: ${{ secrets.SM_CLIENT_CERT_FILE_B64 }}
           REGISTRY_USERNAME: ${{ github.actor }}
           REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify Docker image signature
+        if: github.event_name != 'pull_request'
+        run: |
+          cosign verify --key docker/cosign_public_key.pem "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build-and-push.outputs.digest }}"
 
   upload_pypi:
     needs: [ build_wheel, test_wheel ]
