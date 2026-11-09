@@ -121,6 +121,9 @@ jobs:
           SM_CLIENT_CERT_FILE_B64: ${{ secrets.SM_CLIENT_CERT_FILE_B64 }}
           REGISTRY_USERNAME: ${{ github.actor }}
           REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install cosign
+        if: github.event_name != 'pull_request'
+        uses: sigstore/cosign-installer@v4
       - name: Verify Docker image signature
         if: github.event_name != 'pull_request'
         run: |
