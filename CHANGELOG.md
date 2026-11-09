@@ -2,12 +2,18 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
-## 0.13.4 - 2026-09-09
+## 0.13.4 - 2026-11-02
 
 ### New features/enhancements
 
 - Add validation of consistency between the EV organizationIdentifier and jurisdiction attributes (#203)
 - Add support for TS 119 312 small key sunset (#201)
+- Add support for PSD2 augmenting QNCP-w-gen profiles and additional TS 119 495 role and NCA validations (#205)
+- Add OCSP Responder extension criticality validator (#210 - implemented by @ChyaHungTsai)
+
+### Fixes
+
+- Add ECDSA P-521 SPKI and ECDSA with SHA-512 signature algorithm encodings to S/MIME allowed encodings (#208)
 
 ## 0.13.3 - 2026-04-23
 
