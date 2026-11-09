@@ -63,6 +63,9 @@ jobs:
     needs: [ test_wheel ]
     name: Build and push Docker image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v6
         with:
@@ -102,33 +105,29 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-      - name: Download and configure Software Trust Manager
-        if: github.event_name != 'pull_request'
-        run: |
-          sudo curl -H "X-API-Key:${{ secrets.SM_API_KEY }}" "https://${{ secrets.DC1_API_HOST }}/signingmanager/api-ui/v1/releases/smpkcs11-linux-x64/download" -o /usr/local/lib/smpkcs11.so
-          echo "name=signingmanager" | sudo tee -a /usr/local/lib/pkcs11properties.cfg > /dev/null
-          echo "library=/usr/local/lib/smpkcs11.so" | sudo tee -a /usr/local/lib/pkcs11properties.cfg > /dev/null
-          echo "slotListIndex=0" | sudo tee -a /usr/local/lib/pkcs11properties.cfg > /dev/null
-          
-          echo "SM_API_KEY=${{ secrets.SM_API_KEY }}" >> $GITHUB_ENV
-          echo "SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}" >> $GITHUB_ENV
-          echo "SM_HOST=${{ secrets.SM_HOST }}" >> $GITHUB_ENV
-          echo "SM_CLIENT_CERT_FILE=ApiClientP12.p12" >> $GITHUB_ENV
-          
-          echo "${{ secrets.SM_CLIENT_CERT_FILE_B64 }}" | base64 -d > ApiClientP12.p12
-      - name: Install cosign
-        if: github.event_name != 'pull_request'
-        run: |
-          sudo apt update && sudo apt install pcscd
-          curl -L https://github.com/sigstore/cosign/releases/download/v2.2.0/cosign-linux-pivkey-pkcs11key-amd64 -o cosign
-          chmod 755 cosign
       - name: Sign Docker image
         if: github.event_name != 'pull_request'
+        uses: digicert/digicert-container-signing-action@v1.0.2
+        with:
+          input: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build-and-push.outputs.digest }}
+          keypair-alias: ${{ secrets.SM_DOCKER_KEYPAIR_ALIAS }}
+          registry-url: ${{ env.REGISTRY }}
+          recursive: 'true'
+          verify: 'true'
         env:
-          TAGS: ${{ steps.meta.outputs.tags }}
-          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+          SM_API_KEY: ${{ secrets.SM_API_KEY }}
+          SM_HOST: ${{ secrets.SM_HOST }}
+          SM_CLIENT_CERT_PASSWORD: ${{ secrets.SM_CLIENT_CERT_PASSWORD }}
+          SM_CLIENT_CERT_FILE_B64: ${{ secrets.SM_CLIENT_CERT_FILE_B64 }}
+          REGISTRY_USERNAME: ${{ github.actor }}
+          REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install cosign
+        if: github.event_name != 'pull_request'
+        uses: sigstore/cosign-installer@v4.1.3
+      - name: Verify Docker image signature
+        if: github.event_name != 'pull_request'
         run: |
-          echo "${TAGS}" | xargs -I {} ./cosign sign --recursive --key "${{ secrets.SM_KEY_URI }}" --yes {}@${DIGEST}
+          cosign verify --key docker/cosign_public_key.pem "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build-and-push.outputs.digest }}"
 
   upload_pypi:
     needs: [ build_wheel, test_wheel ]
