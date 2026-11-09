@@ -110,13 +110,13 @@ jobs:
         uses: digicert/digicert-container-signing-action@v1.0.2
         with:
           input: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build-and-push.outputs.digest }}
-          keypair-alias: ${{ vars.SM_DOCKER_KEYPAIR_ALIAS }}
+          keypair-alias: ${{ secrets.SM_DOCKER_KEYPAIR_ALIAS }}
           registry-url: ${{ env.REGISTRY }}
           recursive: 'true'
           verify: 'true'
         env:
           SM_API_KEY: ${{ secrets.SM_API_KEY }}
-          SM_HOST: ${{ vars.SM_HOST }}
+          SM_HOST: ${{ secrets.SM_HOST }}
           SM_CLIENT_CERT_PASSWORD: ${{ secrets.SM_CLIENT_CERT_PASSWORD }}
           SM_CLIENT_CERT_FILE_B64: ${{ secrets.SM_CLIENT_CERT_FILE_B64 }}
           REGISTRY_USERNAME: ${{ github.actor }}
