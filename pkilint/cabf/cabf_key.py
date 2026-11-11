@@ -1,3 +1,4 @@
+from cryptography.hazmat.primitives.asymmetric import ec
 from pyasn1_alt_modules import rfc3279, rfc5480, rfc5280
 
 from pkilint import validation
@@ -228,13 +229,41 @@ class EcdsaKeyValidator(validation.Validator):
         validation.ValidationFindingSeverity.WARNING, "cabf.ecdsa_key_validation_failed"
     )
 
+    VALIDATION_PRIVATE_KEY_TOO_SMALL = validation.ValidationFinding(
+        validation.ValidationFindingSeverity.WARNING,
+        "cabf.ecdsa_private_key_too_small",
+    )
+
+    _SMALL_PRIVATE_KEY_MAX = 255
+
+    # maps curve name to {x-coordinate of kG: k} for every k up to _SMALL_PRIVATE_KEY_MAX.
+    # kG and -kG share an x-coordinate, so a match also catches a private key of n - k
+    _small_private_keys_by_curve = {}
+
     def __init__(self):
         super().__init__(
-            validations=[self.VALIDATION_KEY_VALIDATION_FAILED],
+            validations=[
+                self.VALIDATION_KEY_VALIDATION_FAILED,
+                self.VALIDATION_PRIVATE_KEY_TOO_SMALL,
+            ],
             pdu_class=rfc5280.SubjectPublicKeyInfo,
             predicate=lambda n: n.navigate("algorithm.algorithm").pdu
             == rfc5480.id_ecPublicKey,
         )
+
+    @classmethod
+    def _get_small_private_keys(cls, curve):
+        small_private_keys = cls._small_private_keys_by_curve.get(curve.name)
+
+        if small_private_keys is None:
+            small_private_keys = {
+                ec.derive_private_key(k, curve).public_key().public_numbers().x: k
+                for k in range(1, cls._SMALL_PRIVATE_KEY_MAX + 1)
+            }
+
+            cls._small_private_keys_by_curve[curve.name] = small_private_keys
+
+        return small_private_keys
 
     def validate(self, node):
         try:
@@ -247,4 +276,14 @@ class EcdsaKeyValidator(validation.Validator):
         except ValueError as e:
             raise validation.ValidationFindingEncountered(
                 self.VALIDATION_KEY_VALIDATION_FAILED, str(e)
+            )
+
+        small_private_key = self._get_small_private_keys(key_obj.curve).get(
+            key_obj.public_numbers().x
+        )
+
+        if small_private_key is not None:
+            raise validation.ValidationFindingEncountered(
+                self.VALIDATION_PRIVATE_KEY_TOO_SMALL,
+                f"Private key is {small_private_key} or the curve order minus {small_private_key}",
             )
