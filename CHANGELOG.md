@@ -2,7 +2,7 @@
 
 All notable changes to this project from version 0.9.3 onwards are documented in this file.
 
-## 0.13.4 - 2026-11-09
+## 0.13.4 - 2026-11-11
 
 ### New features/enhancements
 
@@ -10,6 +10,7 @@ All notable changes to this project from version 0.9.3 onwards are documented in
 - Add support for TS 119 312 small key sunset (#201)
 - Add support for PSD2 augmenting QNCP-w-gen profiles and additional TS 119 495 role and NCA validations (#205)
 - Add OCSP Responder extension criticality validator (#210 - implemented by @ChyaHungTsai)
+- Add check for ECDSA keys with small private keys (#211 - implemented by @Kaus1ubh)
 
 ### Fixes
 
