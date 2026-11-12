@@ -24,6 +24,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: psf/black@stable
 
   build_wheel:
@@ -34,6 +35,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Build wheel
         run: pipx run build
@@ -50,6 +52,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: actions/download-artifact@v8
         with:
           name: artifact
@@ -73,6 +76,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: actions/download-artifact@v8
         with:
           name: artifact
