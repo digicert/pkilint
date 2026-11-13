@@ -394,7 +394,7 @@ class SubscriberExtensionAllowanceValidator(
     _CODE_CLASSIFIER = "cabf.serverauth.subscriber"
 
     _EXTENSION_ALLOWANCES = {
-        rfc5280.id_pe_authorityInfoAccess: Rfc2119Word.MUST,
+        rfc5280.id_pe_authorityInfoAccess: Rfc2119Word.SHOULD,
         rfc5280.id_ce_authorityKeyIdentifier: Rfc2119Word.MUST,
         rfc5280.id_ce_certificatePolicies: Rfc2119Word.MUST,
         rfc5280.id_ce_extKeyUsage: Rfc2119Word.MUST,

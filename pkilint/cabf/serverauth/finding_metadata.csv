@@ -170,7 +170,6 @@ ERROR,cabf.serverauth.root_subject_issuer_name_encoding_not_equal,"Validates tha
 ERROR,cabf.serverauth.root_validity_period_too_long,Validates that the validity period conforms with BR 7.1.2.1.1.
 ERROR,cabf.serverauth.root_validity_period_too_short,Validates that the validity period conforms with BR 7.1.2.1.1.
 ERROR,cabf.serverauth.subscriber.anyeku_eku_present,Validates that the content of the extended key usage extension conforms with BR 7.1.2.7.10.: A prohibited element is present
-ERROR,cabf.serverauth.subscriber.authority_info_access_extension_absent,Validates that the included extensions conform with BR 7.1.2.7.6.: A required element is absent
 ERROR,cabf.serverauth.subscriber.authority_key_identifier_extension_absent,Validates that the included extensions conform with BR 7.1.2.7.6.: A required element is absent
 ERROR,cabf.serverauth.subscriber.certificate_policies_extension_absent,Validates that the included extensions conform with BR 7.1.2.7.6.: A required element is absent
 ERROR,cabf.serverauth.subscriber.codesigning_eku_present,Validates that the content of the extended key usage extension conforms with BR 7.1.2.7.10.: A prohibited element is present
@@ -311,6 +310,7 @@ WARNING,cabf.serverauth.root.authority_key_identifier_extension_absent,Validates
 WARNING,cabf.serverauth.root.certificate_policies_extension_present,Validates that the included extensions conform to BR 7.1.2.1.2.: A discouraged element is present
 WARNING,cabf.serverauth.root.unknown_extension_present,Validates that the included extensions conform to BR 7.1.2.1.2.: A discouraged element is present
 WARNING,cabf.serverauth.root_basic_constraints_pathlenconstraint_present,Validates that the content of the basic constraints extension conforms to BR 7.1.2.1.4.
+WARNING,cabf.serverauth.subscriber.authority_info_access_extension_absent,Validates that the included extensions conform with BR 7.1.2.7.6.: A recommended element is absent
 WARNING,cabf.serverauth.subscriber.ca_issuers_aia_access_method_absent,Validates that AIA access methods conform to BR 7.1.2.10.3.: A recommended element is absent
 WARNING,cabf.serverauth.subscriber.key_usage_extension_absent,Validates that the included extensions conform with BR 7.1.2.7.6.: A recommended element is absent
 WARNING,cabf.serverauth.subscriber.subject_key_identifier_extension_present,Validates that the included extensions conform with BR 7.1.2.7.6.: A discouraged element is present
