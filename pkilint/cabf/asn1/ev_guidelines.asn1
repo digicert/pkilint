@@ -11,7 +11,7 @@ id-CABFOrganizationIdentifier OBJECT IDENTIFIER ::= { joint-iso-itu-t(2) inter-n
 CABFOrganizationIdentifier ::= SEQUENCE {
     registrationSchemeIdentifier PrintableString (SIZE(3)),
     registrationCountry PrintableString (SIZE(2)),
-    registrationStateOrProvince [0] IMPLICIT PrintableString (SIZE(0..128)) OPTIONAL,
+    registrationStateOrProvince [0] IMPLICIT PrintableString (SIZE(1..128)) OPTIONAL,
     registrationReference UTF8String
 }
 

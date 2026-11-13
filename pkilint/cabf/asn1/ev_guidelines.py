@@ -37,7 +37,7 @@ CABFOrganizationIdentifier.componentType = namedtype.NamedTypes(
     namedtype.OptionalNamedType(
         "registrationStateOrProvince",
         char.PrintableString()
-        .subtype(subtypeSpec=constraint.ValueSizeConstraint(0, 128))
+        .subtype(subtypeSpec=constraint.ValueSizeConstraint(1, 128))
         .subtype(implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0)),
     ),
     namedtype.NamedType("registrationReference", char.UTF8String()),
