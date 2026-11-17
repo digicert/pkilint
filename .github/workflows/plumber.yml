@@ -19,8 +19,6 @@ jobs:
       # Plumber reads the workflow runs and one run log to prove the
       # token scope of each job.
       actions: read
-      # Lists the findings under code scanning, next to CodeQL.
-      security-events: write
 
     steps:
       - name: Checkout repository
@@ -31,9 +29,9 @@ jobs:
       - name: Run Plumber
         uses: getplumber/plumber@ec8cb3a7edd6a324b33e85109b627b2df6023d94 # v0.7.23
         with:
-          # Pull requests from forks get no security-events write, so the
-          # upload is skipped there. The report stays a workflow artifact.
-          upload-sarif: ${{ github.event.pull_request.head.repo.fork != true }}
+          # Nothing is uploaded to code scanning, so the job needs no write
+          # scope. The report is kept as a workflow artifact.
+          upload-sarif: false
           # Fail under 85 points instead of on any finding, so one small
           # finding does not block a pull request.
           min-points: 85
