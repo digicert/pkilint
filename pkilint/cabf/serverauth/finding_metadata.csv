@@ -91,7 +91,6 @@ ERROR,cabf.serverauth.cross_ca.extended_key_usage_extension_absent,Validates tha
 ERROR,cabf.serverauth.cross_ca.external_anyeku_present,Validates that the content of the extended key usage conforms to BR 7.1.2.2.4 and 7.1.2.2.5.: A prohibited element is present
 ERROR,cabf.serverauth.cross_ca.internal_with_anyeku_and_other_eku,Validates that the content of the extended key usage conforms to BR 7.1.2.2.4 and 7.1.2.2.5.: A required element is absent
 ERROR,cabf.serverauth.cross_ca.key_usage_extension_absent,Validates that the extensions conform with BR 7.1.2.2.3.: A required element is absent
-ERROR,cabf.serverauth.cross_ca.name_constraints_extension_present,Validates that the extensions conform with BR 7.1.2.2.3.: A prohibited element is present
 ERROR,cabf.serverauth.cross_ca.ocspsigning_eku_present,Validates that the content of the extended key usage conforms to BR 7.1.2.2.4 and 7.1.2.2.5.: A prohibited element is present
 ERROR,cabf.serverauth.cross_ca.serverauth_eku_absent,Validates that the content of the extended key usage conforms to BR 7.1.2.2.4 and 7.1.2.2.5.: A required element is absent
 ERROR,cabf.serverauth.cross_ca.subject_key_identifier_extension_absent,Validates that the extensions conform with BR 7.1.2.2.3.: A required element is absent
