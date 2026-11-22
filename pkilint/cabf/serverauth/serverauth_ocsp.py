@@ -84,7 +84,7 @@ class OcspExtensionAllowanceValidator(
         rfc5280.id_ce_subjectAltName: Rfc2119Word.MUST_NOT,
         rfc5280.id_ce_subjectKeyIdentifier: Rfc2119Word.SHOULD,
         rfc5280.id_pe_authorityInfoAccess: Rfc2119Word.SHOULD_NOT,
-        rfc5280.id_ce_certificatePolicies: Rfc2119Word.MUST_NOT,
+        rfc5280.id_ce_certificatePolicies: Rfc2119Word.SHOULD_NOT,
         rfc5280.id_ce_cRLDistributionPoints: Rfc2119Word.MUST_NOT,
         rfc6962.id_ce_embeddedSCT: Rfc2119Word.MAY,
     }

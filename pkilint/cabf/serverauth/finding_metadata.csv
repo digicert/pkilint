@@ -122,7 +122,6 @@ ERROR,cabf.serverauth.non_tls_ca.precertsigning_eku_present,: A prohibited eleme
 ERROR,cabf.serverauth.non_tls_ca.serverauth_eku_present,: A prohibited element is present
 ERROR,cabf.serverauth.ocsp_responder.authority_key_identifier_extension_absent,Validates that the included extensions conform with BR 7.1.2.8.2.: A required element is absent
 ERROR,cabf.serverauth.ocsp_responder.basic_constraints_ca_bit_set,Validates that the basic constraints extension value conforms to BR 7.1.2.8.4.
-ERROR,cabf.serverauth.ocsp_responder.certificate_policies_extension_present,Validates that the included extensions conform with BR 7.1.2.8.2.: A prohibited element is present
 ERROR,cabf.serverauth.ocsp_responder.critical_authority_info_access_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.8.2.
 ERROR,cabf.serverauth.ocsp_responder.critical_authority_key_identifier_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.8.2.
 ERROR,cabf.serverauth.ocsp_responder.critical_certificate_policies_extension,Validates that the criticality of all extensions conforms with BR 7.1.2.8.2.
@@ -299,6 +298,7 @@ WARNING,cabf.serverauth.iv.unknown_attribute_present,Validates that the content 
 WARNING,cabf.serverauth.name_constraints_dirname_in_excluded_subtrees,Validates that each subtree of a name constraints extension conforms with BR 7.1.2.10.8.
 WARNING,cabf.serverauth.name_constraints_discouraged_name_type,Validates that each subtree of a name constraints extension conforms with BR 7.1.2.10.8.
 WARNING,cabf.serverauth.ocsp_responder.authority_info_access_extension_present,Validates that the included extensions conform with BR 7.1.2.8.2.: A discouraged element is present
+WARNING,cabf.serverauth.ocsp_responder.certificate_policies_extension_present,Validates that the included extensions conform with BR 7.1.2.8.2.: A discouraged element is present
 WARNING,cabf.serverauth.ocsp_responder.ocsp_aia_access_method_present,Validates that the content of the AIA extension conforms with BR 7.1.2.8.3.: A discouraged element is present
 WARNING,cabf.serverauth.ocsp_responder.subject_key_identifier_extension_absent,Validates that the included extensions conform with BR 7.1.2.8.2.: A recommended element is absent
 WARNING,cabf.serverauth.ocsp_responder.unknown_extension_present,Validates that the included extensions conform with BR 7.1.2.8.2.: A discouraged element is present

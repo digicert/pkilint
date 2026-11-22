@@ -34,5 +34,5 @@ certificate.tbsCertificate.extensions.6.extnValue.cRLDistributionPoints.0.distri
 certificate.tbsCertificate.extensions.6.extnValue.cRLDistributionPoints.0.distributionPoint.fullName.0.uniformResourceIdentifier,GeneralNameUriSyntaxValidator,NOTICE,pkix.ldap_uri_not_validated,"ldap://directory.d-trust.net/CN=D-TRUST%20Root%20Class%203%20CA%202%20EV%202009,O=D-Trust%20GmbH,C=DE?certificaterevocationlist"
 certificate.tbsCertificate.extensions,OcspExtensionAllowanceValidator,ERROR,cabf.serverauth.ocsp_responder.crl_distribution_points_extension_present,
 certificate.tbsCertificate.extensions.1.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,NOTICE,pkix.unknown_subject_key_identifier_calculation_method,
-certificate.tbsCertificate.extensions,OcspExtensionAllowanceValidator,ERROR,cabf.serverauth.ocsp_responder.certificate_policies_extension_present,
+certificate.tbsCertificate.extensions,OcspExtensionAllowanceValidator,WARNING,cabf.serverauth.ocsp_responder.certificate_policies_extension_present,
 certificate.tbsCertificate.extensions.3.extnValue.certificatePolicies.0.policyQualifiers.0,CertificatePolicyQualifierValidator,WARNING,cabf.serverauth.certificate_policy_qualifier_present,
