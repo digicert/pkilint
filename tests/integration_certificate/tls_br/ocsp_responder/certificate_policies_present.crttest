@@ -30,4 +30,4 @@ hj/r4FrfgQ0kWsm0qu0+MyfTIqmb+MqXvpniFDMg+hGQB7FQmmc36cZ8Rfk+3dPu
 
 node_path,validator,severity,code,message
 certificate.tbsCertificate.extensions.5.extnValue.subjectKeyIdentifier,SubjectKeyIdentifierValidator,INFO,pkix.subject_key_identifier_method_1_identified,
-certificate.tbsCertificate.extensions,OcspExtensionAllowanceValidator,ERROR,cabf.serverauth.ocsp_responder.certificate_policies_extension_present,
+certificate.tbsCertificate.extensions,OcspExtensionAllowanceValidator,WARNING,cabf.serverauth.ocsp_responder.certificate_policies_extension_present,
