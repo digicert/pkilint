@@ -1,3 +1,4 @@
+import datetime
 import typing
 from urllib.parse import urlparse
 
@@ -252,6 +253,15 @@ class AllowedExtendedKeyUsageValidator(validation.Validator):
         rfc5280.id_kp_timeStamping,
     }
 
+    _LEGACY_MP_ALLOWED_EKUS_AFTER_SUNSET = {
+        rfc5280.id_kp_emailProtection,
+        rfc5280.id_kp_clientAuth,
+    }
+
+    _LEGACY_MP_OTHER_EKU_SUNSET_DATE = datetime.datetime(
+        2027, 7, 1, 0, 0, 0, tzinfo=datetime.timezone.utc
+    )
+
     def __init__(self, generation):
         self._generation = generation
 
@@ -276,6 +286,10 @@ class AllowedExtendedKeyUsageValidator(validation.Validator):
 
         if self._generation == smime_constants.Generation.STRICT:
             prohibited_kps = kp_oids.difference({rfc5280.id_kp_emailProtection})
+        elif node.document.not_before >= self._LEGACY_MP_OTHER_EKU_SUNSET_DATE:
+            prohibited_kps = kp_oids.difference(
+                self._LEGACY_MP_ALLOWED_EKUS_AFTER_SUNSET
+            )
         else:
             prohibited_kps = kp_oids.intersection(self._LEGACY_MP_PROHIBITED_EKUS)
 
