@@ -6,7 +6,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.x509.oid import ExtendedKeyUsageOID, NameOID, ObjectIdentifier
 
-from pkilint import loader
+from pkilint import document, loader
 from pkilint.cabf import smime
 from pkilint.cabf.smime import smime_constants, smime_extension
 from pkilint.pkix import certificate
@@ -106,15 +106,19 @@ def _create_certificate(not_before: datetime.datetime, ekus):
     )
 
 
-def _lint_cert_doc(cert, validation_level, generation):
+def _lint_cert_doc(
+    cert,
+    validation_level,
+    generation,
+    validity_period_start_retriever=None,
+):
     validator = certificate.create_pkix_certificate_validator_container(
         smime.create_decoding_validators(),
-        [
-            smime.create_extensions_validator_container(
-                validation_level,
-                generation,
-            )
-        ],
+        smime.create_subscriber_validators(
+            validation_level,
+            generation,
+            validity_period_start_retriever,
+        ),
     )
 
     results = validator.validate(cert.root)
@@ -131,6 +135,7 @@ def _lint(
     generation: smime_constants.Generation,
     not_before: datetime.datetime,
     ekus,
+    validity_period_start_retriever=None,
 ):
     cert = _create_certificate(not_before, ekus)
 
@@ -138,6 +143,7 @@ def _lint(
         cert,
         smime_constants.ValidationLevel.MAILBOX,
         generation,
+        validity_period_start_retriever,
     )
 
 
@@ -231,4 +237,20 @@ def test_legacy_other_eku_prohibited_at_sunset():
         smime_constants.Generation.LEGACY,
         at_sunset,
         [ExtendedKeyUsageOID.EMAIL_PROTECTION, _DOC_SIGNING_OID],
+    ) == {_PROHIBITED_EKU_PRESENT}
+
+
+def test_multipurpose_other_eku_respects_validity_period_start_override():
+    before_sunset = datetime.datetime(
+        2027, 6, 30, 23, 59, 59, tzinfo=datetime.timezone.utc
+    )
+    at_sunset = datetime.datetime(2027, 7, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
+
+    assert _lint(
+        smime_constants.Generation.MULTIPURPOSE,
+        before_sunset,
+        [ExtendedKeyUsageOID.EMAIL_PROTECTION, _DOC_SIGNING_OID],
+        validity_period_start_retriever=document.StaticValidityPeriodStartRetriever(
+            at_sunset
+        ),
     ) == {_PROHIBITED_EKU_PRESENT}
