@@ -158,7 +158,13 @@ def create_spki_validation_container():
     )
 
 
-def create_extensions_validator_container(validation_level, generation):
+def create_extensions_validator_container(
+    validation_level,
+    generation,
+    validity_period_start_retriever: Optional[
+        document.ValidityPeriodStartRetriever
+    ] = None,
+):
     return certificate.create_extensions_validator_container(
         [
             smime_extension.RequiredPolicyIdentifierValidator(
@@ -172,7 +178,9 @@ def create_extensions_validator_container(validation_level, generation):
             ),
             smime_extension.CrlDistributionPointPresenceValidator(),
             smime_extension.SubjectAlternativeNamePresenceValidator(),
-            smime_extension.AllowedExtendedKeyUsageValidator(generation),
+            smime_extension.AllowedExtendedKeyUsageValidator(
+                generation, validity_period_start_retriever
+            ),
             smime_extension.AllowedKeyUsageValidator(generation),
             smime_extension.EndEntityValidator(),
             cabf_extension.CpsUriHttpValidator(),
@@ -280,7 +288,9 @@ def create_subscriber_validators(
         certificate.create_validity_validator_container(
             create_validity_validators(generation, validity_period_start_retriever)
         ),
-        create_extensions_validator_container(validation_level, generation),
+        create_extensions_validator_container(
+            validation_level, generation, validity_period_start_retriever
+        ),
         smime_key.SmimeAllowedSignatureAlgorithmEncodingValidator(
             path="certificate.tbsCertificate.signature"
         ),

@@ -1,10 +1,11 @@
+import datetime
 import typing
 from urllib.parse import urlparse
 
 from pyasn1_alt_modules import rfc5280, rfc3279, rfc5480, rfc8398, rfc8410, rfc3739
 
 import pkilint.adobe.asn1 as adobe_asn1
-from pkilint import oid, validation
+from pkilint import document, oid, validation
 from pkilint.cabf.smime import smime_constants
 from pkilint.cabf.smime.smime_constants import Generation, ValidationLevel
 from pkilint.cabf.smime.smime_name import get_email_addresses_from_san
@@ -12,6 +13,7 @@ from pkilint.iso import lei
 from pkilint.itu import bitstring
 from pkilint.nist.asn1 import csor
 from pkilint.pkix import extension
+from pkilint.pkix.certificate import certificate_validity
 from pkilint.pkix.certificate.certificate_extension import KeyUsageBitName
 
 
@@ -252,8 +254,28 @@ class AllowedExtendedKeyUsageValidator(validation.Validator):
         rfc5280.id_kp_timeStamping,
     }
 
-    def __init__(self, generation):
+    _LEGACY_MP_ALLOWED_EKUS_AFTER_SUNSET = {
+        rfc5280.id_kp_emailProtection,
+        rfc5280.id_kp_clientAuth,
+    }
+
+    _LEGACY_MP_OTHER_EKU_SUNSET_DATE = datetime.datetime(
+        2027, 7, 1, 0, 0, 0, tzinfo=datetime.timezone.utc
+    )
+
+    def __init__(
+        self,
+        generation,
+        validity_period_start_retriever: typing.Optional[
+            document.ValidityPeriodStartRetriever
+        ] = None,
+    ):
         self._generation = generation
+        self._validity_period_start_retriever = (
+            certificate_validity.CertificateValidityPeriodStartRetriever()
+            if validity_period_start_retriever is None
+            else validity_period_start_retriever
+        )
 
         super().__init__(
             validations=[
@@ -276,6 +298,13 @@ class AllowedExtendedKeyUsageValidator(validation.Validator):
 
         if self._generation == smime_constants.Generation.STRICT:
             prohibited_kps = kp_oids.difference({rfc5280.id_kp_emailProtection})
+        elif (
+            self._validity_period_start_retriever(node.document)
+            >= self._LEGACY_MP_OTHER_EKU_SUNSET_DATE
+        ):
+            prohibited_kps = kp_oids.difference(
+                self._LEGACY_MP_ALLOWED_EKUS_AFTER_SUNSET
+            )
         else:
             prohibited_kps = kp_oids.intersection(self._LEGACY_MP_PROHIBITED_EKUS)
 
